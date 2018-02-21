@@ -1,0 +1,95 @@
+test_Pomegranate_True (test_ui_utils_tkventry.TestBaseTkValidEntrySetMember) ... ERROR
+test_55_True (test_ui_utils_tkventry.TestTkValidEntryBInt) ... ERROR
+test_65_True (test_ui_utils_tkventry.TestTkValidEntryBInt) ... ERROR
+test_ (test_ui_utils_tkventry.TestTkValidEntryMulti) ... ERROR
+test_Pomegranate_True (test_ui_utils_tkventry.TestTkValidEntrySetMember) ... ERROR
+
+======================================================================
+ERROR: test_Pomegranate_True (test_ui_utils_tkventry.TestBaseTkValidEntrySetMember)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/burtnolej/Development/pythonapps3/clean/utils/test_ui_utils_tkventry.py", line 62, in setUp
+    self.ventry = BaseTkValidEntry(self.master,'foobar',8,0,self.setmemberp)
+  File "/Users/burtnolej/Development/pythonapps3/clean/utils/ui_utils_tkventry.py", line 24, in __init__
+    self.entry= tkwidgetfactory(self.var,self,textvariable=self.sv,**kwargs)
+TypeError: tkwidgetfactory() takes exactly 4 arguments (2 given)
+
+======================================================================
+ERROR: test_55_True (test_ui_utils_tkventry.TestTkValidEntryBInt)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/burtnolej/Development/pythonapps3/clean/utils/test_ui_utils_tkventry.py", line 32, in setUp
+    self.ventry = TkValidEntry(self.master,'foobar',8,0,self.boundint)
+  File "/Users/burtnolej/Development/pythonapps3/clean/utils/ui_utils_tkventry.py", line 57, in __init__
+    BaseTkValidEntry.__init__(self,master,name,width,default,var)
+  File "/Users/burtnolej/Development/pythonapps3/clean/utils/ui_utils_tkventry.py", line 24, in __init__
+    self.entry= tkwidgetfactory(self.var,self,textvariable=self.sv,**kwargs)
+TypeError: tkwidgetfactory() takes exactly 4 arguments (2 given)
+
+======================================================================
+ERROR: test_65_True (test_ui_utils_tkventry.TestTkValidEntryBInt)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/burtnolej/Development/pythonapps3/clean/utils/test_ui_utils_tkventry.py", line 32, in setUp
+    self.ventry = TkValidEntry(self.master,'foobar',8,0,self.boundint)
+  File "/Users/burtnolej/Development/pythonapps3/clean/utils/ui_utils_tkventry.py", line 57, in __init__
+    BaseTkValidEntry.__init__(self,master,name,width,default,var)
+  File "/Users/burtnolej/Development/pythonapps3/clean/utils/ui_utils_tkventry.py", line 24, in __init__
+    self.entry= tkwidgetfactory(self.var,self,textvariable=self.sv,**kwargs)
+TypeError: tkwidgetfactory() takes exactly 4 arguments (2 given)
+
+======================================================================
+ERROR: test_ (test_ui_utils_tkventry.TestTkValidEntryMulti)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/burtnolej/Development/pythonapps3/clean/utils/test_ui_utils_tkventry.py", line 112, in setUp
+    8,0,Tkentry,self.boundint)
+NameError: global name 'Tkentry' is not defined
+
+======================================================================
+ERROR: test_Pomegranate_True (test_ui_utils_tkventry.TestTkValidEntrySetMember)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/burtnolej/Development/pythonapps3/clean/utils/test_ui_utils_tkventry.py", line 88, in setUp
+    self.ventry = TkValidEntry(self.master,'foobar',8,0,self.setmemberp)
+  File "/Users/burtnolej/Development/pythonapps3/clean/utils/ui_utils_tkventry.py", line 57, in __init__
+    BaseTkValidEntry.__init__(self,master,name,width,default,var)
+  File "/Users/burtnolej/Development/pythonapps3/clean/utils/ui_utils_tkventry.py", line 24, in __init__
+    self.entry= tkwidgetfactory(self.var,self,textvariable=self.sv,**kwargs)
+TypeError: tkwidgetfactory() takes exactly 4 arguments (2 given)
+
+----------------------------------------------------------------------
+Ran 5 tests in 0.163s
+
+FAILED (errors=5)
+info:rootdir=/Users/burtnolej/Development/pythonapps3/clean,allowdupe=False,ignoredir=['/Users/burtnolej/Development/pythonapps3/clean/scripts/testrunner'],specific_files=['/Users/burtnolej/Development/pythonapps3/clean/utils/test_ui_utils_tkventry.py'],specific_tests=[]
+
+
+== /Users/burtnolej/Development/pythonapps3/clean =================================================
+info:searching /Users/burtnolej/Development/pythonapps3/clean/utils
+using logfile: /tmp/log/log.38850
+info:executing, results
+{'#errors': 5,
+ '#failures': 0,
+ '#tests': 5,
+ 'errors': [{'name': 'TestBaseTkValidEntrySetMember',
+             'trace': ('TypeError: tkwidgetfactory() takes exactly 4 arguments (2 given)',
+                       ' line 62',
+                       'setUp')},
+            {'name': 'TestTkValidEntryBInt',
+             'trace': ('TypeError: tkwidgetfactory() takes exactly 4 arguments (2 given)',
+                       ' line 32',
+                       'setUp')},
+            {'name': 'TestTkValidEntryBInt',
+             'trace': ('TypeError: tkwidgetfactory() takes exactly 4 arguments (2 given)',
+                       ' line 32',
+                       'setUp')},
+            {'name': 'TestTkValidEntryMulti',
+             'trace': ("NameError: global name 'Tkentry' is not defined",
+                       ' line 112',
+                       'setUp')},
+            {'name': 'TestTkValidEntrySetMember',
+             'trace': ('TypeError: tkwidgetfactory() takes exactly 4 arguments (2 given)',
+                       ' line 88',
+                       'setUp')}],
+ 'failures': []}

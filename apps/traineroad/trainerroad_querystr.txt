@@ -1,0 +1,23 @@
+create view summary as
+select 	meta.trid as ID,
+		meta.month as MONTH,
+		meta.year as YEAR,
+		meta.day as DAY,
+		hr.avg as HRAVG,
+		watts.avg as WATTSAVG,
+		hr.min as HRMIN,
+		hr.max as HRMAX,
+		watts.min as WATTSMIN,
+		watts.max as WATTSMAX,
+		watts.avg - hr.avg as DELTA,
+		hr.hr_avg_bucket as HRBKT,
+		watts.watt_avg_bucket as WATTSBKT,
+		meta.end_secs - meta.start_secs as LENGTH
+from 	hr_values as hr,
+		watts_values as watts,
+		metadata as meta
+where watts.filename in (select filename from metadata)
+and hr.filename = watts.filename
+and hr.filename = meta.filename
+and watts.avg != 0
+and hr.avg != -1

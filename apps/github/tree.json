@@ -1,0 +1,11 @@
+{
+  "base_tree": "49a3b27ee8931d2954ddd4fc723a899ed2ee6279",
+  "tree": [
+    {
+      "path": "foo.txt",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "f6ea0495187600e7b2288c8ac19c5886383a4632"
+    }
+  ]
+}

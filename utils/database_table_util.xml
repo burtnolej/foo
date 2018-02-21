@@ -1,0 +1,48 @@
+<?xml version="1.0" ?>
+<root>
+	<var Name="db_enum"/>
+	<var Name="sqlite3"/>
+	<var Name="sys"/>
+	<def Name="tbl_col_add">
+		<arg Name="database"/>
+		<arg Name="tbl_name"/>
+		<arg Name="col_name"/>
+		<arg Name="col_type"/>
+		<var Name="exec_str"/>
+		<var Name="column"/>
+		<var Name="column_type"/>
+		<var Name="result"/>
+	</def>
+	<def Name="tbl_cols_get">
+		<arg Name="database"/>
+		<arg Name="tbl_name"/>
+		<var Name="sql_str"/>
+		<var Name="sql_result"/>
+	</def>
+	<def Name="tbl_rows_get">
+		<arg Name="database"/>
+		<arg Name="tbl_name"/>
+		<var Name="results"/>
+		<var Name="keys"/>
+	</def>
+	<def Name="tbl_rows_insert">
+		<arg Name="database"/>
+		<arg Name="tbl_name"/>
+		<arg Name="tbl_col_name"/>
+		<arg Name="tbl_rows"/>
+		<var Name="col_name_str"/>
+		<var Name=" tbl_rows_str"/>
+		<var Name=" tbl_rows_str"/>
+		<var Name="exec_str"/>
+		<var Name="keys"/>
+		<var Name="rows"/>
+		<var Name="result"/>
+	</def>
+	<def Name="tbl_rows_insert_from_schema">
+		<arg Name="database"/>
+		<arg Name="schema_file"/>
+		<arg Name="tbl_name"/>
+		<var Name="tbl_col_name,tbl_rows"/>
+	</def>
+	<var Name="test_db"/>
+</root>

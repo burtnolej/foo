@@ -1,0 +1,15 @@
+vba/Sheet*
+utils/*pyc
+apps/traineroad/*pyc
+misc/youtube_download/*mp3
+vba_source.xlsm.orig
+vba_source/\[Content_Types\].xml
+vba_source/_rels/
+vba_source/docProps/
+vba_source/xl/
+apps/traineroad/archive/
+apps/traineroad/tmp.log*
+tmp
+~*
+utils/.id.dat
+test.log
