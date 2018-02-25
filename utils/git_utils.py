@@ -1,12 +1,12 @@
 from github import Github, Commit, AuthenticatedUser, Repository, \
      InputGitTreeElement, Commit, GitTreeElement, GitCommit
 
-from misc_utils import os_file_to_string
 from misc_utils import uuencode,uudecode
+from misc_utils import os_file_to_string
 
 GIT_TOKEN_FILE = "C:\\Users\\burtnolej\\.gittoken"
 
-class MyGitBase(object):
+class GitBase(object):
     def __init__(self,token):
         self.token = token
         self.login()
@@ -38,20 +38,20 @@ class MyGitBase(object):
         """
         return github.get_user()
     
-class MyGitRepo(MyGitBase):
+class GitRepoHelper(GitBase):
     ''' functions to help manage repos '''
     def __init__(self,token,reponame):
-        super(MyGitRepo,self).__init__(token)
+        super(GitRepoHelper,self).__init__(token)
         self.reponame = reponame
-        user = MyGitRepo._get_user(self.github)
+        user = GitRepoHelper._get_user(self.github)
         
         self.get_repo(user)
 
     @classmethod
     def new(cls,token,username,reponame):
         cls1 = cls(token,"")
-        user = MyGitRepo._get_user(cls1.github)
-        cls1.repo = MyGitRepo._create_repo(user,reponame,
+        user = GitRepoHelper._get_user(cls1.github)
+        cls1.repo = GitRepoHelper._create_repo(user,reponame,
                                          auto_init=True)
         return cls1
     
@@ -61,16 +61,16 @@ class MyGitRepo(MyGitBase):
         cls1.delete_repo()
 
     def get_repo(self):
-        self.repo = MyGitRepo._get_repo(self.user,self.reponame)
+        self.repo = GitRepoHelper._get_repo(self.user,self.reponame)
 
     def delete_repo(self):
-        MyGitRepo._delete_repo(self.repo)    
+        GitRepoHelper._delete_repo(self.repo)    
 
-    def get_git_commits(self):
-        return self._get_git_commits(self.repo)
+    def get_commits(self):
+        return self._get_commits(self.repo)
     
-    def get_git_commit(self,sha):
-        return self._get_git_commit(self.repo,sha)
+    def get_commit(self,sha):
+        return self._get_commit(self.repo,sha)
     
     ''' ----------------------------------------------------------- '''
                     
@@ -101,7 +101,7 @@ class MyGitRepo(MyGitBase):
         return gituser.create_repo(reponame,**kwargs)
     
     @staticmethod
-    def _get_last_git_commit(repo):
+    def _get_last_commit(repo):
         """ get the last commit (aka the HEAD)
         :param repo: Repositiory
         :rtype:GitCommit
@@ -139,7 +139,7 @@ class MyGitRepo(MyGitBase):
             raise Exception("_get_file_content needs either Commit or GitTreeElement got",object.__class__)            
     
     @staticmethod
-    def _get_git_blob(repo,sha):
+    def _get_blob(repo,sha):
         """ get the Blob for a give hash reference
         :param repo: Repository, that contains the blob
         :param sha: string, hash value
@@ -148,7 +148,7 @@ class MyGitRepo(MyGitBase):
         return repo.get_git_blob(sha) 
         
     @staticmethod
-    def _get_git_commits(repo):
+    def _get_commits(repo):
         """ get a simple list of Commit objects
         :param repo: Repository, repo object that you want the commits for
         :rtype: List of Commit objects
@@ -161,7 +161,7 @@ class MyGitRepo(MyGitBase):
         for _commit in commits:
             files = []
             for _tree in _commit.tree.tree:                
-                content = MyGitRepo._get_file_content(repo,_tree)
+                content = GitRepoHelper._get_file_content(repo,_tree)
                 files.append({
                     'sha'           : _tree.sha,
                     'message'       : _commit.message ,
@@ -173,8 +173,8 @@ class MyGitRepo(MyGitBase):
         return details
         
     @staticmethod
-    def _get_git_commit(repo,sha):
-        return repo.get_git_commit(sha)
+    def _get_commit(repo,sha):
+        return repo.get_commit(sha)
     
     @staticmethod
     def _get_ref(repo,refname="heads/master"):
@@ -190,14 +190,14 @@ class MyGitRepo(MyGitBase):
         return repo.get_git_ref(ref).object.sha
     
                 
-class MyGitCommitter(MyGitRepo):
+class GitCommitHelper(GitRepoHelper):
     ''' functions to help with committing changes '''
     def __init__(self,token,reponame,files):
         super(GitCommit,self).__init__(token,reponame)
         self.files = files
     
     @staticmethod
-    def _create_git_commit(repo,message,tree,parents):
+    def _create_commit(repo,message,tree,parents):
         """ "commit" files to git (by creating a GitCommit objec
         :param message :string: commentary
         :param repo : Repository
