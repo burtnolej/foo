@@ -40,6 +40,7 @@ from os import listdir, remove
 from shutil import move, copy
 import base64
 from types import ListType
+import struct
 
 def uuencode(str):
     return(base64.b64encode(str))
@@ -47,6 +48,19 @@ def uuencode(str):
 def uudecode(str):
     return(base64.b64decode(str))
 
+
+def write_binary_file(filename,bytestring):
+    # b'\x07\x08\x07'
+    with open(filename, 'wb') as f:
+        f.write(bytestring)
+
+def write_binary_file_struct(filename,binary)     :   
+    #binary = [1234, 5678, -9012, -3456]
+    with open(filename, 'wb') as f:
+        for b in binary:
+            f.write(struct.pack('h', b)) #or whatever format you need
+                
+    
 class Enumerate(object):
     def __init__(self, names):
         for number, name in enumerate(names.split(",")):
