@@ -109,7 +109,7 @@ Dim wb As Workbook
 Dim ws As Worksheet
 Dim rTarget As Range
 
-    Set wb = Workbooks("vba_source.xlsm")
+    Set wb = Workbooks("vba_source_new.xlsm")
     Set dProc = GetProcsInModules(wb)
     Set dProc = GetProcAnalysis(wb, dProc)
 
@@ -120,20 +120,20 @@ Dim rTarget As Range
     CreateFilter Application.ActiveWorkbook, "Procs", rTarget.Offset(-1).Rows(1), UBound(aResult) + 1
 End Sub
 Public Sub BackupModules()
-Dim sDirectory As String
-Dim sTmpDirectory As String
-Dim aFiles() As String
+Dim sDirectory As String, sTmpDirectory As String, sFuncName As String, sSuffix As String
+Dim aFiles() As String, aCheckinFiles() As String
 Dim file_ As Variant
-Dim sFuncName As String
-Dim iNewCount As Integer, iUpdateCount As Integer
-Dim iType As Integer
+Dim iNewCount As Integer, iUpdateCount As Integer, iType As Integer
+Dim ws As Worksheet
 
-Dim sSuffix As String
     GetLogFile
     sFuncName = CsModuleName & "." & "RunExportModules"
     sDirectory = "C:\Users\burtnolej\Documents\GitHub\quadviewer\vba\"
     sTmpDirectory = "C:\Users\burtnolej\tmp_export_modules\"
     
+    Set ws = CreateSheet(ActiveWorkbook, "Checkins")
+        
+    ReDim aCheckinFiles(0 To 1000, 0 To 1)
     'sSuffix = "_" & GetDateString(Now())
     sSuffix = ""
     
@@ -145,11 +145,15 @@ Dim sSuffix As String
         If FileExists(sDirectory & CStr(file_)) = False Then
             FileMove CStr(file_), sTmpDirectory, sDirectory
             FuncLogIt sFuncName, "Module [" & CStr(file_) & "] is new so moving", C_MODULE_NAME, LogMsgType.OK
+            aCheckinFiles(iNewCount + iUpdateCount, 0) = sDirectory & CStr(file_)
+            aCheckinFiles(iNewCount + iUpdateCount, 1) = "NEW"
             iNewCount = iNewCount + 1
         ElseIf FilesAreSame(sTmpDirectory & CStr(file_), sDirectory & CStr(file_)) = False Then
             DeleteFile CStr(sDirectory & file_)
             FileMove CStr(file_), sTmpDirectory, sDirectory
             FuncLogIt sFuncName, "Module [" & CStr(file_) & "] has changed so moving", C_MODULE_NAME, LogMsgType.OK
+            aCheckinFiles(iNewCount + iUpdateCount, 0) = sDirectory & CStr(file_)
+             aCheckinFiles(iNewCount + iUpdateCount, 1) = "UPDATE"
             iUpdateCount = iUpdateCount + 1
         Else
             FuncLogIt sFuncName, "Module [" & CStr(file_) & "] has NOT changed so ignoring", C_MODULE_NAME, LogMsgType.OK
@@ -157,13 +161,33 @@ Dim sSuffix As String
     Next file_
     
     RemoveDir "C:\Users\burtnolej\tmp_export_modules"
+    aCheckinFiles = ReDim2DArray(aCheckinFiles, iNewCount + iUpdateCount - 1, 2)
     Call CloseLogFile
+    
+    RangeFromStrArray aCheckinFiles, ws, 0, 0
     
     iType = vbDefaultButton2
     PopUpWindow "New:" & vbTab & CStr(iNewCount) & vbCrLf & "Updated:" & vbTab & CStr(iUpdateCount), "BackupModules", iType
     
 End Sub
+Public Sub DoGitCreateRepo(sReponame As String, sUsername As String)
+    GitCreateRepo sReponame, sUsername:=sUsername
+End Sub
 
+Public Sub DoGitCommit(ws As Worksheet)
+Dim rCell As Range
+    If rSource.Columns.Count <> 1 Then
+        iType = vbDefaultButton2
+        PopUpWindow "Selection needs to be 1 column", "Error", iType
+    End If
+    
+    For Each rCell In rSource.Cells
+        If FileExists(rCell.Value) = False Then
+            iType = vbDefaultButton2
+            PopUpWindow "File [" & rCell.Value & "] cannot be found", "Error", iType
+        End If
+    Next rCell
+End Sub
 Public Sub DoInsertDBRows(ws As Worksheet, rSource As Range, sDatabaseName As String, _
                     sTableName As String, Optional bDecodeFlag As Boolean = False)
 Dim rArea As Range

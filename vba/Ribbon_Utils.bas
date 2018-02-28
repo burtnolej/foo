@@ -109,7 +109,7 @@ setup:
     sFuncName = "OnAction"
     GetLogFile
 
-    On Error GoTo err
+    'On Error GoTo err
     If control.ID = "LoadDefinitions" Then
         DoLoadDefinitions
         DumpDefinitions
@@ -140,7 +140,12 @@ setup:
         DoViewLogs
     ElseIf control.ID = "RefreshRibbon" Then
         RefreshRibbon
-    
+    ElseIf control.ID = "Commit" Then
+        DoGitCommit ActiveSheet
+    ElseIf control.ID = "CreateRepo" Then
+        Set dControlValues = GetControlValues(vControls)
+        DoGitCreateRepo dControlValues.Item("RepoName"), dControlValues.Item("UserName")
+        
     ' Group: Config
     ElseIf control.ID = "DecodeFlag" Then
         OnChange control, str(bCheckbox)
@@ -157,7 +162,7 @@ setup:
     Else
         GoTo fail
     End If
-    On Error GoTo 0
+    'On Error GoTo 0
     
     FuncLogIt sFuncName, "Control element ID in [" & control.ID & "]", C_MODULE_NAME, LogMsgType.OK
     GoTo exitsub

@@ -64,3 +64,9 @@ Dim oShell As Object
     PopUpWindow = oShell.Popup(strText, iWait, strTitle, iType)
 
 End Function
+
+Public Sub PopUpInput()
+
+   Debug.Print InputBox("Give me some input", "Hi", 1)
+
+End Sub
