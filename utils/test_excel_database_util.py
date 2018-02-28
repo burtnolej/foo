@@ -140,6 +140,7 @@ class Test_DatabaseCreateTable(unittest.TestCase):
             self.assertTrue(tbl_exists(database,self.table_name))
             
         os_file_delete(self.filename)
+
         
 class Test_DatabaseInsertRowsSetRuntimePath(unittest.TestCase):
     def setUp(self):
@@ -393,7 +394,12 @@ class Test_DatabaseFileParser(unittest.TestCase):
     
         put_2darray_in_file(self.filename,rows,suffix="rows:")
     
-        clsobj = DatabaseBase._parse_input_file(self.filename)
+        clsobj = DatabaseBase._parse_input_file(self.filename,mandatory_fields=['database_name',
+                                                                                'table_name',
+                                                                                'delete_flag',
+                                                                                'decode_flag',
+                                                                                'columns',
+                                                                                'column_defns'])
         
         self.assertEqual(clsobj.database_name,self.database_name)
         self.assertEqual(clsobj.table_name,self.table_name)
@@ -418,8 +424,13 @@ class Test_DatabaseFileParser(unittest.TestCase):
     
         put_2darray_in_file(self.filename,rows,suffix="rows:")
     
-        clsobj = DatabaseBase._parse_input_file(self.filename,
-                                                runtime_path="C:\Users\burtnolej")
+        clsobj = DatabaseBase._parse_input_file(self.filename,mandatory_fields=['database_name',
+                                                                                'table_name',
+                                                                                'delete_flag',
+                                                                                'decode_flag',
+                                                                                'columns',
+                                                                                'column_defns'],
+                                                              runtime_path="C:\Users\burtnolej")
         self.assertEqual(clsobj.runtime_path,"C:\Users\burtnolej")
     
         self.assertEqual(clsobj.database_name,self.database_name)

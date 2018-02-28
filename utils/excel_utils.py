@@ -15,24 +15,35 @@ log.config =OrderedDict([('now',12),('type',10),('class',30),('funcname',30),
                          ('module',20),('msg',-1),('today',8)])
 
 class ExcelBase(object):
-    def __init__(self,reponame,**kwargs):
+    '''
+    the ExcelBase class is dynamic and the class attributes are set by 
+    values found in the input file that is being passed from excel.
+    this class knows how to parse the file and validate the fields '''
+    def __init__(self,**kwargs):
 
         global log
         
+        # this 
         if sys.platform == "win32":
-            logdir = "./"
+            self.logdir = "./"
         else:
-            logdir = "/tmp/log"
+            self.logdir = "/tmp/log"
             
+        # force the logfile to be written into the runtime directory
         if kwargs.has_key('runtime_path'):
-            logdir = kwargs['runtime_path']
-            log.logdir = logdir
-            log.startlog()
+            self.logdir = kwargs['runtime_path']
             
-        self.reponame = reponame
+        log.logdir = self.logdir
+        log.startlog()
+        setattr(self,"runtime_path",self.logdir)
+        
 
     @classmethod
     def reset(cls):
+        """ because the class attribute persist throughout a python session,
+        when testing we need to be able to delete dynamic attributes and start again.
+        this is probably not the right way to do it....
+        """
         attrs = [_attr for _attr,_ in inspect.getmembers(cls, lambda a:not(inspect.isroutine(a)))]
         for _attr in attrs:
             if _attr.startswith("__") == False:
@@ -44,12 +55,20 @@ class ExcelBase(object):
     
     @classmethod   
     def _validate_filename(self,filename):
+        """ check if filename exists
+        :param filename:string
+        :rtype : -1 on failure or None
+        """
         if os_file_exists(filename) == False:
             return([-1])
 
     @classmethod   
     def _validate_field(self,fieldname,decode=True):
-        ''' database_name or table_name '''
+        """ check the a raw value for the field has been set
+        :param filename:string
+        :param decode: boolean, does the field need to be decoded from b64
+        :rtype : -1 on failure or None
+        """
         if hasattr(self,fieldname) == False:
             log.log(PRIORITY.FAILURE,msg=fieldname+" name must be passed")   
             return([-1]) 
@@ -61,7 +80,10 @@ class ExcelBase(object):
 
     @classmethod   
     def _validate_flag(self,flagname):
-        ''' flagtype either decode_flag or delete_flag '''
+        """ check the a raw flag exists and update attr to be boolean value
+        :param flagname:string
+        :rtype : -1 on failure or None
+        """
         if hasattr(self,flagname) == False:
             setattr(self,flagname,True)
         elif uudecode(getattr(self,flagname)) == "True":
@@ -70,12 +92,14 @@ class ExcelBase(object):
             setattr(self,flagname,False)
             
     @classmethod            
-    def _parse_input_file(cls,filepath,mandatory_fields=['token',
-                                                         'reponame',
-                                                         'commit_message',
-                                                         'commit_files'],
+    def _parse_input_file(cls,filepath,mandatory_fields,
                                        runtime_path="."):
-
+        """ take a key,value pair param text file and create class attributes of the name
+        key with the value, value
+        :param filepath:string, full path of the param text file
+        :param mandatory_fields: list, all the fields that must be present in this file
+        rtype : -1 on failure or None
+        """
         if os_file_exists(filepath) == False:
             log.log(PRIORITY.FAILURE,msg="filename ["+filepath+"] not found]")   
             return([-1])
@@ -88,9 +112,10 @@ class ExcelBase(object):
         file_str = file_str.replace("+++"," ")
         lines = file_str.split("\n")
 
-        #need to add a field to the args file that states whether 
-        #or not we are passing uuencoded fields or not
-        #as cant checkit because not parsed for delims at this point
+        # todo:
+        # need to add a field to the args file that states whether 
+        # or not we are passing uuencoded fields or not
+        # as cant checkit because not parsed for delims at this point
 
         try:
             # first load all attributes passed

@@ -188,7 +188,55 @@ class Test_GitGetCommits(Test_GitCommitBase):
         'path': u'README.md', 
         'message': u'Initial commit'}]]
         '''
-                
+class Test_GitBasePublic(unittest.TestCase):
+    
+    def setUp(self):
+        self.token = GitBase._get_token()
+    
+    def test_(self):
+        gitbase = GitBase(self.token)
+        
+        self.assertIsInstance(gitbase.github, Github)
+
+class Test_GitRepoHelperPublic(Test_GitBase):
+    
+    def setUp(self):
+        super(Test_GitRepoHelperPublic,self).setUp()
+        self.reponame = "testpygithub"
+        
+    def test_(self):
+        gitrepo = GitRepoHelper(self.token,self.reponame)
+        self.assertIsInstance(gitrepo.repo, Repository.Repository)
+        
+class Test_GitRepoHelperPublic_GetCommits(Test_GitCommitBase):
+    
+    def setUp(self):
+        super(Test_GitRepoHelperPublic_GetCommits,self).setUp()
+        self.reponame = "testpygithub"
+            
+    def test_(self):
+        
+        gitrepo = GitRepoHelper.history(self.token,self.reponame)
+        self.assertEquals(gitrepo.commit_history[0][0]['content'],'this is a test')
+        self.assertEquals(gitrepo.commit_history[0][2]['content'],'this is a test2')
+        self.assertEquals(gitrepo.commit_history[1][0]['content'],'# testpygithub')
+
+class Test_GitCommitHelperPublic_Commit(Test_GitBase):
+    
+    def setUp(self):
+        super(Test_GitCommitHelperPublic_Commit,self).setUp()
+        self.reponame = "testpygithub"
+        self.filenames = ["C:\\Users\\burtnolej\\git_test.txt",
+                          "C:\\Users\\burtnolej\\git_test2.txt",
+                          "C:\\Users\\burtnolej\\git_test3.txt"]
+        self.message = "test commit"
+        
+    def test_(self):
+        gitcommit = GitCommitHelper.commit(self.token,
+                                          self.reponame,
+                                          self.filenames,
+                                          self.message)
+        
 if __name__ == "__main__":
     
     suite = unittest.TestSuite()
@@ -205,6 +253,10 @@ if __name__ == "__main__":
     suite.addTest(unittest.TestLoader().loadTestsFromTestCase(Test_GitMultiFileCommit))
     suite.addTest(unittest.TestLoader().loadTestsFromTestCase(Test_GitGetCommitDetails))
     suite.addTest(unittest.TestLoader().loadTestsFromTestCase(Test_GitGetCommits))
+    suite.addTest(unittest.TestLoader().loadTestsFromTestCase(Test_GitBasePublic))
+    suite.addTest(unittest.TestLoader().loadTestsFromTestCase(Test_GitRepoHelperPublic))
+    suite.addTest(unittest.TestLoader().loadTestsFromTestCase(Test_GitRepoHelperPublic_GetCommits))        
+    suite.addTest(unittest.TestLoader().loadTestsFromTestCase(Test_GitCommitHelperPublic_Commit))
     
     unittest.TextTestRunner(verbosity=2).run(suite)
     

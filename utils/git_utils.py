@@ -10,6 +10,7 @@ class GitBase(object):
     def __init__(self,token):
         self.token = token
         self.login()
+        self.user = self._get_user(self.github)
             
     def login(self):
         self.github = self._login(self.token)
@@ -39,13 +40,14 @@ class GitBase(object):
         return github.get_user()
     
 class GitRepoHelper(GitBase):
-    ''' functions to help manage repos '''
+    
+    ''' PUBLIC --------------------------------------------------------- '''
+
     def __init__(self,token,reponame):
         super(GitRepoHelper,self).__init__(token)
         self.reponame = reponame
-        user = GitRepoHelper._get_user(self.github)
-        
-        self.get_repo(user)
+        if reponame != "":
+            self.repo = self._get_repo(self.user,self.reponame)
 
     @classmethod
     def new(cls,token,username,reponame):
@@ -56,23 +58,24 @@ class GitRepoHelper(GitBase):
         return cls1
     
     @classmethod
+    def history(cls,token,reponame):
+        cls1 = cls(token,reponame)
+        cls1.get_commit_history()
+        return cls1
+    
+    @classmethod
     def delete(cls,token,reponame):
         cls1 = cls(token,reponame)
-        cls1.delete_repo()
-
-    def get_repo(self):
-        self.repo = GitRepoHelper._get_repo(self.user,self.reponame)
-
-    def delete_repo(self):
-        GitRepoHelper._delete_repo(self.repo)    
-
-    def get_commits(self):
-        return self._get_commits(self.repo)
-    
-    def get_commit(self,sha):
-        return self._get_commit(self.repo,sha)
-    
-    ''' ----------------------------------------------------------- '''
+        cls1._delete_repo(cls1.repo)
+        return cls1
+        
+    ''' PUBLIC --------------------------------------------------------- '''
+        
+    def get_commit_history(self):
+        commits = self._get_commits(self.repo)
+        self.commit_history = self._get_commit_details(self.repo,commits)
+        
+    ''' PRIVATE ------------------------------------------------------ '''
                     
     @staticmethod
     def _get_repo(user,reponame):
@@ -190,12 +193,20 @@ class GitRepoHelper(GitBase):
         return repo.get_git_ref(ref).object.sha
     
                 
-class GitCommitHelper(GitRepoHelper):
-    ''' functions to help with committing changes '''
-    def __init__(self,token,reponame,files):
-        super(GitCommit,self).__init__(token,reponame)
-        self.files = files
-    
+class GitCommitHelper(GitRepoHelper):    
+    @classmethod
+    def commit(cls,token,reponame,filenames,message = ""):
+        cls1 = cls(token,reponame)
+        tree =  cls1._create_input_tree_multi(filenames,cls1.repo)
+        parents = [cls1._get_last_commit(cls1.repo)]
+        cls1.last_commit = cls1._create_commit(cls1.repo,
+                                         message,
+                                         tree,
+                                         parents)
+        headref = cls1._get_ref(cls1.repo)
+        headref.edit(cls1.last_commit.sha)
+        return cls1
+        
     @staticmethod
     def _create_commit(repo,message,tree,parents):
         """ "commit" files to git (by creating a GitCommit objec
@@ -235,3 +246,4 @@ class GitCommitHelper(GitRepoHelper):
                 
 if __name__ == "__main__":
     pass
+            
