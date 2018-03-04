@@ -58,9 +58,9 @@ class GitRepoHelper(GitBase):
         return cls1
     
     @classmethod
-    def history(cls,token,reponame):
+    def history(cls,token,reponame,**kwargs):
         cls1 = cls(token,reponame)
-        cls1.get_commit_history()
+        cls1.get_commit_history(**kwargs)
         return cls1
     
     @classmethod
@@ -71,9 +71,9 @@ class GitRepoHelper(GitBase):
         
     ''' PUBLIC --------------------------------------------------------- '''
         
-    def get_commit_history(self):
+    def get_commit_history(self,**kwargs):
         commits = self._get_commits(self.repo)
-        self.commit_history = self._get_commit_details(self.repo,commits)
+        self.commit_history = self._get_commit_details(self.repo,commits,**kwargs)
         
     ''' PRIVATE ------------------------------------------------------ '''
                     
@@ -151,27 +151,51 @@ class GitRepoHelper(GitBase):
         return repo.get_git_blob(sha) 
         
     @staticmethod
-    def _get_commits(repo):
+    def _get_commits(repo,page_limit=1):
         """ get a simple list of Commit objects
         :param repo: Repository, repo object that you want the commits for
         :rtype: List of Commit objects
         """
-        return [repo.get_git_commit(_commit.sha) for _commit in repo.get_commits().get_page(0)]        
+        results = []
+        i=0
+        _commits = repo.get_commits().get_page(i)
+        while _commits != [] and i < page_limit:
+            _results = [repo.get_git_commit(_commit.sha) for _commit in _commits]
+            results += _results
+            i+=1
+            _commits = repo.get_commits().get_page(i)
+            #print "retreived ",str(len(_results)),"commits for page",str(i)
+        return results
+            
+        #return [repo.get_git_commit(_commit.sha) for _commit in repo.get_commits().get_page(0)]        
     
     @staticmethod
-    def _get_commit_details(repo,commits):
+    def _get_commit_details(repo,commits,limit=3,getcontent=True):
         details = []
-        for _commit in commits:
+        if len(commits) < limit:
+            limit = len(commits)
+            
+        #for _commit in commits:
+        for i in range(limit):
             files = []
+            _commit = commits[i]
             for _tree in _commit.tree.tree:                
-                content = GitRepoHelper._get_file_content(repo,_tree)
-                files.append({
-                    'sha'           : _tree.sha,
-                    'message'       : _commit.message ,
-                    'path'          : _tree.path,
-                    'content'       : uudecode(content),
-                    'last_modified' : _commit.last_modified ,
-                    'author'        : _commit.author })
+                try:
+                    content = GitRepoHelper._get_file_content(repo,_tree)
+                    detail = {'sha'           : _tree.sha,
+                              'message'       : _commit.message ,
+                              'path'          : _tree.path,
+                              'last_modified' : _commit.last_modified ,
+                              'author'        : _commit.author}   
+                
+                    if getcontent==True:
+                        detail['content'] = uudecode(content)
+                    files.append(detail)
+                    
+                except:
+                    #print "could not retrieve",repo,_tree
+                    pass
+            #print "retreived details for",_commit.last_modified,str(i),"/",str(limit)
             details.append(files)
         return details
         

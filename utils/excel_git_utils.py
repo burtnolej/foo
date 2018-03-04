@@ -1,5 +1,5 @@
 from misc_utils import  os_file_to_string, os_file_exists, append_text_to_file, \
-     uudecode
+     uudecode, uuencode
 from misc_utils_log import Log, logger, PRIORITY
 from git_utils import GitCommitHelper, GitRepoHelper
 from collections import OrderedDict
@@ -61,7 +61,7 @@ class GitExcelHelper(GitExcelBase):
     def action_type(cls,filepath,action,**kwargs):
         if action == "history":
             cls1 = cls(filepath,mandatory_fields=['token','reponame'],**kwargs)
-            cls1.commit_history = cls1._history()
+            cls1.commit_history = cls1._history(**kwargs)
         elif action == "commit":
             cls1 = cls(filepath,mandatory_fields=['token','reponame','commit_message','commit_files'],**kwargs)
             cls1.gitcommit = cls1._commit()
@@ -75,8 +75,8 @@ class GitExcelHelper(GitExcelBase):
             raise Exception("action needs to be history|create_repo|commit")
         return cls1
     
-    def _history(self):
-        return GitRepoHelper.history(self.token,self.reponame).commit_history
+    def _history(self,**kwargs):
+        return GitRepoHelper.history(self.token,self.reponame,**kwargs).commit_history
 
     def _delete(self):
         return GitRepoHelper.delete(self.token,self.reponame)
@@ -110,7 +110,15 @@ if __name__ == "__main__":
         elif command_type == "delete":
             GitExcelHelper.action_type(input_filename,"delete_repo")
         elif command_type == "history":
-            GitExcelHelper.history(input_filename,**kwargs)
-            
+            geh = GitExcelHelper.action_type(input_filename,"history")
+            output = []
+            for _commit in geh.commit_history:
+                for _file in _commit:
+                    output.append("^".join([uuencode(_file['message']),
+                                            uuencode(_file['path']),
+                                            uuencode(_file['sha']),
+                                            uuencode(_file['last_modified'])]))           
+            print "$$".join(output)
+                
     except Exception,e:
         log.log(PRIORITY.FAILURE,msg="an error occurred ["+e.__class__.__name__+"] [" + e.message+"]")

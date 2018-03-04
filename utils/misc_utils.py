@@ -120,7 +120,13 @@ def write_text_to_file(filename,text):
     fh = open(filename,'w+')
     fh.write(text)
     fh.close
-    
+
+def write_array_to_file(filename,rows):
+    fh = open(filename,'w+')
+    for _row in rows:   
+        fh.write(_row)
+    fh.close    
+
 def append_text_to_file(filename,text):
     fh = open(filename,'a+')
     fh.write(text)

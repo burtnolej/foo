@@ -99,6 +99,27 @@ class Test_GitHistory(unittest.TestCase):
         del self.github
         os_file_delete(self.filename)
 
+class Test_GitHistory_Large(unittest.TestCase):
+    def setUp(self):
+
+        self.token = GitBase._get_token()
+        self.reponame = "hungrycrayon"
+        self.filename = "pyshell.txt"
+        
+        self.runtime_path = "C:\\Users\\burtnolej"
+        append_text_to_file(self.filename,"token:"+self.token + "\n")
+        append_text_to_file(self.filename,"reponame:"+uuencode(self.reponame) + "\n")
+        
+    def test_(self):    
+        repohelper = GitExcelHelper.action_type(self.filename,
+                                                "history",
+                                                getcontent=False,
+                                                limit=10)
+        print repohelper.commit_history
+        
+    def tearDown(self):
+        os_file_delete(self.filename)
+
 class Test_GitCreateRepo_ChangeRunTimePath(unittest.TestCase):
     def setUp(self):
         self.filename = "pyshell.txt"
@@ -125,9 +146,13 @@ class Test_GitCreateRepo_ChangeRunTimePath(unittest.TestCase):
         
 if __name__ == "__main__":
     suite = unittest.TestSuite()   
-    #suite.addTest(unittest.TestLoader().loadTestsFromTestCase(Test_GitCommit))
-    #suite.addTest(unittest.TestLoader().loadTestsFromTestCase(Test_GitCreateRepo))
-    #uite.addTest(unittest.TestLoader().loadTestsFromTestCase(Test_GitHistory))
+    suite.addTest(unittest.TestLoader().loadTestsFromTestCase(Test_GitCommit))
+    suite.addTest(unittest.TestLoader().loadTestsFromTestCase(Test_GitCreateRepo))
+    suite.addTest(unittest.TestLoader().loadTestsFromTestCase(Test_GitHistory))
     suite.addTest(unittest.TestLoader().loadTestsFromTestCase(Test_GitCreateRepo_ChangeRunTimePath))
+    #suite.addTest(unittest.TestLoader().loadTestsFromTestCase(Test_GitHistory_Large))
+
+
+    
 
     unittest.TextTestRunner(verbosity=2).run(suite)

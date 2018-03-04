@@ -8,6 +8,7 @@ from collections import OrderedDict
 import inspect
 from datetime import datetime
 from excel_utils import ExcelBase
+from getopt import getopt, GetoptError, gnu_getopt
 
 import sys
 from os import chdir
@@ -126,11 +127,15 @@ class DatabaseQueryTable(DatabaseBase):
                                                      'delete_flag'],
                                        **kwargs)    
         cls1 = cls(cls.database_name,cls.delete_flag,**kwargs)       
-        return(cls1._query_table(cls.qry_str))
+        return(cls1._query_table(cls.qry_str,**kwargs))
 
-    def _query_table(self,query_str):
+    def _query_table(self,query_str,**kwargs):
         with self.database:
             _,tbl_rows,_ = tbl_query(self.database,query_str)
+            
+        if kwargs.has_key('result_file') == True:
+            self._create_output_file(kwargs['result_file'],tbl_rows)
+            
         return(tbl_rows)
 
 class DatabaseMisc(DatabaseBase):
@@ -243,40 +248,79 @@ class DatabaseInsertRows(DatabaseBase):
         with self.database:
             _,result = tbl_rows_insert(self.database,tbl_name,tbl_col_name,tbl_rows)
             return result
-if __name__ == "__main__":
+        
+def usage():
+    print 
+    print "usage:"
+    print "excel_database_util.py --accesstype      =create|insert|table_exists|table_list|table_info"
+    print "                       --input_filename  =fullpath of config file"
+    print "optional               --output_filename =fullpath of output file"
+    print "optional               --runtime_path    =fullpath of runtime dir"
+
+def parse_args(argv):
+    
+    mandatory_flags = ['--access_type','--input_filename']
+    access_types = ['query','create','insert','table_exists','table_list','table_info','database_exists']
     
     try:
-        if len(sys.argv) < 3:
-            log.log(PRIORITY.FAILURE,msg="requires access_type and file as args")
-            exit()
-         
-        access_type = sys.argv[1]
-        input_filename = sys.argv[2]
-        kwargs = {}
+        opts, args = getopt(argv[1:], "aiorf", ["access_type=", "input_filename=","output_filename=","runtime_path=","result_file="])
+        for flag in mandatory_flags:
+            if flag not in dict(opts).keys():
+                raise GetoptError(flag,"needs to be present")
+            
+        man_config = {} # mandatory flaags, hold the resulting, parsed flags
+        opt_config = {} # optional flags
         
-        if len(sys.argv) == 4:
-            kwargs = {'runtime_path':sys.argv[3]}
+        for flag, value in opts:
+            if flag in ("-a", "--access_type"):
+                if value not in access_types:
+                    raise GetoptError(flag + " value not in " + str(access_types))
+            elif flag in ("-i", "--input_filename") or flag in ("-r", "--runtime_path"):
+                if os_file_exists(value) == False:
+                    raise GetoptError(flag + "cannot find file" + value)
+            elif flag in ("-f", "--result_file"):
+                pass
+            else:
+                assert GetoptError(flag + " unhandled option")
+                
+            if flag in mandatory_flags:
+                man_config[flag.replace("--","")] = value
+            else:
+                opt_config[flag.replace("--","")] = value
+                    
+    except GetoptError as err:
+        print err
+        usage()
+        sys.exit(2)
         
-        log.log(PRIORITY.INFO,msg="executing  ["+str(sys.argv)+"]")
+    return man_config,opt_config
+    
+if __name__ == "__main__":
+    
+    config,opt_config = parse_args(sys.argv)
+    
+    log.log(PRIORITY.INFO,msg="executing with mandatory ["+str(config)+"] and [" +str(opt_config)+ "]")
+    
+    try:
         
-        if access_type == "query":
-            _query =  DatabaseQueryTable.query_encoded_by_file(input_filename,**kwargs)
+        if config['access_type'] == "query":
+            _query =  DatabaseQueryTable.query_encoded_by_file(config['input_filename'],**opt_config)
             print "$$".join(["^".join(_row) for _row in _query])
-        elif access_type== "create":
-            print DatabaseCreateTable.create_encoded_by_file(input_filename,**kwargs)
-        elif access_type == "insert":
-            print DatabaseInsertRows.insert_encoded_by_file(input_filename,**kwargs)
-        elif access_type == "table_exists":
-            print DatabaseMisc.table_exists_by_file(input_filename)
-        elif access_type == "table_list":
-            print DatabaseMisc.get_table_list_by_file(input_filename)
-        elif access_type == "table_info":
-            _table_info = DatabaseMisc.get_table_info_by_file(input_filename)
+        elif config['access_type']== "create":
+            print DatabaseCreateTable.create_encoded_by_file(config['input_filename'],**opt_config)
+        elif config['access_type'] == "insert":
+            print DatabaseInsertRows.insert_encoded_by_file(config['input_filename'],**opt_config)
+        elif config['access_type'] == "table_exists":
+            print DatabaseMisc.table_exists_by_file(config['input_filename'])
+        elif config['access_type'] == "table_list":
+            print DatabaseMisc.get_table_list_by_file(config['input_filename'])
+        elif config['access_type'] == "table_info":
+            _table_info = DatabaseMisc.get_table_info_by_file(config['input_filename'])
             print "$$".join([attr+"^"+val for attr,val in _table_info])
-        elif access_type == "database_exists":
-            print DatabaseMisc.table_exists_by_file(input_filename)
+        elif config['access_type'] == "database_exists":
+            print DatabaseMisc.table_exists_by_file(config['input_filename'])
         else:
-            log.log(PRIORITY.FAILURE,msg="flag ["+ access_type +"] not recognized")
+            log.log(PRIORITY.FAILURE,msg="flag ["+ config['access_type'] +"] not recognized")
             
     except Exception,e:
         log.log(PRIORITY.FAILURE,msg="an error occurred ["+e.__class__.__name__+"] [" + e.message+"]")

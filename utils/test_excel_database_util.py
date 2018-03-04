@@ -51,6 +51,7 @@ class Test_DatabaseQueryTable(unittest.TestCase):
         self.assertEquals(result,self.row)
         os_file_delete(self.filename)
         
+
 class Test_DatabaseQueryTableSetRuntimePath(unittest.TestCase):
     def setUp(self):
         self.database_name = 'foobar'
@@ -438,6 +439,35 @@ class Test_DatabaseFileParser(unittest.TestCase):
     def tearDown(self):
         os_file_delete(self.filename)
 
+class Test_DatabaseQueryTableFileResult(unittest.TestCase):
+    def setUp(self):
+        self.database_name = 'foobar'
+        self.table_name = 'foobar'
+        columns = ['col1','col2','col3']
+        column_defn = [('col1','text'),('col2','text'),('col3','integer')] 
+        self.row =[['x','y',6]]
+        self.qrow = _quotestrs(self.row)
+        self.filename = "pyshell.txt"
+        self.result_filename = "C:\\Users\\burtnolej\\pyshell_result.txt"
+        
+        database = Database('foobar')
+        
+        with database:
+            tbl_create(database,self.database_name,column_defn)
+            tbl_rows_insert(database,self.table_name,columns,self.qrow)
+        
+    def test_query_encoded_by_file(self):
+        append_text_to_file(self.filename,"database_name:"+uuencode(self.database_name) + "\n")
+        append_text_to_file(self.filename,"qry_str:"+uuencode("select col1,col2,col3 from " + self.table_name) + "\n") 
+        append_text_to_file(self.filename,"delete_flag:"+uuencode("True") + "\n") 
+        result = DatabaseQueryTable.query_encoded_by_file(self.filename,
+                                                          result_file=self.result_filename)
+        
+        self.assertEqual("x^y^6",os_file_to_string(self.result_filename).split("\n")[0])
+    
+    def tearDown(self):
+        os_file_delete(self.result_filename)
+        
 
 if __name__ == "__main__":
     suite = unittest.TestSuite()   
@@ -448,5 +478,6 @@ if __name__ == "__main__":
     suite.addTest(unittest.TestLoader().loadTestsFromTestCase(Test_DatabaseMisc))
     suite.addTest(unittest.TestLoader().loadTestsFromTestCase(Test_DatabaseInsertRowsSetRuntimePath))
     suite.addTest(unittest.TestLoader().loadTestsFromTestCase(Test_DatabaseQueryTableSetRuntimePath))
+    suite.addTest(unittest.TestLoader().loadTestsFromTestCase(Test_DatabaseQueryTableFileResult))
 
     unittest.TextTestRunner(verbosity=2).run(suite)

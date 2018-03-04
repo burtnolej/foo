@@ -1,5 +1,5 @@
 from misc_utils import  os_file_to_string, os_file_exists, append_text_to_file, \
-     uudecode
+     uudecode, write_array_to_file, write_text_to_file
 from misc_utils_log import Log, logger, PRIORITY
 from collections import OrderedDict
 import sys
@@ -91,9 +91,13 @@ class ExcelBase(object):
         else:
             setattr(self,flagname,False)
             
+    def _create_output_file(self,filepath,input_rows):
+        outstr = "$$".join(["^".join(map(str,_row)) for _row in input_rows])
+        write_text_to_file(filepath,outstr)
+        
     @classmethod            
     def _parse_input_file(cls,filepath,mandatory_fields,
-                                       runtime_path="."):
+                                       runtime_path=".",**kwargs):
         """ take a key,value pair param text file and create class attributes of the name
         key with the value, value
         :param filepath:string, full path of the param text file
