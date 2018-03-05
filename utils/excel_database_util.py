@@ -38,44 +38,38 @@ class DatabaseBase(ExcelBase):
                                      delete_flag)
             
     @classmethod   
-    def _validate_decode_flag(self):
-        self._validate_flag("decode_flag")
+    def _validate_decode_flag(self,encoding="unicode"):
+        self._validate_flag("decode_flag",encoding)
         
     @classmethod   
-    def _validate_delete_flag(self):
-        self._validate_flag("delete_flag")
+    def _validate_delete_flag(self,encoding="unicode"):
+        self._validate_flag("delete_flag",encoding)
+                    
+    @classmethod   
+    def _validate_database_name(self,encoding="unicode"):
+        self._validate_field("database_name",encoding)
         
     @classmethod   
-    def _validate_field(self,fieldname):
-        ''' database_name or table_name '''
-        if hasattr(self,fieldname) == False:
-            log.log(PRIORITY.FAILURE,msg=fieldname+" name must be passed")   
-            return([-1]) 
-        else:
-            setattr(self,fieldname,uudecode(getattr(self,fieldname)))  
-            
-    @classmethod   
-    def _validate_database_name(self):
-        self._validate_field("database_name")
+    def _validate_table_name(self,encoding="unicode"):
+        self._validate_field("table_name",encoding)
         
     @classmethod   
-    def _validate_table_name(self):
-        self._validate_field("table_name")
-        
-    @classmethod   
-    def _validate_qry_str(self):
-        self._validate_field("qry_str")
+    def _validate_qry_str(self,encoding="unicode"):
+        self._validate_field("qry_str",encoding)
         
     @classmethod
-    def _validate_columns(self):
+    def _validate_columns(self,encoding="unicode"):
         if hasattr(self,"columns") == False:
             log.log(PRIORITY.FAILURE,msg="columns must be passed")   
             return([-1])
         else:
-            self.columns = [uudecode(_field) for _field in self.columns.split("$$")]
-
+            if encoding == "base64":
+                self.columns = [uudecode(_field) for _field in self.columns.split("$$")]
+            else:
+                self.columns = [_field for _field in self.columns.split("$$")]
+                
     @classmethod
-    def _validate_column_defns(self):
+    def _validate_column_defns(self,encoding="unicode"):
         if hasattr(self,"column_defns") == False:
             log.log(PRIORITY.FAILURE,msg="column_defns must be passed")   
             return([-1])
@@ -84,24 +78,28 @@ class DatabaseBase(ExcelBase):
             _field_pairs = [_field for _field in self.column_defns.split("$$")]
             for _field_pair in _field_pairs:
                 _name,_type = _field_pair.split("^")
-                _column_defns.append((uudecode(_name),uudecode(_type)))
+                if encoding == "base64":
+                    _column_defns.append((uudecode(_name),uudecode(_type)))
+                else:
+                    _column_defns.append((_name,_type))
             setattr(self,"column_defns",_column_defns)
                 
     @classmethod   
-    def _validate_rows(self):
+    def _validate_rows(self,encoding="unicode"):
         if hasattr(self,"rows") == False:
             log.log(PRIORITY.FAILURE,msg="rows must be passed")   
             return([-1]) 
         else:
             self.urows = []
             for row in self.rows.split("$$"):
-                
                 _row = row.split("^")
-                if self.decode_flag==False:
-                    _urow = _row
-                else:
-                    _urow = [uudecode(_field) for _field in _row]
-                self.urows.append(_urow)
+                if encoding == "base64":
+                    try:
+                        tmp = [uudecode(_field) for _field in _row]
+                    except TypeError, e:
+                        raise Exception("rows are not base64 encoded")
+
+                self.urows.append(_row)
                 
         setattr(self,"rows",_quotestrs(self.urows))
     
@@ -119,17 +117,20 @@ class DatabaseQueryTable(DatabaseBase):
         return(cls1._query_table(uudecode(query_str)))
 
     @classmethod
-    def query_encoded_by_file(cls,filepath,**kwargs):
+    def query_by_file(cls,filepath,**kwargs):
         ''' query_str arg is encoded and is passed in a file'''
+        
+        encoding = cls._get_file_encoding(filepath)
         cls._parse_input_file(filepath,mandatory_fields=[
                                                      'database_name',
                                                      'qry_str',
                                                      'delete_flag'],
+                                       encoding=encoding,
                                        **kwargs)    
         cls1 = cls(cls.database_name,cls.delete_flag,**kwargs)       
-        return(cls1._query_table(cls.qry_str,**kwargs))
+        return(cls1._query_table(cls.qry_str,encoding=encoding,**kwargs))
 
-    def _query_table(self,query_str,**kwargs):
+    def _query_table(self,query_str,encoding="unicode",**kwargs):
         with self.database:
             _,tbl_rows,_ = tbl_query(self.database,query_str)
             
@@ -144,11 +145,12 @@ class DatabaseMisc(DatabaseBase):
                        'delete_flag',
                        'database_name',
                        'table_name']):
-        self._parse_input_file(filepath,mandatory_fields)    
+        encoding = self._get_file_encoding(filepath)
+        self._parse_input_file(filepath,mandatory_fields,encoding=encoding)    
         DatabaseBase.__init__(self,self.database_name,self.delete_flag) 
         
     @classmethod
-    def table_exists_by_file(cls,filepath):        
+    def table_exists_by_file(cls,filepath):
         cls1 = cls(filepath) 
         _exists = cls1._table_exists(cls.table_name)
         log.log(PRIORITY.INFO,msg="table ["+cls.table_name+"] exists = [" + str(_exists) + "] in db [" + cls.database_name +"]")   
@@ -191,7 +193,7 @@ class DatabaseMisc(DatabaseBase):
 class DatabaseCreateTable(DatabaseBase):
     @classmethod
     def create(cls,database_name,tbl_name,col_defn,delete_flag=False,
-               tbl_pk_defn=[],runtime_path="."):
+               tbl_pk_defn=[],runtime_path=".", encoding="unicode"):
 
         cls1 = cls(database_name ,delete_flag,runtime_path=runtime_path)
         cls1._create_table(tbl_name,col_defn,tbl_pk_defn)
@@ -202,19 +204,14 @@ class DatabaseCreateTable(DatabaseBase):
             tbl_create(self.database,tbl_name,col_defn,tbl_pk_defn)
             
     @classmethod
-    def create_encoded_by_file(cls,filepath,**kwargs):
-        #if kwargs.has_key('runtime_path') == True:
-        #    setattr(cls,"runtime_path",kwargs['runtime_path'])
-        #else:
-        #    setattr(cls,"runtime_path",".")
-        #if hasattr(cls,"runtime_path") == False:
-        #    setattr(cls,"runtime_path",".")
-            
+    def create_by_file(cls,filepath,**kwargs):
+        encoding = cls._get_file_encoding(filepath)
         cls._parse_input_file(filepath,mandatory_fields=[
                                                  'delete_flag',
                                                  'database_name',
                                                  'table_name',
                                                  'column_defns'],
+                                       encoding=encoding,
                                        **kwargs)    
             
         cls1 = cls(cls.database_name,cls.delete_flag,**kwargs)
@@ -227,18 +224,26 @@ class DatabaseInsertRows(DatabaseBase):
         cls1 = cls(database_name,delete_flag)
         return cls1._insert_rows(tbl_name,tbl_col_name,tbl_rows)
     
+    #def insert_encoded_by_file(cls,filepath,**kwargs):
     @classmethod
-    def insert_encoded_by_file(cls,filepath,**kwargs):
+    def insert_by_file(cls,filepath,**kwargs):
+        """ configuration is passed by a file; the first 3 chars of the
+        filename denote the encoding been used WITHIN THE FILE
+    
+        :param filepath: path of input file
+        :param kwargs: allowed values are runtime_path, result_file (if this is set then results are passed back in a file)
+        :rtype: result of the actual query
+        """
         rows = []
-
+        encoding = cls._get_file_encoding(filepath)
         cls._parse_input_file(filepath,
                               mandatory_fields=[
                                   'delete_flag',
-                                  'decode_flag',
                                   'database_name',
                                   'table_name',
                                   'columns',
                                   'rows'],
+                              encoding=encoding,
                               **kwargs)
     
         cls1 = cls(cls.database_name,cls.delete_flag,**kwargs)
@@ -304,12 +309,12 @@ if __name__ == "__main__":
     try:
         
         if config['access_type'] == "query":
-            _query =  DatabaseQueryTable.query_encoded_by_file(config['input_filename'],**opt_config)
+            _query =  DatabaseQueryTable.query_by_file(config['input_filename'],**opt_config)
             print "$$".join(["^".join(_row) for _row in _query])
         elif config['access_type']== "create":
-            print DatabaseCreateTable.create_encoded_by_file(config['input_filename'],**opt_config)
+            print DatabaseCreateTable.create_by_file(config['input_filename'],**opt_config)
         elif config['access_type'] == "insert":
-            print DatabaseInsertRows.insert_encoded_by_file(config['input_filename'],**opt_config)
+            print DatabaseInsertRows.insert_by_file(config['input_filename'],**opt_config)
         elif config['access_type'] == "table_exists":
             print DatabaseMisc.table_exists_by_file(config['input_filename'])
         elif config['access_type'] == "table_list":

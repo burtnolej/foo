@@ -1,5 +1,5 @@
 from misc_utils import  os_file_to_string, os_file_exists, append_text_to_file, \
-     uudecode, write_array_to_file, write_text_to_file
+     uudecode, write_array_to_file, write_text_to_file, uuencode
 from misc_utils_log import Log, logger, PRIORITY
 from collections import OrderedDict
 import sys
@@ -36,7 +36,17 @@ class ExcelBase(object):
         log.logdir = self.logdir
         log.startlog()
         setattr(self,"runtime_path",self.logdir)
-        
+
+    @staticmethod    
+    def _get_file_encoding(filepath):
+        if filepath.startswith("b64"):
+            return "base64"
+        elif filepath.startswith("uue"):
+            return "uuencode"
+        elif filepath.startswith("uni"):
+            return "unicode"
+        else:
+            raise Exception("cannot determine the encoding being used, filename does not start with b64/uue/uni")
 
     @classmethod
     def reset(cls):
@@ -54,7 +64,7 @@ class ExcelBase(object):
                     setattr(cls,_attr,None)
     
     @classmethod   
-    def _validate_filename(self,filename):
+    def _validate_filename(self,filename,encoding="unicode"):
         """ check if filename exists
         :param filename:string
         :rtype : -1 on failure or None
@@ -63,44 +73,87 @@ class ExcelBase(object):
             return([-1])
 
     @classmethod   
-    def _validate_field(self,fieldname,decode=True):
+    def _validate_field(self,fieldname,encoding="unicode"):
         """ check the a raw value for the field has been set
         :param filename:string
-        :param decode: boolean, does the field need to be decoded from b64
+        :param encoding: [base64|unicode|uuencode]
         :rtype : -1 on failure or None
         """
         if hasattr(self,fieldname) == False:
             log.log(PRIORITY.FAILURE,msg=fieldname+" name must be passed")   
             return([-1]) 
-        else:
-            if decode==False:
-                setattr(self,fieldname,getattr(self,fieldname))
-            else:
-                setattr(self,fieldname,uudecode(getattr(self,fieldname)))  
+    
+        if encoding=="base64":
+            setattr(self,fieldname,uudecode(getattr(self,fieldname)))
+        elif encoding=="unicode":
+            setattr(self,fieldname,getattr(self,fieldname))            
 
     @classmethod   
-    def _validate_flag(self,flagname):
+    def _validate_flag(self,flagname,encoding="unicode"):
         """ check the a raw flag exists and update attr to be boolean value
         :param flagname:string
+        :param encoding: [base64|unicode|uuencode]
         :rtype : -1 on failure or None
         """
         if hasattr(self,flagname) == False:
-            setattr(self,flagname,True)
-        elif uudecode(getattr(self,flagname)) == "True":
-            setattr(self,flagname,True)
-        else:
-            setattr(self,flagname,False)
+            log.log(PRIORITY.FAILURE,msg=flagname+" name must be passed")   
+            return([-1]) 
+        
+        if encoding=="base64":
+            if uudecode(getattr(self,flagname)) == "True":
+                setattr(self,flagname,True)  
+            elif uudecode(getattr(self,flagname)) == "False":
+                setattr(self,flagname,False) 
+            else:
+                raise Exception("base64 encoded flag needs to be either True|False")
+        elif encoding=="unicode":
+            if getattr(self,flagname) == "True":
+                setattr(self,flagname,True)  
+            elif getattr(self,flagname) == "False":
+                setattr(self,flagname,False) 
+            else:
+                raise Exception("unicode flag needs to be either True|False")
             
-    def _create_output_file(self,filepath,input_rows):
+    def _create_output_file(self,filepath,input_rows,encoding="unicode"):
         outstr = "$$".join(["^".join(map(str,_row)) for _row in input_rows])
         write_text_to_file(filepath,outstr)
-        
+    
+    @staticmethod
+    def _encode_2darray(array,encoding="b64encode"):
+        result = []
+        if encoding == "b64encode":
+            for _row in array:
+                result.append([uuencode(str(_field)) for _field in _row])
+            return result
+        else:
+            raise Exception("coding not recognised. needs to be b64encode",encoding)
+
+    @staticmethod
+    def _decode_2darray(array,encoding="b64encode"):
+        result = []
+        if encoding == "b64encode":
+            for _row in array:
+                result.append([ExcelBase._tryint(uudecode(_field)) for _field in _row])
+            return result
+        else:
+            raise Exception("coding not recognised. needs to be b64encode",encoding)
+
+    @staticmethod
+    def _tryint(value):
+        result = value
+        try:
+            result = int(value)
+        except:
+            pass
+        return result
+    
     @classmethod            
-    def _parse_input_file(cls,filepath,mandatory_fields,
+    def _parse_input_file(cls,filepath,mandatory_fields,encoding="unicode",
                                        runtime_path=".",**kwargs):
         """ take a key,value pair param text file and create class attributes of the name
         key with the value, value
         :param filepath:string, full path of the param text file
+        :param encoding: string of member unicode|base64|uuencode
         :param mandatory_fields: list, all the fields that must be present in this file
         rtype : -1 on failure or None
         """
@@ -110,16 +163,13 @@ class ExcelBase(object):
 
         file_str = os_file_to_string(filepath)
 
-        # this is just for uuencoding; because encoding can create newline characters
-        # we can get around this by converting them to + and then to space; which 
-        # is treated as the same as a newline
-        file_str = file_str.replace("+++"," ")
-        lines = file_str.split("\n")
-
-        # todo:
-        # need to add a field to the args file that states whether 
-        # or not we are passing uuencoded fields or not
-        # as cant checkit because not parsed for delims at this point
+        if encoding=="base64":
+            # this is just for uuencoding; because encoding can create newline characters
+            # we can get around this by converting them to + and then to space; which 
+            # is treated as the same as a newline
+            file_str = file_str.replace("+++"," ")
+            
+        lines = file_str.split("\n")    
 
         try:
             # first load all attributes passed
@@ -136,7 +186,7 @@ class ExcelBase(object):
 
             # call validate func for each mandatory field
             for _field in mandatory_fields:
-                getattr(cls,"_validate_"+_field)()
+                getattr(cls,"_validate_"+_field)(encoding=encoding)
 
             # check to see if an explicit runtime path is set for databases and log files
             setattr(cls,"runtime_path",runtime_path)

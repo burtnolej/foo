@@ -93,26 +93,31 @@ def isarray(value):
         return False
     return True
 
-    
-def get_2darray_from_file(filename):
+def get_2darray_from_file(filename,replace=[]):
     rows=[]
     rawrows = os_file_to_string(filename)
     for _rawrow in rawrows.split("\n"):
+        for _search,_replace in replace:
+            _rawrow = _rawrow.replace(_search,_replace)
         rows.append(_rawrow.split("^"))
     return rows
 
-def put_2darray_in_file(filename,rows,uuencodeflag=True,suffix=""):
-    ''' takes an array of arrays and puts into a file
-    rows needs to be of the form [[]]
-    default is to uuencode '''
-    def _encode(input_str,uuencodeflag=True):
-        if uuencodeflag == True:
+def put_2darray_in_file(filename,rows,encoding="unicode",suffix="",quote=False):
+    """ takes an array of arrays and puts into a file rows needs to be of the form [[]]
+    default is no encoding
+    :param filename: path of output file
+    :param rows list of list:
+    :param encoding: [unicode|base64|uuencode]
+    """
+    def _encode(input_str,encoding="unicode",):
+        if encoding == "base64":
             return uuencode(str(input_str))
-        return str(input_str)
+        elif encoding == "unicode":
+            return str(input_str)
     
     _rows=[]
     for row in rows:
-        _rows.append("^".join([_encode(_field,uuencodeflag) for _field in row]))
+        _rows.append("^".join([_encode(_field,encoding) for _field in row]))
     
     append_text_to_file(filename,suffix+"$$".join(_rows))
         
