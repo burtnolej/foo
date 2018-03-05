@@ -1,5 +1,5 @@
 from github import Github, Commit, AuthenticatedUser, Repository, \
-     InputGitTreeElement, Commit, GitTreeElement, GitCommit
+     InputGitTreeElement, Commit, GitTreeElement, GitCommit, GithubObject
 
 from misc_utils import uuencode,uudecode
 from misc_utils import os_file_to_string
@@ -121,6 +121,15 @@ class GitRepoHelper(GitBase):
         return commit.tree.tree[0].path
     
     @staticmethod
+    def _get_files(repo):
+        """ given a repo, get the latest version of all files in the head
+        :param repo: Repository
+        :rtype:list of files
+        """
+        tree = GitRepoHelper._get_last_commit(repo)._tree.value.tree
+        return [_git_tree_element.path for _git_tree_element in tree]
+
+    @staticmethod
     def _get_sha(commit):
         """ given a commit object get the sha it represents
         :param commit: Commit
@@ -221,8 +230,12 @@ class GitCommitHelper(GitRepoHelper):
     @classmethod
     def commit(cls,token,reponame,filenames,message = ""):
         cls1 = cls(token,reponame)
-        tree =  cls1._create_input_tree_multi(filenames,cls1.repo)
         parents = [cls1._get_last_commit(cls1.repo)]
+        base_tree = parents[0]._tree.value
+        
+        tree =  cls1._create_input_tree_multi(filenames,cls1.repo,
+                                              base_tree=base_tree)
+        
         cls1.last_commit = cls1._create_commit(cls1.repo,
                                          message,
                                          tree,
@@ -242,7 +255,9 @@ class GitCommitHelper(GitRepoHelper):
         return repo.create_git_commit(message,tree,parents)
         
     @staticmethod
-    def _create_input_tree(filename,repo,mode="100644"):
+    def _create_input_tree(filename,repo,
+                           base_tree=GithubObject.NotSet,
+                           mode="100644"):
         """ generate a GitTreeElement for a file (a Git commit is 1 or more GitTreeElements)
         :param filename: full path of the file
         :repo : Repository
@@ -250,10 +265,13 @@ class GitCommitHelper(GitRepoHelper):
         """
         file_str = os_file_to_string(filename)
         return repo.create_git_tree([InputGitTreeElement(filename,mode,
-                                                  "blob",file_str)])
+                                                  "blob",file_str)],
+                                    base_tree=base_tree)
     
     @staticmethod
-    def _create_input_tree_multi(filenames,repo,mode="100644"):
+    def _create_input_tree_multi(filenames,repo,
+                                 base_tree=GithubObject.NotSet,
+                                 mode="100644"):
         """ generate a GitTreeElement for a file(s) (a Git commit is 1 or more GitTreeElements)
         :param filenames: list of full path of the file
         :repo : Repository
@@ -265,7 +283,8 @@ class GitCommitHelper(GitRepoHelper):
             file_str = os_file_to_string(filename)
             tree_input.append(InputGitTreeElement(filename,mode,
                                                    "blob",file_str))
-        return repo.create_git_tree(tree_input)
+        return repo.create_git_tree(tree_input,
+                                    base_tree=base_tree)
                 
                 
 if __name__ == "__main__":
