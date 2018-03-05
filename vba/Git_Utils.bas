@@ -1,13 +1,13 @@
 Attribute VB_Name = "Git_Utils"
 Public Const sExecPath = "C:\Users\burtnolej\Documents\GitHub\quadviewer\utils\"
-Public Const sRuntimePath = "C:\Users\burtnolej\Documents\runtime\"
+Public Const sRuntimeDir = "C:\Users\burtnolej\Documents\runtime\"
 Public Const sFileName = "C:\Users\burtnolej\Development\pyshell.args.txt"
 
 Const sTokenPath = "C:\Users\burtnolej\.gittoken"
 Public Function GetGitToken() As String
     GetGitToken = ReadFile(sTokenPath)
 End Function
-Public Sub CreateGitArgsFile(sReponame As String, _
+Public Sub CreateGitArgsFile(sRepoName As String, _
         Optional aFiles As Variant, _
         Optional sMessage As String, _
         Optional sUsername As String, _
@@ -25,40 +25,86 @@ Dim sTmp As String
     Call TouchFile(sFileName)
     
     Call AppendFile(sFileName, "token:" & GetGitToken & vbCrLf)
-    Call AppendFile(sFileName, "reponame:" & EncodeBase64(sReponame) & vbCrLf)
+    Call AppendFile(sFileName, "reponame:" & EncodeBase64(sRepoName) & vbCrLf)
     
     If Not IsEmpty(aFiles) And Not IsMissing(sMessage) Then
-        Call AppendFile(sFileName, "message:" & EncodeBase64(sMessage) & vbCrLf)
+        Call AppendFile(sFileName, "commit_message:" & EncodeBase64(sMessage) & vbCrLf)
     End If
     
     If Not IsEmpty(aFiles) And Not IsMissing(aFiles) Then
-        Call AppendFile(sFileName, "files:" & ArrayNDtoString(aFiles, bUUEncode:=True) & vbCrLf)
+        sTmp = ArrayNDtoString(aFiles, bUUEncode:=True)
+        sTmp = AsciiReplace(sTmp, 10, 43, iToCount:=3)
+        Call AppendFile(sFileName, "commit_files:" & sTmp & vbCrLf)
     End If
     
     If Not IsMissing(sUsername) Then
         Call AppendFile(sFileName, "username:" & EncodeBase64(sUsername) & vbCrLf)
     End If
-End Sub
 
-Public Function GitCommitFiles(sToken As String, aFiles() As String, _
-    sReponame As String, sMessage As String)
+    Call AppendFile(sFileName, "runtime_dir:" & EncodeBase64(Git_Utils.sRuntimeDir) & vbCrLf)
+    
+    
+End Sub
+Public Function GitViewCommits(sRepoName As String) As String()
+Dim sExecPath As String
+Dim sRuntimePath As String
+Dim aResults() As String
+Dim iNumRows As Integer, iNumCols As Integer
+Dim aRows() As String, aCols() As String
+
+
+    ReDim aResults(0 To 100, 0 To 3)
+    CreateGitArgsFile sRepoName
+
+    aArgs = InitStringArray(Array("python", Git_Utils.sExecPath & "excel_git_utils.py", _
+            "history", sFileName, sRuntimePath))
+    Results = ShellRun(aArgs)
+    
+    iNumRows = UBound(Split(Results, DOUBLE_DOLLAR))
+    aRows = Split(Results, DOUBLE_DOLLAR)
+    For i = 0 To iNumRows
+    
+        iNumCols = UBound(Split(aRows(i), HAT))
+        aCols = Split(aRows(i), HAT)
+        For j = 0 To iNumCols
+            aResults(i, j) = CStr(StrConv(DecodeBase64(aCols(j)), vbUnicode))
+        Next j
+    Next i
+    
+    GitViewCommits = ReDim2DArray(aResults, iNumRows + 1, iNumCols + 1)
+    
+End Function
+
+Public Function GitCommitFiles(aFiles As Variant, sRepoName As String, sMessage As String)
 Dim sExecPath As String
 Dim sRuntimePath As String
 
-    CreateGitArgsFile sReponame, sMessage
+    CreateGitArgsFile sRepoName, sMessage:=sMessage, aFiles:=aFiles
 
     aArgs = InitStringArray(Array("python", Git_Utils.sExecPath & "excel_git_utils.py", _
             "commit", sFileName, sRuntimePath))
     ShellRun (aArgs)
 End Function
 
-Public Function GitCreateRepo(sReponame As String, sUsername As String)
+Public Function GitCreateRepo(sRepoName As String, sUsername As String)
 Dim sRuntimePath As String
 Dim sExecPath As String
 
-    CreateGitArgsFile sReponame, sUsername:=sUsername
+    CreateGitArgsFile sRepoName, sUsername:=sUsername
     
     aArgs = InitStringArray(Array("python", Git_Utils.sExecPath & "excel_git_utils.py", _
-            "create", Git_Utils.sFileName, Git_Utils.sRuntimePath))
+            "create", Git_Utils.sFileName, Git_Utils.sRuntimeDir))
     ShellRun (aArgs)
 End Function
+
+Public Function GitDeleteRepo(sRepoName As String, sUsername As String)
+Dim sRuntimePath As String
+Dim sExecPath As String
+
+    CreateGitArgsFile sRepoName, sUsername:=sUsername
+    
+    aArgs = InitStringArray(Array("python", Git_Utils.sExecPath & "excel_git_utils.py", _
+            "delete", Git_Utils.sFileName, Git_Utils.sRuntimeDir))
+    ShellRun (aArgs)
+End Function
+

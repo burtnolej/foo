@@ -51,25 +51,36 @@ Dim sTmp As String
     Call DeleteFile(sFileName)
     On Error GoTo 0
     Call TouchFile(sFileName)
-    
-    Call AppendFile(sFileName, "database_name:" & EncodeBase64(sDatabaseName) & vbCrLf)
-    Call AppendFile(sFileName, "table_name:" & EncodeBase64(sTableName) & vbCrLf)
-    Call AppendFile(sFileName, "delete_flag:" & EncodeBase64(CStr(bDeleteFlag)) & vbCrLf)
-    Call AppendFile(sFileName, "decode_flag:" & EncodeBase64(CStr(bDecodeFlag)) & vbCrLf)
-    Call AppendFile(sFileName, "runtime_dir:" & EncodeBase64(sRuntimeDir) & vbCrLf)
+
+    If bDecodeFlag = True Then
+        Call AppendFile(sFileName, "database_name:" & EncodeBase64(sDatabaseName) & vbCrLf)
+        Call AppendFile(sFileName, "table_name:" & EncodeBase64(sTableName) & vbCrLf)
+        Call AppendFile(sFileName, "delete_flag:" & EncodeBase64(CStr(bDeleteFlag)) & vbCrLf)
+        Call AppendFile(sFileName, "decode_flag:" & EncodeBase64(CStr(bDecodeFlag)) & vbCrLf)
+        Call AppendFile(sFileName, "runtime_dir:" & EncodeBase64(sRuntimeDir) & vbCrLf)
+    Else
+        Call AppendFile(sFileName, "database_name:" & sDatabaseName & vbCrLf)
+        Call AppendFile(sFileName, "table_name:" & sTableName & vbCrLf)
+        Call AppendFile(sFileName, "delete_flag:" & CStr(bDeleteFlag) & vbCrLf)
+        Call AppendFile(sFileName, "decode_flag:" & CStr(bDecodeFlag) & vbCrLf)
+        Call AppendFile(sFileName, "runtime_dir:" & sRuntimeDir & vbCrLf)
+    End If
     
     If Not IsMissing(aColumnDefns) Then
-        Call AppendFile(sFileName, "column_defns:" & ArrayNDtoString(aColumnDefns, bUUEncode:=True) & vbCrLf)
+        Call AppendFile(sFileName, "column_defns:" & ArrayNDtoString(aColumnDefns, bUUEncode:=bDecodeFlag) & vbCrLf)
     End If
     
     If Not IsMissing(aColumns) Then
-        Call AppendFile(sFileName, "columns:" & ArrayNDtoString(aColumns, bUUEncode:=True) & vbCrLf)
+        Call AppendFile(sFileName, "columns:" & ArrayNDtoString(aColumns, bUUEncode:=bDecodeFlag) & vbCrLf)
     End If
     
     If Not IsMissing(aRows) Then
-        sTmp = ArrayNDtoString(aRows, bUUEncode:=True)
         
-        sTmp = AsciiReplace(sTmp, 10, 43, iToCount:=3)
+        sTmp = ArrayNDtoString(aRows, bUUEncode:=bDecodeFlag)
+        
+        If bDecodeFlag = True Then
+            sTmp = AsciiReplace(sTmp, 10, 43, iToCount:=3)
+        End If
 
         Call AppendFile(sFileName, "rows:" & sTmp & vbCrLf)
     
@@ -142,36 +153,36 @@ Dim iCurrentNumRows As Integer, iNumRows As Integer
                             
     aArgs = InitStringArray(Array("python", _
             sExecPath & "excel_database_util.py", _
-            "query", _
-            sFileName, _
-            sRuntimePath))
-            
+            "--access_type query", _
+            "--input_filename " & sFileName, _
+            "--runtime_path " & sRuntimePath))
+                   
     iCurrentNumRows = UBound(Split(ShellRun(aArgs), DOUBLEDOLLAR)) + 1
     
     
     ' create the database and table
     aArgs = InitStringArray(Array("python", _
             sExecPath & "excel_database_util.py", _
-            "create", _
-            sFileName, _
-            sRuntimePath))
+            "--access_type create", _
+            "--input_filename " & sFileName, _
+            "--runtime_path " & sRuntimePath))
 
     sResults = ShellRun(aArgs)
     
     aArgs = InitStringArray(Array("python", _
             sExecPath & "excel_database_util.py", _
-            "insert", _
-            sFileName, _
-            sRuntimePath))
+            "--access_type insert", _
+            "--input_filename " & sFileName, _
+            "--runtime_path " & sRuntimePath))
 
 
     sResults = ShellRun(aArgs)
     
     aArgs = InitStringArray(Array("python", _
             sExecPath & "excel_database_util.py", _
-            "query", _
-            sFileName, _
-            sRuntimePath))
+            "--access_type query", _
+            "--input_filename " & sFileName, _
+            "--runtime_path " & sRuntimePath))
     
 
      iNumRows = UBound(Split(ShellRun(aArgs), DOUBLEDOLLAR)) + 1
@@ -182,19 +193,55 @@ Public Function DBQuery(sDatabaseName As String, _
                         sTableName As String, _
                         bDeleteFlag As Boolean, _
                         sQryStr As String, _
-                        Optional sFileName As String = "pyshellargs.txt") As String
+                        Optional bDecodeFlag As Boolean = False, _
+                        Optional bResultFile As Boolean = False, _
+                        Optional sFileName As String = "pyshellargs.txt", _
+                        Optional sResultFileName As String = "pyshellresults.txt") As String
+Dim aArgs() As String
+
+    sRuntimePath = "C:\Users\burtnolej\Documents\runtime\"
                         
     CreatePySqliteArgsFile sDatabaseName, _
                             sTableName, _
                             bDeleteFlag:=bDeleteFlag, _
+                            bDecodeFlag:=bDecodeFlag, _
                             sQryStr:=sQryStr, _
                             sFileName:=sFileName
                             
     aArgs = InitStringArray(Array("python", _
             sExecPath & "excel_database_util.py", _
-            "query", _
-            sFileName))
-
-    DBQuery = CleanString(ShellRun(aArgs))
+            "--access_type query", _
+            "--input_filename " & sFileName, _
+            "--runtime_path " & sRuntimePath))
+            
+    If bResultFile = True Then
+        ReDim Preserve aArgs(0 To UBound(aArgs) + 1)
+        aArgs(UBound(aArgs)) = "--result_file " & sRuntimePath & sResultFileName
+        CleanString ShellRun(aArgs)
+        ' return location of result file to caller
+        DBQuery = sRuntimePath & sResultFileName
+    Else
+        ' return results directly to caller
+        DBQuery = CleanString(ShellRun(aArgs))
+    End If
     
+End Function
+
+Public Function AutoParseInputRange(Optional ws As Worksheet) As Range
+Dim sAddress As String
+Dim rSource As Range
+Dim iDataLength As Integer
+
+    If IsSet(ws) = False Then
+        Set ws = ActiveWorkbook.ActiveSheet
+    End If
+    With ws
+        '.Activate
+        Set rSource = .UsedRange
+        iDataLength = rSource.Rows.Count - 2
+        sAddress = rSource.Rows(1).Address
+        sAddress = sAddress & COMMA & rSource.Rows(2).Address
+        sAddress = sAddress & COMMA & rSource.Offset(2).Resize(iDataLength).Address
+        Set AutoParseInputRange = .Range(sAddress)
+    End With
 End Function

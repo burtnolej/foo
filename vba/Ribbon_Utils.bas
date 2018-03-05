@@ -89,7 +89,7 @@ Dim rRibValues As Range
     
     If text = " False" Then
             rRibValues.Rows(iIndex + 1).Value = "False"
-    ElseIf text = "True" Then
+    ElseIf text = " True" Then
             rRibValues.Rows(iIndex + 1).Value = "True"
     ElseIf text = "False" Then
             rRibValues.Rows(iIndex + 1).Value = "True"
@@ -130,7 +130,6 @@ setup:
     ElseIf control.ID = "CellStyles" Then
         ToggleSheet ActiveWorkbook, "CellStyles"
         
-        
     ' Tab: Admin
     ElseIf control.ID = "DoBackups" Then
         BackupModules
@@ -140,14 +139,28 @@ setup:
         DoViewLogs
     ElseIf control.ID = "RefreshRibbon" Then
         RefreshRibbon
+        
+    ' Git
     ElseIf control.ID = "Commit" Then
-        DoGitCommit ActiveSheet
+        Set dControlValues = GetControlValues(vControls)
+        DoGitCommit Selection, dControlValues.Item("RepoName"), sMessage:=dControlValues.Item("CommitMessage")
     ElseIf control.ID = "CreateRepo" Then
         Set dControlValues = GetControlValues(vControls)
         DoGitCreateRepo dControlValues.Item("RepoName"), dControlValues.Item("UserName")
-        
+    ElseIf control.ID = "DeleteRepo" Then
+        Set dControlValues = GetControlValues(vControls)
+        DoGitDeleteRepo dControlValues.Item("RepoName"), dControlValues.Item("UserName")
+    ElseIf control.ID = "ViewCommits" Then
+        Set dControlValues = GetControlValues(vControls)
+        DoGitViewCommits dControlValues.Item("RepoName")
+    
+    
     ' Group: Config
     ElseIf control.ID = "DecodeFlag" Then
+        OnChange control, str(bCheckbox)
+    ElseIf control.ID = "AutoSelect" Then
+        OnChange control, str(bCheckbox)
+    ElseIf control.ID = "NewSheet" Then
         OnChange control, str(bCheckbox)
         'If checkVal = True Then
     ElseIf control.ID = "ImportQuery" Then
@@ -159,6 +172,11 @@ setup:
         DoInsertDBRows ActiveSheet, Selection, dControlValues.Item("DatabaseName"), _
                     dControlValues.Item("TableName"), dControlValues.Item("DecodeFlag")
         ', bDecodeFlag:=True
+    ElseIf control.ID = "Query" Then
+        Set dControlValues = GetControlValues(vControls)
+        DoQueryDBRows ActiveWorkbook, dControlValues.Item("TableName"), dControlValues.Item("DatabaseName"), _
+                dControlValues.Item("TableName"), dControlValues.Item("QueryString"), _
+                        bDecodeFlag:=dControlValues.Item("DecodeFlag")
     Else
         GoTo fail
     End If

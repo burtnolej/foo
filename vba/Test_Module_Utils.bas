@@ -76,7 +76,7 @@ Dim sModuleName As String
 Dim sText As String
 Dim sResult As String
 Dim sDirectory As String
-Dim sResultFilename As String
+Dim sResultFileName As String
 Dim sSuffix As String
 Dim bTestPassed As Boolean
 
@@ -90,7 +90,7 @@ setup:
     sModuleName = "foobar"
     sSuffix = "_" & GetDateString(Now())
     
-    sResultFilename = sDirectory & sModuleName & sSuffix & ".bas"
+    sResultFileName = sDirectory & sModuleName & sSuffix & ".bas"
 
     CreateModule ActiveWorkbook, sModuleName, sText
 
@@ -98,7 +98,7 @@ setup:
 main:
     Call ExportModules(Application.ActiveWorkbook, sDirectory, sSuffix, sModuleName)
     
-    If FileExists(sResultFilename) <> True Then
+    If FileExists(sResultFileName) <> True Then
         GoTo fail
     End If
 
@@ -112,7 +112,7 @@ fail:
 teardown:
     Call TestLogIt(sFuncName, bTestPassed)
     Call DeleteModule(Application.ActiveWorkbook, sModuleName)
-    Call DeleteFile(sResultFilename)
+    Call DeleteFile(sResultFileName)
 End Sub
 Sub TestGetProcsInModules()
 Dim sFuncName As String

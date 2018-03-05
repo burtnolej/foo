@@ -29,7 +29,7 @@ Dim sText As String, sRangeName As String, sFilterCountName As String
     sText = "Private Sub Worksheet_Change(ByVal Target As Range)" & vbNewLine & _
            "DoFilter ActiveWorkbook, ActiveWorkbook.ActiveSheet.Name, Target" & vbNewLine & "end Sub"
 
-    Set wsTmp = GetSheet(ActiveWorkbook, sSheetName)
+    Set wsTmp = GetSheet(wbTmp, sSheetName)
     
     sRangeName = sSheetName & "_" & "VZFilter"
     sFilterCountName = sSheetName & "_" & "VZFilterCount"

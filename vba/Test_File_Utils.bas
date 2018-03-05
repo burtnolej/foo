@@ -47,7 +47,6 @@ teardown:
     
 End Sub
 
-
 Sub Test_FilesAreSame()
 Dim sFuncName As String
 Dim sPath As String

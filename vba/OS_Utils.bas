@@ -17,7 +17,7 @@ Dim sCwd As String
     
     ChDir sCwd & "/runtime"
 
-    FuncLogIt sFuncName, "running from directory [" & sCwd & "]", C_MODULE_NAME, LogMsgType.FAILURE
+    FuncLogIt sFuncName, "running from directory [" & sCwd & "]", C_MODULE_NAME, LogMsgType.INFO
     
     sCmd = "cmd /c " & Join(X(0), " ")
     

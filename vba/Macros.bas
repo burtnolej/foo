@@ -131,9 +131,9 @@ Dim ws As Worksheet
     sDirectory = "C:\Users\burtnolej\Documents\GitHub\quadviewer\vba\"
     sTmpDirectory = "C:\Users\burtnolej\tmp_export_modules\"
     
-    Set ws = CreateSheet(ActiveWorkbook, "Checkins")
+    
         
-    ReDim aCheckinFiles(0 To 1000, 0 To 1)
+    ReDim aCheckinFiles(0 To 1000, 0 To 2)
     'sSuffix = "_" & GetDateString(Now())
     sSuffix = ""
     
@@ -141,41 +141,73 @@ Dim ws As Worksheet
     ExportModules ActiveWorkbook, sTmpDirectory, sSuffix
     aFiles = GetFolderFiles(sTmpDirectory)
     
+    
     For Each file_ In aFiles
         If FileExists(sDirectory & CStr(file_)) = False Then
-            FileMove CStr(file_), sTmpDirectory, sDirectory
-            FuncLogIt sFuncName, "Module [" & CStr(file_) & "] is new so moving", C_MODULE_NAME, LogMsgType.OK
-            aCheckinFiles(iNewCount + iUpdateCount, 0) = sDirectory & CStr(file_)
+            'FileMove CStr(file_), sTmpDirectory, sDirectory
+            'FuncLogIt sFuncName, "Module [" & CStr(file_) & "] is new so moving", C_MODULE_NAME, LogMsgType.OK
+            aCheckinFiles(iNewCount + iUpdateCount, 0) = sTmpDirectory & CStr(file_)
             aCheckinFiles(iNewCount + iUpdateCount, 1) = "NEW"
+            aCheckinFiles(iNewCount + iUpdateCount, 2) = sDirectory
             iNewCount = iNewCount + 1
         ElseIf FilesAreSame(sTmpDirectory & CStr(file_), sDirectory & CStr(file_)) = False Then
             DeleteFile CStr(sDirectory & file_)
-            FileMove CStr(file_), sTmpDirectory, sDirectory
-            FuncLogIt sFuncName, "Module [" & CStr(file_) & "] has changed so moving", C_MODULE_NAME, LogMsgType.OK
-            aCheckinFiles(iNewCount + iUpdateCount, 0) = sDirectory & CStr(file_)
-             aCheckinFiles(iNewCount + iUpdateCount, 1) = "UPDATE"
+            'FileMove CStr(file_), sTmpDirectory, sDirectory
+            'FuncLogIt sFuncName, "Module [" & CStr(file_) & "] has changed so moving", C_MODULE_NAME, LogMsgType.OK
+            aCheckinFiles(iNewCount + iUpdateCount, 0) = sTmpDirectory & CStr(file_)
+            aCheckinFiles(iNewCount + iUpdateCount, 1) = "UPDATE"
+            aCheckinFiles(iNewCount + iUpdateCount, 2) = sDirectory
             iUpdateCount = iUpdateCount + 1
         Else
             FuncLogIt sFuncName, "Module [" & CStr(file_) & "] has NOT changed so ignoring", C_MODULE_NAME, LogMsgType.OK
         End If
     Next file_
     
-    RemoveDir "C:\Users\burtnolej\tmp_export_modules"
-    aCheckinFiles = ReDim2DArray(aCheckinFiles, iNewCount + iUpdateCount - 1, 2)
-    Call CloseLogFile
+    'RemoveDir "C:\Users\burtnolej\tmp_export_modules"
+    If iNewCount + iUpdateCount <> 0 Then
+        
+        Set ws = CreateSheet(ActiveWorkbook, "Checkins")
+        
+        aCheckinFiles = ReDim2DArray(aCheckinFiles, iNewCount + iUpdateCount, 3)
+        Call CloseLogFile
     
-    RangeFromStrArray aCheckinFiles, ws, 0, 0
+        RangeFromStrArray aCheckinFiles, ws, 0, 0
     
-    iType = vbDefaultButton2
-    PopUpWindow "New:" & vbTab & CStr(iNewCount) & vbCrLf & "Updated:" & vbTab & CStr(iUpdateCount), "BackupModules", iType
-    
-End Sub
-Public Sub DoGitCreateRepo(sReponame As String, sUsername As String)
-    GitCreateRepo sReponame, sUsername:=sUsername
-End Sub
+        iType = vbDefaultButton2
+        PopUpWindow "New:" & vbTab & CStr(iNewCount) & vbCrLf & "Updated:" & vbTab & CStr(iUpdateCount), "BackupModules", iType
+    Else
+        iType = vbDefaultButton2
+        PopUpWindow "No files have changed", "BackupModules", iType
+    End If
 
-Public Sub DoGitCommit(ws As Worksheet)
+        
+End Sub
+Public Sub DoGitCreateRepo(sRepoName As String, sUsername As String)
+    GitCreateRepo sRepoName, sUsername:=sUsername
+End Sub
+Public Sub DoGitDeleteRepo(sRepoName As String, sUsername As String)
+    GitDeleteRepo sRepoName, sUsername:=sUsername
+End Sub
+Public Sub DoGitViewCommits(sRepoName As String)
+Dim aResults() As String
+Dim ws As Worksheet
+    Set ws = CreateSheet(ActiveWorkbook, "CommitHistory")
+    aResults = GitViewCommits(sRepoName)
+    RangeFromStrArray aResults, ws, 0, 0
+End Sub
+Public Sub DoGitCommit(rSource As Range, sRepoName As String, Optional sMessage As String = "no message")
+Dim iType As Integer
 Dim rCell As Range
+Dim aFiles() As String
+Dim iFileCount As Integer
+Dim sDirectory As String, sTmpDirectory As String, sFuncName As String
+
+    sFuncName = CsModuleName & "." & "DoGitCommit"
+    sDirectory = "C:\Users\burtnolej\Documents\GitHub\quadviewer\vba\"
+    sTmpDirectory = "C:\Users\burtnolej\tmp_export_modules\"
+    
+    ReDim aFiles(0 To 100)
+    
     If rSource.Columns.Count <> 1 Then
         iType = vbDefaultButton2
         PopUpWindow "Selection needs to be 1 column", "Error", iType
@@ -185,9 +217,92 @@ Dim rCell As Range
         If FileExists(rCell.Value) = False Then
             iType = vbDefaultButton2
             PopUpWindow "File [" & rCell.Value & "] cannot be found", "Error", iType
+        Else
+            aFiles(iFileCount) = rCell.Value
+            iFileCount = iFileCount + 1
         End If
     Next rCell
+    ReDim Preserve aFiles(0 To iFileCount - 1)
+
+    For i = 0 To iFileCount - 1
+        ' move the file to commit from the tmp dir into the git source tree
+        FileMove GetFileFromPath(CStr(aFiles(i))), sTmpDirectory, sDirectory
+        FuncLogIt sFuncName, "Module [" & CStr(aFiles(i)) & "] is moving to " & sDirectory, C_MODULE_NAME, LogMsgType.OK
+        
+        ' change the filepath to be the git source tree
+        aFiles(i) = sDirectory & GetFileFromPath(CStr(aFiles(i)))
+    Next i
+    
+    GitCommitFiles aFiles, sRepoName, sMessage
+        
+    RemoveDir "C:\Users\burtnolej\tmp_export_modules"
+    
+    iType = vbDefaultButton2
+    PopUpWindow "commit " & sMessage & vbCrLf & Array2String(aFiles, sDelim:=vbCrLf) & vbCrLf & "committed to GitHub and moved to " & sDirectory, "DoGitCommit", iType
+    
+    DeleteSheet ActiveWorkbook, "Checkins"
+    
 End Sub
+
+Public Function DoQueryDBRows(wb As Workbook, sSheetName As String, sDatabaseName As String, sTableName As String, _
+                    sQryStr As String, Optional bDecodeFlag As Boolean = False, _
+                    Optional bResultFile As Boolean = False) As String
+Dim sQryResults As String
+Dim rTarget As Range
+Dim iWidth As Integer, iLength As Integer
+Dim aResults As Variant
+
+    ReDim aResults(0 To 10000, 0 To 100)
+
+    sQryResults = DBQuery(sDatabaseName, _
+                    sTableName, _
+                    bDecodeFlag, _
+                    sQryStr, _
+                    bDecodeFlag:=bDecodeFlag, _
+                    bResultFile:=bResultFile)
+                    
+    Debug.Print "got results before parsing " & GetDateString(Now)
+
+    If bResultFile = True Then
+        aRows = Split(ReadFile(sQryResults), "$$")
+    Else
+        aRows = Split(CleanString(sQryResults), "$$")
+    End If
+        
+    iLength = UBound(aRows)
+    For i = 0 To iLength
+        aFields = Split(aRows(i), "^")
+        iWidth = UBound(aFields)
+        For j = 0 To iWidth
+            If bDecodeFlag = True Then
+                aResults(i, j) = StrConv(DecodeBase64(aFields(j)), vbUnicode)
+            Else
+                aResults(i, j) = aFields(j)
+            End If
+        Next j
+    Next i
+    
+    aResults = ReDim2DArray(aResults, iLength + 1, iWidth + 1)
+    Set ws = CreateSheet(wb, sSheetName)
+    
+    With ws
+        Set rTarget = .Range(.Cells(2, 1), .Cells(iLength + 2, iWidth + 1))
+        rTarget = aResults
+    End With
+    
+    CreateFilter wb, sSheetName, rTarget.Offset(-1).Rows(1), UBound(aResults) + 1
+
+    'iType = vbDefaultButton2
+    'PopUpWindow CStr(iRowsInserted) & " inserted into " & sTableName & " in " & sDatabaseName, _
+    '                    "Insert Rows", iType
+    If bResultFile = True Then
+        ' for testing purposes useful for the caller to know where the result file is
+        ' DBQuery returns the result filepath when in result file mode
+        DoQueryDBRows = sQryResults
+    End If
+End Function
+                        
+                        
 Public Sub DoInsertDBRows(ws As Worksheet, rSource As Range, sDatabaseName As String, _
                     sTableName As String, Optional bDecodeFlag As Boolean = False)
 Dim rArea As Range

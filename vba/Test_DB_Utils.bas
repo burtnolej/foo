@@ -25,6 +25,8 @@ Sub TestRunner()
     Test_PySqliteDBInsert
     
     Test_PySqliteDBInsertLarge
+    
+    Test_AutoParseInputRange
     'GetLogFile
 End Sub
 
@@ -57,19 +59,20 @@ main:
                             aRows:=aRows, _
                             sFileName:=sFileName
                             
+            
     ' create the database and table
     aArgs = InitStringArray(Array("python", _
             sExecPath & "excel_database_util.py", _
-            "create", _
-            sFileName))
+            "--access_type create", _
+            "--input_filename " & sFileName))
 
     sResults = ShellRun(aArgs)
     
     ' insert rows
     aArgs = InitStringArray(Array("python", _
             sExecPath & "excel_database_util.py", _
-            "insert", _
-            sFileName))
+            "--access_type insert", _
+            "--input_filename " & sFileName))
 
     sResults = ShellRun(aArgs)
     
@@ -83,8 +86,8 @@ main:
                             
     aArgs = InitStringArray(Array("python", _
             sExecPath & "excel_database_util.py", _
-            "query", _
-            sFileName))
+            "--access_type query", _
+            "--input_filename " & sFileName))
 
     If CleanString(ShellRun(aArgs)) <> "valA^valB^valC$$valA1^valB2^valC2$$valA3^valB3^valC3" Then
         GoTo fail
@@ -126,6 +129,8 @@ setup:
     sExecPath = "C:\Users\burtnolej\Documents\GitHub\quadviewer\utils\"
     
 main:
+
+    i have to sort out the decode flags
     
     CreatePySqliteArgsFile sDatabaseName, _
                             sTableName, _
@@ -139,16 +144,16 @@ main:
     ' create the database and table
     aArgs = InitStringArray(Array("python", _
             sExecPath & "excel_database_util.py", _
-            "create", _
-            sFileName))
+            "--access_type create", _
+            "--input_filename " & sFileName))
 
     sResults = ShellRun(aArgs)
     
     ' insert rows
     aArgs = InitStringArray(Array("python", _
             sExecPath & "excel_database_util.py", _
-            "insert", _
-            sFileName))
+            "--access_type insert", _
+            "--input_filename " & sFileName))
 
     sResults = ShellRun(aArgs)
     
@@ -162,8 +167,8 @@ main:
                             
     aArgs = InitStringArray(Array("python", _
             sExecPath & "excel_database_util.py", _
-            "query", _
-            sFileName))
+            "--access_type query", _
+            "--input_filename " & sFileName))
 
     aRows = Split(CleanString(ShellRun(aArgs)), "$$")
     aFields = Split(aRows(99), "^")
@@ -185,6 +190,7 @@ teardown:
     Call DeleteFile(sFileName)
     
 End Sub
+
 Sub Test_PySqliteDBInfo()
 Dim sFuncName As String
 Dim sDatabaseName As String
@@ -216,8 +222,8 @@ main:
                             
     aArgs = InitStringArray(Array("python", _
             sExecPath & "excel_database_util.py", _
-            "create", _
-            sFileName))
+            "--access_type create", _
+            "--input_filename " & sFileName))
 
     sResults = ShellRun(aArgs)
     
@@ -230,8 +236,8 @@ main:
                             
     aArgs = InitStringArray(Array("python", _
             sExecPath & "excel_database_util.py", _
-            "table_info", _
-            sFileName))
+            "--access_type table_info", _
+            "--input_filename " & sFileName))
 
     sResults = CleanString(ShellRun(aArgs))
 
@@ -284,8 +290,8 @@ main:
                             
     aArgs = InitStringArray(Array("python", _
             sExecPath & "excel_database_util.py", _
-            "create", _
-            sFileName))
+            "--access_type create", _
+            "--input_filename " & sFileName))
 
     sResults = ShellRun(aArgs)
     
@@ -298,8 +304,8 @@ main:
                             
     aArgs = InitStringArray(Array("python", _
             sExecPath & "excel_database_util.py", _
-            "table_exists", _
-            sFileName))
+            "--access_type table_exists", _
+            "--input_filename " & sFileName))
 
     sResults = ShellRun(aArgs)
     
@@ -391,4 +397,120 @@ fail:
 teardown:
     Call TestLogIt(sFuncName, bTestPassed)
     Call DeleteFile(sFileName)
+End Sub
+
+Sub Test_AutoParseInputRange()
+Dim sFuncName As String
+Dim wsTmp As Worksheet
+Dim sSheetName As String
+Dim bTestPassed As Boolean
+Dim rSource As Range
+Dim vSource() As String
+
+setup:
+    sFuncName = CsModuleName & "." & "AutoParseInputRange"
+    sSheetName = "test"
+    Set wsTmp = CreateSheet(ActiveWorkbook, sSheetName, bOverwrite:=True)
+    vSource = Init2DStringArray([{"Text","Text";"Col1","Col2";"A","B";"A","B";"A","B";"A","B"}])
+    Set rSource = RangeFromStrArray(vSource, wsTmp, 0, 0)
+    
+    If AutoParseInputRange.Address <> "$A$1:$B$1,$A$2:$B$2,$A$3:$B$6" Then
+        GoTo fail
+    End If
+    
+success:
+    bTestPassed = True
+    GoTo teardown
+    
+fail:
+    bTestPassed = False
+    
+teardown:
+    Call TestLogIt(sFuncName, bTestPassed)
+    Call DeleteFile(sFileName)
+    Call DeleteSheet(ActiveWorkbook, sSheetName)
+    
+End Sub
+
+
+Sub Test_PySqliteDBInsertVeryLarge()
+Dim sFuncName As String, sResults As String, sExecPath As String, sDatabaseName As String, _
+    sTableName As String, sFileName As String, sDataPath As String, sExpectedResult As String
+Dim bDeleteFlag As Boolean, bDecodeFlag As Boolean, bTestPassed As Boolean
+Dim aColumnDefns() As Variant
+Dim aRows() As String, aColumns() As String, aArgs() As String, aFields() As String
+
+setup:
+    sFuncName = CsModuleName & "." & "PySqliteDBInsertVeryLarge"
+    sDatabaseName = "foobar"
+    sTableName = "foobar"
+    bDeleteFlag = False
+    bDecodeFlag = True
+    sDataPath = "C:\Users\burtnolej\Documents\GitHub\quadviewer\utils\testdata_100rows.csv"
+
+    aColumnDefns = Init2DVariantArray([{"FirstName","Text";"LastName","Text";"Country","Text";"Description","Text";"Age","Integer"}])
+    aColumns = InitStringArray(Array("FirstName", "LastName", "Country", "Description", "Age"))
+    aRows = ReadFile2Array(sDataPath)
+    sFileName = "C:\\Users\\burtnolej\\foo.txt"
+    sExecPath = "C:\Users\burtnolej\Documents\GitHub\quadviewer\utils\"
+    
+main:
+    
+    CreatePySqliteArgsFile sDatabaseName, _
+                            sTableName, _
+                            bDeleteFlag:=bDeleteFlag, _
+                            bDecodeFlag:=bDecodeFlag, _
+                            aColumns:=aColumns, _
+                            aColumnDefns:=aColumnDefns, _
+                            aRows:=aRows, _
+                            sFileName:=sFileName
+                            
+    ' create the database and table
+    aArgs = InitStringArray(Array("python", _
+            sExecPath & "excel_database_util.py", _
+            "--access_type create", _
+            "--input_filename " & sFileName))
+
+    sResults = ShellRun(aArgs)
+    
+    ' insert rows
+    aArgs = InitStringArray(Array("python", _
+            sExecPath & "excel_database_util.py", _
+            "--access_type insert", _
+            "--input_filename " & sFileName))
+
+    sResults = ShellRun(aArgs)
+    
+    ' query results and change the delete flag status as need to cleanup after test
+    Call DeleteFile(sFileName)
+    CreatePySqliteArgsFile sDatabaseName, _
+                            sTableName, _
+                            bDeleteFlag:=True, _
+                            sQryStr:="select * from foobar", _
+                            sFileName:=sFileName
+                            
+    aArgs = InitStringArray(Array("python", _
+            sExecPath & "excel_database_util.py", _
+            "--access_type query", _
+            "--input_filename " & sFileName))
+
+    aRows = Split(CleanString(ShellRun(aArgs)), "$$")
+    aFields = Split(aRows(99), "^")
+    sExpectedResult = "quam quis diam. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Fusce aliquet magna a neque. Nullam ut nisi a odio semper cursus. Integer mollis. Integer tincidunt aliquam arcu. Aliquam ultrices iaculis odio. Nam interdum enim non nisi. Aenean eget metus. In nec orci. Donec nibh. Quisque nonummy ipsum non arcu. Vivamus sit amet risus. Donec egestas. Aliquam nec enim. Nunc ut erat. Sed nunc est, mollis non, cursus non, egestas a, dui. Cras pellentesque. Sed dictum. Proin eget odio. Aliquam vulputate ullamcorper magna. Sed eu"
+    'sExpectedResult = "tempor erat neque non quam. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Aliquam fringilla cursus purus. Nullam scelerisque neque sed sem egestas blandit. Nam nulla magna, malesuada vel, convallis in,"
+    If StrConv(DecodeBase64(aFields(3)), vbUnicode) <> sExpectedResult Then
+        GoTo fail
+    End If
+
+success:
+    bTestPassed = True
+    GoTo teardown
+    
+fail:
+    bTestPassed = False
+    
+teardown:
+    Call TestLogIt(sFuncName, bTestPassed)
+    Call DeleteFile(sFileName)
+    
 End Sub

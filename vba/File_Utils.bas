@@ -12,6 +12,11 @@ Dim oFile As Object
     
     DirExists = False
 End Function
+Public Function GetFileFromPath(sPath As String) As String
+Dim fso As New FileSystemObject
+Dim fileName As String
+    GetFileFromPath = fso.GetFileName(sPath)
+End Function
 
 Public Sub FileMove(sFileName As String, sSourcePath As String, sTargetPath As String)
 Dim objFSO As Object

@@ -58,3 +58,16 @@ Dim objNode As MSXML2.IXMLDOMElement
     Set objNode = Nothing
     Set objXML = Nothing
 End Function
+
+
+Public Function IsSet(oTmp As Object) As Boolean
+    If IsEmpty(oTmp) Or IsMissing(oTmp) Or oTmp Is Nothing Then
+        IsSet = False
+        Exit Function
+    End If
+    
+    IsSet = True
+End Function
+
+    
+        
