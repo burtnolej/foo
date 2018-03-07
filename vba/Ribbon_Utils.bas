@@ -143,7 +143,8 @@ setup:
     ' Git
     ElseIf control.ID = "Commit" Then
         Set dControlValues = GetControlValues(vControls)
-        DoGitCommit Selection, dControlValues.Item("RepoName"), sMessage:=dControlValues.Item("CommitMessage")
+        DoGitCommit Selection, dControlValues.Item("RepoName"), dControlValues.Item("GitRootPath"), _
+        sMessage:=dControlValues.Item("CommitMessage")
     ElseIf control.ID = "CreateRepo" Then
         Set dControlValues = GetControlValues(vControls)
         DoGitCreateRepo dControlValues.Item("RepoName"), dControlValues.Item("UserName")

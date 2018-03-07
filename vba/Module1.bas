@@ -24,13 +24,13 @@ Sub test2()
 
 Dim a() As Variant
 Dim b() As Variant
-Dim c As Variant
+Dim C As Variant
 
 
     a = Init2DVariantArray([{1, 2, 3;4,5,6}])
     b = Init2DVariantArray([{7,8,9;10,11,12}])
     
-    c = AddArrays(3, a, b)
+    C = AddArrays(3, a, b)
     
 End Sub
 
@@ -38,13 +38,13 @@ Sub test3()
 
 Dim a() As String
 Dim b() As String
-Dim c As Variant
+Dim C As Variant
 
 
     a = Init2DStringArray([{1, 2, 3;4,5,6}])
     b = Init2DStringArray([{7,8,9;10,11,12}])
     
-    c = AddArrays(3, a, b)
+    C = AddArrays(3, a, b)
     
 End Sub
 

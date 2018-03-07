@@ -94,13 +94,13 @@ Dim vValue As Variant
                 End If
                 
                 If bUUEncode = True Then
-                    sRowStr = EncodeBase64(CStr(vValue))
+                    sRowStr = UUEncode(CStr(vValue))
                 Else
                     sRowStr = CStr(vValue)
                 End If
             Else
                 If bUUEncode = True Then
-                    sRowStr = sRowStr & sFieldDelim & EncodeBase64(CStr(aRows(i, j)))
+                    sRowStr = sRowStr & sFieldDelim & UUEncode(CStr(aRows(i, j)))
                 Else
                     sRowStr = sRowStr & sFieldDelim & CStr(aRows(i, j))
                 End If

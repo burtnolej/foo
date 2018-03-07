@@ -1,17 +1,18 @@
 Attribute VB_Name = "Git_Utils"
 Public Const sExecPath = "C:\Users\burtnolej\Documents\GitHub\quadviewer\utils\"
 Public Const sRuntimeDir = "C:\Users\burtnolej\Documents\runtime\"
-Public Const sFileName = "C:\Users\burtnolej\Development\pyshell.args.txt"
+Public Const sFileName = "C:\Users\burtnolej\Development\uupyshell.args.txt"
 
 Const sTokenPath = "C:\Users\burtnolej\.gittoken"
 Public Function GetGitToken() As String
     GetGitToken = ReadFile(sTokenPath)
 End Function
 Public Sub CreateGitArgsFile(sRepoName As String, _
+        sGitRootPath As String, _
         Optional aFiles As Variant, _
         Optional sMessage As String, _
         Optional sUsername As String, _
-        Optional sFileName As String = "C:\Users\burtnolej\Development\pyshell.args.txt", _
+        Optional sFileName As String = "C:\Users\burtnolej\Development\uupyshell.args.txt", _
         Optional sRuntimeDir As String = "C:\Users\burtnolej\Documents\runtime")
 
 Dim PYTHONPATH As String
@@ -24,24 +25,25 @@ Dim sTmp As String
     On Error GoTo 0
     Call TouchFile(sFileName)
     
-    Call AppendFile(sFileName, "token:" & GetGitToken & vbCrLf)
-    Call AppendFile(sFileName, "reponame:" & EncodeBase64(sRepoName) & vbCrLf)
-    
+    Call AppendFile(sFileName, "token:" & UUEncode(GetGitToken) & vbCrLf)
+    Call AppendFile(sFileName, "reponame:" & UUEncode(sRepoName) & vbCrLf)
+    Call AppendFile(sFileName, "gitrootpath:" & UUEncode(sGitRootPath) & vbCrLf)
+     
     If Not IsEmpty(aFiles) And Not IsMissing(sMessage) Then
-        Call AppendFile(sFileName, "commit_message:" & EncodeBase64(sMessage) & vbCrLf)
+        Call AppendFile(sFileName, "commit_message:" & UUEncode(sMessage) & vbCrLf)
     End If
     
     If Not IsEmpty(aFiles) And Not IsMissing(aFiles) Then
         sTmp = ArrayNDtoString(aFiles, bUUEncode:=True)
-        sTmp = AsciiReplace(sTmp, 10, 43, iToCount:=3)
+        'sTmp = AsciiReplace(sTmp, 10, 43, iToCount:=3)
         Call AppendFile(sFileName, "commit_files:" & sTmp & vbCrLf)
     End If
     
     If Not IsMissing(sUsername) Then
-        Call AppendFile(sFileName, "username:" & EncodeBase64(sUsername) & vbCrLf)
+        Call AppendFile(sFileName, "username:" & UUEncode(sUsername) & vbCrLf)
     End If
 
-    Call AppendFile(sFileName, "runtime_dir:" & EncodeBase64(Git_Utils.sRuntimeDir) & vbCrLf)
+    Call AppendFile(sFileName, "runtime_dir:" & UUEncode(Git_Utils.sRuntimeDir) & vbCrLf)
     
     
 End Sub
@@ -75,22 +77,22 @@ Dim aRows() As String, aCols() As String
     
 End Function
 
-Public Function GitCommitFiles(aFiles As Variant, sRepoName As String, sMessage As String)
+Public Function GitCommitFiles(aFiles As Variant, sRepoName As String, sGitRootPath As String, sMessage As String)
 Dim sExecPath As String
 Dim sRuntimePath As String
 
-    CreateGitArgsFile sRepoName, sMessage:=sMessage, aFiles:=aFiles
+    CreateGitArgsFile sRepoName, sGitRootPath, sMessage:=sMessage, aFiles:=aFiles
 
     aArgs = InitStringArray(Array("python", Git_Utils.sExecPath & "excel_git_utils.py", _
             "commit", sFileName, sRuntimePath))
     ShellRun (aArgs)
 End Function
 
-Public Function GitCreateRepo(sRepoName As String, sUsername As String)
+Public Function GitCreateRepo(sRepoName As String, sUsername As String, sGitRootPath As String)
 Dim sRuntimePath As String
 Dim sExecPath As String
 
-    CreateGitArgsFile sRepoName, sUsername:=sUsername
+    CreateGitArgsFile sRepoName, sGitRootPath, sUsername:=sUsername
     
     aArgs = InitStringArray(Array("python", Git_Utils.sExecPath & "excel_git_utils.py", _
             "create", Git_Utils.sFileName, Git_Utils.sRuntimeDir))

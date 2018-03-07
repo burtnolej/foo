@@ -58,8 +58,6 @@ Dim objNode As MSXML2.IXMLDOMElement
     Set objNode = Nothing
     Set objXML = Nothing
 End Function
-
-
 Public Function IsSet(oTmp As Object) As Boolean
     If IsEmpty(oTmp) Or IsMissing(oTmp) Or oTmp Is Nothing Then
         IsSet = False
@@ -68,6 +66,31 @@ Public Function IsSet(oTmp As Object) As Boolean
     
     IsSet = True
 End Function
+Public Function UUEncode(sValue As String) As String
+    UUEncode = Application.WorksheetFunction.EncodeURL(sValue)
+End Function
 
-    
-        
+Public Function UUDecode(sValue As String) As String
+
+Dim TempAns As String
+Dim CurChr As Integer
+
+CurChr = 1
+
+    Do Until CurChr - 1 = Len(sValue)
+        Select Case Mid(sValue, CurChr, 1)
+            Case "+"
+                TempAns = TempAns & " "
+            Case "%"
+                TempAns = TempAns & Chr(Val("&h" & Mid(sValue, CurChr + 1, 2)))
+                CurChr = CurChr + 2
+            Case Else
+                TempAns = TempAns & Mid(sValue, CurChr, 1)
+        End Select
+
+        CurChr = CurChr + 1
+    Loop
+
+UUDecode = TempAns
+End Function
+
