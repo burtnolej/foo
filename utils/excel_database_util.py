@@ -2,7 +2,7 @@ from database_util import Database, tbl_create, tbl_exists, tbl_list
 from database_table_util import tbl_query, _quotestrs, tbl_rows_insert, _quotestrs, \
      tbl_cols_get
 from misc_utils import  os_file_to_string, write_text_to_file, os_file_exists, \
-     append_text_to_file, uuencode, uudecode
+     append_text_to_file, uuencode, uudecode, b64decode, b64decode
 from misc_utils_log import Log, logger, PRIORITY
 from collections import OrderedDict
 import inspect
@@ -64,7 +64,7 @@ class DatabaseBase(ExcelBase):
             return([-1])
         else:
             if encoding == "base64":
-                self.columns = [uudecode(_field) for _field in self.columns.split("$$")]
+                self.columns = [b64decode(_field) for _field in self.columns.split("$$")]
             else:
                 self.columns = [_field for _field in self.columns.split("$$")]
                 
@@ -79,7 +79,7 @@ class DatabaseBase(ExcelBase):
             for _field_pair in _field_pairs:
                 _name,_type = _field_pair.split("^")
                 if encoding == "base64":
-                    _column_defns.append((uudecode(_name),uudecode(_type)))
+                    _column_defns.append((b64decode(_name),b64decode(_type)))
                 else:
                     _column_defns.append((_name,_type))
             setattr(self,"column_defns",_column_defns)
@@ -95,7 +95,7 @@ class DatabaseBase(ExcelBase):
                 _row = row.split("^")
                 if encoding == "base64":
                     try:
-                        tmp = [uudecode(_field) for _field in _row]
+                        tmp = [b64decode(_field) for _field in _row]
                     except TypeError, e:
                         raise Exception("rows are not base64 encoded")
 
@@ -114,7 +114,7 @@ class DatabaseQueryTable(DatabaseBase):
     def query_encoded(cls,database_name,query_str,delete_flag=False):
         ''' query_str arg is encoded and needs to be decoded '''
         cls1 = cls(database_name,delete_flag)
-        return(cls1._query_table(uudecode(query_str)))
+        return(cls1._query_table(b64decode(query_str)))
 
     @classmethod
     def query_by_file(cls,filepath,**kwargs):

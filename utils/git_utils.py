@@ -1,8 +1,8 @@
 from github import Github, Commit, AuthenticatedUser, Repository, \
      InputGitTreeElement, Commit, GitTreeElement, GitCommit, GithubObject
-
-from misc_utils import uuencode,uudecode
+from misc_utils import encode,decode, b64decode
 from misc_utils import os_file_to_string
+from types import StringType, ListType
 
 GIT_TOKEN_FILE = "C:\\Users\\burtnolej\\.gittoken"
 
@@ -94,6 +94,15 @@ class GitRepoHelper(GitBase):
         return repo.delete()
     
     @staticmethod
+    def _get_commit_git_tree(repo,commit):
+        """ for a given commit, recursively get all the files within the corresponding tree
+        :param repo: Repository
+        :param commit: GitCommit
+        :rtype:list of GitTreeElements
+        """
+        return repo.get_git_tree(commit.sha,True).tree
+        
+    @staticmethod
     def _create_repo(gituser,reponame,**kwargs):
         """ create a repo on github.com
         :param gituser: AuthenticatedUser, of the current sesssion 
@@ -120,6 +129,27 @@ class GitRepoHelper(GitBase):
         """
         return commit.tree.tree[0].path
     
+    @staticmethod
+    def _get_git_rel_filepath(reponame,filepaths,gitrootpath):
+        """ git filenames are relative to the root i.e vba\tmp.bas whereas input files
+        are absolute i.e C:\Users\burtnolej\Documents\GitHub\quadviewer\vba\tmp.bas
+        :param filepath: string or list of abs path of file the be checked in
+        :param gitrootpath: top of git repository
+        :rtype: string: path relative to git root
+        """
+        if isinstance(filepaths,ListType) == False:
+            filepaths = [filepaths]
+        
+        if gitrootpath.endswith("\\") == False:
+            gitrootpath += "\\"        
+            
+        for i in range(len(filepaths)):
+            filepaths[i] = filepaths[i].replace(gitrootpath,"")
+            
+            # need to flip slashed to conform with unix syntax that GitHub expects
+            filepaths[i] = filepaths[i].replace("\\","/")
+        return filepaths
+        
     @staticmethod
     def _get_files(repo):
         """ given a repo, get the latest version of all files in the head
@@ -173,11 +203,8 @@ class GitRepoHelper(GitBase):
             results += _results
             i+=1
             _commits = repo.get_commits().get_page(i)
-            #print "retreived ",str(len(_results)),"commits for page",str(i)
         return results
-            
-        #return [repo.get_git_commit(_commit.sha) for _commit in repo.get_commits().get_page(0)]        
-    
+
     @staticmethod
     def _get_commit_details(repo,commits,limit=3,getcontent=True):
         details = []
@@ -188,7 +215,8 @@ class GitRepoHelper(GitBase):
         for i in range(limit):
             files = []
             _commit = commits[i]
-            for _tree in _commit.tree.tree:                
+
+            for _tree in GitRepoHelper._get_commit_git_tree(repo,_commit):
                 try:
                     content = GitRepoHelper._get_file_content(repo,_tree)
                     detail = {'sha'           : _tree.sha,
@@ -198,7 +226,7 @@ class GitRepoHelper(GitBase):
                               'author'        : _commit.author}   
                 
                     if getcontent==True:
-                        detail['content'] = uudecode(content)
+                        detail['content'] = b64decode(content)
                     files.append(detail)
                     
                 except:

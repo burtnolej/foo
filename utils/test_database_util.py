@@ -41,7 +41,7 @@ class TestDatabase(unittest.TestCase):
 class TestTable(unittest.TestCase):
     
     def setUp(self):
-        self.schema_file = "/Users/burtnolej/Development/pythonapps3/clean/utils/test_misc/test_schema_simple.xml"
+        self.schema_file = environ["PYTHONPATH"] + "/test_misc/test_schema_simple.xml"
             
     def test_tbl_create_pk(self):
         
@@ -82,7 +82,7 @@ class TestTableActions(unittest.TestCase):
 
 class TestTableQueries(unittest.TestCase):
     def setUp(self):
-        self.schema_file = "/Users/burtnolej/Development/pythonapps3/clean/utils/test_misc/test_schema_simple.xml"
+        self.schema_file = environ["PYTHONPATH"] + "/test_misc/test_schema_simple.xml"
         schema_execute(self.schema_file,insert=True)
     
     def test_count(self):
@@ -101,7 +101,7 @@ class TestTableQueries(unittest.TestCase):
 class TestSchema(unittest.TestCase):
     
     def setUp(self):
-        self.schema_file = "/Users/burtnolej/Development/pythonapps3/clean/utils/test_misc/test_schema_simple.xml"
+        self.schema_file = environ["PYTHONPATH"] + "/test_misc/test_schema_simple.xml"
         
     def test_schema_read(self):
         
@@ -142,7 +142,7 @@ class TestSchema(unittest.TestCase):
 class TestSchemaInsertRows(unittest.TestCase):
     
     def setUp(self):
-        self.schema_file = "/Users/burtnolej/Development/pythonapps3/clean/utils/test_misc/test_schema_simple.xml"
+        self.schema_file = environ["PYTHONPATH"] + "/test_misc/test_schema_simple.xml"
         schema_execute(self.schema_file)
 
     def test_schema_insert_rows(self):

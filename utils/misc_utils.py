@@ -41,14 +41,41 @@ from shutil import move, copy
 import base64
 from types import ListType
 import struct
+import StringIO
+import urllib
 
-def uuencode(str):
+def b64encode(str):
     return(base64.b64encode(str))
 
-def uudecode(str):
+def b64decode(str):
     return(base64.b64decode(str))
 
+def uuencode(str):
+    # C:\\Users\\burtnolej\\foo.txt''''' becomes
+    # C%3A%5CUsers%5Cburtnolej%5Cfoo.txt%27%27%27%27%27
+    return urllib.quote(str)
 
+def uudecode(str):
+    # C%3A%5CUsers%5Cburtnolej%5Cfoo.txt%27%27%27%27%27 becomes
+    # C:\\Users\\burtnolej\\foo.txt''''' 
+    return urllib.unquote(str)
+
+def encode(str,encoding="uu"):
+    if encoding=="uu" or encoding=="uuencode":
+        return uuencode(str)
+    elif encoding=="base64":
+        return b64encode(str)
+    else:
+        return str
+
+def decode(str,encoding="uu"):
+    if encoding=="uu" or encoding=="uuencode":
+        return uudecode(str)
+    elif encoding=="base64":
+        return b64decode(str)
+    else:
+        return str
+    
 def write_binary_file(filename,bytestring):
     # b'\x07\x08\x07'
     with open(filename, 'wb') as f:
@@ -60,7 +87,6 @@ def write_binary_file_struct(filename,binary)     :
         for b in binary:
             f.write(struct.pack('h', b)) #or whatever format you need
                 
-    
 class Enumerate(object):
     def __init__(self, names):
         for number, name in enumerate(names.split(",")):
@@ -111,6 +137,8 @@ def put_2darray_in_file(filename,rows,encoding="unicode",suffix="",quote=False):
     """
     def _encode(input_str,encoding="unicode",):
         if encoding == "base64":
+            return b64encode(str(input_str))
+        elif encoding == "uu":
             return uuencode(str(input_str))
         elif encoding == "unicode":
             return str(input_str)

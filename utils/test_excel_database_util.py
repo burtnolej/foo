@@ -9,7 +9,7 @@ from excel_database_util import DatabaseQueryTable, \
      log, PRIORITY, DatabaseBase
 from misc_utils import write_text_to_file, append_text_to_file, os_file_delete, \
      os_file_to_string, get_2darray_from_file, put_2darray_in_file, \
-     uuencode, uudecode
+     b64encode, uudecode
 
 
 class Test_DatabaseQueryTable(unittest.TestCase):
@@ -59,14 +59,14 @@ class Test_DatabaseQueryTableEncoded(unittest.TestCase):
             tbl_rows_insert(database,self.table_name,columns,self.b64row)
     
     def test_query_encoded(self):
-        qry_str = uuencode("select col1,col2,col3 from " + self.table_name)
+        qry_str = b64encode("select col1,col2,col3 from " + self.table_name)
         result = DatabaseQueryTable.query_encoded(self.database_name,qry_str,delete_flag=True)
         self.assertEquals(self.row,DatabaseBase._decode_2darray(result))
 
     def test_query_by_file_encoded(self):
-        append_text_to_file(self.filename,"database_name:"+uuencode(self.database_name) + "\n")
-        append_text_to_file(self.filename,"qry_str:"+uuencode("select col1,col2,col3 from " + self.table_name) + "\n") 
-        append_text_to_file(self.filename,"delete_flag:"+uuencode("True") + "\n") 
+        append_text_to_file(self.filename,"database_name:"+b64encode(self.database_name) + "\n")
+        append_text_to_file(self.filename,"qry_str:"+b64encode("select col1,col2,col3 from " + self.table_name) + "\n") 
+        append_text_to_file(self.filename,"delete_flag:"+b64encode("True") + "\n") 
         result = DatabaseQueryTable.query_by_file(self.filename)
         self.assertEquals(self.row,DatabaseBase._decode_2darray(result))
         os_file_delete(self.filename)
@@ -124,11 +124,11 @@ class Test_DatabaseInsertRows(unittest.TestCase):
         # encoding of input / output files
         # encoding of database content
 
-        append_text_to_file(self.filename,"database_name:"+uuencode(self.database_name) + "\n")
-        append_text_to_file(self.filename,"table_name:"+uuencode(self.table_name) + "\n")
-        append_text_to_file(self.filename,"delete_flag:"+uuencode("False") + "\n")
-        append_text_to_file(self.filename,"decode_flag:"+uuencode("False") + "\n")
-        append_text_to_file(self.filename,"columns:"+"$$".join([uuencode(field) for field in self.columns]) + "\n")
+        append_text_to_file(self.filename,"database_name:"+b64encode(self.database_name) + "\n")
+        append_text_to_file(self.filename,"table_name:"+b64encode(self.table_name) + "\n")
+        append_text_to_file(self.filename,"delete_flag:"+b64encode("False") + "\n")
+        #append_text_to_file(self.filename,"decode_flag:"+b64encode("False") + "\n")
+        append_text_to_file(self.filename,"columns:"+"$$".join([b64encode(field) for field in self.columns]) + "\n")
         
         put_2darray_in_file(self.filename,self.row,suffix="rows:",encoding="base64")
         
@@ -153,19 +153,19 @@ class Test_DatabaseQueryTableSetRuntimePath(unittest.TestCase):
         self.b64row = DatabaseBase._encode_2darray(self.row)
         
         self.runtime_path = "C:\\Users\\burtnolej"
-        append_text_to_file(self.filename,"database_name:"+uuencode(self.database_name) + "\n")
-        append_text_to_file(self.filename,"table_name:"+uuencode(self.table_name) + "\n")
-        append_text_to_file(self.filename,"delete_flag:"+uuencode("False") + "\n")
-        append_text_to_file(self.filename,"columns:"+"$$".join([uuencode(field) for field in self.columns]) + "\n")
-        append_text_to_file(self.filename,"column_defns:"+"$$".join([uuencode(_name) +"^" + uuencode(_type) for _name,_type in self.column_defn]) + "\n")
-        append_text_to_file(self.filename,"qry_str:"+uuencode("select col1,col2,col3 from " + self.table_name) + "\n") 
+        append_text_to_file(self.filename,"database_name:"+b64encode(self.database_name) + "\n")
+        append_text_to_file(self.filename,"table_name:"+b64encode(self.table_name) + "\n")
+        append_text_to_file(self.filename,"delete_flag:"+b64encode("False") + "\n")
+        append_text_to_file(self.filename,"columns:"+"$$".join([b64encode(field) for field in self.columns]) + "\n")
+        append_text_to_file(self.filename,"column_defns:"+"$$".join([b64encode(_name) +"^" + b64encode(_type) for _name,_type in self.column_defn]) + "\n")
+        append_text_to_file(self.filename,"qry_str:"+b64encode("select col1,col2,col3 from " + self.table_name) + "\n") 
     
         put_2darray_in_file(self.filename,self.b64row,suffix="rows:")
         DatabaseCreateTable.create_by_file(self.filename,runtime_path=self.runtime_path)
         DatabaseInsertRows.insert_by_file(self.filename,runtime_path=self.runtime_path)
         
     def test_(self):
-        append_text_to_file(self.filename,"delete_flag:"+uuencode("True") + "\n") 
+        append_text_to_file(self.filename,"delete_flag:"+b64encode("True") + "\n") 
         result = DatabaseQueryTable.query_by_file(self.filename,runtime_path=self.runtime_path)
         self.assertEqual(DatabaseBase._decode_2darray(result),self.row)     
         
@@ -189,10 +189,10 @@ class Test_DatabaseCreateTable(unittest.TestCase):
     
     def test_create_by_file_encoded(self):
         self.filename = "b64pyshell.txt"
-        append_text_to_file(self.filename,"database_name:"+uuencode(self.database_name) + "\n")
-        append_text_to_file(self.filename,"table_name:"+uuencode(self.table_name) + "\n")
-        append_text_to_file(self.filename,"delete_flag:"+uuencode("False") + "\n")
-        append_text_to_file(self.filename,"column_defns:"+"$$".join([uuencode(_name) +"^" + uuencode(_type) for _name,_type in self.column_defn]) + "\n")
+        append_text_to_file(self.filename,"database_name:"+b64encode(self.database_name) + "\n")
+        append_text_to_file(self.filename,"table_name:"+b64encode(self.table_name) + "\n")
+        append_text_to_file(self.filename,"delete_flag:"+b64encode("False") + "\n")
+        append_text_to_file(self.filename,"column_defns:"+"$$".join([b64encode(_name) +"^" + b64encode(_type) for _name,_type in self.column_defn]) + "\n")
         DatabaseCreateTable.create_by_file(self.filename)
         
         database =  Database(self.database_name,True)
@@ -218,11 +218,11 @@ class Test_DatabaseCreateTable(unittest.TestCase):
     def test_create_by_file_encoded_an_set_runtime_path(self):
         self.filename = "b64pyshell.txt"
         runtime_path = "C:\\Users\\burtnolej"
-        append_text_to_file(self.filename,"database_name:"+uuencode(self.database_name) + "\n")
-        append_text_to_file(self.filename,"table_name:"+uuencode(self.table_name) + "\n")
-        append_text_to_file(self.filename,"delete_flag:"+uuencode("False") + "\n")
+        append_text_to_file(self.filename,"database_name:"+b64encode(self.database_name) + "\n")
+        append_text_to_file(self.filename,"table_name:"+b64encode(self.table_name) + "\n")
+        append_text_to_file(self.filename,"delete_flag:"+b64encode("False") + "\n")
         
-        append_text_to_file(self.filename,"column_defns:"+"$$".join([uuencode(_name) +"^" + uuencode(_type) for _name,_type in self.column_defn]) + "\n")
+        append_text_to_file(self.filename,"column_defns:"+"$$".join([b64encode(_name) +"^" + b64encode(_type) for _name,_type in self.column_defn]) + "\n")
         DatabaseCreateTable.create_by_file(self.filename,runtime_path=runtime_path)
         
         database =  Database(runtime_path + "\\" + self.database_name + ".sqlite",True)
@@ -245,11 +245,11 @@ class Test_DatabaseInsertRowsSetRuntimePath(unittest.TestCase):
         DatabaseCreateTable.create(self.database_name,self.table_name,self.column_defn,runtime_path=self.runtime_path)
         
     def test_insert_encoded_by_file(self):
-        append_text_to_file(self.filename,"database_name:"+uuencode(self.database_name) + "\n")
-        append_text_to_file(self.filename,"table_name:"+uuencode(self.table_name) + "\n")
-        append_text_to_file(self.filename,"delete_flag:"+uuencode("False") + "\n")
-        append_text_to_file(self.filename,"decode_flag:"+uuencode("True") + "\n")
-        append_text_to_file(self.filename,"columns:"+"$$".join([uuencode(field) for field in self.columns]) + "\n")
+        append_text_to_file(self.filename,"database_name:"+b64encode(self.database_name) + "\n")
+        append_text_to_file(self.filename,"table_name:"+b64encode(self.table_name) + "\n")
+        append_text_to_file(self.filename,"delete_flag:"+b64encode("False") + "\n")
+        append_text_to_file(self.filename,"decode_flag:"+b64encode("True") + "\n")
+        append_text_to_file(self.filename,"columns:"+"$$".join([b64encode(field) for field in self.columns]) + "\n")
         
         put_2darray_in_file(self.filename,self.row,suffix="rows:",encoding="base64")
         DatabaseInsertRows.insert_by_file(self.filename,runtime_path=self.runtime_path)
@@ -309,15 +309,15 @@ class Test_DatabaseInsertRowsLargeEncoded(unittest.TestCase):
         
         self.filename = "b64pyshell.txt"
 
-        append_text_to_file(self.filename,"database_name:"+uuencode(self.database_name) + "\n")
-        append_text_to_file(self.filename,"table_name:"+uuencode(self.table_name)+ "\n")
-        append_text_to_file(self.filename,"delete_flag:"+uuencode("False") + "\n")
-        append_text_to_file(self.filename,"column_defns:"+"$$".join([uuencode(_name)+"^" + uuencode(_type) for _name,_type in self.column_defn]) + "\n")
+        append_text_to_file(self.filename,"database_name:"+b64encode(self.database_name) + "\n")
+        append_text_to_file(self.filename,"table_name:"+b64encode(self.table_name)+ "\n")
+        append_text_to_file(self.filename,"delete_flag:"+b64encode("False") + "\n")
+        append_text_to_file(self.filename,"column_defns:"+"$$".join([b64encode(_name)+"^" + b64encode(_type) for _name,_type in self.column_defn]) + "\n")
 
         DatabaseCreateTable.create_by_file(self.filename)
 
     def test_(self):
-        append_text_to_file(self.filename,"columns:"+"$$".join([uuencode(field) for field in self.columns]) + "\n")
+        append_text_to_file(self.filename,"columns:"+"$$".join([b64encode(field) for field in self.columns]) + "\n")
         rows = get_2darray_from_file("testdata.csv")
         put_2darray_in_file(self.filename,rows,suffix="rows:",encoding="base64")
     
@@ -325,9 +325,9 @@ class Test_DatabaseInsertRowsLargeEncoded(unittest.TestCase):
        
         database =  Database(self.database_name,True)
         with database:        
-            columns,rows,_ = tbl_query(database,"select Description from foobar where LastName = \""+uuencode("Osborn")+"\"")
+            columns,rows,_ = tbl_query(database,"select Description from foobar where LastName = \""+b64encode("Osborn")+"\"")
         
-        expected_results = [uuencode("tempor erat neque non quam. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Aliquam fringilla cursus purus. Nullam scelerisque neque sed sem egestas blandit. Nam nulla magna, malesuada vel, convallis in,")]        
+        expected_results = [b64encode("tempor erat neque non quam. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Aliquam fringilla cursus purus. Nullam scelerisque neque sed sem egestas blandit. Nam nulla magna, malesuada vel, convallis in,")]        
         self.assertListEqual(rows[0],expected_results)
         
     def tearDown(self):
@@ -342,50 +342,50 @@ class Test_DatabaseMisc(unittest.TestCase):
                                 ('Country','text'),('Description','text'),
                                 ('Age','integer')] 
 
-        append_text_to_file(self.filename,"database_name:"+uuencode(self.database_name) + "\n")
-        append_text_to_file(self.filename,"table_name:"+uuencode(self.table_name) + "\n")
-        append_text_to_file(self.filename,"delete_flag:"+uuencode("False") + "\n")
-        append_text_to_file(self.filename,"column_defns:"+"$$".join([uuencode(_name) +"^" + uuencode(_type) for _name,_type in self.column_defn]) + "\n")
+        append_text_to_file(self.filename,"database_name:"+b64encode(self.database_name) + "\n")
+        append_text_to_file(self.filename,"table_name:"+b64encode(self.table_name) + "\n")
+        append_text_to_file(self.filename,"delete_flag:"+b64encode("False") + "\n")
+        append_text_to_file(self.filename,"column_defns:"+"$$".join([b64encode(_name) +"^" + b64encode(_type) for _name,_type in self.column_defn]) + "\n")
 
         DatabaseCreateTable.create_by_file(self.filename)
 
     def test_(self):
         os_file_delete(self.filename)
-        append_text_to_file(self.filename,"database_name:"+uuencode(self.database_name) + "\n")
-        append_text_to_file(self.filename,"table_name:"+uuencode(self.table_name) + "\n")
-        append_text_to_file(self.filename,"delete_flag:"+uuencode("True") + "\n")
+        append_text_to_file(self.filename,"database_name:"+b64encode(self.database_name) + "\n")
+        append_text_to_file(self.filename,"table_name:"+b64encode(self.table_name) + "\n")
+        append_text_to_file(self.filename,"delete_flag:"+b64encode("True") + "\n")
         self.assertTrue(DatabaseMisc.table_exists_by_file(self.filename))
 
     def test_fail(self):
         os_file_delete(self.filename)
-        append_text_to_file(self.filename,"database_name:"+uuencode(self.database_name) + "\n")
-        append_text_to_file(self.filename,"table_name:"+uuencode("foofoo") + "\n")
-        append_text_to_file(self.filename,"delete_flag:"+uuencode("True") + "\n")
+        append_text_to_file(self.filename,"database_name:"+b64encode(self.database_name) + "\n")
+        append_text_to_file(self.filename,"table_name:"+b64encode("foofoo") + "\n")
+        append_text_to_file(self.filename,"delete_flag:"+b64encode("True") + "\n")
 
         self.assertFalse(DatabaseMisc.table_exists_by_file(self.filename))
  
     def test_fail_database(self):
         os_file_delete(self.filename)
-        append_text_to_file(self.filename,"database_name:"+uuencode("foofoo") + "\n")
-        append_text_to_file(self.filename,"table_name:"+uuencode(self.table_name) + "\n")
-        append_text_to_file(self.filename,"delete_flag:"+uuencode("True") + "\n")
+        append_text_to_file(self.filename,"database_name:"+b64encode("foofoo") + "\n")
+        append_text_to_file(self.filename,"table_name:"+b64encode(self.table_name) + "\n")
+        append_text_to_file(self.filename,"delete_flag:"+b64encode("True") + "\n")
 
         self.assertFalse(DatabaseMisc.database_exists_by_file(self.filename))
         os_file_delete(self.database_name+".sqlite")
         
     def test_get_columns(self):
         os_file_delete(self.filename)
-        append_text_to_file(self.filename,"database_name:"+uuencode(self.database_name) + "\n")
-        append_text_to_file(self.filename,"table_name:"+uuencode(self.table_name) + "\n")
-        append_text_to_file(self.filename,"delete_flag:"+uuencode("True") + "\n")
+        append_text_to_file(self.filename,"database_name:"+b64encode(self.database_name) + "\n")
+        append_text_to_file(self.filename,"table_name:"+b64encode(self.table_name) + "\n")
+        append_text_to_file(self.filename,"delete_flag:"+b64encode("True") + "\n")
 
         self.assertEquals(DatabaseMisc.get_table_info_by_file(self.filename),
                               [(u'FirstName', u'text'), (u'LastName', u'text'), (u'Country', u'text'), (u'Description', u'text'), (u'Age', u'integer')])
 
     def test_get_table_list(self):
         os_file_delete(self.filename)
-        append_text_to_file(self.filename,"database_name:"+uuencode(self.database_name) + "\n")
-        append_text_to_file(self.filename,"delete_flag:"+uuencode("True") + "\n")
+        append_text_to_file(self.filename,"database_name:"+b64encode(self.database_name) + "\n")
+        append_text_to_file(self.filename,"delete_flag:"+b64encode("True") + "\n")
         
         self.assertEquals(DatabaseMisc.get_table_list_by_file(self.filename),
                           [u'foobar'])
@@ -408,12 +408,12 @@ class Test_DatabaseFileParser(unittest.TestCase):
         
         rows = get_2darray_from_file("testdata_2rows.csv")
         
-        append_text_to_file(self.filename,"database_name:"+uuencode(self.database_name) + "\n")
-        append_text_to_file(self.filename,"table_name:"+uuencode(self.table_name) + "\n")
-        append_text_to_file(self.filename,"delete_flag:"+uuencode("False") + "\n")
-        append_text_to_file(self.filename,"decode_flag:"+uuencode("False") + "\n")
-        append_text_to_file(self.filename,"columns:"+"$$".join([uuencode(field) for field in self.columns]) + "\n")
-        append_text_to_file(self.filename,"column_defns:"+"$$".join([uuencode(_name) +"^" + uuencode(_type) for _name,_type in self.column_defn]) + "\n")
+        append_text_to_file(self.filename,"database_name:"+b64encode(self.database_name) + "\n")
+        append_text_to_file(self.filename,"table_name:"+b64encode(self.table_name) + "\n")
+        append_text_to_file(self.filename,"delete_flag:"+b64encode("False") + "\n")
+        append_text_to_file(self.filename,"decode_flag:"+b64encode("False") + "\n")
+        append_text_to_file(self.filename,"columns:"+"$$".join([b64encode(field) for field in self.columns]) + "\n")
+        append_text_to_file(self.filename,"column_defns:"+"$$".join([b64encode(_name) +"^" + b64encode(_type) for _name,_type in self.column_defn]) + "\n")
     
         put_2darray_in_file(self.filename,rows,suffix="rows:")
     
@@ -439,12 +439,12 @@ class Test_DatabaseFileParser(unittest.TestCase):
         
         rows = get_2darray_from_file("testdata_2rows.csv")
         
-        append_text_to_file(self.filename,"database_name:"+uuencode(self.database_name) + "\n")
-        append_text_to_file(self.filename,"table_name:"+uuencode(self.table_name) + "\n")
-        append_text_to_file(self.filename,"delete_flag:"+uuencode("False") + "\n")
-        append_text_to_file(self.filename,"decode_flag:"+uuencode("True") + "\n")
-        append_text_to_file(self.filename,"columns:"+"$$".join([uuencode(field) for field in self.columns]) + "\n")
-        append_text_to_file(self.filename,"column_defns:"+"$$".join([uuencode(_name) +"^" + uuencode(_type) for _name,_type in self.column_defn]) + "\n")
+        append_text_to_file(self.filename,"database_name:"+b64encode(self.database_name) + "\n")
+        append_text_to_file(self.filename,"table_name:"+b64encode(self.table_name) + "\n")
+        append_text_to_file(self.filename,"delete_flag:"+b64encode("False") + "\n")
+        append_text_to_file(self.filename,"decode_flag:"+b64encode("True") + "\n")
+        append_text_to_file(self.filename,"columns:"+"$$".join([b64encode(field) for field in self.columns]) + "\n")
+        append_text_to_file(self.filename,"column_defns:"+"$$".join([b64encode(_name) +"^" + b64encode(_type) for _name,_type in self.column_defn]) + "\n")
     
         put_2darray_in_file(self.filename,rows,suffix="rows:")
     
@@ -483,9 +483,9 @@ class Test_DatabaseQueryTableFileResult(unittest.TestCase):
             tbl_rows_insert(database,self.table_name,columns,self.b64row)
             
     def test_query_encoded_by_file(self):
-        append_text_to_file(self.filename,"database_name:"+uuencode(self.database_name) + "\n")
-        append_text_to_file(self.filename,"qry_str:"+uuencode("select col1,col2,col3 from " + self.table_name) + "\n") 
-        append_text_to_file(self.filename,"delete_flag:"+uuencode("True") + "\n") 
+        append_text_to_file(self.filename,"database_name:"+b64encode(self.database_name) + "\n")
+        append_text_to_file(self.filename,"qry_str:"+b64encode("select col1,col2,col3 from " + self.table_name) + "\n") 
+        append_text_to_file(self.filename,"delete_flag:"+b64encode("True") + "\n") 
         result = DatabaseQueryTable.query_by_file(self.filename,
                                                   result_file=self.result_filename)
         

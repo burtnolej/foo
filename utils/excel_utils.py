@@ -1,7 +1,9 @@
 from misc_utils import  os_file_to_string, os_file_exists, append_text_to_file, \
-     uudecode, write_array_to_file, write_text_to_file, uuencode
+     b64decode, encode, decode, write_array_to_file, write_text_to_file, b64encode
 from misc_utils_log import Log, logger, PRIORITY
 from collections import OrderedDict
+from types import ListType, StringType
+from os.path import basename
 import sys
 from os import chdir
 
@@ -39,11 +41,11 @@ class ExcelBase(object):
 
     @staticmethod    
     def _get_file_encoding(filepath):
-        if filepath.startswith("b64"):
+        if basename(filepath).startswith("b64"):
             return "base64"
-        elif filepath.startswith("uue"):
+        elif basename(filepath).startswith("uu"):
             return "uuencode"
-        elif filepath.startswith("uni"):
+        elif basename(filepath).startswith("uni"):
             return "unicode"
         else:
             raise Exception("cannot determine the encoding being used, filename does not start with b64/uue/uni")
@@ -64,45 +66,58 @@ class ExcelBase(object):
                     setattr(cls,_attr,None)
     
     @classmethod   
-    def _validate_filename(self,filename,encoding="unicode"):
+    def _validate_filename(self,fieldname,encoding="unicode"):
         """ check if filename exists
-        :param filename:string
+        :param fieldname:string or list of strings
         :rtype : -1 on failure or None
         """
-        if os_file_exists(filename) == False:
-            return([-1])
-
+        filepaths = getattr(self,fieldname).split("$$")
+        for i in range(len(filepaths)):
+            if os_file_exists(decode(filepaths[i],encoding)) == False:
+                return([-1])
+            else:
+                filepaths[i] = decode(filepaths[i],encoding)
+        setattr(self,fieldname,filepaths)
+        
     @classmethod   
     def _validate_field(self,fieldname,encoding="unicode"):
         """ check the a raw value for the field has been set
         :param filename:string
-        :param encoding: [base64|unicode|uuencode]
+        :param encoding: [base64|unicode|b64encode]
         :rtype : -1 on failure or None
         """
         if hasattr(self,fieldname) == False:
             log.log(PRIORITY.FAILURE,msg=fieldname+" name must be passed")   
             return([-1]) 
     
-        if encoding=="base64":
-            setattr(self,fieldname,uudecode(getattr(self,fieldname)))
-        elif encoding=="unicode":
-            setattr(self,fieldname,getattr(self,fieldname))            
+        setattr(self,fieldname,decode(getattr(self,fieldname),encoding))
+        #if encoding=="base64":
+        #    setattr(self,fieldname,b64decode(getattr(self,fieldname)))
+        #elif encoding=="unicode":
+        #    setattr(self,fieldname,getattr(self,fieldname))            
 
     @classmethod   
     def _validate_flag(self,flagname,encoding="unicode"):
         """ check the a raw flag exists and update attr to be boolean value
         :param flagname:string
-        :param encoding: [base64|unicode|uuencode]
+        :param encoding: [base64|unicode|b64encode]
         :rtype : -1 on failure or None
         """
         if hasattr(self,flagname) == False:
             log.log(PRIORITY.FAILURE,msg=flagname+" name must be passed")   
             return([-1]) 
         
-        if encoding=="base64":
-            if uudecode(getattr(self,flagname)) == "True":
+        if decode(getattr(self,flagname),encoding) == "True":
+            setattr(self,flagname,True)
+        elif decode(getattr(self,flagname),encoding) == "False":
+            setattr(self,flagname,False)
+        else:
+            raise Exception(encoded," encoded flag needs to be either True|False")
+
+        '''if encoding=="base64":
+            if b64decode(getattr(self,flagname)) == "True":
                 setattr(self,flagname,True)  
-            elif uudecode(getattr(self,flagname)) == "False":
+            elif b64decode(getattr(self,flagname)) == "False":
                 setattr(self,flagname,False) 
             else:
                 raise Exception("base64 encoded flag needs to be either True|False")
@@ -113,7 +128,8 @@ class ExcelBase(object):
                 setattr(self,flagname,False) 
             else:
                 raise Exception("unicode flag needs to be either True|False")
-            
+        '''
+        
     def _create_output_file(self,filepath,input_rows,encoding="unicode"):
         outstr = "$$".join(["^".join(map(str,_row)) for _row in input_rows])
         write_text_to_file(filepath,outstr)
@@ -121,22 +137,22 @@ class ExcelBase(object):
     @staticmethod
     def _encode_2darray(array,encoding="b64encode"):
         result = []
-        if encoding == "b64encode":
-            for _row in array:
-                result.append([uuencode(str(_field)) for _field in _row])
-            return result
-        else:
-            raise Exception("coding not recognised. needs to be b64encode",encoding)
+        #if encoding == "b64encode":
+        for _row in array:
+            result.append([encode(str(_field),encoding) for _field in _row])
+        return result
+        #else:
+        #    raise Exception("coding not recognised. needs to be b64encode",encoding)
 
     @staticmethod
     def _decode_2darray(array,encoding="b64encode"):
         result = []
-        if encoding == "b64encode":
-            for _row in array:
-                result.append([ExcelBase._tryint(uudecode(_field)) for _field in _row])
-            return result
-        else:
-            raise Exception("coding not recognised. needs to be b64encode",encoding)
+        #if encoding == "b64encode":
+        for _row in array:
+            result.append([ExcelBase._tryint(encode(b64decode(_field),encoding)) for _field in _row])
+        return result
+        #else:
+        #    raise Exception("coding not recognised. needs to be b64encode",encoding)
 
     @staticmethod
     def _tryint(value):
@@ -153,7 +169,7 @@ class ExcelBase(object):
         """ take a key,value pair param text file and create class attributes of the name
         key with the value, value
         :param filepath:string, full path of the param text file
-        :param encoding: string of member unicode|base64|uuencode
+        :param encoding: string of member unicode|base64|b64encode
         :param mandatory_fields: list, all the fields that must be present in this file
         rtype : -1 on failure or None
         """
@@ -193,7 +209,7 @@ class ExcelBase(object):
             log.log(PRIORITY.INFO,msg="setting runtime_path to ["+runtime_path+"]")   
 
         except TypeError, e:
-            log.log(PRIORITY.FAILURE,msg="TypeError uuencode issues? ["+str(e.message)+"]")   
+            log.log(PRIORITY.FAILURE,msg="TypeError encoding issues? ["+str(e.message)+"]")   
             return([-1])            
 
         return cls
