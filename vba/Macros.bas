@@ -195,7 +195,8 @@ Dim ws As Worksheet
     aResults = GitViewCommits(sRepoName)
     RangeFromStrArray aResults, ws, 0, 0
 End Sub
-Public Sub DoGitCommit(rSource As Range, sRepoName As String, Optional sMessage As String = "no message")
+Public Sub DoGitCommit(rSource As Range, sRepoName As String, _
+                    sGitRootPath As String, Optional sMessage As String = "no message")
 Dim iType As Integer
 Dim rCell As Range
 Dim aFiles() As String
@@ -233,8 +234,11 @@ Dim sDirectory As String, sTmpDirectory As String, sFuncName As String
         aFiles(i) = sDirectory & GetFileFromPath(CStr(aFiles(i)))
     Next i
     
-    GitCommitFiles aFiles, sRepoName, sMessage
-        
+    sGitRootPath = sGitRootPath & sRepoName & "\"
+    
+    GitCommitFiles aFiles, sRepoName, sGitRootPath, sMessage
+    
+    
     RemoveDir "C:\Users\burtnolej\tmp_export_modules"
     
     iType = vbDefaultButton2
