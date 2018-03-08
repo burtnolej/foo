@@ -1,6 +1,6 @@
 from database_util import Database, tbl_create, tbl_exists, tbl_list
 from database_table_util import tbl_query, _quotestrs, tbl_rows_insert, _quotestrs, \
-     tbl_cols_get
+     tbl_cols_get, _quotestrs
 from misc_utils import  os_file_to_string, write_text_to_file, os_file_exists, \
      append_text_to_file, uuencode, uudecode, b64decode, b64decode
 from misc_utils_log import Log, logger, PRIORITY
@@ -220,11 +220,11 @@ class DatabaseCreateTable(DatabaseBase):
 class DatabaseInsertRows(DatabaseBase):
     @classmethod
     def insert(cls,database_name,tbl_name,tbl_col_name,tbl_rows,
-               delete_flag=False):
+               delete_flag=False,encoding="unicode"):
+        tbl_rows = _quotestrs(cls._encode_2darray(tbl_rows,encoding))
         cls1 = cls(database_name,delete_flag)
         return cls1._insert_rows(tbl_name,tbl_col_name,tbl_rows)
     
-    #def insert_encoded_by_file(cls,filepath,**kwargs):
     @classmethod
     def insert_by_file(cls,filepath,**kwargs):
         """ configuration is passed by a file; the first 3 chars of the

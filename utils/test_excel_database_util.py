@@ -85,15 +85,16 @@ class Test_DatabaseInsertRows(unittest.TestCase):
         DatabaseCreateTable.create(self.database_name,self.table_name,self.column_defn)
         
     def test_insert(self):
-        DatabaseInsertRows.insert(self.database_name,self.table_name,self.columns,self.qrows)
+        DatabaseInsertRows.insert(self.database_name,self.table_name,
+                                  self.columns,self.row)
         database =  Database(self.database_name,True)
         with database:        
             _,result,_ = tbl_rows_get(database,self.table_name)
         self.assertEqual(result,self.row)
         
     def test_insert_encoded(self):
-        self.b64row = _quotestrs(DatabaseBase._encode_2darray(self.row))
-        DatabaseInsertRows.insert(self.database_name,self.table_name,self.columns,self.b64row)
+        DatabaseInsertRows.insert(self.database_name,self.table_name,
+                                  self.columns,self.row,encoding="base64")
         database =  Database(self.database_name,True)
         with database:        
             _,result,_ = tbl_rows_get(database,self.table_name)

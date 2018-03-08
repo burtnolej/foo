@@ -190,22 +190,23 @@ class Test_GitCreateRepo_ChangeRunTimePath(unittest.TestCase):
         append_text_to_file(self.filename,"gitrootpath:"+encode(self.gitrootpath,self.encoding) + "\n")
 
     def test_(self):
-        self.repo  = GitExcelHelper.action_type(self.filename,"create_repo",
-                                                runtime_path="C:\\Users\\burtnolej\\")
+        self.gitexcephelper  = GitExcelHelper.action_type(self.filename,"create_repo",runtime_path="C:\\Users\\burtnolej\\")
         self.assertTrue(os_file_exists("C:\\Users\\burtnolej\\python_log.txt"))
         
-                        
     def tearDown(self):
-        GitRepoHelper._delete_repo(self.repo.repo)
-        os_file_delete(self.runtime_path + "\\" + self.filename)
+        GitRepoHelper._delete_repo(self.gitexcephelper.repo)
+        #os_file_delete(self.runtime_path + "\\" + self.filename)
+        del self.gitexcephelper
         
 if __name__ == "__main__":
     suite = unittest.TestSuite()   
-    #suite.addTest(unittest.TestLoader().loadTestsFromTestCase(Test_GitCommit))
-    #suite.addTest(unittest.TestLoader().loadTestsFromTestCase(Test_GitCommit2Levels))
-    #suite.addTest(unittest.TestLoader().loadTestsFromTestCase(Test_GitCreateRepo))
-    #suite.addTest(unittest.TestLoader().loadTestsFromTestCase(Test_GitHistory))
-    
+    suite.addTest(unittest.TestLoader().loadTestsFromTestCase(Test_GitCommit))
+    suite.addTest(unittest.TestLoader().loadTestsFromTestCase(Test_GitCommit2Levels))
+    suite.addTest(unittest.TestLoader().loadTestsFromTestCase(Test_GitCreateRepo))
+    suite.addTest(unittest.TestLoader().loadTestsFromTestCase(Test_GitHistory))
     suite.addTest(unittest.TestLoader().loadTestsFromTestCase(Test_GitCreateRepo_ChangeRunTimePath))
-    suite.addTest(unittest.TestLoader().loadTestsFromTestCase(Test_GitHistory_Large))
+    
+    # this test pulls the enttire history from a large repo. Just to show that you can
+    # not a test that is always necessary so uncomment as needed
+    #suite.addTest(unittest.TestLoader().loadTestsFromTestCase(Test_GitHistory_Large))
     unittest.TextTestRunner(verbosity=2).run(suite)

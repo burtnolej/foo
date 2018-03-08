@@ -113,46 +113,24 @@ class ExcelBase(object):
             setattr(self,flagname,False)
         else:
             raise Exception(encoded," encoded flag needs to be either True|False")
-
-        '''if encoding=="base64":
-            if b64decode(getattr(self,flagname)) == "True":
-                setattr(self,flagname,True)  
-            elif b64decode(getattr(self,flagname)) == "False":
-                setattr(self,flagname,False) 
-            else:
-                raise Exception("base64 encoded flag needs to be either True|False")
-        elif encoding=="unicode":
-            if getattr(self,flagname) == "True":
-                setattr(self,flagname,True)  
-            elif getattr(self,flagname) == "False":
-                setattr(self,flagname,False) 
-            else:
-                raise Exception("unicode flag needs to be either True|False")
-        '''
         
     def _create_output_file(self,filepath,input_rows,encoding="unicode"):
         outstr = "$$".join(["^".join(map(str,_row)) for _row in input_rows])
         write_text_to_file(filepath,outstr)
     
     @staticmethod
-    def _encode_2darray(array,encoding="b64encode"):
+    def _encode_2darray(array,encoding="base64"):
         result = []
-        #if encoding == "b64encode":
         for _row in array:
             result.append([encode(str(_field),encoding) for _field in _row])
         return result
-        #else:
-        #    raise Exception("coding not recognised. needs to be b64encode",encoding)
 
     @staticmethod
-    def _decode_2darray(array,encoding="b64encode"):
+    def _decode_2darray(array,encoding="base64"):
         result = []
-        #if encoding == "b64encode":
         for _row in array:
-            result.append([ExcelBase._tryint(encode(b64decode(_field),encoding)) for _field in _row])
+            result.append([ExcelBase._tryint(decode(_field,encoding)) for _field in _row])
         return result
-        #else:
-        #    raise Exception("coding not recognised. needs to be b64encode",encoding)
 
     @staticmethod
     def _tryint(value):

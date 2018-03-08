@@ -5,7 +5,7 @@ from git_utils import GitCommitHelper, GitRepoHelper
 from collections import OrderedDict
 from excel_utils import ExcelBase
 import sys
-from os import chdir
+from os import chdir, getcwd
 
 if sys.platform == "win32":
     LOGDIR = "./"
@@ -69,6 +69,9 @@ class GitExcelHelper(GitExcelBase):
         
         # working directory needs to be the gitroot so that the
         # rel file paths work correctly. GitHub requires paths relative to the repo root
+        # current working dir is stored as python (or at least testrunner expects to end in the start directory)
+        self.cwd = getcwd()
+        log.log(PRIORITY.INFO,msg="working directory set to ["+self.gitrootpath[0]+"]")           
         chdir(self.gitrootpath[0])
 
     @classmethod
@@ -101,8 +104,11 @@ class GitExcelHelper(GitExcelBase):
         return GitRepoHelper.new(self.token,self.username,self.reponame).repo
         
     def _commit(self):
-        return GitCommitHelper.commit(self.token,self.reponame,
-                                      self.commit_files,self.commit_message)
+        return GitCommitHelper.commit(self.token,self.reponame,self.commit_files,self.commit_message)
+    
+    def __del__(self):
+        log.log(PRIORITY.INFO,msg="working directory set back to ["+self.cwd+"]")   
+        chdir(self.cwd)
     
 if __name__ == "__main__":
     try:
@@ -120,13 +126,13 @@ if __name__ == "__main__":
         log.log(PRIORITY.INFO,msg="executing  ["+str(sys.argv)+"]")
         
         if command_type == "commit":
-            GitExcelHelper.action_type(input_filename,"commit")
+            gitexcelhelper = GitExcelHelper.action_type(input_filename,"commit")
         elif command_type == "create":
-            GitExcelHelper.action_type(input_filename,"create_repo")
+            gitexcelhelper = GitExcelHelper.action_type(input_filename,"create_repo")
         elif command_type == "delete":
-            GitExcelHelper.action_type(input_filename,"delete_repo")
+            gitexcelhelper = GitExcelHelper.action_type(input_filename,"delete_repo")
         elif command_type == "history":
-            geh = GitExcelHelper.action_type(input_filename,"history")
+            gitexcelhelper = GitExcelHelper.action_type(input_filename,"history")
             output = []
             for _commit in geh.commit_history:
                 for _file in _commit:
@@ -135,6 +141,8 @@ if __name__ == "__main__":
                                             uuencode(_file['sha']),
                                             uuencode(_file['last_modified'])]))           
             print "$$".join(output)
+            
+        del gitexcelhelper
                 
     except Exception,e:
         log.log(PRIORITY.FAILURE,msg="an error occurred ["+e.__class__.__name__+"] [" + e.message+"]")
