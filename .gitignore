@@ -14,3 +14,4 @@ tmp
 utils/.id.dat
 test.log
 utils/test_gifs/
+apps/youtube_download/*mp3

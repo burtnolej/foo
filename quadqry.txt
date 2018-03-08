@@ -1,1 +1,0 @@
-CREATE TABLE `Teacher` ( `Name` TEXT, `Age` INTEGER, `CreatedTime` TEXT, `LastUpdatedTime` TEXT, `ID` INTEGER, PRIMARY KEY(`ID`) )
