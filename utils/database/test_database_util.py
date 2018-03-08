@@ -9,14 +9,14 @@ from database_util import Database, tbl_create, tbl_index_count, \
 
 from database_table_util import tbl_rows_insert, tbl_rows_get
 
-from misc_utils_enum import enum
+from misc_utils import Enum
 from misc_utils_generic import GenericBase
-from os import remove
+from os import remove, environ, path
 
 PY2 = sys.version_info[0] == 2
 PY3 = sys.version_info[0] == 3
 
-test_db = enum(name="db_name_test",
+test_db = Enum(name="db_name_test",
                tbl_name="tbl_name_test",
                col_defn=[("col_name1","text"),
                          ("col_name2","integer"),
@@ -24,6 +24,8 @@ test_db = enum(name="db_name_test",
                          ("col_name4","integer")],
                tbl_pk_defn = ["col_name1","col_name2"])
     
+ROOTDIR = path.dirname(path.realpath(__file__))
+
 class TestDatabase(unittest.TestCase):
     
     def test_db_create(self):
@@ -41,7 +43,7 @@ class TestDatabase(unittest.TestCase):
 class TestTable(unittest.TestCase):
     
     def setUp(self):
-        self.schema_file = environ["PYTHONPATH"] + "/test_misc/test_schema_simple.xml"
+        self.schema_file = ROOTDIR + "/test_misc/test_schema_simple.xml"
             
     def test_tbl_create_pk(self):
         
@@ -82,7 +84,7 @@ class TestTableActions(unittest.TestCase):
 
 class TestTableQueries(unittest.TestCase):
     def setUp(self):
-        self.schema_file = environ["PYTHONPATH"] + "/test_misc/test_schema_simple.xml"
+        self.schema_file = ROOTDIR + "/test_misc/test_schema_simple.xml"
         schema_execute(self.schema_file,insert=True)
     
     def test_count(self):
@@ -101,7 +103,7 @@ class TestTableQueries(unittest.TestCase):
 class TestSchema(unittest.TestCase):
     
     def setUp(self):
-        self.schema_file = environ["PYTHONPATH"] + "/test_misc/test_schema_simple.xml"
+        self.schema_file = ROOTDIR + "/test_misc/test_schema_simple.xml"
         
     def test_schema_read(self):
         
@@ -142,7 +144,7 @@ class TestSchema(unittest.TestCase):
 class TestSchemaInsertRows(unittest.TestCase):
     
     def setUp(self):
-        self.schema_file = environ["PYTHONPATH"] + "/test_misc/test_schema_simple.xml"
+        self.schema_file = ROOTDIR + "/test_misc/test_schema_simple.xml"
         schema_execute(self.schema_file)
 
     def test_schema_insert_rows(self):

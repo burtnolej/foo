@@ -11,22 +11,21 @@ else:
 
 log = Log(cacheflag=True,logdir=LOGDIR,verbosity=10)
 
-from misc_utils_enum import enum
+from misc_utils import Enum
 from database_util import schema_data_get, db_enum, Database, \
      tbl_create, tbl_exists, tbl_remove, tbl_rename
-from misc_utils_generic import GenericBase, IDGenerator
 from datetime import datetime
 from types import StringType,IntType, UnicodeType
 from copy import deepcopy
+from misc_utils_generic import GenericBase
 
-test_db = enum(name="db_name_test",
+test_db = Enum(name="db_name_test",
                tbl_name="tbl_name_test",
                col_defn=[("col_name1","text"),
                          ("col_name2","integer"),
                          ("col_name3","integer"),
                          ("col_name4","integer")],
                tbl_pk_defn = ["col_name1","col_name2"])
-
 
 def dbtblfactory(name):
     def __init__(self,**kwargs):

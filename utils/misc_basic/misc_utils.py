@@ -44,6 +44,12 @@ import struct
 import StringIO
 import urllib
 
+class Enum(object):
+    def __init__(self,**kwargs):
+        for key,value in kwargs.iteritems():
+            if hasattr(self,key) == False:
+                setattr(self,key,value)
+                
 def b64encode(str):
     return(base64.b64encode(str))
 

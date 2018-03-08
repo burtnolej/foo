@@ -2,6 +2,8 @@
 import sqlite3
 import sys
 from misc_utils_log import Log, logger, PRIORITY
+from misc_utils import os_file_exists, Enum
+from xml_utils import element_find_tags, element_find_children
 
 if sys.platform == "win32":
     LOGDIR = "./"
@@ -10,20 +12,15 @@ else:
     
 log = Log(cacheflag=True,logdir=LOGDIR,verbosity=10)
 
-from xml_utils import element_find_tags,element_find_children
 
-from misc_utils import os_file_exists
-from misc_utils_generic import GenericBase
-from misc_utils_enum import enum
-
-db_enum = enum(name_attrib="Name", # keywords used in the schema xml file
+db_enum = Enum(name_attrib="Name", # keywords used in the schema xml file
                db_type="DBType", # keywords used in the schema xml file
                s3_tbl_attrib=["type","name", "tbl_name","rootpage","sql"], # internal db table columns
-               s3_col_attrib=enum(cid=0,column_name=1,data_type=2,\
+               s3_col_attrib=Enum(cid=0,column_name=1,data_type=2,\
                                   nullable=3,default_value=4,pk_index=5)) # internal db table columns & index
 
 # keywords used in the schema xml file
-col_type_enum = enum(integer="integer",
+col_type_enum = Enum(integer="integer",
                      varchar="text")
 
 class Database():
