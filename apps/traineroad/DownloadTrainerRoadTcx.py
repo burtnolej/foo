@@ -244,14 +244,15 @@ if __name__ == "__main__":
     uname = "burtnolejusa"
     pword= "G0ldm@n1"
 
-    #dtr_tcx = DownloadTrainerRoadTcx.run(baseurl,xpaths,uname,pword,
-    #                                     num_rides=10,load_page_num=0)
+    dtr_tcx = DownloadTrainerRoadTcx.run(baseurl,xpaths,uname,pword,
+                                         num_rides=1,load_page_num=0)
     
     ''' to just download the most recent, set num_rides =1; if num_rides is not set
     app will download all the rides on the career page; that number will be defined by 
     the number of load_page_num performed '''
-    dtr_tcx = DownloadTrainerRoadTcx.run(baseurl,xpaths,uname,pword,
-                                         load_page_num=40)
+    
+    #dtr_tcx = DownloadTrainerRoadTcx.run(baseurl,xpaths,uname,pword,
+    #                                     load_page_num=10)
     
     del dtr_tcx
     
