@@ -11,7 +11,7 @@ else:
 
 log = Log(cacheflag=True,logdir=LOGDIR,verbosity=10)
 
-from misc_utils import Enum
+from misc_utils import Enum, IDGenerator
 from database_util import schema_data_get, db_enum, Database, \
      tbl_create, tbl_exists, tbl_remove, tbl_rename
 from datetime import datetime

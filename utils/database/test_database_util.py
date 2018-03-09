@@ -8,14 +8,18 @@ from database_util import Database, tbl_create, tbl_index_count, \
      schema_data_get, tbl_exists, tbl_count_get
 
 from database_table_util import tbl_rows_insert, tbl_rows_get
-
-from misc_utils import Enum
+from misc_utils import Enum, os_dir_exists, os_file_exists
 from misc_utils_generic import GenericBase
 from os import remove, environ, path
 
 PY2 = sys.version_info[0] == 2
 PY3 = sys.version_info[0] == 3
 
+if sys.platform == "win32":
+    LOGDIR = "./"
+else:
+    LOGDIR = "/tmp/log"
+    
 test_db = Enum(name="db_name_test",
                tbl_name="tbl_name_test",
                col_defn=[("col_name1","text"),
@@ -25,6 +29,8 @@ test_db = Enum(name="db_name_test",
                tbl_pk_defn = ["col_name1","col_name2"])
     
 ROOTDIR = path.dirname(path.realpath(__file__))
+assert(os_dir_exists(ROOTDIR,"test_misc")) # test files go here
+TESTDIR = path.join(ROOTDIR,"test_misc")
 
 class TestDatabase(unittest.TestCase):
     
@@ -43,7 +49,8 @@ class TestDatabase(unittest.TestCase):
 class TestTable(unittest.TestCase):
     
     def setUp(self):
-        self.schema_file = ROOTDIR + "/test_misc/test_schema_simple.xml"
+        self.schema_file = path.join(TESTDIR ,"test_schema_simple.xml")
+        assert(os_file_exists(self.schema_file))
             
     def test_tbl_create_pk(self):
         
@@ -84,7 +91,8 @@ class TestTableActions(unittest.TestCase):
 
 class TestTableQueries(unittest.TestCase):
     def setUp(self):
-        self.schema_file = ROOTDIR + "/test_misc/test_schema_simple.xml"
+        self.schema_file = path.join(TESTDIR ,"test_schema_simple.xml")
+        assert(os_file_exists(self.schema_file))
         schema_execute(self.schema_file,insert=True)
     
     def test_count(self):
@@ -103,7 +111,8 @@ class TestTableQueries(unittest.TestCase):
 class TestSchema(unittest.TestCase):
     
     def setUp(self):
-        self.schema_file = ROOTDIR + "/test_misc/test_schema_simple.xml"
+        self.schema_file = path.join(TESTDIR ,"test_schema_simple.xml")
+        assert(os_file_exists(self.schema_file))
         
     def test_schema_read(self):
         
@@ -144,7 +153,8 @@ class TestSchema(unittest.TestCase):
 class TestSchemaInsertRows(unittest.TestCase):
     
     def setUp(self):
-        self.schema_file = ROOTDIR + "/test_misc/test_schema_simple.xml"
+        self.schema_file = path.join(TESTDIR ,"test_schema_simple.xml")
+        assert(os_file_exists(self.schema_file))
         schema_execute(self.schema_file)
 
     def test_schema_insert_rows(self):
@@ -178,7 +188,5 @@ if __name__ == "__main__":
     suite.addTest(unittest.TestLoader().loadTestsFromTestCase(TestTableActions))
     suite.addTest(unittest.TestLoader().loadTestsFromTestCase(TestTableQueries))
         
-    
-
     unittest.TextTestRunner(verbosity=2).run(suite)
     

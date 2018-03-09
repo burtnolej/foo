@@ -1,6 +1,19 @@
-
-from misc_utils_log import Log, logger
+import unittest
+from sqlite3 import IntegrityError as S3IntegrityError, OperationalError as S3OperationalError
 import sys
+import os
+from os import remove, environ, path
+from time import sleep
+from misc_utils import Enum, os_dir_exists, os_file_exists
+from misc_utils_log import Log, logger
+from database_util import Database, tbl_create, tbl_index_count, \
+     tbl_index_defn_get, schema_read, schema_get, schema_tbl_get, \
+     schema_col_get, schema_tbl_pk_get, schema_print, schema_execute, \
+     schema_data_get, tbl_count_get
+from database_table_util import tbl_rows_get, tbl_rows_insert, \
+     tbl_rows_insert_from_schema, tbl_cols_get, tbl_col_add, \
+     dbtblgeneric, tbl_move
+
 
 if sys.platform == "win32":
     LOGDIR = "./"
@@ -10,31 +23,16 @@ else:
 log = Log(cacheflag=True,logdir=LOGDIR,verbosity=20,
           pidlogname=True,proclogname=False)
 
-
-import unittest
-from sqlite3 import IntegrityError as S3IntegrityError, \
-     OperationalError as S3OperationalError
-import sys
-import os
-
-from database_util import Database, tbl_create, tbl_index_count, \
-     tbl_index_defn_get, schema_read, schema_get, schema_tbl_get, \
-     schema_col_get, schema_tbl_pk_get, schema_print, schema_execute, \
-     schema_data_get, tbl_count_get
-
-from database_table_util import tbl_rows_get, tbl_rows_insert, \
-     tbl_rows_insert_from_schema, tbl_cols_get, tbl_col_add, \
-     dbtblgeneric, tbl_move
+ROOTDIR = path.dirname(path.realpath(__file__))
+assert(os_dir_exists(ROOTDIR,"test_misc")) # test files go here
+TESTDIR = path.join(ROOTDIR,"test_misc")
 
 sys.path.append("/Users/burtnolej/Development/pythonapps3/utils")
-from misc_utils_enum import enum
-from os import remove, environ
-from time import sleep
 
 PY2 = sys.version_info[0] == 2
 PY3 = sys.version_info[0] == 3
 
-test_db = enum(name="db_name_test",
+test_db = Enum(name="db_name_test",
                tbl_name="tbl_name_test",
                col_defn=[("col_name1","integer"),
                          ("col_name2","integer"),
@@ -49,13 +47,13 @@ test_db = enum(name="db_name_test",
                tbl_rows_dupe_key=[[1,2,3,4],
                                  [1,2,7,8]])
 
-test_db_str_1col = enum(name="db_name_test",
+test_db_str_1col = Enum(name="db_name_test",
                    tbl_name="tbl_name_test",
                    col_defn=[("col_name1","text")],
                    col_name=["col_name1"],
                    tbl_rows=[['\"foobar\"']])
 
-test_db_str = enum(name="db_name_test",
+test_db_str = Enum(name="db_name_test",
                    tbl_name="tbl_name_test",
                    col_defn=[("col_name1","text"),("col_name2","text")],
                    col_name=["col_name1","col_name2"],
@@ -63,7 +61,8 @@ test_db_str = enum(name="db_name_test",
 
 class TestTableRowsGet(unittest.TestCase):
     def setUp(self):
-        self.schema_file = environ["PYTHONPATH"] + "/test_misc/test_schema_simple.xml"
+        self.schema_file = path.join(TESTDIR ,"test_schema_simple.xml")
+        assert(os_file_exists(self.schema_file))
     
     def test_tbl_rows_get_spoecific_field(self):
 
@@ -100,8 +99,8 @@ class TestTableRowsGet(unittest.TestCase):
 class TestTableInsert(unittest.TestCase):
     
     def setUp(self):
-        
-        self.schema_file = environ["PYTHONPATH"] + "/test_misc/test_schema_simple.xml"
+        self.schema_file = path.join(TESTDIR ,"test_schema_simple.xml")
+        assert(os_file_exists(self.schema_file))
     
     def test_tbl_rows_insert(self):
 
@@ -150,7 +149,8 @@ class TestTableInsert2(unittest.TestCase):
     
     def setUp(self):
         if sys.platform == "win32":
-            self.schema_file = os.environ["PYTHONPATH"] + "\\test_misc\\test_schema_simple.xml"
+            self.schema_file = path.join(TESTDIR ,"test_schema_simple.xml")
+            assert(os_file_exists(self.schema_file))
         else:
             self.schema_file = os.path.join(os.environ["PYTHONPATH"],"test_misc/test_schema_simple.xml")
 
@@ -204,7 +204,8 @@ class TestTableInsert2(unittest.TestCase):
 class TestTableColumnAdd(unittest.TestCase):
     
     def setUp(self):
-        self.schema_file = environ["PYTHONPATH"] +"/test_misc/test_schema_simple.xml"
+        self.schema_file = path.join(TESTDIR ,"test_schema_simple.xml")
+        assert(os_file_exists(self.schema_file))
         
     def test_tbl_cols_get(self):
         
@@ -696,8 +697,10 @@ class TestDBTblMove(unittest.TestCase):
     def setUp(self):
         
         if sys.platform == "win32":
-            self.schema_file1 = os.environ["PYTHONPATH"] + "\\test_misc\\test_schema_vsimple.xml"
-            self.schema_file2 = os.environ["PYTHONPATH"],"\\test_mis\\test_schema_vsimple2.xml"
+            self.schema_file1 = path.join(TESTDIR ,"test_schema_vsimple.xml")
+            assert(os_file_exists(self.schema_file1))
+            self.schema_file2 = path.join(TESTDIR ,"test_schema_vsimple2.xml")
+            assert(os_file_exists(self.schema_file2))
         else:
             self.schema_file1 = os.path.join(os.environ["PYTHONPATH"],"test_misc/test_schema_vsimple.xml")
             self.schema_file2 = os.path.join(os.environ["PYTHONPATH"],"test_mis/test_schema_vsimple2.xml")

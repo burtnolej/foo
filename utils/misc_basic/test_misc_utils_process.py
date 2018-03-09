@@ -4,7 +4,7 @@ import sys
 from misc_utils_process import process_instances_get, process_kill, \
      process_start
 
-from misc_utils_enum import enum
+from misc_utils import Enum
 from image_utils import parse_convert_stdout
 from os import remove
 import unittest

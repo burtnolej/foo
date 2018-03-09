@@ -847,6 +847,8 @@ class Test_Tree2XML(unittest.TestCase):
 class Test_File2XML(unittest.TestCase):
     
     def setUp(self):
+        self.schema_file = path.join(TESTDIR ,"test_schema_simple.xml")
+        assert(os_file_exists(self.schema_file))
         self.filename = "/Users/burtnolej/Development/pythonapps/clean/utils/test_misc/test_file2xml.xml"
         
     def test_(self):
