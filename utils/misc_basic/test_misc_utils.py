@@ -1,8 +1,42 @@
 import sys
 import unittest
 import time
-from misc_utils import write_binary_file, write_binary_file_struct, encode, decode
+from os import path
+from misc_utils import write_binary_file, write_binary_file_struct, encode, decode, \
+     bindiff, os_dir_exists
+from misc_utils_log import Log, PRIORITY
 
+if sys.platform == "win32":
+    LOGDIR = "./"
+else:
+    LOGDIR = "/tmp/log"
+
+ROOTDIR = path.dirname(path.realpath(__file__))
+assert(os_dir_exists(ROOTDIR,"test_gifs")) # test files go here
+TESTDIR = path.join(ROOTDIR,"test_gifs")
+    
+log = Log(cacheflag=True,logdir=LOGDIR,verbosity=10)
+
+class Test_BinDiff(unittest.TestCase):
+    def setUp(self):
+        pass
+    
+    def test_diff(self):
+        file1 = path.join(TESTDIR,"foobar.gif")
+        file2 = path.join(TESTDIR,"center8Helveticafoobar90200x200.gif")
+        self.assertFalse(bindiff(file1,file2))
+        
+    def test_not_diff(self):
+        file1 = path.join(TESTDIR,"foobar.gif")
+        file2 = path.join(TESTDIR,"foobar.gif")
+        self.assertTrue(bindiff(file1,file2))
+        
+    def test_diff_full_result(self):
+        file1 = path.join(TESTDIR,"foobar.gif")
+        file2 = path.join(TESTDIR,"center8Helveticafoobar90200x200.gif")
+        self.assertEqual(599,len(bindiff(file1,file2,returnfulldiff=True)))
+
+        
 class Test_WriteBinaryFile(unittest.TestCase):
     def setUp(self):
         pass
@@ -35,8 +69,11 @@ if __name__ == "__main__":
     #unittest.main()
     
     suite = unittest.TestSuite()
-    suite.addTest(unittest.TestLoader().loadTestsFromTestCase(Test_WriteBinaryFile))
-    suite.addTest(unittest.TestLoader().loadTestsFromTestCase(Test_Encode))
+    
+    suite.addTest(unittest.TestLoader().loadTestsFromTestCase(Test_BinDiff))
+    
+    #suite.addTest(unittest.TestLoader().loadTestsFromTestCase(Test_WriteBinaryFile))
+    #suite.addTest(unittest.TestLoader().loadTestsFromTestCase(Test_Encode))
 
     
     

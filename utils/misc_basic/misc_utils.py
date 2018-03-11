@@ -44,6 +44,34 @@ import struct
 import StringIO
 import urllib
 
+def bindiff(file1,file2,returnfulldiff=False):
+    """ binary compare 2 files
+    :param file1 :string
+    :param file2 :string
+    :param returnfulldiff : boolean, if False func returns True/False otherwise full diff
+    rtype:boolean or list of string
+    """
+    import sys
+    from types import BooleanType
+    from misc_utils_process import process_start,process_get_stdout
+    from misc_utils import os_file_exists
+    
+    assert os_file_exists(file1),file1
+    assert os_file_exists(file2),file2
+    assert isinstance(returnfulldiff,BooleanType)
+    
+    if sys.platform == "win32":
+        cmd = ['fc.exe','/B',file1,file2]
+        p = process_start(cmd)
+        diff_result = process_get_stdout(p)
+        
+        if diff_result.split("\n")[1].startswith("FC: no differences encountered"):
+            return True
+    
+        if returnfulldiff:
+            return diff_result.split("\n")
+        return False
+    
 class Enum(object):
     def __init__(self,**kwargs):
         for key,value in kwargs.iteritems():
@@ -239,17 +267,12 @@ def nxnarraycreate(maxrows,maxcols,args={}):
 class Singleton(type):
     _instances = {}
     def __call__(cls,*args,**kwargs):
-        
         if kwargs.has_key('reset') == True:
             cls._instances = {}
             kwargs.pop('reset')
                 
         if cls not in cls._instances:
-            #print "info: singleton object being created"
             cls._instances[cls] = super(Singleton, cls).__call__(*args,**kwargs)
-        else:
-            #print "info: singleton already instantiated",cls._instances[cls]
-            pass
         return cls._instances[cls]
     
 def attr_get_keyval(obj):
