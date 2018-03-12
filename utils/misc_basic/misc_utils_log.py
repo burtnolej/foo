@@ -1,7 +1,5 @@
 import sys
-from misc_utils import Singleton, thisfuncname, thisfuncsclassname, Enumerate
-from misc_utils_process import process_instances_get, process_kill, process_start, process_get_stdout, \
-     process_stdin
+from misc_utils import Singleton, Enumerate
 from time import time, sleep
 from inspect import stack, isclass, ismethod, isfunction
 from os.path import basename
@@ -187,19 +185,20 @@ class Log():
         self.cache=[]
         
     def log_cat(self,grepargs=[]):
-
+        from misc_utils_process import process_start, process_get_stdout
+        
         self.logfile.close()        
 
         cmd = ["cat",self.logpath]
-        p = process_start(cmd)
-        logfile = process_get_stdout(p) 
+        p = misc_utils_process.process_start(cmd)
+        logfile = misc_utils_process.process_get_stdout(p) 
         
         print        
         if grepargs <> []:
             cmd = ['grep'] + grepargs      
-            p = process_start(cmd,stdin=True)
+            p = misc_utils_process.process_start(cmd,stdin=True)
             
-            for line in process_stdin(p,logfile):
+            for line in misc_utils_process.process_stdin(p,logfile):
                 print line
         else:
             print logfile
@@ -397,13 +396,14 @@ class Log():
         self.log_cache_reset()
         
     def log_null(self):
+        from misc_utils_process import process_start
         try:
             self.logfile = open(self.logpath,"a")
         except IOError:
             pass
         
         cmd = ["nullfile.sh",self.logpath]
-        p = process_start(cmd)  
+        p = misc_utils_process.process_start(cmd)  
         
         self.logfile.close()
         

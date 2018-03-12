@@ -39,10 +39,19 @@ from os.path import basename
 from os import listdir, remove
 from shutil import move, copy
 import base64
-from types import ListType
+from types import ListType, StringType
 import struct
 import StringIO
 import urllib
+
+def strfmtnow(format="%m%d%y"):
+    """ return now in a string of the passed format
+    :param format : i.e. "%m%d%y
+    rtype:string
+    """    
+    from datetime import datetime
+    assert(isinstance(format,StringType),format)
+    return str(datetime.now().strftime(format))
 
 def bindiff(file1,file2,returnfulldiff=False):
     """ binary compare 2 files
@@ -211,7 +220,7 @@ def os_file_touch(fpath, fname):
         
     return fpname
             
-def os_dir_exists(dirpath,dirname):
+def os_dir_exists(dirpath,dirname=""):
     from os.path import join
     return(os_file_exists(join(dirpath,dirname)))
 
@@ -225,11 +234,25 @@ def os_dir_create(dirpath,dirname,test_exists=False):
         
     mkdir(join(dirpath,dirname))
         
-def os_dir_delete(dirpath,dirname):
+def os_dir_delete(dirpath,dirname=None,treedel=False):
+    """ deletes a directory
+    :param dirpath: string, path to directory
+    :param optional dirname: string, name of dir, if not provides its assumed that dirpath is the fullpath
+    :param treedel: boolean, recursively delete files in dir or not
+    """
+
+    assert os_file_exists(dirpath) or os_file_exists(os.path.join(dirpath,dirname))
     from os.path import join
     from os import mkdir, rmdir
+    from shutil import rmtree
     
-    rmdir(join(dirpath,dirname))
+    if dirname != None:
+        dirpath= join(dirpath,dirname)
+        
+    if not treedel:
+        rmdir(dirpath)
+    else:
+        rmtree(dirpath)
     
 def thisfuncname(cls=None,stackdelta=0):
     funcname = stack()[1 + stackdelta][3]

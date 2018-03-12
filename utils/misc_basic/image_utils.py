@@ -1,8 +1,9 @@
 import sys
 from misc_utils_generic import GenericBase
-from misc_utils_process import *
-from misc_utils import os_file_exists, thisfuncname
-from misc_utils_log import Log
+
+from misc_utils import os_file_exists, thisfuncname, strfmtnow
+from misc_utils_log import Log, logger, PRIORITY
+from misc_utils_process import process_start
 from os import mkdir, getcwd
 from os.path import join as ospathjoin
 from datetime import datetime
@@ -12,8 +13,7 @@ if sys.platform == "win32":
 else:
     LOGDIR = "/tmp/log"
     
-log = Log(cacheflag=True,logdir=LOGDIR,verbosity=20,
-          pidlogname=True,proclogname=False)
+log = Log(cacheflag=True,logdir=LOGDIR,verbosity=10)
 
 settings = ['gravity','background','pointsize','font']
 image_operator = ['rotate','size','extent']
@@ -52,9 +52,6 @@ def sizestr_get(x,y):
            
 def labelstr_get(label):
     return("label:{label}".format(label=label))
- 
-def now():
-    return(str(datetime.now().strftime("%m%d%y")))
 
 def get_gif_filename(dir,label,args):    
     argcopy = args.copy()
@@ -77,39 +74,27 @@ def get_gif_filename(dir,label,args):
     return(filename)
 
 class ImageCreate(GenericBase):
-    
     def create_image_file(self,labels, **kw):
-
+        if not kw.has_key('convert_exec'):
+            convert_exec = "convert"
+        else:
+            convert_exec = kw['convert_exec']
+            log.log(PRIORITY.INFO,msg="convert command being set to ["+convert_exec+"]")
+           
         if not kw.has_key('overwrite'):
             kw['overwrite'] = False
+            log.log(PRIORITY.INFO,msg="overwrite not set")
             
         if not isinstance(labels,list):
             labels = [labels]
         
         self.outputfiles = []
         self.labels = labels
-        self.outputdirname = "ic_"+now()
-        cwd = getcwd()
-        
-        try:
-            mkdir(ospathjoin(cwd,self.outputdirname))
-        except OSError: # directory exists
-            pass
-        
-        #try:
-        log.log(thisfuncname(),3,msg="mkdir="+self.outputdirname)
-
-        
-        #except:
-        #    print "mkdir="+self.outputdirname
+        self.outputdirname = ImageCreate._getoutputdirname()
 
         for lbl in self.labels:
-            
-            cmd = ['convert','-verbose']
-
+            cmd = [convert_exec,'-verbose']
             outputfilename = get_gif_filename(self.outputdirname,lbl,kw)
-            #filename = lbl + "-" + "-".join(map(str,kw.values())) + ".gif"  
-            #outputfilename = ospathjoin(self.outputdirname,filename)
             
             if os_file_exists(outputfilename) == False or kw['overwrite'] == True:
                 
@@ -126,30 +111,32 @@ class ImageCreate(GenericBase):
                         cmd = cmd + ["-"+im,str(kw[im])]
                 
                 cmd.append(outputfilename)
-    
                 p = process_start(cmd)
-                
                 status = parse_convert_stdout(p,lbl)
                 
                 if status[0] == 0:
-                    
-                    log.log(thisfuncname(),3,create_image=outputfilename,
-                            status=" ".join(map(str,status)))
+                    log.log(PRIORITY.INFO,msg="create_image="+outputfilename)
                 else:
-                    self.log.log(self,3,"failed","status="," ".join(map(str,status)))
-                    
-                    log.log(thisfuncname(),3,msg="failed",
-                            status=" ".join(map(str,status)))
-                    
+                    log.log(PRIORITY.FAILURE,msg="status="+",".join(map(str,status)))
                     raise Exception("ImageCreate failure",status)
 
             else:
-                log.log(thisfuncname(),3,reused_image=outputfilename)
+                log.log(PRIORITY.INFO,msg="reused_image="+outputfilename)
                 
             self.outputfiles.append(outputfilename)
                 
         return(self.outputfiles)
     
+    @staticmethod
+    def _getoutputdirname(createdir=True):
+        cwd = getcwd()
+        outputdirname = "ic_"+strfmtnow()
+        if createdir:
+            try:
+                mkdir(ospathjoin(cwd,outputdirname))
+            except OSError: # directory exists
+                log.log(PRIORITY.SUCCESS,msg="mkdir="+outputdirname)
+        return outputdirname
         
 if __name__ == "__main__":
     tkgrey = rgbstr_get(240,240,237)
