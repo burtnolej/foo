@@ -1,0 +1,10 @@
+<root>
+	<tagA>
+		<childA1/>
+		<childA2/>
+	</tagA>
+	<tagB>
+		<childB1/>
+		<childB2/>
+	</tagB>
+</root>
