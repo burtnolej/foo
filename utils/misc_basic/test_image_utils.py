@@ -9,7 +9,7 @@ from time import sleep
 from datetime import datetime
 from collections import OrderedDict
 from misc_utils_log import Log, logger, PRIORITY
-from os import path
+from os import path,chdir
 if sys.platform == "win32":
     LOGDIR = "./"
 else:
@@ -41,6 +41,7 @@ class TestImageBase(unittest.TestCase):
         self.ic = ImageCreate()
         self.inputfiles = "foobar"
         self.outputdirname = ImageCreate._getoutputdirname()
+        chdir(ROOTDIR)
         
     def tearDown(self):
         import os
@@ -56,6 +57,7 @@ class TestImageCreateBasic(TestImageBase):
         args=OrderedDict({'convert_exec':path.join(IMDIR,"convert")})
         exp_res = get_gif_filename(TESTDIR,self.inputfiles,args)
         self.outputfiles = self.ic.create_image_file(self.inputfiles,**args)
+        sleep(1)
         self.assertTrue(bindiff(path.join(TESTDIR,self.inputfiles+".gif"),path.join(ROOTDIR,self.outputfiles[0])))
         
 class TestImageCreatepointsize(TestImageBase):
@@ -63,6 +65,7 @@ class TestImageCreatepointsize(TestImageBase):
         args=OrderedDict({'convert_exec':path.join(IMDIR,"convert"),'pointsize':64})
         exp_res = get_gif_filename(TESTDIR,self.inputfiles,args)
         self.outputfiles = self.ic.create_image_file(self.inputfiles,**args)
+        sleep(1)
         self.assertTrue(bindiff(path.join(TESTDIR,"64"+self.inputfiles+".gif"),path.join(ROOTDIR,self.outputfiles[0])))
         
 class TestImageCreateBackground(TestImageBase):
@@ -71,6 +74,7 @@ class TestImageCreateBackground(TestImageBase):
         args=OrderedDict({'convert_exec':path.join(IMDIR,"convert"),'background':red})
         exp_res = get_gif_filename(TESTDIR,self.inputfiles,args)
         self.outputfiles = self.ic.create_image_file(self.inputfiles,**args)
+        sleep(1)
         self.assertTrue(bindiff(path.join(TESTDIR,"ff0000"+self.inputfiles+".gif"),path.join(ROOTDIR,self.outputfiles[0])))
         
 class TestImageCreateRotate(TestImageBase):
@@ -78,6 +82,7 @@ class TestImageCreateRotate(TestImageBase):
         args=OrderedDict({'convert_exec':path.join(IMDIR,"convert"),'rotate':90})
         exp_res = get_gif_filename(TESTDIR,self.inputfiles,args)
         self.outputfiles = self.ic.create_image_file(self.inputfiles,**args)
+        sleep(1)
         self.assertTrue(bindiff(path.join(TESTDIR,self.inputfiles+"90.gif"),path.join(ROOTDIR,self.outputfiles[0])))
       
 class TestImageCreateextent(TestImageBase):        
@@ -85,6 +90,7 @@ class TestImageCreateextent(TestImageBase):
         args=OrderedDict({'convert_exec':path.join(IMDIR,"convert"),'extent':'200x200'})
         exp_res = get_gif_filename(TESTDIR,self.inputfiles,args)
         self.outputfiles = self.ic.create_image_file(self.inputfiles,**args)
+        sleep(1)
         self.assertTrue(bindiff(path.join(TESTDIR,self.inputfiles+"200x200.gif"),path.join(ROOTDIR,self.outputfiles[0])))
             
 class TestImageCreateGravity(TestImageBase):
@@ -92,6 +98,7 @@ class TestImageCreateGravity(TestImageBase):
         args=OrderedDict({'convert_exec':path.join(IMDIR,"convert"),'gravity':'center'})
         exp_res = get_gif_filename(TESTDIR,self.inputfiles,args)
         self.outputfiles = self.ic.create_image_file(self.inputfiles,**args)
+        sleep(1)
         self.assertTrue(bindiff(path.join(TESTDIR,"center"+self.inputfiles+".gif"),path.join(ROOTDIR,self.outputfiles[0])))
         
 class TestImageCreateFont(TestImageBase):
@@ -99,6 +106,7 @@ class TestImageCreateFont(TestImageBase):
         args=OrderedDict({'convert_exec':path.join(IMDIR,"convert"),'font':'Arial'})
         exp_res = get_gif_filename(TESTDIR,self.inputfiles,args)
         self.outputfiles = self.ic.create_image_file(self.inputfiles,**args)
+        sleep(1)
         self.assertTrue(bindiff(path.join(TESTDIR,"Arial"+self.inputfiles+".gif"),path.join(ROOTDIR,self.outputfiles[0])))
 
 class TestImageCreateMultiSetting(TestImageBase):
@@ -107,6 +115,7 @@ class TestImageCreateMultiSetting(TestImageBase):
         args=OrderedDict({'convert_exec':path.join(IMDIR,"convert"),'extent':'800x200','background':red})
         exp_res = get_gif_filename(TESTDIR,self.inputfiles,args)
         self.outputfiles = self.ic.create_image_file(self.inputfiles,**args)
+        sleep(1)
         self.assertTrue(bindiff(path.join(TESTDIR,"ff0000"+self.inputfiles+"800x200.gif"),path.join(ROOTDIR,self.outputfiles[0])))
 
 class TestImageCreateMultiFile(TestImageBase):  

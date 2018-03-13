@@ -72,7 +72,7 @@ class TestSubProcess(unittest.TestCase):
             
             pids=process_instances_get('imdisplay.exe')
             self.assertEquals(len(pids),1)
-            
+            sleep(0.5)
             for _pid in pids:
                 process_kill(_pid)
                 
@@ -121,6 +121,7 @@ class TestProcessUp(unittest.TestCase):
 
     def test_processup(self):
         
+        sleep(0.5)
         pids=process_instances_get('imdisplay.exe')
         self.assertEquals(len(pids),5)
         

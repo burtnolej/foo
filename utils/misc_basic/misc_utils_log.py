@@ -64,6 +64,7 @@ class Log():
                                        ('funcname',50),('etime',6),
                                        ('result',30),('fargs',30), 
                                        ('fkw',20),('logmesg',-1)])
+        '''
         # add the PID to the log filename
         if self.pidlogname == True:
             self.logname = self.logname + "." + str(self._getpid())
@@ -71,12 +72,20 @@ class Log():
         # add the calling process to the log file name
         if self.proclogname == True:
             self.logname = self.logname + "." + basename(stack()[2][1])
-
+        '''
         self.startlog()
     
     def startlog(self):
         fileattr = "a"
+
+        # add the PID to the log filename
+        if self.pidlogname == True:
+            self.logname = self.logname + "." + str(self._getpid())
         
+        # add the calling process to the log file name
+        if self.proclogname == True:
+            self.logname = self.logname + "." + basename(stack()[1][1])
+            
         self.logfullpath = os.path.join(self.logdir,self.logname)
         
         if os.path.exists(self.logfullpath) == False:
@@ -425,7 +434,7 @@ class Log():
     
     def close(self):
         self.cache = []
-        self.stats=[]
+        self.stats={}
         self.logfile.close()
         
     def reset(self):

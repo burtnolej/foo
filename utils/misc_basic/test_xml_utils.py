@@ -3,8 +3,13 @@ import unittest
 from xml_utils import element_find_by_attrib_value, element_move, element_fuse, \
      element_parent_get, element_find_tags,element_find_children, grid2xml, xml2string, record2xml, \
      tree2xml, file2xml
-    
+from misc_utils import os_dir_exists, os_file_exists
+from os import path
 from collections import OrderedDict
+
+ROOTDIR = path.dirname(path.realpath(__file__))
+assert(os_dir_exists(ROOTDIR,"test_misc")) # test files go here
+TESTDIR = path.join(ROOTDIR,"test_misc")
 
 class Test_XML(unittest.TestCase):
 
@@ -203,7 +208,9 @@ class Test_XML(unittest.TestCase):
 class Test_XML_xpath(unittest.TestCase):
 
     def setUp(self):
-        self.test_xml = "/home/burtnolej/Development/pythonapps3/clean/utils/test_misc/test_xpath.xml"        
+        self.test_xml = path.join(TESTDIR ,"test_xpath.xml")
+        assert(os_file_exists(self.test_xml))
+             
         self.root = xmltree.parse(self.test_xml)        
         
     def test_element_getall_children(self):
@@ -847,9 +854,8 @@ class Test_Tree2XML(unittest.TestCase):
 class Test_File2XML(unittest.TestCase):
     
     def setUp(self):
-        self.schema_file = path.join(TESTDIR ,"test_schema_simple.xml")
-        assert(os_file_exists(self.schema_file))
-        self.filename = "/Users/burtnolej/Development/pythonapps/clean/utils/test_misc/test_file2xml.xml"
+        self.filename = path.join(TESTDIR ,"test_file2xml.xml")
+        assert(os_file_exists(self.filename))
         
     def test_(self):
         expected_results = "<tagA><childA1 /><childA2 /></tagA>"

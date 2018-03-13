@@ -44,6 +44,17 @@ import struct
 import StringIO
 import urllib
 
+def add2dict(thisdict,key,item):
+    """ helper to add to a dict of lists
+    :param thisdict: dict, the dict in question
+    :param key :string
+    :param item: string
+    """    
+    if thisdict.has_key(key):
+        thisdict[key].append(item)
+    else:
+        thisdict[key] = [item]
+
 def strfmtnow(format="%m%d%y"):
     """ return now in a string of the passed format
     :param format : i.e. "%m%d%y

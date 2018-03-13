@@ -71,9 +71,8 @@ if __name__ == "__main__":
     suite = unittest.TestSuite()
     
     suite.addTest(unittest.TestLoader().loadTestsFromTestCase(Test_BinDiff))
-    
-    #suite.addTest(unittest.TestLoader().loadTestsFromTestCase(Test_WriteBinaryFile))
-    #suite.addTest(unittest.TestLoader().loadTestsFromTestCase(Test_Encode))
+    suite.addTest(unittest.TestLoader().loadTestsFromTestCase(Test_WriteBinaryFile))
+    suite.addTest(unittest.TestLoader().loadTestsFromTestCase(Test_Encode))
 
     
     
