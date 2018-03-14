@@ -3,7 +3,7 @@ Attribute VB_Name = "Test_Log_Utils"
 Const CsModuleName = "Test_Log_Utils"
 Sub TestRunner()
     'GetLogFile
-    Log_Utils.LogFilter = "8,9"
+    'Log_Utils.LogFilter = "8,9"
     
     Call TestWriteToLog
 End Sub
@@ -43,7 +43,6 @@ fail:
     bTestPassed = False
     
 teardown:
-    Debug.Print bTestPassed
     CloseLogFile
-    DeleteFile (sLogFileName)
+    DeleteFile sLogFileName
 End Sub

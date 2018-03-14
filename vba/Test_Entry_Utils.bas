@@ -63,7 +63,7 @@ fail:
     
 teardown:
     DeleteEntryForms
-    DeleteSheet ActiveWorkbook, sSheetName
+    'DeleteSheet ActiveWorkbook, sSheetName
     Call TestLogIt(sFuncName, bTestPassed)
 End Sub
 

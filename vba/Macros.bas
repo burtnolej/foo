@@ -1,17 +1,26 @@
 Attribute VB_Name = "Macros"
 Const CsModuleName = "Macros"
 Public Sub RunTests()
-    'GetLogFile
+    GetLogFile
     Log_Utils.LogFilter = "8,9"
+    Test_Array_Utils.TestRunner
+    Test_DB_Utils.TestRunner
+    Test_Dict_Utils.TestRunner
     Test_Entry_Utils.TestRunner
     Test_File_Utils.TestRunner
+    Test_Filter_Utils.TestRunner
     Test_Format_Utils.TestRunner
-    Test_Log_Utils.TestRunner
+    'Test_Log_Utils.TestRunner
+    Test_MAcros.TestRunner
     Test_Module_Utils.TestRunner
+    Test_OS_Utils.TestRunner
     Test_Range_Utils.TestRunner
+    Test_String_Utils.TestRunner
     Test_Table_Utils.TestRunner
-    Test_Array_Utils.TestRunner
-    'Call CloseLogFile
+    Test_Widget_Utils.TestRunner
+    Test_Workbook_Utils.TestRunner
+    
+    Call CloseLogFile
 End Sub
 
 Public Sub DoViewLogs()
@@ -249,7 +258,7 @@ Dim sDirectory As String, sTmpDirectory As String, sFuncName As String
 End Sub
 
 Public Function DoQueryDBRows(wb As Workbook, sSheetName As String, sDatabaseName As String, sTableName As String, _
-                    sQryStr As String, Optional bDecodeFlag As Boolean = False, _
+                    bDeleteFlag As Boolean, sQryStr As String, Optional bDecodeFlag As Boolean = False, _
                     Optional bResultFile As Boolean = False) As String
 Dim sQryResults As String
 Dim rTarget As Range
@@ -260,9 +269,8 @@ Dim aResults As Variant
 
     sQryResults = DBQuery(sDatabaseName, _
                     sTableName, _
-                    bDecodeFlag, _
+                    bDeleteFlag, _
                     sQryStr, _
-                    bDecodeFlag:=bDecodeFlag, _
                     bResultFile:=bResultFile)
                     
     Debug.Print "got results before parsing " & GetDateString(Now)

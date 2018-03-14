@@ -176,7 +176,7 @@ setup:
         Set dControlValues = GetControlValues(vControls)
         DoQueryDBRows ActiveWorkbook, dControlValues.Item("TableName"), dControlValues.Item("DatabaseName"), _
                 dControlValues.Item("TableName"), dControlValues.Item("QueryString"), _
-                        bDecodeFlag:=dControlValues.Item("DecodeFlag")
+                        dControlValues.Item("DeleteFlag")
     Else
         GoTo fail
     End If

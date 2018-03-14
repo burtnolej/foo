@@ -227,7 +227,7 @@ Public Function DBQuery(sDatabaseName As String, _
                         sQryStr As String, _
                         Optional bDecodeFlag As Boolean = False, _
                         Optional bResultFile As Boolean = False, _
-                        Optional sFileName As String = "pyshellargs.txt", _
+                        Optional sFileName As String = "unipyshellargs.txt", _
                         Optional sResultFileName As String = "pyshellresults.txt") As String
 Dim aArgs() As String
 
@@ -236,7 +236,6 @@ Dim aArgs() As String
     CreatePySqliteArgsFile sDatabaseName, _
                             sTableName, _
                             bDeleteFlag:=bDeleteFlag, _
-                            bDecodeFlag:=bDecodeFlag, _
                             sQryStr:=sQryStr, _
                             sFileName:=sFileName
                             
