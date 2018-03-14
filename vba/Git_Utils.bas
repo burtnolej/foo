@@ -83,6 +83,7 @@ Dim sRuntimePath As String
 
     CreateGitArgsFile sRepoName, sGitRootPath, sMessage:=sMessage, aFiles:=aFiles
 
+
     aArgs = InitStringArray(Array("python", Git_Utils.sExecPath & "excel_git_utils.py", _
             "commit", sFileName, sRuntimePath))
     ShellRun (aArgs)
