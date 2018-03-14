@@ -59,11 +59,12 @@ class Log():
         
         # set the defaulf config if one is not set.
         if self.config ==None:
+            # add any new fields to the end so as not to break tests
             self.config = OrderedDict([('now',12),('thread',6),
                                        ('type',20),('module',20), 
                                        ('funcname',50),('etime',6),
                                        ('result',30),('fargs',30), 
-                                       ('fkw',20),('logmesg',-1)])
+                                       ('fkw',20),('logmesg',-1),('linenum',5)])
         '''
         # add the PID to the log filename
         if self.pidlogname == True:
@@ -265,6 +266,9 @@ class Log():
             else:    
                 logmesg['funcname'] = stack()[1][0].f_code.co_name
             
+           # get the line num that created the log
+            logmesg['linenum'] = stack()[1][2]
+
             # set the passed in args and values
             logmesg['args'] = str(_f_locals)
             if kwargs.has_key('msg') == True:
@@ -376,7 +380,7 @@ class Log():
             except IOError:
                 pass
 
-            self.logfile.write("|".join(output)+"\n")
+            self.logfile.write("|".join(map(str,output))+"\n")
             self.logfile.flush()
             
             if self.echoflag ==True:

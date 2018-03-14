@@ -1,6 +1,6 @@
 import sys
 from misc_utils_log import Log, logger, Singleton, PRIORITY
-from misc_utils import thisfuncname, os_file_to_list, os_file_delete
+from misc_utils import thisfuncname, os_file_to_list, os_file_delete, isint
 from time import sleep
 from collections import OrderedDict
 import unittest
@@ -77,7 +77,22 @@ class Test_Log(Test_Log_Base):
         self.log.log(PRIORITY.SUCCESS,foobar='barfoo')
         expected_results = "[('foobar', 'barfoo')]"
         self.assertEquals(self.log.cache[0][9],expected_results)
-           
+
+class Test_Log_LineNumber(Test_Log_Base):
+    def setUp(self):
+        self.log = Log()
+        self.log.config = OrderedDict([('linenum',5)]) 
+        self.log.cacheflag=True
+        self.log.startlog()
+    
+    def test_(self):
+        def myfunc(arg1,arg2):
+            self.log.log(PRIORITY.SUCCESS,msg="this is a test")            
+        myfunc('foo','bar')
+        
+        # not testing for a specific line number as it will be too brittle a test
+        self.assertTrue(isint(self.log.cache[0][0]))
+        
 class Test_Calling_Class(Test_Log_Base):
     def setUp(self):
         super(Test_Calling_Class,self).setUp()
@@ -151,5 +166,8 @@ if __name__ == "__main__":
     suite.addTest(unittest.TestLoader().loadTestsFromTestCase(Test_Log_Multiple_Entries))
     suite.addTest(unittest.TestLoader().loadTestsFromTestCase(Test_Misc))
     suite.addTest(unittest.TestLoader().loadTestsFromTestCase(Test_Log_Names))
+    suite.addTest(unittest.TestLoader().loadTestsFromTestCase(Test_Log_LineNumber))
+    
+    
     
     unittest.TextTestRunner(verbosity=2).run(suite)
