@@ -1,5 +1,5 @@
 Attribute VB_Name = "Git_Utils"
-Public Const sExecPath = "C:\Users\burtnolej\Documents\GitHub\quadviewer\utils\"
+Public Const sExecPath = "C:\Users\burtnolej\Documents\GitHub\quadviewer\utils\excel\"
 Public Const sRuntimeDir = "C:\Users\burtnolej\Documents\runtime\"
 Public Const sFileName = "C:\Users\burtnolej\Development\uupyshell.args.txt"
 
@@ -82,7 +82,6 @@ Dim sExecPath As String
 Dim sRuntimePath As String
 
     CreateGitArgsFile sRepoName, sGitRootPath, sMessage:=sMessage, aFiles:=aFiles
-
 
     aArgs = InitStringArray(Array("python", Git_Utils.sExecPath & "excel_git_utils.py", _
             "commit", sFileName, sRuntimePath))

@@ -155,7 +155,6 @@ setup:
         Set dControlValues = GetControlValues(vControls)
         DoGitViewCommits dControlValues.Item("RepoName")
     
-    
     ' Group: Config
     ElseIf control.ID = "DecodeFlag" Then
         OnChange control, str(bCheckbox)

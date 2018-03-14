@@ -18,6 +18,17 @@ Dim sFuncName As String
         GetQueryFromRange = "-1"
     End If
 End Function
+
+Public Function Encode(sValue As String, sEncoding As String) As String
+
+    If sEncoding = "uu" Then
+        Encode = UUEncode(sValue)
+        Exit Function
+    End If
+    
+    Encode = sValue
+    
+End Function
 Public Sub CreatePySqliteArgsFile( _
     sDatabaseName As String, _
     sTableName As String, _
@@ -25,10 +36,12 @@ Public Sub CreatePySqliteArgsFile( _
     Optional bDecodeFlag As Boolean = False, _
     Optional aColumns As Variant, _
     Optional aColumnDefns As Variant, _
+    Optional sEncoding As String = "uni", _
     Optional aRows As Variant, _
     Optional sQryStr As String = "", _
     Optional sFileName As String = "C:\Users\burtnolej\Development\pyshell.args.txt", _
-    Optional sRuntimeDir As String = "C:\Users\burtnolej\Documents\runtime")
+    Optional sRuntimeDir As String = "C:\Users\burtnolej\Documents\runtime", _
+    Optional sResultFileName As String)
     
 Dim PYTHONPATH As String
 Dim sTmp As String
@@ -58,12 +71,31 @@ Dim sTmp As String
         Call AppendFile(sFileName, "delete_flag:" & EncodeBase64(CStr(bDeleteFlag)) & vbCrLf)
         Call AppendFile(sFileName, "decode_flag:" & EncodeBase64(CStr(bDecodeFlag)) & vbCrLf)
         Call AppendFile(sFileName, "runtime_dir:" & EncodeBase64(sRuntimeDir) & vbCrLf)
+
+        If sQryStr <> "" Then
+            Call AppendFile(sFileName, "qry_str:" & EncodeBase64(sQryStr) & vbCrLf)
+        End If
+
+        If sResultFileName <> "" Then
+            Call AppendFile(sFileName, "result_file:" & EncodeBase64(sResultFileName) & vbCrLf)
+        End If
+        
     Else
-        Call AppendFile(sFileName, "database_name:" & sDatabaseName & vbCrLf)
-        Call AppendFile(sFileName, "table_name:" & sTableName & vbCrLf)
-        Call AppendFile(sFileName, "delete_flag:" & CStr(bDeleteFlag) & vbCrLf)
-        Call AppendFile(sFileName, "decode_flag:" & CStr(bDecodeFlag) & vbCrLf)
-        Call AppendFile(sFileName, "runtime_dir:" & sRuntimeDir & vbCrLf)
+        Call AppendFile(sFileName, "database_name:" & Encode(sDatabaseName, sEncoding) & vbCrLf)
+        Call AppendFile(sFileName, "table_name:" & Encode(sTableName, sEncoding) & vbCrLf)
+        Call AppendFile(sFileName, "delete_flag:" & Encode(CStr(bDeleteFlag), sEncoding) & vbCrLf)
+        Call AppendFile(sFileName, "decode_flag:" & Encode(CStr(bDecodeFlag), sEncoding) & vbCrLf)
+        Call AppendFile(sFileName, "runtime_dir:" & Encode(sRuntimeDir, sEncoding) & vbCrLf)
+
+        If sQryStr <> "" Then
+            Call AppendFile(sFileName, "qry_str:" & Encode(sQryStr, sEncoding) & vbCrLf)
+        End If
+        If sResultFileName <> "" Then
+            Call AppendFile(sFileName, "result_file:" & Encode(sResultFileName, sEncoding) & vbCrLf)
+        End If
+        
+        
+
     End If
     
     If Not IsMissing(aColumnDefns) Then
@@ -80,18 +112,18 @@ Dim sTmp As String
         
         If bDecodeFlag = True Then
             sTmp = AsciiReplace(sTmp, 10, 43, iToCount:=3)
+        Else
+            sTmp = Replace(sTmp, "'", "")
         End If
 
         Call AppendFile(sFileName, "rows:" & sTmp & vbCrLf)
     
     End If
 
-    If sQryStr <> "" Then
-        Call AppendFile(sFileName, "qry_str:" & EncodeBase64(sQryStr) & vbCrLf)
-    End If
+
 End Sub
 
-Public Function ParsePySqliteArgsFile(sFileName As String) As Dictionary
+Public Function ParsePySqliteArgsFile(sFileName As String, Optional sEncoding As String = "uni") As Dictionary
 Dim dResult As New Dictionary
 Dim sFileStr As String
 Dim aResultRows() As String, aRows() As String, aCols() As String
@@ -112,7 +144,7 @@ Dim iRow As Integer, iCol As Integer
             For iRow = 0 To UBound(aRows)
                 aCols = Split(aRows(iRow), "^")
                 For iCol = 0 To UBound(aCols)
-                    aResult(iRow, iCol) = StrConv(DecodeBase64(aCols(iCol)), vbUnicode)
+                    aResult(iRow, iCol) = Encode(aCols(iCol), sEncoding)
                 Next iCol
             Next iRow
             
@@ -121,7 +153,7 @@ Dim iRow As Integer, iCol As Integer
             'ReDim Preserve aResult(0 To iRow - 1, 0 To iCol - 1)
             dResult.Add sKey, aResult
         Else:
-            sValue = StrConv(DecodeBase64(Split(sResultRow, ":")(1)), vbUnicode)
+            sValue = Encode(CStr(Split(sResultRow, ":")(1)), sEncoding)
             dResult.Add sKey, sValue
         End If
     Next sResultRow
