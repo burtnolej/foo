@@ -25,18 +25,9 @@ log.config =OrderedDict([('now',12),('linenum',5),('type',10),('class',30),('fun
         
 class DatabaseBase(ExcelBase):
     def __init__(self,database_name,delete_flag=False,**kwargs):
-
-        if kwargs.has_key('runtime_path') == True:
-            setattr(self,"runtime_path",kwargs['runtime_path'])
-            log.logdir = kwargs['runtime_path']
-            log.startlog()
-        else:
-            setattr(self,"runtime_path",".")
-            
         super(DatabaseBase,self).__init__(**kwargs)
         self.database_name = database_name
-        self.database = Database(self.runtime_path + "/" + self.database_name + ".sqlite",
-                                     delete_flag)
+        self.database = Database(self.runtime_path + "/" + self.database_name + ".sqlite",delete_flag)
             
     @classmethod   
     def _validate_decode_flag(self,encoding="unicode"):

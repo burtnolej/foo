@@ -25,19 +25,19 @@ class ExcelBase(object):
 
         global log
         
-        # this 
         if sys.platform == "win32":
             self.logdir = "./"
         else:
             self.logdir = "/tmp/log"
             
-        # force the logfile to be written into the runtime directory
-        if kwargs.has_key('runtime_path'):
+        if kwargs.has_key('runtime_path') == True:
+            setattr(self,"runtime_path",kwargs['runtime_path'])
             self.logdir = kwargs['runtime_path']
-            
-        log.logdir = self.logdir
-        log.startlog()
-        setattr(self,"runtime_path",self.logdir)
+            log.logdir = self.logdir
+            # force the logfile to be written into the runtime directory
+            log.startlog()
+        else:
+            setattr(self,"runtime_path",".")
 
     @staticmethod    
     def _get_file_encoding(filepath):

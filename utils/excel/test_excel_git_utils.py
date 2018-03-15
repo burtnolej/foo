@@ -13,6 +13,7 @@ ROOTDIR = path.dirname(path.realpath(__file__))
 class Test_GitBase(unittest.TestCase):
     def setUp(self):
         self.cwd = getcwd()
+        chdir(ROOTDIR) # force the working dir to be ROOTDIR (as when called via testrunner this may not be the case
         self.commit_message = 'foobar'
         self.gitrootpath = "C:\\Users\\burtnolej\\testpygithub\\"
         self.commit_files = ["C:\\Users\\burtnolej\\testpygithub\git_test.txt",
