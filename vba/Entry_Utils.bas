@@ -375,7 +375,7 @@ setup:
                 "IsRecordValid Application.ActiveSheet.Name" & vbNewLine & _
                 "End Sub"
 
-        AddCode2Module ActiveWorkbook, wsTmp.CodeName, sCode
+        'AddCode2Module Workbooks("vba_source_new.xlsm"), wsTmp.CodeName, sCode
         
         With wsTmp
             .Range(.Cells(iRow, 1), .Cells(iRow, 1)).Value = UCase(sAction)

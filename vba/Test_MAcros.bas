@@ -6,8 +6,9 @@ Sub TestRunner()
     'GetLogFile
     Log_Utils.LogFilter = "8,9"
     
-    'Test_DoQueryDBRows
-    Test_DoQueryDBRowsResultFileLarge
+    Test_DoQueryDBRows
+    'Test_DoQueryDBRowsResultFileLarge
+    'Test_DoQueryDBRowsResultFile
     
     'GetLogFile
 End Sub
@@ -25,16 +26,16 @@ setup:
     sTableName = "foobar"
     bDeleteFlag = False
     bDecodeFlag = False
-    sDataPath = "C:\Users\burtnolej\Documents\GitHub\quadviewer\utils\testdata_100rows.csv"
+    sDataPath = "C:\Users\burtnolej\Documents\GitHub\quadviewer\utils\excel\test_misc\testdata_100rows.csv"
     Set wb = Workbooks("vba_source_new.xlsm")
     aColumnDefns = Init2DVariantArray([{"FirstName","Text";"LastName","Text";"Country","Text";"Description","Text";"Age","Integer"}])
     aColumns = InitStringArray(Array("FirstName", "LastName", "Country", "Description", "Age"))
     aRows = ReadFile2Array(sDataPath)
-    sFileName = "C:\\Users\\burtnolej\\foo.txt"
-    sExecPath = "C:\Users\burtnolej\Documents\GitHub\quadviewer\utils\"
+    sFileName = "C:\\Users\\burtnolej\\unifoo.txt"
+    sExecPath = "C:\Users\burtnolej\Documents\GitHub\quadviewer\utils\excel\"
 
     CreatePySqliteArgsFile sDatabaseName, sTableName, bDeleteFlag:=bDeleteFlag, _
-                            bDecodeFlag:=bDecodeFlag, aColumns:=aColumns, aColumnDefns:=aColumnDefns, _
+                            aColumns:=aColumns, aColumnDefns:=aColumnDefns, _
                             aRows:=aRows, sFileName:=sFileName
                             
     ' create the database and table
@@ -52,8 +53,7 @@ setup:
     sResults = ShellRun(aArgs)
     
 main:
-    
-    DoQueryDBRows wb, "foobar", "foobar", "foobar", "select * from foobar", bDecodeFlag:=True
+    DoQueryDBRows wb, "foobar", "foobar", "foobar", True, "select * from foobar"
     sExpectedResult = "quam quis diam. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Fusce aliquet magna a neque. Nullam ut nisi a odio semper cursus. Integer mollis. Integer tincidunt aliquam arcu. Aliquam ultrices iaculis odio. Nam interdum enim non nisi. Aenean eget metus. In nec orci. Donec nibh. Quisque nonummy ipsum non arcu. Vivamus sit amet risus. Donec egestas. Aliquam nec enim. Nunc ut erat. Sed nunc est, mollis non, cursus non, egestas a, dui. Cras pellentesque. Sed dictum. Proin eget odio. Aliquam vulputate ullamcorper magna. Sed eu"
  
     With wb.Sheets("foobar")
@@ -76,8 +76,6 @@ teardown:
     
 End Sub
 
-
-
 Sub Test_DoQueryDBRowsResultFile()
 Dim sFuncName As String, sResults As String, sExecPath As String, sDatabaseName As String, _
     sTableName As String, sFileName As String, sDataPath As String, sExpectedResult As String, _
@@ -93,7 +91,7 @@ setup:
     sTableName = "foobar"
     bDeleteFlag = False
     bDecodeFlag = False
-    sDataPath = "C:\Users\burtnolej\Documents\GitHub\quadviewer\utils\testdata_100rows.csv"
+    sDataPath = "C:\Users\burtnolej\Documents\GitHub\quadviewer\utils\excel\testdata_100rows.csv"
     Set wb = Workbooks("vba_source_new.xlsm")
     aColumnDefns = Init2DVariantArray([{"FirstName","Text";"LastName","Text";"Country","Text";"Description","Text";"Age","Integer"}])
     aColumns = InitStringArray(Array("FirstName", "LastName", "Country", "Description", "Age"))
@@ -121,7 +119,7 @@ setup:
     
 main:
     
-    sResultFilePath = DoQueryDBRows(wb, "foobar", "foobar", "foobar", "select * from foobar", _
+    sResultFilePath = DoQueryDBRows(wb, "foobar", "foobar", "foobar", True, "select * from foobar", _
         bDecodeFlag:=True, bResultFile:=True)
         
     sExpectedResult = "quam quis diam. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Fusce aliquet magna a neque. Nullam ut nisi a odio semper cursus. Integer mollis. Integer tincidunt aliquam arcu. Aliquam ultrices iaculis odio. Nam interdum enim non nisi. Aenean eget metus. In nec orci. Donec nibh. Quisque nonummy ipsum non arcu. Vivamus sit amet risus. Donec egestas. Aliquam nec enim. Nunc ut erat. Sed nunc est, mollis non, cursus non, egestas a, dui. Cras pellentesque. Sed dictum. Proin eget odio. Aliquam vulputate ullamcorper magna. Sed eu"
@@ -201,11 +199,9 @@ setup:
 main:
     Debug.Print "after insert " & GetDateString(Now)
     
-    sResultFilePath = DoQueryDBRows(wb, "foobar", "foobar", "foobar", "select * from foobar", _
-        bDecodeFlag:=True, bResultFile:=True)
-        
-    Debug.Print "after query " & GetDateString(Now)
-  
+    sResultFilePath = DoQueryDBRows(wb, "foobar", "foobar", "foobar", True, "select * from foobar", _
+       bResultFile:=True)
+
 success:
     bTestPassed = True
     GoTo teardown
