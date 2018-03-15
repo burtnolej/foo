@@ -39,7 +39,11 @@ class GitExcelBase(ExcelBase):
     @classmethod   
     def _validate_commit_message(self,**kwargs):
         return self._validate_field("commit_message",**kwargs)
-    
+
+    @classmethod   
+    def _validate_runtime_dir(self,**kwargs):
+        self._validate_filename("runtime_dir",**kwargs)
+        
     @classmethod   
     def _validate_commit_files(self,**kwargs):
         encoding = "unicode"
@@ -107,8 +111,9 @@ class GitExcelHelper(GitExcelBase):
         return GitCommitHelper.commit(self.token,self.reponame,self.commit_files,self.commit_message)
     
     def __del__(self):
-        log.log(PRIORITY.INFO,msg="working directory set back to ["+self.cwd+"]")   
-        chdir(self.cwd)
+        if hasattr(self,'cwd'):
+            log.log(PRIORITY.INFO,msg="working directory set back to ["+self.cwd+"]")   
+            chdir(self.cwd)
     
 if __name__ == "__main__":
     try:

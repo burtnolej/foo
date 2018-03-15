@@ -8,26 +8,21 @@ from database_util import Database, tbl_create, tbl_index_count, \
      schema_data_get, tbl_exists, tbl_count_get
 
 from database_table_util import tbl_rows_insert, tbl_rows_get
-<<<<<<< Updated upstream
+
 from misc_utils import Enum, os_dir_exists, os_file_exists
-=======
 
 from misc_utils import Enum
->>>>>>> Stashed changes
 from misc_utils_generic import GenericBase
 from os import remove, environ, path
 
 PY2 = sys.version_info[0] == 2
 PY3 = sys.version_info[0] == 3
 
-<<<<<<< Updated upstream
 if sys.platform == "win32":
     LOGDIR = "./"
 else:
     LOGDIR = "/tmp/log"
-    
-=======
->>>>>>> Stashed changes
+
 test_db = Enum(name="db_name_test",
                tbl_name="tbl_name_test",
                col_defn=[("col_name1","text"),

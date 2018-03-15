@@ -66,7 +66,7 @@ class ExcelBase(object):
                     setattr(cls,_attr,None)
     
     @classmethod   
-    def _validate_filename(self,fieldname,encoding="unicode"):
+    def _validate_filename(self,fieldname,encoding="unicode",mustexist=True):
         """ check if filename exists
         :param fieldname:string or list of strings
         :rtype : -1 on failure or None
@@ -74,9 +74,10 @@ class ExcelBase(object):
         filepaths = getattr(self,fieldname).split("$$")
         for i in range(len(filepaths)):
             if os_file_exists(decode(filepaths[i],encoding)) == False:
-                return([-1])
-            else:
-                filepaths[i] = decode(filepaths[i],encoding)
+                if mustexist == True:
+                    return([-1])
+            #else:
+            filepaths[i] = decode(filepaths[i],encoding)
         setattr(self,fieldname,filepaths)
         
     @classmethod   
@@ -165,6 +166,7 @@ class ExcelBase(object):
             
         lines = file_str.split("\n")    
 
+        all_fields = [] # holds all fields detected not just mandatory ones
         try:
             # first load all attributes passed
             for _line in lines:
@@ -177,10 +179,20 @@ class ExcelBase(object):
 
                 if len(_line_split) == 2:
                     setattr(cls,_line_split[0],_line_split[1])
-
+                    all_fields.append(_line_split[0])
+                else:
+                    log.log(PRIORITY.INFO,msg="cannot process line ["+_line+"] in file [" + filepath + "]") 
+                    
             # call validate func for each mandatory field
             for _field in mandatory_fields:
-                getattr(cls,"_validate_"+_field)(encoding=encoding)
+                if getattr(cls,"_validate_"+_field)(encoding=encoding) == [-1]:
+                    log.log(PRIORITY.FAILURE,msg="mandatory field could not be validated  ["+_field+"]")
+                    raise Exception("mandatory field could not be validated  ["+_field+"]")
+            
+            # then validate all optional fields
+            for _field in all_fields:
+                if _field not in mandatory_fields:
+                    getattr(cls,"_validate_"+_field)(encoding=encoding)
 
             # check to see if an explicit runtime path is set for databases and log files
             setattr(cls,"runtime_path",runtime_path)

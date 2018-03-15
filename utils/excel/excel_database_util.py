@@ -2,12 +2,13 @@ from database_util import Database, tbl_create, tbl_exists, tbl_list
 from database_table_util import tbl_query, _quotestrs, tbl_rows_insert, _quotestrs, \
      tbl_cols_get, _quotestrs
 from misc_utils import  os_file_to_string, write_text_to_file, os_file_exists, \
-     append_text_to_file, uuencode, uudecode, b64decode, b64decode
+     append_text_to_file, uuencode, uudecode, b64decode, b64decode, tb2str
 from misc_utils_log import Log, logger, PRIORITY
 from collections import OrderedDict
 import inspect
 from datetime import datetime
 from excel_utils import ExcelBase
+from types import ListType
 from getopt import getopt, GetoptError, gnu_getopt
 
 import sys
@@ -19,7 +20,7 @@ else:
     LOGDIR = "/tmp/log"
     
 log = Log(cacheflag=False,logdir=LOGDIR,verbosity=5)
-log.config =OrderedDict([('now',12),('type',10),('class',30),('funcname',30),
+log.config =OrderedDict([('now',12),('linenum',5),('type',10),('class',30),('funcname',30),
                          ('module',20),('msg',-1),('today',8)])
         
 class DatabaseBase(ExcelBase):
@@ -48,6 +49,14 @@ class DatabaseBase(ExcelBase):
     @classmethod   
     def _validate_database_name(self,encoding="unicode"):
         self._validate_field("database_name",encoding)
+        
+    @classmethod   
+    def _validate_result_file(self,encoding="unicode"):
+        self._validate_filename("result_file",encoding,mustexist=False)
+        
+    @classmethod   
+    def _validate_runtime_dir(self,encoding="unicode"):
+        self._validate_filename("runtime_dir",encoding)
         
     @classmethod   
     def _validate_table_name(self,encoding="unicode"):
@@ -134,8 +143,21 @@ class DatabaseQueryTable(DatabaseBase):
         with self.database:
             _,tbl_rows,_ = tbl_query(self.database,query_str)
             
-        if kwargs.has_key('result_file') == True:
-            self._create_output_file(kwargs['result_file'],tbl_rows)
+        
+        if hasattr(self,'result_file'):
+            _result_file = getattr(self,'result_file')
+        elif kwargs.has_key('result_file'):
+            _result_file = kwargs['result_file']
+        else:
+            _result_file = None
+            
+        if isinstance(_result_file, ListType):
+            if len(_result_file) == 1:
+                _result_file = _result_file[0]
+            else:
+                log.log(PRIORITY.INFO,msg="cant use file not a list of len one")
+            
+            self._create_output_file(_result_file,tbl_rows)
             
         return(tbl_rows)
 
@@ -268,7 +290,8 @@ def parse_args(argv):
     access_types = ['query','create','insert','table_exists','table_list','table_info','database_exists']
     
     try:
-        opts, args = getopt(argv[1:], "aiorf", ["access_type=", "input_filename=","output_filename=","runtime_path=","result_file="])
+        opts, args = getopt(argv[1:], "aiorf", ["access_type=", "input_filename=","output_filename=",\
+                                                "runtime_path=","result_file="])
         for flag in mandatory_flags:
             if flag not in dict(opts).keys():
                 raise GetoptError(flag,"needs to be present")
@@ -310,7 +333,7 @@ if __name__ == "__main__":
         
         if config['access_type'] == "query":
             _query =  DatabaseQueryTable.query_by_file(config['input_filename'],**opt_config)
-            print "$$".join(["^".join(_row) for _row in _query])
+            print "$$".join(["^".join(map(str,_row)) for _row in _query])
         elif config['access_type']== "create":
             print DatabaseCreateTable.create_by_file(config['input_filename'],**opt_config)
         elif config['access_type'] == "insert":
@@ -328,4 +351,6 @@ if __name__ == "__main__":
             log.log(PRIORITY.FAILURE,msg="flag ["+ config['access_type'] +"] not recognized")
             
     except Exception,e:
-        log.log(PRIORITY.FAILURE,msg="an error occurred ["+e.__class__.__name__+"] [" + e.message+"]")
+        linenum = str(sys.exc_info()[-1].tb_lineno)
+        #log.log(PRIORITY.FAILURE,msg=tb2str(sys.exc_info()))
+        log.log(PRIORITY.FAILURE,msg="an error occurred ["+linenum+"] ["+e.__class__.__name__+"] [" + e.message+"]")

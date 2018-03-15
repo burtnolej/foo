@@ -9,8 +9,12 @@ from excel_database_util import DatabaseQueryTable, \
      log, PRIORITY, DatabaseBase
 from misc_utils import write_text_to_file, append_text_to_file, os_file_delete, \
      os_file_to_string, get_2darray_from_file, put_2darray_in_file, \
-     b64encode, uudecode
+     b64encode, uudecode, os_dir_exists
 
+from os import path
+ROOTDIR = path.dirname(path.realpath(__file__))
+assert(os_dir_exists(ROOTDIR,"test_misc")) # test files go here
+TESTDIR = path.join(ROOTDIR,"test_misc")
 
 class Test_DatabaseQueryTable(unittest.TestCase):
     def setUp(self):
@@ -283,7 +287,7 @@ class Test_DatabaseInsertRowsLarge(unittest.TestCase):
 
     def test_(self):
         append_text_to_file(self.filename,"columns:"+"$$".join([field for field in self.columns]) + "\n")
-        rows = get_2darray_from_file("testdata.csv",[("'","")])
+        rows = get_2darray_from_file(path.join(TESTDIR,"testdata.csv"),[("'","")])
         put_2darray_in_file(self.filename,rows,suffix="rows:")
     
         DatabaseInsertRows.insert_by_file(self.filename)
@@ -293,7 +297,7 @@ class Test_DatabaseInsertRowsLarge(unittest.TestCase):
         with database:        
             columns,rows,_ = tbl_query(database,"select Description from foobar where LastName = \"Osborn\"")
         
-        expected_results = ["tempor erat neque non quam. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Aliquam fringilla cursus purus. Nullam scelerisque neque sed sem egestas blandit. Nam nulla magna, malesuada vel, convallis in,"]        
+        expected_results = ["dictum mi, ac mattis velit justo nec ante. Maecenas mi felis, adipiscing fringilla, porttitor vulputate, posuere vulputate, lacus. Cras interdum. Nunc sollicitudin commodo ipsum. Suspendisse non leo. Vivamus nibh dolor, nonummy ac, feugiat non, lobortis quis, pede. Suspendisse dui. Fusce diam nunc, ullamcorper eu, euismod ac, fermentum vel, mauris. Integer sem elit, pharetra ut, pharetra sed, hendrerit a, arcu. Sed et"]
         self.assertListEqual(rows[0],expected_results)
         
     def tearDown(self):
@@ -319,7 +323,7 @@ class Test_DatabaseInsertRowsLargeEncoded(unittest.TestCase):
 
     def test_(self):
         append_text_to_file(self.filename,"columns:"+"$$".join([b64encode(field) for field in self.columns]) + "\n")
-        rows = get_2darray_from_file("testdata.csv")
+        rows = get_2darray_from_file(path.join(TESTDIR,"testdata.csv"))
         put_2darray_in_file(self.filename,rows,suffix="rows:",encoding="base64")
     
         DatabaseInsertRows.insert_by_file(self.filename)
@@ -328,7 +332,7 @@ class Test_DatabaseInsertRowsLargeEncoded(unittest.TestCase):
         with database:        
             columns,rows,_ = tbl_query(database,"select Description from foobar where LastName = \""+b64encode("Osborn")+"\"")
         
-        expected_results = [b64encode("tempor erat neque non quam. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Aliquam fringilla cursus purus. Nullam scelerisque neque sed sem egestas blandit. Nam nulla magna, malesuada vel, convallis in,")]        
+        expected_results = [b64encode("dictum mi, ac mattis velit justo nec ante. Maecenas mi felis, adipiscing fringilla, porttitor vulputate, posuere vulputate, lacus. Cras interdum. Nunc sollicitudin commodo ipsum. Suspendisse non leo. Vivamus nibh dolor, nonummy ac, feugiat non, lobortis quis, pede. Suspendisse dui. Fusce diam nunc, ullamcorper eu, euismod ac, fermentum vel, mauris. Integer sem elit, pharetra ut, pharetra sed, hendrerit a, arcu. Sed et")]
         self.assertListEqual(rows[0],expected_results)
         
     def tearDown(self):
@@ -407,7 +411,7 @@ class Test_DatabaseFileParser(unittest.TestCase):
 
     def test_(self):
         
-        rows = get_2darray_from_file("testdata_2rows.csv")
+        rows = get_2darray_from_file(path.join(TESTDIR,"testdata_2rows.csv"))
         
         append_text_to_file(self.filename,"database_name:"+b64encode(self.database_name) + "\n")
         append_text_to_file(self.filename,"table_name:"+b64encode(self.table_name) + "\n")
@@ -416,7 +420,7 @@ class Test_DatabaseFileParser(unittest.TestCase):
         append_text_to_file(self.filename,"columns:"+"$$".join([b64encode(field) for field in self.columns]) + "\n")
         append_text_to_file(self.filename,"column_defns:"+"$$".join([b64encode(_name) +"^" + b64encode(_type) for _name,_type in self.column_defn]) + "\n")
     
-        put_2darray_in_file(self.filename,rows,suffix="rows:")
+        put_2darray_in_file(self.filename,rows,suffix="rows:",encoding="base64")
     
         clsobj = DatabaseBase._parse_input_file(self.filename,mandatory_fields=['database_name',
                                                                                 'table_name',
@@ -433,12 +437,12 @@ class Test_DatabaseFileParser(unittest.TestCase):
         self.assertEqual(clsobj.runtime_path,".")
         self.assertEqual(clsobj.columns,self.columns)
         self.assertEqual(clsobj.column_defns,self.column_defn)
-        self.assertEqual(len(clsobj.rows.split("$$")),2)
-        self.assertEqual(len(clsobj.rows.split("$$")[0].split("^")),5)
+        self.assertEqual(len(clsobj.rows),2)
+        self.assertEqual(len(clsobj.rows[0]),5)
 
     def test_set_runtimepath(self):
         
-        rows = get_2darray_from_file("testdata_2rows.csv")
+        rows = get_2darray_from_file(path.join(TESTDIR,"testdata_2rows.csv"))
         
         append_text_to_file(self.filename,"database_name:"+b64encode(self.database_name) + "\n")
         append_text_to_file(self.filename,"table_name:"+b64encode(self.table_name) + "\n")
@@ -447,7 +451,7 @@ class Test_DatabaseFileParser(unittest.TestCase):
         append_text_to_file(self.filename,"columns:"+"$$".join([b64encode(field) for field in self.columns]) + "\n")
         append_text_to_file(self.filename,"column_defns:"+"$$".join([b64encode(_name) +"^" + b64encode(_type) for _name,_type in self.column_defn]) + "\n")
     
-        put_2darray_in_file(self.filename,rows,suffix="rows:")
+        put_2darray_in_file(self.filename,rows,suffix="rows:",encoding="base64")
     
         clsobj = DatabaseBase._parse_input_file(self.filename,mandatory_fields=['database_name',
                                                                                 'table_name',
@@ -463,6 +467,7 @@ class Test_DatabaseFileParser(unittest.TestCase):
         
     def tearDown(self):
         os_file_delete(self.filename)
+        pass
 
 class Test_DatabaseQueryTableFileResult(unittest.TestCase):
     def setUp(self):
@@ -493,7 +498,8 @@ class Test_DatabaseQueryTableFileResult(unittest.TestCase):
         self.assertEqual("eA==^eQ==^Ng==",os_file_to_string(self.result_filename).split("\n")[0])
     
     def tearDown(self):
-        os_file_delete(self.result_filename)
+        #os_file_delete(self.result_filename)
+        pass
         
 
 if __name__ == "__main__":

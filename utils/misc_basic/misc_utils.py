@@ -61,7 +61,7 @@ def strfmtnow(format="%m%d%y"):
     rtype:string
     """    
     from datetime import datetime
-    assert(isinstance(format,StringType),format)
+    assert isinstance(format,StringType),format
     return str(datetime.now().strftime(format))
 
 def bindiff(file1,file2,returnfulldiff=False):
@@ -146,6 +146,11 @@ class Enumerate(object):
         for number, name in enumerate(names.split(",")):
             setattr(self, name, number)
 
+def tb2str(tb):
+    _tbstr = [(tb[i].tb_frame.f_code.co_name, tb[i].tb_lineno)
+              for i in range(len(tb)-1,0,-1)]
+    return ",".join(_tbstr)
+        
 def isint(value):
     try:
         num = int(value)

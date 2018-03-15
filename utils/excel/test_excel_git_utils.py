@@ -5,62 +5,39 @@ from misc_utils import write_text_to_file, append_text_to_file, os_file_delete, 
      os_file_to_string, get_2darray_from_file, os_file_exists, \
      uuencode, uudecode, encode, decode
 from git_utils import GitBase, GitRepoHelper, GitCommitHelper
+from os import getcwd,chdir
 
-class Test_GitCommit(unittest.TestCase):
+from os import path
+ROOTDIR = path.dirname(path.realpath(__file__))
+
+class Test_GitBase(unittest.TestCase):
     def setUp(self):
+        self.cwd = getcwd()
         self.commit_message = 'foobar'
         self.gitrootpath = "C:\\Users\\burtnolej\\testpygithub\\"
         self.commit_files = ["C:\\Users\\burtnolej\\testpygithub\git_test.txt",
                              "C:\\Users\\burtnolej\\testpygithub\git_test2.txt",
                              "C:\\Users\\burtnolej\\testpygithub\git_test3.txt"]
-        self.filename = "uupyshell.txt"
-        self.encoding = "uu"
         
-        # create a new repo in GitHub
+        
         self.token = GitBase._get_token()
-        self.reponame = "testpygithub"
         self.github = GitBase._login(self.token)
-        self.user = GitBase._get_user(self.github)
-        self.repo = GitRepoHelper._create_repo(self.user,self.reponame,auto_init=True)        
-        
+        self.reponame = "testpygithub"
+        self.username = "burtnolej"
         self.runtime_path = "C:\\Users\\burtnolej"
-        append_text_to_file(self.filename,"token:"+encode(self.token,self.encoding) + "\n")
-        append_text_to_file(self.filename,"reponame:"+encode(self.reponame,self.encoding) + "\n")
-        append_text_to_file(self.filename,"gitrootpath:"+encode(self.gitrootpath,self.encoding) + "\n")
-        append_text_to_file(self.filename,"commit_message:"+encode(self.commit_message,self.encoding) + "\n")
-        append_text_to_file(self.filename,"commit_files:"+"$$".join([encode(_file,self.encoding) for _file in self.commit_files]) + "\n")
-        
-    def test_(self):
-        repohelper  = GitExcelHelper.action_type(self.filename,"commit")
-        commits = GitRepoHelper._get_commits(repohelper.gitcommit.repo)
-        details = GitRepoHelper._get_commit_details(repohelper.gitcommit.repo,commits)
-
-        self.assertEquals(details[0][1]['content'],'this is a test')
-        self.assertEquals(details[0][3]['content'],'this is a test2')
-        self.assertEquals(details[1][0]['content'],'# testpygithub')
         
     def tearDown(self):
         GitRepoHelper._delete_repo(self.repo)
         del self.github
-        #os_file_delete(self.filename
-        
-        
-class Test_GitCommit2Levels(unittest.TestCase):
-    ''' checkin files that are below the root level directory'''
+        chdir(self.cwd)
+        os_file_delete(path.join(ROOTDIR,self.filename))
+    
+    
+class Test_GitCommit(Test_GitBase):
     def setUp(self):
-        self.commit_message = 'foobar'
-        self.gitrootpath = "C:\\Users\\burtnolej\\testpygithub\\"
-        self.commit_files = ["C:\\Users\\burtnolej\\testpygithub\\git_test.txt",
-                             "C:\\Users\\burtnolej\\testpygithub\\git_test2.txt",
-                             "C:\\Users\\burtnolej\\testpygithub\\test\\git_test5.txt",
-                             "C:\\Users\\burtnolej\\testpygithub\\test\\git_test6.txt"]
+        super(Test_GitCommit,self).setUp()
         self.filename = "uupyshell.txt"
         self.encoding = "uu"
-        
-        # create a new repo in GitHub
-        self.token = GitBase._get_token()
-        self.reponame = "testpygithub"
-        self.github = GitBase._login(self.token)
         self.user = GitBase._get_user(self.github)
         self.repo = GitRepoHelper._create_repo(self.user,self.reponame,auto_init=True)        
         
@@ -73,62 +50,58 @@ class Test_GitCommit2Levels(unittest.TestCase):
         
     def test_(self):
         repohelper  = GitExcelHelper.action_type(self.filename,"commit")
-
         commits = GitRepoHelper._get_commits(repohelper.gitcommit.repo)
         details = GitRepoHelper._get_commit_details(repohelper.gitcommit.repo,commits)
-
-        self.assertEquals(details[0][3]['content'],'this is a test5')
-        self.assertEquals(details[0][3]['path'],u'test/git_test5.txt')
-            
-    def tearDown(self):
-        GitRepoHelper._delete_repo(self.repo)
-        del self.github
-        #os_file_delete(self.filename)
+        self.assertEquals(details[0][1]['content'],'this is a test')
+        self.assertEquals(details[0][3]['content'],'this is a test2')
+        self.assertEquals(details[1][0]['content'],'# testpygithub')
         
-class Test_GitCreateRepo(unittest.TestCase):
+class Test_GitCommit2Levels(Test_GitBase):
+    ''' checkin files that are below the root level directory'''
     def setUp(self):
+        super(Test_GitCommit2Levels,self).setUp()
+        
+        self.commit_files = self.commit_files + ["C:\\Users\\burtnolej\\testpygithub\\test\\git_test5.txt",
+                                                 "C:\\Users\\burtnolej\\testpygithub\\test\\git_test6.txt"]
         self.filename = "uupyshell.txt"
         self.encoding = "uu"
+        self.user = GitBase._get_user(self.github)
+        self.repo = GitRepoHelper._create_repo(self.user,self.reponame,auto_init=True)        
+        write_text_to_file(self.filename,"token:"+encode(self.token,self.encoding) + "\n")
+        append_text_to_file(self.filename,"reponame:"+encode(self.reponame,self.encoding) + "\n")
+        append_text_to_file(self.filename,"gitrootpath:"+encode(self.gitrootpath,self.encoding) + "\n")
+        append_text_to_file(self.filename,"commit_message:"+encode(self.commit_message,self.encoding) + "\n")
+        append_text_to_file(self.filename,"commit_files:"+"$$".join([encode(_file,self.encoding) for _file in self.commit_files]) + "\n")
         
-        # create a new repo in GitHub
-        self.token = GitBase._get_token()
-        self.reponame = "testpygithub"
-        self.username = "burtnolej"
-        self.gitrootpath = "C:\\Users\\burtnolej\\testpygithub\\"
+    def test_(self):
+        repohelper  = GitExcelHelper.action_type(self.filename,"commit")
+        commits = GitRepoHelper._get_commits(repohelper.gitcommit.repo)
+        details = GitRepoHelper._get_commit_details(repohelper.gitcommit.repo,commits)
+        self.assertEquals(details[0][4]['content'],'this is a test5')
+        self.assertEquals(details[0][4]['path'],u'test/git_test5.txt')
         
-        self.runtime_path = "C:\\Users\\burtnolej"
-        append_text_to_file(self.filename,"token:"+encode(self.token,self.encoding) + "\n")
+class Test_GitCreateRepo(Test_GitBase):
+    def setUp(self):
+        super(Test_GitCreateRepo,self).setUp()
+        self.filename = "uupyshell.txt"
+        self.encoding = "uu"
+        write_text_to_file(self.filename,"token:"+encode(self.token,self.encoding) + "\n")
         append_text_to_file(self.filename,"reponame:"+encode(self.reponame,self.encoding) + "\n")
         append_text_to_file(self.filename,"username:"+encode(self.username,self.encoding) + "\n")
         append_text_to_file(self.filename,"gitrootpath:"+encode(self.gitrootpath,self.encoding) + "\n")
 
     def test_(self):
-        self.repo  = GitExcelHelper.action_type(self.filename,"create_repo")
-        self.assertEqual(self.repo.repo.name,self.reponame)
-        
-    def tearDown(self):
-        GitRepoHelper._delete_repo(self.repo.repo)
-        os_file_delete(self.filename)
+        self.repo  = GitExcelHelper.action_type(self.filename,"create_repo").repo
+        self.assertEqual(self.repo.name,self.reponame)
     
-class Test_GitHistory(unittest.TestCase):
+class Test_GitHistory(Test_GitBase):
     def setUp(self):
-        self.commit_message = 'foobar'
-        self.commit_files = ["C:\\Users\\burtnolej\\testpygithub\git_test.txt",
-                                 "C:\\Users\\burtnolej\\testpygithub\git_test2.txt",
-                                 "C:\\Users\\burtnolej\\testpygithub\git_test3.txt"]
+        super(Test_GitHistory,self).setUp()
         self.filename = "uupyshell.txt"
         self.encoding = "uu"
-        
-        # create a new repo in GitHub
-        self.token = GitBase._get_token()
-        self.reponame = "testpygithub"
-        self.github = GitBase._login(self.token)
         self.user = GitBase._get_user(self.github)
         self.repo = GitRepoHelper._create_repo(self.user,self.reponame,auto_init=True)        
-        self.gitrootpath = "C:\\Users\\burtnolej\\testpygithub\\"
-        
-        self.runtime_path = "C:\\Users\\burtnolej"
-        append_text_to_file(self.filename,"token:"+encode(self.token,self.encoding) + "\n")
+        write_text_to_file(self.filename,"token:"+encode(self.token,self.encoding) + "\n")
         append_text_to_file(self.filename,"reponame:"+encode(self.reponame,self.encoding) + "\n")
         append_text_to_file(self.filename,"gitrootpath:"+encode(self.gitrootpath,self.encoding) + "\n")
         append_text_to_file(self.filename,"commit_message:"+encode(self.commit_message,self.encoding) + "\n")
@@ -143,60 +116,19 @@ class Test_GitHistory(unittest.TestCase):
         self.assertEquals(repohelper.commit_history[0][2]['content'],'this is a test2')
         self.assertEquals(repohelper.commit_history[1][0]['content'],'# testpygithub')
 
-    def tearDown(self):
-        GitRepoHelper._delete_repo(self.repo)
-        del self.github
-        #os_file_delete(self.filename)
-
-class Test_GitHistory_Large(unittest.TestCase):
+class Test_GitCreateRepo_ChangeRunTimePath(Test_GitBase):
     def setUp(self):
-
-        self.token = GitBase._get_token()
-        self.reponame = "hungrycrayon"
+        super(Test_GitCreateRepo_ChangeRunTimePath,self).setUp()
         self.filename = "uupyshell.txt"
         self.encoding = "uu"
-        self.gitrootpath = "C:\\Users\\burtnolej\\testpygithub\\"
-        
-        self.runtime_path = "C:\\Users\\burtnolej"
-        append_text_to_file(self.filename,"token:"+encode(self.token,self.encoding) + "\n")
-        append_text_to_file(self.filename,"reponame:"+encode(self.reponame,self.encoding) + "\n")
-        append_text_to_file(self.filename,"gitrootpath:"+encode(self.gitrootpath,self.encoding) + "\n")
-        
-    def test_(self):    
-        repohelper = GitExcelHelper.action_type(self.filename,
-                                                "history",
-                                                getcontent=False,
-                                                limit=10)
-        print repohelper.commit_history
-        
-    def tearDown(self):
-        os_file_delete(self.runtime_path + "\\" + self.filename)
-
-class Test_GitCreateRepo_ChangeRunTimePath(unittest.TestCase):
-    def setUp(self):
-        self.filename = "uupyshell.txt"
-        self.encoding = "uu"
-        
-        # create a new repo in GitHub
-        self.token = GitBase._get_token()
-        self.reponame = "testpygithub"
-        self.username = "burtnolej"
-        self.gitrootpath = "C:\\Users\\burtnolej\\testpygithub\\"
-        
-        self.runtime_path = "C:\\Users\\burtnolej"
-        append_text_to_file(self.filename,"token:"+encode(self.token,self.encoding) + "\n")
+        write_text_to_file(self.filename,"token:"+encode(self.token,self.encoding) + "\n")
         append_text_to_file(self.filename,"reponame:"+encode(self.reponame,self.encoding) + "\n")
         append_text_to_file(self.filename,"username:"+encode(self.username,self.encoding) + "\n")
         append_text_to_file(self.filename,"gitrootpath:"+encode(self.gitrootpath,self.encoding) + "\n")
 
     def test_(self):
-        self.gitexcephelper  = GitExcelHelper.action_type(self.filename,"create_repo",runtime_path="C:\\Users\\burtnolej\\")
+        self.repo = GitExcelHelper.action_type(self.filename,"create_repo",runtime_path="C:\\Users\\burtnolej\\").repo
         self.assertTrue(os_file_exists("C:\\Users\\burtnolej\\python_log.txt"))
-        
-    def tearDown(self):
-        GitRepoHelper._delete_repo(self.gitexcephelper.repo)
-        #os_file_delete(self.runtime_path + "\\" + self.filename)
-        del self.gitexcephelper
         
 if __name__ == "__main__":
     suite = unittest.TestSuite()   
@@ -205,8 +137,4 @@ if __name__ == "__main__":
     suite.addTest(unittest.TestLoader().loadTestsFromTestCase(Test_GitCreateRepo))
     suite.addTest(unittest.TestLoader().loadTestsFromTestCase(Test_GitHistory))
     suite.addTest(unittest.TestLoader().loadTestsFromTestCase(Test_GitCreateRepo_ChangeRunTimePath))
-    
-    # this test pulls the enttire history from a large repo. Just to show that you can
-    # not a test that is always necessary so uncomment as needed
-    #suite.addTest(unittest.TestLoader().loadTestsFromTestCase(Test_GitHistory_Large))
     unittest.TextTestRunner(verbosity=2).run(suite)
