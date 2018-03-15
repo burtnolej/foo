@@ -134,20 +134,9 @@ class DatabaseQueryTable(DatabaseBase):
         with self.database:
             _,tbl_rows,_ = tbl_query(self.database,query_str)
             
+        _result_file = []
         
-        if hasattr(self,'result_file'):
-            _result_file = getattr(self,'result_file')
-        elif kwargs.has_key('result_file'):
-            _result_file = kwargs['result_file']
-        else:
-            _result_file = None
-            
-        if isinstance(_result_file, ListType):
-            if len(_result_file) == 1:
-                _result_file = _result_file[0]
-            else:
-                log.log(PRIORITY.INFO,msg="cant use file not a list of len one")
-            
+        if self._get_parse_result_file(_result_file,**kwargs):
             self._create_output_file(_result_file,tbl_rows)
             
         return(tbl_rows)

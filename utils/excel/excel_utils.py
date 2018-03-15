@@ -50,6 +50,29 @@ class ExcelBase(object):
         else:
             raise Exception("cannot determine the encoding being used, filename does not start with b64/uue/uni")
 
+    def _get_parse_result_file(self,**kwargs):
+        """ result_file can be specified either through passed arguments or
+        via a config_file (so would be already available as a member attr in raw form)
+        also any file attribute can either be a single file or a list of file and needs
+        to be normalized to always be a list
+        :param kwargs: dict, potentialy containing result_file info
+        :rtype boolean
+        """
+        if hasattr(self,'result_file'):
+            _result_file = getattr(self,'result_file')
+        elif kwargs.has_key('result_file'):
+            _result_file = kwargs['result_file']
+        else:
+            return -1
+            
+        if isinstance(_result_file, ListType):
+            if len(_result_file) == 1:
+                _result_file = _result_file[0]
+            else:
+                log.log(PRIORITY.INFO,msg="cant use file not a list of len one")
+                return -1
+        return _result_file
+            
     @classmethod
     def reset(cls):
         """ because the class attribute persist throughout a python session,

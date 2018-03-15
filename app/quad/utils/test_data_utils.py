@@ -30,6 +30,12 @@ class Test_GetStudentSchedule(Test_Base):
     def test_(self):
         expected_results = [[u'Homeroom', u'Homeroom', None, u'Isaac', u'M', 1, 9, 165, u'Seminar', 5, 993]]
         self.assertEquals(get_student_schedule(self.database,days='"M"',periods=1),expected_results)
+        
+class Test_GetStudentScheduleArgs(Test_Base):
+    def test_(self):
+        expected_results = [[u'Homeroom', u'Homeroom', None, u'Isaac', u'M', 1, 9, 165, u'Seminar', 5, 993]]
+        args = {'studentid':70,'days':'"M"','periods':1}
+        self.assertEquals(get_student_schedule(self.database,**args),expected_results)
 
 class TestGetTeacherSchedule(Test_Base):
     def test_(self):
@@ -44,9 +50,13 @@ class TestGetStudentsPerClassByTeacher(Test_Base):
     
 if __name__ == "__main__":
     suite = unittest.TestSuite()   
-    suite.addTest(unittest.TestLoader().loadTestsFromTestCase(Test_GetBasicStudentInfo))
+    
+    suite.addTest(unittest.TestLoader().loadTestsFromTestCase(Test_GetStudentScheduleArgs))
+    
+    
+    '''suite.addTest(unittest.TestLoader().loadTestsFromTestCase(Test_GetBasicStudentInfo))
     suite.addTest(unittest.TestLoader().loadTestsFromTestCase(Test_GetBasicTeacherInfo))
     suite.addTest(unittest.TestLoader().loadTestsFromTestCase(Test_GetStudentSchedule))
     suite.addTest(unittest.TestLoader().loadTestsFromTestCase(TestGetTeacherSchedule))
-    suite.addTest(unittest.TestLoader().loadTestsFromTestCase(TestGetStudentsPerClassByTeacher))
+    suite.addTest(unittest.TestLoader().loadTestsFromTestCase(TestGetStudentsPerClassByTeacher))'''
     unittest.TextTestRunner(verbosity=2).run(suite)    

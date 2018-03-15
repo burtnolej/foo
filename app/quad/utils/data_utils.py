@@ -33,14 +33,14 @@ def get_basic_teacher_info(database,teacher_id=30):
     
     return results
     
-def get_student_schedule(database,student_id=70,
+def get_student_schedule(database,studentid=70,
                          days='"M","T","W","R","F"',
                          periods='1,2,3,4,5,6,7,8,9,11'):
-    assert isinstance(student_id,IntType), student_id
-    assert is_valid_student(student_id), student_id
+    assert isinstance(studentid,IntType), studentid
+    assert is_valid_student(studentid), studentid
     assert isinstance(database,Database), database
     
-    sql = _qry_student_schedule(student_id,days,periods)
+    sql = _qry_student_schedule(studentid,days,periods)
     with database:
         _,results,_ = tbl_query(database,sql)
         

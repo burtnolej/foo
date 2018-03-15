@@ -2,6 +2,23 @@
 import xml.etree.ElementTree as xmltree
 import types
 
+from misc_utils_log import Log, logger, PRIORITY
+from misc_utils import isint
+from os import path
+import sys
+from collections import OrderedDict
+
+ROOTDIR = path.dirname(path.realpath(__file__))
+
+if sys.platform == "win32":
+    LOGDIR = "./"
+else:
+    LOGDIR = "/tmp/log"
+    
+log = Log(cacheflag=False,logdir=LOGDIR,verbosity=5)
+log.config =OrderedDict([('now',12),('type',10),('class',30),('funcname',30),
+                         ('module',20),('msg',-1),('today',8)])    
+    
 def element_find_tags(filen, tag, root=None,ns=None):
     ''' starting at the root, search for any elements where tag=tag
     and return a list of those xmlelement objects. root will default
@@ -242,5 +259,29 @@ def xml2string(root):
     
     return(xmltree.tostring(root))
 
+def xmlstr2dict(xml_str,doublequote=False):
+    """parse a simple xml str of the form <root><tag1>val1</tag1></root> and return a dict
+    :param xml_str, xml in a strin
+    :rype dict 
+    """
+    assert isinstance(xml_str,types.StringType), xml_str
+    result={}
+    
+    try:
+        root =xmltree.fromstring(xml_str)
+    except:
+        log.log(PRIORITY.FAILURE,msg="cannot parse xml [" + xml_str +"]")
+        return -1
+        
+    for _element in root.findall('.//'):
+        if isint(_element.text):
+            result[_element.tag] = int(_element.text)
+        else:
+            if doublequote:
+                result[_element.tag] = "\""+_element.text+"\""
+            else:
+                result[_element.tag] = _element.text
+    return result
+    
 if __name__ == "__main__":
     pass

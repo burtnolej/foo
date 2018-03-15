@@ -2,7 +2,7 @@ import xml.etree.ElementTree as xmltree
 import unittest
 from xml_utils import element_find_by_attrib_value, element_move, element_fuse, \
      element_parent_get, element_find_tags,element_find_children, grid2xml, xml2string, record2xml, \
-     tree2xml, file2xml
+     tree2xml, file2xml, xmlstr2dict
 from misc_utils import os_dir_exists, os_file_exists
 from os import path
 from collections import OrderedDict
@@ -203,8 +203,6 @@ class Test_XML(unittest.TestCase):
         
         self.assertEqual(leaf,['gchildA','gchildB'])   
         
-        
-        
 class Test_XML_xpath(unittest.TestCase):
 
     def setUp(self):
@@ -223,6 +221,15 @@ class Test_XML_xpath(unittest.TestCase):
         # from a non root tag get its children using xpath
         self.assertEqual(len(self.root.findall('.//table[@name=\"a\"]/tr/*')),6)
 
+class Test_XMLstr2Dict(unittest.TestCase):
+
+    def setUp(self):
+        self.xmlstr = "<root><day>M</day><period>1</period></root>"
+        self.expected_results = {'day':'M','period':1}
+        
+    def test_element_getall_children(self):
+        self.assertEqual(xmlstr2dict(self.xmlstr),self.expected_results)
+    
 class Test_Grid_to_XML(unittest.TestCase):
     
     def setUp(self):
@@ -871,6 +878,10 @@ class Test_File2XML(unittest.TestCase):
 if __name__ == "__main__":
 
     suite = unittest.TestSuite()
+    
+    
+    
+    suite.addTest(unittest.TestLoader().loadTestsFromTestCase(Test_XMLstr2Dict))
     
     suite.addTest(unittest.TestLoader().loadTestsFromTestCase(Test_XML))
     suite.addTest(unittest.TestLoader().loadTestsFromTestCase(Test_XML_xpath))
