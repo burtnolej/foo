@@ -415,7 +415,7 @@ setup:
             
     'Set wsTmp = GetSheet(Application.ActiveWorkbook, sSheetName)
     Set wsTmp = CreateSheet(Application.ActiveWorkbook, sSheetName)
-    CreateFilter Application.ActiveWorkbook, sSheetName, wsTmp.Range("A1:D1"), 4
+    CreateFilter Application.ActiveWorkbook, sSheetName, wsTmp.Range("A1:D1"), 5
     
     '"id",  "col1", "col2", "col3"
     '"1",   "aa",   "bbb",  "cc"
@@ -466,14 +466,13 @@ main:
         If .Rows(5).EntireRow.Hidden <> False Then
             GoTo fail
         End If
-        
+    
         If .Rows(6).EntireRow.Hidden <> True Then
             GoTo fail
         End If
-    
-        
+
         ' then checking the filter history
-        If .Range(.Cells(3, 25), .Cells(3, 25)).Value <> "^3" Then
+        If .Range(.Cells(3, 25), .Cells(3, 25)).Value <> "^3^4" Then
             GoTo fail
         End If
         If .Range(.Cells(4, 25), .Cells(4, 25)).Value <> "^4" Then
@@ -482,7 +481,7 @@ main:
         If .Range(.Cells(5, 25), .Cells(5, 25)).Value <> BLANK Then
             GoTo fail
         End If
-        If .Range(.Cells(6, 25), .Cells(6, 25)).Value <> "^3" Then
+        If .Range(.Cells(6, 25), .Cells(6, 25)).Value <> "^3^4" Then
             GoTo fail
         End If
         

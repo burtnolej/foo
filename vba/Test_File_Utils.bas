@@ -8,6 +8,7 @@ Sub TestRunner()
     Log_Utils.LogFilter = "8,9"
     
     Test_FilesAreSame
+    TestReadFile2Array
     
     'GetLogFile
 End Sub

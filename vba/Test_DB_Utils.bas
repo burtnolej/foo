@@ -24,10 +24,10 @@ Sub TestRunner()
     'Test_PySqliteDBInfo
     
     Test_PySqliteDBInsert
-    
     Test_PySqliteDBInsertLarge
-    
     Test_AutoParseInputRange
+    Test_PySqliteDBQueryResultFileUUEncode
+    Test_PySqliteDBQueryResultFileUUEncodeVeryLarge
     'GetLogFile
 End Sub
 
