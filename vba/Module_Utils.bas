@@ -99,7 +99,7 @@ Dim iCount As Integer
 
     If sModuleName <> "" Then
         ReDim vModulesNames(0 To 0)
-        vFileNames(0) = sDirectory & "/" & sFileName
+        vFileNames(0) = sDirectory & "/" & sFilename
     Else
         vFileNames = GetFolderFiles(sDirectory & "/")
     End If

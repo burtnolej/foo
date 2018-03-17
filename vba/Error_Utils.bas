@@ -1,6 +1,6 @@
 Attribute VB_Name = "Error_Utils"
 Option Explicit
-Sub test()
+Sub Test()
 
 1    On Error GoTo err
 2    Debug.Print 10 / 0
@@ -12,7 +12,7 @@ End Sub
 Sub test2()
 
 On Error GoTo err
-Call test
+Call Test
 
 err:
     Debug.Print err.Description, Erl

@@ -236,4 +236,20 @@ Public Sub RefreshRibbon()
 End Sub
 
 
+Sub GetContent(control As IRibbonControl, ByRef returnedVal)
+Dim xml As String
+Dim rSelection As Range
+
+    Set rSelection = Selection
+    Debug.Print rSelection.Worksheet.Name
+    Debug.Print rSelection.Address
+    
+    xml = "<menu xmlns=""http://schemas.microsoft.com/office/2009/07/customui"">" & _
+          "<button id=""but1"" imageMso=""Help"" label=""Help"" onAction=""HelpMacro""/>" & _
+          "<button id=""but2"" imageMso=""FindDialog"" label=""Find"" onAction=""FindMacro""/>" & _
+          "</menu>"
+
+    returnedVal = xml
+End Sub
+
 

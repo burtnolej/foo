@@ -11,10 +11,95 @@ Sub TestRunner()
     Test_ArrayNDtoString
     Test_InArray
     Test_ReDim2DArray
+    Test_NumColumns
+    Test_NumColumnsVariant
+    Test_NumColumnsNot2DArray
     
     'GetLogFile
     
 End Sub
+
+
+Sub Test_NumColumns()
+Dim sFuncName As String
+Dim bTestPassed As Boolean
+Dim aTmp() As String
+
+setup:
+    sFuncName = CsModuleName & ".NumColumns"
+    ReDim aTmp(0 To 100, 0 To 3)
+
+main:
+
+    If NumColumns(aTmp) <> 4 Then
+        GoTo fail
+    End If
+
+success:
+    bTestPassed = True
+    GoTo teardown
+    
+fail:
+    bTestPassed = False
+    
+teardown:
+    Call TestLogIt(sFuncName, bTestPassed)
+    
+End Sub
+Sub Test_NumColumnsNot2DArray()
+Dim sFuncName As String
+Dim bTestPassed As Boolean
+Dim aTmp() As String
+
+setup:
+    sFuncName = CsModuleName & ".NumColumnsNot2DArray"
+    ReDim aTmp(0 To 100)
+
+main:
+
+    If NumColumns(aTmp, bAssert:=False) <> -1 Then
+        GoTo fail
+    End If
+
+success:
+    bTestPassed = True
+    GoTo teardown
+    
+fail:
+    bTestPassed = False
+    
+teardown:
+    Call TestLogIt(sFuncName, bTestPassed)
+    
+End Sub
+
+Sub Test_NumColumnsVariant()
+Dim sFuncName As String
+Dim bTestPassed As Boolean
+Dim aTmp() As Variant
+
+setup:
+    sFuncName = CsModuleName & ".NumColumnsVariant"
+    ReDim aTmp(0 To 100, 0 To 3)
+
+main:
+
+    If NumColumns(aTmp) <> 4 Then
+        GoTo fail
+    End If
+
+success:
+    bTestPassed = True
+    GoTo teardown
+    
+fail:
+    bTestPassed = False
+    
+teardown:
+    Call TestLogIt(sFuncName, bTestPassed)
+    
+End Sub
+
 Sub Test_ReDim2DArray()
 Dim aTmp() As String
 Dim aTmpVariant As Variant

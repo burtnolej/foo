@@ -1,6 +1,7 @@
 Attribute VB_Name = "Array_Utils"
 ' Errors
 ' ----------------------------------------------------------------------------------------------
+Const CsModuleName = "Array_Utils"
 Enum ArrayErrors
     ArgNot2DArray = 1
     NotArrayFromRange = 2
@@ -128,6 +129,28 @@ Dim iTmp As Integer
 err:
     Is2DArray = False
 
+End Function
+
+Function NumColumns(aTmp As Variant, Optional bAssert = True) As Integer
+'''determine how many columns a 2 dimension array has. throw an exception if in array is not passed _
+:param aTmp: array, 2D array of any type _
+:rtype boolean
+'''
+Dim sFuncName As String
+
+setup:
+    sFuncName = CsModuleName & ".NumColumns"
+
+main:
+    If Is2DArray(aTmp) = True Then
+        NumColumns = UBound(aTmp, 2) + 1
+    Else
+        'FuncLogIt sFuncName, "not a 2d array", C_MODULE_NAME, LogMsgType.Error
+        'If bAssert = True Then
+        '    err.Raise 103, Description:=" not a 2d array"
+        'End If
+        NumColumns = 1
+    End If
 End Function
 Function EqualsArray(aFirst As Variant, aSecond As Variant) As Boolean
     If UBound(aFirst) <> UBound(aSecond) Then
@@ -281,6 +304,16 @@ ReDim iTmp(0 To UBound(aInitVals))
     Next i
     
     InitStringArray = iTmp
+End Function
+Function InitVariantArray(aInitVals As Variant) As Variant()
+Dim iTmp() As Variant
+ReDim iTmp(0 To UBound(aInitVals))
+
+    For i = 0 To UBound(aInitVals)
+        iTmp(i) = aInitVals(i)
+    Next i
+    
+    InitVariantArray = iTmp
 End Function
 Function InitIntArray(aInitVals As Variant) As Integer()
 Dim iTmp() As Integer

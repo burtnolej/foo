@@ -18,18 +18,18 @@ Dim fileName As String
     GetFileFromPath = fso.GetFileName(sPath)
 End Function
 
-Public Sub FileMove(sFileName As String, sSourcePath As String, sTargetPath As String)
+Public Sub FileMove(sFilename As String, sSourcePath As String, sTargetPath As String)
 Dim objFSO As Object
 Dim sFuncName As String
     sFuncName = "FileMove"
     Set objFSO = CreateObject("Scripting.FileSystemObject")
     On Error GoTo err
-    objFSO.MoveFile sSourcePath & sFileName, sTargetPath & sFileName
+    objFSO.MoveFile sSourcePath & sFilename, sTargetPath & sFilename
     On Error GoTo 0
-    FuncLogIt sFuncName, "Moved [" & sFileName & "] from  [" & sSourcePath & "] to [" & sTargetPath & "]", C_MODULE_NAME, LogMsgType.FAILURE
+    FuncLogIt sFuncName, "Moved [" & sFilename & "] from  [" & sSourcePath & "] to [" & sTargetPath & "]", C_MODULE_NAME, LogMsgType.FAILURE
     Exit Sub
 err:
-    FuncLogIt sFuncName, "Failed to move [" & sFileName & "] from  [" & sSourcePath & "] to [" & sTargetPath & "] with err [" & err.Description & "]", C_MODULE_NAME, LogMsgType.FAILURE
+    FuncLogIt sFuncName, "Failed to move [" & sFilename & "] from  [" & sSourcePath & "] to [" & sTargetPath & "] with err [" & err.Description & "]", C_MODULE_NAME, LogMsgType.FAILURE
 
 End Sub
 Public Function GetFolderFiles(sPath As String, Optional bDateSorted As Boolean = False) As String()

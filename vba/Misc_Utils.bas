@@ -1,9 +1,144 @@
 Attribute VB_Name = "Misc_Utils"
+Enum MyVbType
+
+    vbEmpty = 0 'Empty (uninitialized)
+    vbNull = 1 'Null (no valid data)
+    vbInteger = 2 'Integer
+    vbLong = 3 'Long integer
+    vbSingle = 4 'Single-precision floating-point number
+    vbDouble = 5 'Double-precision floating-point number
+    vbCurrency = 6 'Currency value
+    vbDate = 7 'Date value
+    vbString = 8 'String
+    vbObject = 9 'Object
+    vbError = 10 'Error value
+    vbBoolean = 11 'Boolean value
+    vbVariant = 12 'Variant (used only witharrays of variants)
+    vbDataObject = 13 'A data access object
+    vbDecimal = 14 'Decimal value
+    vbByte = 17 'Byte value
+    vbLongLong = 20 'LongLong integer (Valid on 64-bit platforms only.)
+    vbDict = 24
+    vbIntArray = 26
+    vb2DIntArray2Columns = 27
+    vb2DIntArray3Columns = 28
+    vb2DIntArray4Columns = 29
+    vbStringArray = 46
+    vbStringArray2Columns = 47
+    vbStringArray3Columns = 48
+    vbStringArray4Columns = 49
+    vbStringArray6Columns = 51
+    vbStringArray8Columns = 53
+    vbVariantArray = 66
+    vbVariantArray2Columns = 67
+    vbVariantArray3Columns = 68
+    vbVariantArray4Columns = 69
+
+    vbUserDefinedType = 36 'Variants that contain user-defined types
+    vbArray = 8192  'Array
+    
+End Enum
+
 Public Sub EventsToggle(bStatus As Boolean)
     Application.EnableEvents = bStatus
     Application.ScreenUpdating = bStatus
 End Sub
 
+Function IsDict(dTmp As Variant) As Boolean
+    IsDict = True
+    On Error GoTo err
+    If dTmp.Count > -1 Then
+    End If
+    dTmp.Add "somethingthatsunlikelytoexist", "bar"
+    If dTmp.Item("somethingthatsunlikelytoexist") <> "bar" Then
+        GoTo err
+    End If
+    dTmp.Remove "somethingthatsunlikelytoexist"
+    On Error GoTo 0
+    Exit Function
+err:
+    IsDict = False
+End Function
+Function MyVarType(vObject As Variant) As Integer
+Dim iSubType As Integer
+    Select Case VarType(vObject)
+        Case 9
+            If IsDict(vObject) Then
+                MyVarType = 24
+                Exit Function
+            End If
+        Case Is >= 8192
+            iSubType = VarType(vObject) - 8192
+            Select Case iSubType
+                Case 2
+                    MyVarType = 25 + NumColumns(vObject, bAssert:=False)
+                Case 8
+                    MyVarType = 45 + NumColumns(vObject, bAssert:=False)
+                Case 12
+                    MyVarType = 65 + NumColumns(vObject, bAssert:=False)
+                Case Else
+                    MyVarType = 8192
+            End Select
+            Exit Function
+    End Select
+
+    MyVarType = VarType(vObject)
+
+End Function
+Function EnumVarType(i As Long) As String
+
+    If i = 36 Then
+        EnumVarType = "vbUserDefinedType"
+    ElseIf i = 8192 Then
+        EnumVarType = "vbArray"
+    ElseIf i >= 25 And i < 45 Then
+        EnumVarType = "vb2DIntArray" & CStr(i - 24) & "Columns"
+    ElseIf i >= 45 And i < 65 Then
+        EnumVarType = "vb2DStringArray" & CStr(i - 44) & "Columns"
+    ElseIf i >= 65 And i < 85 Then
+        EnumVarType = "vb2DVariantArray" & CStr(i - 64) & "Columns"
+    ElseIf i >= 0 And i < 25 Then
+        EnumVarType = Array("vbEmpty", "vbNull", "vbInteger", "vbLong", "vbSingle", _
+                            "vbDouble", "vbCurrency", "vbDate", "vbString", "vbObject", _
+                            "vbError", "vbBoolean", "vbVariant", "vbDataObject", "vbDecimal", _
+                            "", "", "", "", "vbByte", "", "", "", "vbLongLong", _
+                            "vbDict", "vbIntArray", "vbStringArray", "vbVariantArray")(i)
+    Else
+        err.Raise 102, Description:=" VarType enum [" & CStr(i) & "] is not recognised"
+    End If
+End Function
+
+Public Function IsEqual(vValue1 As Variant, vValue2 As Variant, _
+    Optional sFuncName As String = "Unknown", _
+    Optional bAssert As Boolean = True) As Boolean
+    
+    If vValue1 <> vValue2 Then
+        IsEqual = False
+        
+        If bAssert = True Then
+            err.Raise 101, Description:="[" & sFuncName & "] value1 and 2 are not equal [" & CStr(UBound(vValue1)) & "] [" & CStr(UBound(vValue2)) & "]"
+        End If
+        Exit Function
+    End If
+    
+    IsEqual = True
+        
+End Function
+Public Function IsInstance(oTmp As Variant, tObjType As MyVbType, _
+            Optional sFuncName As String = "Unknown", _
+            Optional bAssert As Boolean = True) As Boolean
+            
+    If MyVarType(oTmp) <> tObjType Then
+        IsInstance = False
+        
+        If bAssert = True Then
+            err.Raise 101, Description:="[" & sFuncName & "] object is not of type [" & EnumVarType(tObjType) & "] got [" & EnumVarType(VarType(oTmp)) & "]"
+        End If
+        Exit Function
+    End If
+
+    IsInstance = True
+End Function
 Public Sub DoEventsOn()
     EventsToggle True
 End Sub
@@ -58,12 +193,20 @@ Dim objNode As MSXML2.IXMLDOMElement
     Set objNode = Nothing
     Set objXML = Nothing
 End Function
-Public Function IsSet(oTmp As Object) As Boolean
-    If IsEmpty(oTmp) Or IsMissing(oTmp) Or oTmp Is Nothing Then
+'Public Function IsSet(oTmp As Object) As Boolean
+Public Function IsSet(oTmp As Variant) As Boolean
+    
+    If IsEmpty(oTmp) Or IsMissing(oTmp) Then
+        If IsInstance(oTmp, vbObject, bAssert:=False) = True Then
+            If Not oTmp Is Nothing Then
+                GoTo istrue
+            End If
+        End If
         IsSet = False
         Exit Function
     End If
-    
+
+istrue:
     IsSet = True
 End Function
 Public Function UUEncode(sValue As String) As String
