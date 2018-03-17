@@ -1,9 +1,9 @@
 
 import sqlite3
 import sys
-from misc_utils_log import Log, logger, PRIORITY
-from misc_utils import os_file_exists, Enum
-from xml_utils import element_find_tags, element_find_children
+from utils.misc_basic.misc_utils_log import Log, logger, PRIORITY
+from utils.misc_basic.misc_utils import os_file_exists, Enum
+from utils.misc_basic.xml_utils import element_find_tags, element_find_children
 
 if sys.platform == "win32":
     LOGDIR = "./"

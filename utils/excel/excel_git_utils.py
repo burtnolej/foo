@@ -1,9 +1,9 @@
-from misc_utils import  os_file_to_string, os_file_exists, append_text_to_file, \
+from utils.misc_basic.misc_utils import  os_file_to_string, os_file_exists, append_text_to_file, \
      uudecode, uuencode, encode, decode
-from misc_utils_log import Log, logger, PRIORITY
-from git_utils import GitCommitHelper, GitRepoHelper
+from utils.misc_basic.misc_utils_log import Log, logger, PRIORITY
+from utils.git.git_utils import GitCommitHelper, GitRepoHelper
 from collections import OrderedDict
-from excel_utils import ExcelBase
+from utils.excel.excel_utils import ExcelBase
 import sys
 from os import chdir, getcwd
 

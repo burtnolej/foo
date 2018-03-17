@@ -1,8 +1,15 @@
 import sqlite3
 from sqlite3 import OperationalError as DBException
-
+from datetime import datetime
+from types import StringType,IntType, UnicodeType
+from copy import deepcopy
 import sys
-from misc_utils_log import Log, logger, PRIORITY
+
+from utils.misc_basic.misc_utils_log import Log, logger, PRIORITY
+from utils.misc_basic.misc_utils import Enum, IDGenerator
+from utils.database.database_util import schema_data_get, db_enum, Database, \
+     tbl_create, tbl_exists, tbl_remove, tbl_rename
+from utils.misc_basic.misc_utils_generic import GenericBase
 
 if sys.platform == "win32":
     LOGDIR = "./"
@@ -10,14 +17,6 @@ else:
     LOGDIR = "/tmp/log"
 
 log = Log(cacheflag=True,logdir=LOGDIR,verbosity=10)
-
-from misc_utils import Enum, IDGenerator
-from database_util import schema_data_get, db_enum, Database, \
-     tbl_create, tbl_exists, tbl_remove, tbl_rename
-from datetime import datetime
-from types import StringType,IntType, UnicodeType
-from copy import deepcopy
-from misc_utils_generic import GenericBase
 
 test_db = Enum(name="db_name_test",
                tbl_name="tbl_name_test",

@@ -225,11 +225,19 @@ class Test_XMLstr2Dict(unittest.TestCase):
 
     def setUp(self):
         self.xmlstr = "<root><day>M</day><period>1</period></root>"
-        self.expected_results = {'day':'M','period':1}
+        self.expected_results = {'day':['M'],'period':[1]}
         
     def test_element_getall_children(self):
         self.assertEqual(xmlstr2dict(self.xmlstr),self.expected_results)
-    
+        
+class Test_XMLstr2Dict_MultiValue(unittest.TestCase):
+    def setUp(self):
+        self.xmlstr = "<root><day>M</day><day>T</day><period>1</period><period>2</period></root>"
+        self.expected_results = {'day': ['"M"','"T"'],'period':[1,2]}
+        
+    def test_element_getall_children(self):
+        self.assertEqual(xmlstr2dict(self.xmlstr,doublequote=True),self.expected_results)
+        
 class Test_Grid_to_XML(unittest.TestCase):
     
     def setUp(self):
@@ -880,6 +888,8 @@ if __name__ == "__main__":
     suite = unittest.TestSuite()
     
     
+    
+    suite.addTest(unittest.TestLoader().loadTestsFromTestCase(Test_XMLstr2Dict_MultiValue))
     
     suite.addTest(unittest.TestLoader().loadTestsFromTestCase(Test_XMLstr2Dict))
     

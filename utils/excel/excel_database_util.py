@@ -134,9 +134,9 @@ class DatabaseQueryTable(DatabaseBase):
         with self.database:
             _,tbl_rows,_ = tbl_query(self.database,query_str)
             
-        _result_file = []
+        _result_file =self._get_parse_result_file(**kwargs)
         
-        if self._get_parse_result_file(_result_file,**kwargs):
+        if _result_file != -1:
             self._create_output_file(_result_file,tbl_rows)
             
         return(tbl_rows)

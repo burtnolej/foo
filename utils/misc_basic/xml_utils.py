@@ -2,8 +2,8 @@
 import xml.etree.ElementTree as xmltree
 import types
 
-from misc_utils_log import Log, logger, PRIORITY
-from misc_utils import isint
+from utils.misc_basic.misc_utils_log import Log, logger, PRIORITY
+from utils.misc_basic.misc_utils import isint
 from os import path
 import sys
 from collections import OrderedDict
@@ -274,13 +274,23 @@ def xmlstr2dict(xml_str,doublequote=False):
         return -1
         
     for _element in root.findall('.//'):
-        if isint(_element.text):
-            result[_element.tag] = int(_element.text)
-        else:
-            if doublequote:
-                result[_element.tag] = "\""+_element.text+"\""
+        if result.has_key(_element.tag) == False:
+            if isint(_element.text):
+                result[_element.tag]= [int(_element.text)]
             else:
-                result[_element.tag] = _element.text
+                if doublequote:
+                    result[_element.tag] = ["\""+_element.text+"\""]
+                else:
+                    result[_element.tag] = [_element.text]
+        else:
+            if isint(_element.text):
+                result[_element.tag].append(int(_element.text))
+            else:
+                if doublequote:
+                    result[_element.tag].append("\""+_element.text+"\"")
+                else:
+                    result[_element.tag].append(_element.text)
+        
     return result
     
 if __name__ == "__main__":

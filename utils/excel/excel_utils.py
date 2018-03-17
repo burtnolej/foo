@@ -1,6 +1,6 @@
-from misc_utils import  os_file_to_string, os_file_exists, append_text_to_file, \
+from utils.misc_basic.misc_utils import  os_file_to_string, os_file_exists, append_text_to_file, \
      b64decode, encode, decode, write_array_to_file, write_text_to_file, b64encode
-from misc_utils_log import Log, logger, PRIORITY
+from utils.misc_basic.misc_utils_log import Log, logger, PRIORITY
 from collections import OrderedDict
 from types import ListType, StringType
 from os.path import basename

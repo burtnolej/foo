@@ -1,7 +1,7 @@
 from github import Github, Commit, AuthenticatedUser, Repository, \
      InputGitTreeElement, Commit, GitTreeElement, GitCommit, GithubObject
-from misc_utils import encode,decode, b64decode
-from misc_utils import os_file_to_string
+from utils.misc_basic.misc_utils import encode,decode, b64decode
+from utils.misc_basic.misc_utils import os_file_to_string
 from types import StringType, ListType
 
 GIT_TOKEN_FILE = "C:\\Users\\burtnolej\\.gittoken"
