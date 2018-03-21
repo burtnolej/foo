@@ -1,17 +1,7 @@
 Attribute VB_Name = "Test_Filter_Utils"
 Const CsModuleName = "Test_Filter_Utils"
 
-Sub TestRunner()
-    Call TestDoFilter2FiltersOverlapping
-    Call TestDoFilterBasic
-    Call TestDoFilterNot
-    Call TestDoFilter2ColumnOr
-    Call TestDoFilterResetLastFilter
-    Call TestDoFilterResetNotLastFilter
-    Call Test3FiltersMiddleReset
-    Call Test3FiltersFirstReset
-End Sub
-Sub TestDoFilterBasic()
+Function TestDoFilterBasic() As TestResult
 ' test 1 basic filter
 Dim sFuncName As String
 Dim wsTmp As Worksheet
@@ -23,10 +13,11 @@ Dim aRows() As String
 Dim rGrid As Range
 Dim sRangeName As String
 Dim sFilterCountName As String
-Dim bTestPassed As Boolean
+Dim eTestResult As TestResult
 Dim rCell As Range
 
 setup:
+    On Error GoTo err:
     sFuncName = CsModuleName & "." & "DoFilterBasic"
     
     sModuleName = "foobar"
@@ -57,52 +48,56 @@ main:
         
         ' row 3 and 6 should be visible
         If .Rows(3).EntireRow.Hidden = True Then
-            GoTo fail
+            eTestResult = TestResult.Failure
         End If
         
         If .Rows(4).EntireRow.Hidden = False Then
-            GoTo fail
+            eTestResult = TestResult.Failure
+            GoTo teardown
         End If
         
         If .Rows(5).EntireRow.Hidden = False Then
-            GoTo fail
+            eTestResult = TestResult.Failure
+            GoTo teardown
         End If
         
         If .Rows(6).EntireRow.Hidden = True Then
-            GoTo fail
+            eTestResult = TestResult.Failure
+            GoTo teardown
         End If
 
         ' then checking the filter history
         If .Range(.Cells(3, 25), .Cells(3, 25)).Value <> BLANK Then
-            GoTo fail
+            eTestResult = TestResult.Failure
+            GoTo teardown
         End If
         If .Range(.Cells(4, 25), .Cells(4, 25)).Value <> "^2" Then
-            GoTo fail
+            eTestResult = TestResult.Failure
+            GoTo teardown
         End If
         If .Range(.Cells(5, 25), .Cells(5, 25)).Value <> "^2" Then
-            GoTo fail
+            eTestResult = TestResult.Failure
+            GoTo teardown
         End If
         If .Range(.Cells(6, 25), .Cells(6, 25)).Value <> BLANK Then
-            GoTo fail
+            eTestResult = TestResult.Failure
+        Else
+            eTestResult = TestResult.OK
         End If
-        
+        On Error GoTo 0
+        GoTo teardown
     End With
     
-success:
-    bTestPassed = True
-    GoTo teardown
-
-fail:
-    bTestPassed = False
-
+err:
+    eTestResult = TestResult.Error
+    
 teardown:
-    Call TestLogIt(sFuncName, bTestPassed)
+    TestDoFilterBasic = eTestResult
     Call DeleteSheet(Application.ActiveWorkbook, sSheetName)
-    Exit Sub
 
-End Sub
+End Function
 
-Sub TestDoFilterNot()
+Function TestDoFilterNot() As TestResult
 Dim sFuncName As String
 Dim wsTmp As Worksheet
 Dim sModuleName As String
@@ -113,10 +108,11 @@ Dim aRows() As String
 Dim rGrid As Range
 Dim sRangeName As String
 Dim sFilterCountName As String
-Dim bTestPassed As Boolean
+Dim eTestResult As TestResult
 Dim rCell As Range
 
 setup:
+    On Error GoTo err:
     sFuncName = CsModuleName & "." & "DoFilterNot"
     
     sModuleName = "foobar"
@@ -142,52 +138,57 @@ main:
         
         ' row 3 and 6 should be visible
         If .Rows(3).EntireRow.Hidden = False Then
-            GoTo fail
+            eTestResult = TestResult.Failure
+            GoTo teardown
         End If
         
         If .Rows(4).EntireRow.Hidden = True Then
-            GoTo fail
+            eTestResult = TestResult.Failure
+            GoTo teardown
         End If
         
         If .Rows(5).EntireRow.Hidden = True Then
-            GoTo fail
+            eTestResult = TestResult.Failure
+            GoTo teardown
         End If
         
         If .Rows(6).EntireRow.Hidden = False Then
-            GoTo fail
+            eTestResult = TestResult.Failure
+            GoTo teardown
         End If
 
         
         ' then checking the filter history
         If .Range(.Cells(3, 25), .Cells(3, 25)).Value <> "^2" Then
-            GoTo fail
+            eTestResult = TestResult.Failure
+            GoTo teardown
         End If
         If .Range(.Cells(4, 25), .Cells(4, 25)).Value <> BLANK Then
-            GoTo fail
+            eTestResult = TestResult.Failure
+            GoTo teardown
         End If
         If .Range(.Cells(5, 25), .Cells(5, 25)).Value <> BLANK Then
-            GoTo fail
+            eTestResult = TestResult.Failure
+            GoTo teardown
         End If
         If .Range(.Cells(6, 25), .Cells(6, 25)).Value <> "^2" Then
-            GoTo fail
+            eTestResult = TestResult.Failure
+        Else
+            eTestResult = TestResult.OK
         End If
-        
+        On Error GoTo 0
+        GoTo teardown
     End With
-
-success:
-    bTestPassed = True
-    GoTo teardown
-
-fail:
-    bTestPassed = False
-
+    
+err:
+    eTestResult = TestResult.Error
+    
 teardown:
-    Call TestLogIt(sFuncName, bTestPassed)
+    TestDoFilterNot = eTestResult
     Call DeleteSheet(Application.ActiveWorkbook, sSheetName)
-    Exit Sub
 
-End Sub
-Sub TestDoFilterResetLastFilter()
+End Function
+Function TestDoFilterResetLastFilter() As TestResult
 Dim sFuncName As String
 Dim wsTmp As Worksheet
 Dim sModuleName As String
@@ -198,10 +199,11 @@ Dim aRows() As String
 Dim rGrid As Range
 Dim sRangeName As String
 Dim sFilterCountName As String
-Dim bTestPassed As Boolean
+Dim eTestResult As TestResult
 Dim rCell As Range
 
 setup:
+    On Error GoTo err:
     sFuncName = CsModuleName & "." & "DoFilterResetLastFilter"
     
     sModuleName = "foobar"
@@ -243,53 +245,58 @@ main:
         DoFilter ActiveWorkbook, sSheetName, rCell
         
         If .Rows(3).EntireRow.Hidden <> True Then
-            GoTo fail
+            eTestResult = TestResult.Failure
+            GoTo teardown
         End If
         
         If .Rows(4).EntireRow.Hidden <> False Then
-            GoTo fail
+            eTestResult = TestResult.Failure
+            GoTo teardown
         End If
         
         If .Rows(5).EntireRow.Hidden <> False Then
-            GoTo fail
+            eTestResult = TestResult.Failure
+            GoTo teardown
         End If
         
         If .Rows(6).EntireRow.Hidden <> True Then
-            GoTo fail
+            eTestResult = TestResult.Failure
+            GoTo teardown
         End If
     
         
         ' then checking the filter history
         If .Range(.Cells(3, 25), .Cells(3, 25)).Value <> "^3" Then
-            GoTo fail
+            eTestResult = TestResult.Failure
+            GoTo teardown
         End If
         If .Range(.Cells(4, 25), .Cells(4, 25)).Value <> BLANK Then
-            GoTo fail
+            eTestResult = TestResult.Failure
+            GoTo teardown
         End If
         If .Range(.Cells(5, 25), .Cells(5, 25)).Value <> BLANK Then
-            GoTo fail
+            eTestResult = TestResult.Failure
+            GoTo teardown
         End If
         If .Range(.Cells(6, 25), .Cells(6, 25)).Value <> "^3" Then
-            GoTo fail
+            eTestResult = TestResult.Failure
+        Else
+            eTestResult = TestResult.OK
         End If
-        
+        On Error GoTo 0
+        GoTo teardown
     End With
     
-success:
-    bTestPassed = True
-    GoTo teardown
-
-fail:
-    bTestPassed = False
-
+err:
+    eTestResult = TestResult.Error
+    
 teardown:
-    Call TestLogIt(sFuncName, bTestPassed)
+    TestDoFilterResetLastFilter = eTestResult
     Call DeleteSheet(Application.ActiveWorkbook, sSheetName)
-    Exit Sub
 
-End Sub
+End Function
 
-Sub TestDoFilterResetNotLastFilter()
+Function TestDoFilterResetNotLastFilter() As TestResult
 Dim sFuncName As String
 Dim wsTmp As Worksheet
 Dim sModuleName As String
@@ -300,10 +307,11 @@ Dim aRows() As String
 Dim rGrid As Range
 Dim sRangeName As String
 Dim sFilterCountName As String
-Dim bTestPassed As Boolean
+Dim eTestResult As TestResult
 Dim rCell As Range
 
 setup:
+    On Error GoTo err:
     sFuncName = CsModuleName & "." & "DoFilterResetNotLastFilter"
     
     sModuleName = "foobar"
@@ -346,53 +354,58 @@ main:
         DoFilter ActiveWorkbook, sSheetName, rCell
 
         If .Rows(3).EntireRow.Hidden <> True Then
-            GoTo fail
+            eTestResult = TestResult.Failure
+            GoTo teardown
         End If
         
         If .Rows(4).EntireRow.Hidden <> False Then
-            GoTo fail
+            eTestResult = TestResult.Failure
+            GoTo teardown
         End If
         
         If .Rows(5).EntireRow.Hidden <> True Then
-            GoTo fail
+            eTestResult = TestResult.Failure
+            GoTo teardown
         End If
         
         If .Rows(6).EntireRow.Hidden <> False Then
-            GoTo fail
+            eTestResult = TestResult.Failure
+            GoTo teardown
         End If
     
         ' then checking the filter history
         If .Range(.Cells(3, 25), .Cells(3, 25)).Value <> "^4" Then
-            GoTo fail
+            eTestResult = TestResult.Failure
+            GoTo teardown
         End If
         If .Range(.Cells(4, 25), .Cells(4, 25)).Value <> BLANK Then
-            GoTo fail
+            eTestResult = TestResult.Failure
+            GoTo teardown
         End If
         If .Range(.Cells(5, 25), .Cells(5, 25)).Value <> "^4" Then
-            GoTo fail
+            eTestResult = TestResult.Failure
+            GoTo teardown
         End If
         If .Range(.Cells(6, 25), .Cells(6, 25)).Value <> BLANK Then
-            GoTo fail
+            eTestResult = TestResult.Failure
+        Else
+            eTestResult = TestResult.OK
         End If
-
+        On Error GoTo 0
+        GoTo teardown
     End With
     
-success:
-    bTestPassed = True
-    GoTo teardown
-
-fail:
-    bTestPassed = False
-
+err:
+    eTestResult = TestResult.Error
+    
 teardown:
-    Call TestLogIt(sFuncName, bTestPassed)
+    TestDoFilterResetNotLastFilter = eTestResult
     Call DeleteSheet(Application.ActiveWorkbook, sSheetName)
-    Exit Sub
 
-End Sub
+End Function
 
 
-Sub TestDoFilterResetLastFilterAddNewFilter()
+Function TestDoFilterResetLastFilterAddNewFilter() As TestResult
 Dim sFuncName As String
 Dim wsTmp As Worksheet
 Dim sModuleName As String
@@ -403,10 +416,11 @@ Dim aRows() As String
 Dim rGrid As Range
 Dim sRangeName As String
 Dim sFilterCountName As String
-Dim bTestPassed As Boolean
+Dim eTestResult As TestResult
 Dim rCell As Range
 
 setup:
+    On Error GoTo err:
     sFuncName = CsModuleName & "." & "DoFilterResetLastFilterAddNewFilter"
     
     sModuleName = "foobar"
@@ -456,52 +470,56 @@ main:
         
         
         If .Rows(3).EntireRow.Hidden <> True Then
-            GoTo fail
+            eTestResult = TestResult.Failure
+            GoTo teardown
         End If
         
         If .Rows(4).EntireRow.Hidden <> True Then
-            GoTo fail
+            eTestResult = TestResult.Failure
+            GoTo teardown
         End If
         
         If .Rows(5).EntireRow.Hidden <> False Then
-            GoTo fail
+            eTestResult = TestResult.Failure
+            GoTo teardown
         End If
     
         If .Rows(6).EntireRow.Hidden <> True Then
-            GoTo fail
+            eTestResult = TestResult.Failure
+            GoTo teardown
         End If
 
         ' then checking the filter history
         If .Range(.Cells(3, 25), .Cells(3, 25)).Value <> "^3^4" Then
-            GoTo fail
+            eTestResult = TestResult.Failure
+            GoTo teardown
         End If
         If .Range(.Cells(4, 25), .Cells(4, 25)).Value <> "^4" Then
-            GoTo fail
+            eTestResult = TestResult.Failure
+            GoTo teardown
         End If
         If .Range(.Cells(5, 25), .Cells(5, 25)).Value <> BLANK Then
-            GoTo fail
+            eTestResult = TestResult.Failure
+            GoTo teardown
         End If
         If .Range(.Cells(6, 25), .Cells(6, 25)).Value <> "^3^4" Then
-            GoTo fail
+            eTestResult = TestResult.Failure
+        Else
+            eTestResult = TestResult.OK
         End If
-        
+        On Error GoTo 0
+        GoTo teardown
     End With
     
-success:
-    bTestPassed = True
-    GoTo teardown
-
-fail:
-    bTestPassed = False
-
+err:
+    eTestResult = TestResult.Error
+    
 teardown:
-    Call TestLogIt(sFuncName, bTestPassed)
+    TestDoFilterResetLastFilterAddNewFilter = eTestResult
     Call DeleteSheet(Application.ActiveWorkbook, sSheetName)
-    Exit Sub
+End Function
 
-End Sub
-
-Sub TestDoFilter2ColumnOr()
+Function TestDoFilter2ColumnOr() As TestResult
 Dim sFuncName As String
 Dim wsTmp As Worksheet
 Dim sModuleName As String
@@ -512,10 +530,11 @@ Dim aRows() As String
 Dim rGrid As Range
 Dim sRangeName As String
 Dim sFilterCountName As String
-Dim bTestPassed As Boolean
+Dim eTestResult As TestResult
 Dim rCell As Range
 
 setup:
+    On Error GoTo err:
     sFuncName = CsModuleName & "." & "DoFilter2ColumnOr"
     
     sModuleName = "foobar"
@@ -552,50 +571,57 @@ main:
 
         ' row 4,5 and 6 should be visible
         If .Rows(3).EntireRow.Hidden <> False Then
-            GoTo fail
+            eTestResult = TestResult.Failure
+            GoTo teardown
         End If
         
         If .Rows(4).EntireRow.Hidden <> False Then
-            GoTo fail
+            eTestResult = TestResult.Failure
+            GoTo teardown
         End If
         
         If .Rows(5).EntireRow.Hidden <> True Then
-            GoTo fail
+            eTestResult = TestResult.Failure
+            GoTo teardown
         End If
         
         If .Rows(6).EntireRow.Hidden <> False Then
-            GoTo fail
+            eTestResult = TestResult.Failure
+            GoTo teardown
         End If
 
         ' then checking the filter history
         If .Range(.Cells(3, 25), .Cells(3, 25)).Value <> "^4" Then
-            GoTo fail
+            eTestResult = TestResult.Failure
+            GoTo teardown
         End If
         If .Range(.Cells(4, 25), .Cells(4, 25)).Value <> "^2" Then
-            GoTo fail
+            eTestResult = TestResult.Failure
+            GoTo teardown
         End If
         If .Range(.Cells(5, 25), .Cells(5, 25)).Value <> "^2^4" Then
-            GoTo fail
+            eTestResult = TestResult.Failure
+            GoTo teardown
         End If
         If .Range(.Cells(6, 25), .Cells(6, 25)).Value <> BLANK Then
-            GoTo fail
+        eTestResult = TestResult.Failure
+        Else
+            eTestResult = TestResult.OK
         End If
+        On Error GoTo 0
+        GoTo teardown
     End With
     
-success:
-    bTestPassed = True
-    GoTo teardown
-
-fail:
-    bTestPassed = False
-
+err:
+    eTestResult = TestResult.Error
+    
 teardown:
-    Call TestLogIt(sFuncName, bTestPassed)
+    TestDoFilter2ColumnOr = eTestResult
     Call DeleteSheet(Application.ActiveWorkbook, sSheetName)
-    Exit Sub
+    Exit Function
 
-End Sub
-Sub TestDoFilter2FiltersOverlapping()
+End Function
+Function TestDoFilter2FiltersOverlapping() As TestResult
 Dim sFuncName As String
 Dim wsTmp As Worksheet
 Dim sModuleName As String
@@ -606,10 +632,11 @@ Dim aRows() As String
 Dim rGrid As Range
 Dim sRangeName As String
 Dim sFilterCountName As String
-Dim bTestPassed As Boolean
+Dim eTestResult As TestResult
 Dim rCell As Range
 
 setup:
+    On Error GoTo err:
     sFuncName = CsModuleName & "." & "DoFilter2FiltersOverlapping"
     
     sModuleName = "foobar"
@@ -643,40 +670,41 @@ main:
         DoFilter ActiveWorkbook, sSheetName, rCell
         
         If .Rows(4).EntireRow.Hidden = True Then
-            GoTo fail
+            eTestResult = TestResult.Failure
+            GoTo teardown
         End If
         
         If .Range(.Cells(3, 25), .Cells(3, 25)).Value <> "^3^4" Then
-            GoTo fail
+            eTestResult = TestResult.Failure
+            GoTo teardown
         End If
         If .Range(.Cells(4, 25), .Cells(4, 25)).Value <> BLANK Then
-            GoTo fail
+            eTestResult = TestResult.Failure
+            GoTo teardown
         End If
         If .Range(.Cells(5, 25), .Cells(5, 25)).Value <> "^4" Then
-            GoTo fail
+            eTestResult = TestResult.Failure
+            GoTo teardown
         End If
         If .Range(.Cells(6, 25), .Cells(6, 25)).Value <> "^3" Then
-            GoTo fail
+            eTestResult = TestResult.Failure
+        Else
+            eTestResult = TestResult.OK
         End If
-
+        On Error GoTo 0
+        GoTo teardown
     End With
-
-success:
-    bTestPassed = True
-    GoTo teardown
-
-fail:
-    bTestPassed = False
-
+    
+err:
+    eTestResult = TestResult.Error
+    
 teardown:
-    Call TestLogIt(sFuncName, bTestPassed)
+    TestDoFilter2FiltersOverlapping = eTestResult
     Call DeleteSheet(Application.ActiveWorkbook, sSheetName)
-    Exit Sub
 
-End Sub
+End Function
 
-Sub Test3FiltersMiddleReset()
-
+Function Test3FiltersMiddleReset() As TestResult
 Dim sFuncName As String
 Dim wsTmp As Worksheet
 Dim sModuleName As String
@@ -687,11 +715,12 @@ Dim aRows() As String
 Dim rGrid As Range
 Dim sRangeName As String
 Dim sFilterCountName As String
-Dim bTestPassed As Boolean
+Dim eTestResult As TestResult
 Dim rCell As Range
 Dim aTmp() As String, aTmp1() As String, aTmp2() As String, aTmp3() As String
 
 setup:
+    On Error GoTo err:
     sFuncName = CsModuleName & "." & "DoFilter2Filters"
     
     sModuleName = "foobar"
@@ -731,41 +760,42 @@ main:
         DoFilter ActiveWorkbook, sSheetName, rCell
     
         If .Rows(8).EntireRow.Hidden = True Then
-            GoTo fail
+            eTestResult = TestResult.Failure
+            GoTo teardown
         End If
     
         If .Rows(9).EntireRow.Hidden = True Then
-            GoTo fail
+            eTestResult = TestResult.Failure
+            GoTo teardown
         End If
     
         If .Rows(16).EntireRow.Hidden = True Then
-            GoTo fail
+            eTestResult = TestResult.Failure
+            GoTo teardown
         End If
         
         If .Rows(18).EntireRow.Hidden = True Then
-            GoTo fail
+            eTestResult = TestResult.Failure
+        Else
+            eTestResult = TestResult.OK
         End If
         
         DoEvents
+        On Error GoTo 0
+        GoTo teardown
     End With
-        
-
-success:
-    bTestPassed = True
-    GoTo teardown
-
-fail:
-    bTestPassed = False
-
+    
+err:
+    eTestResult = TestResult.Error
+    
 teardown:
-    Call TestLogIt(sFuncName, bTestPassed)
+    Test3FiltersMiddleReset = eTestResult
     Call DeleteSheet(Application.ActiveWorkbook, sSheetName)
-    Exit Sub
 
-End Sub
+End Function
 
 
-Sub Test3FiltersFirstReset()
+Function Test3FiltersFirstReset() As TestResult
 
 Dim sFuncName As String
 Dim wsTmp As Worksheet
@@ -777,11 +807,12 @@ Dim aRows() As String
 Dim rGrid As Range
 Dim sRangeName As String
 Dim sFilterCountName As String
-Dim bTestPassed As Boolean
+Dim eTestResult As TestResult
 Dim rCell As Range
 Dim aTmp() As String, aTmp1() As String, aTmp2() As String, aTmp3() As String
 
 setup:
+    On Error GoTo err:
     sFuncName = CsModuleName & "." & "DoFilter2Filters"
     
     sModuleName = "foobar"
@@ -821,39 +852,40 @@ main:
         DoFilter ActiveWorkbook, sSheetName, rCell
     
         If .Rows(8).EntireRow.Hidden = True Then
-            GoTo fail
+            eTestResult = TestResult.Failure
+            GoTo teardown
         End If
     
         If .Rows(10).EntireRow.Hidden = True Then
-            GoTo fail
+            eTestResult = TestResult.Failure
+            GoTo teardown
         End If
     
         If .Rows(11).EntireRow.Hidden = True Then
-            GoTo fail
+            eTestResult = TestResult.Failure
+            GoTo teardown
         End If
         
         If .Rows(18).EntireRow.Hidden = True Then
-            GoTo fail
+            eTestResult = TestResult.Failure
+            GoTo teardown
         End If
         
         If .Rows(19).EntireRow.Hidden = True Then
-            GoTo fail
+            eTestResult = TestResult.Failure
+        Else
+            eTestResult = TestResult.OK
         End If
-        
+        On Error GoTo 0
         DoEvents
+        GoTo teardown
     End With
-        
-
-success:
-    bTestPassed = True
-    GoTo teardown
-
-fail:
-    bTestPassed = False
-
+    
+err:
+    eTestResult = TestResult.Error
+    
 teardown:
-    Call TestLogIt(sFuncName, bTestPassed)
+    Test3FiltersFirstReset = eTestResult
     Call DeleteSheet(Application.ActiveWorkbook, sSheetName)
-    Exit Sub
 
-End Sub
+End Function

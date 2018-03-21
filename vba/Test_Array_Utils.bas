@@ -1,113 +1,97 @@
 Attribute VB_Name = "Test_Array_Utils"
 Const CsModuleName = "Test_Array_Utils"
 
-Sub TestRunner()
-    'GetLogFile
-    Log_Utils.LogFilter = "8,9"
-    Test_HasNDimensions
-    Test_EqualsArray
-    Test_ConvertArrayFromRangeto1D
-    Test_Is2DArray
-    Test_ArrayNDtoString
-    Test_InArray
-    Test_ReDim2DArray
-    Test_NumColumns
-    Test_NumColumnsVariant
-    Test_NumColumnsNot2DArray
-    
-    'GetLogFile
-    
-End Sub
-
-
-Sub Test_NumColumns()
+Public Function Test_NumColumns() As TestResult
 Dim sFuncName As String
-Dim bTestPassed As Boolean
+Dim eTestResult As TestResult
 Dim aTmp() As String
 
 setup:
+    On Error GoTo err:
     sFuncName = CsModuleName & ".NumColumns"
     ReDim aTmp(0 To 100, 0 To 3)
 
 main:
-
     If NumColumns(aTmp) <> 4 Then
-        GoTo fail
+        eTestResult = TestResult.Failure
+    Else
+        eTestResult = TestResult.OK
     End If
-
-success:
-    bTestPassed = True
+    On Error GoTo 0
     GoTo teardown
     
-fail:
-    bTestPassed = False
+err:
+    eTestResult = TestResult.Error
     
 teardown:
-    Call TestLogIt(sFuncName, bTestPassed)
+    Test_NumColumns = eTestResult
     
-End Sub
-Sub Test_NumColumnsNot2DArray()
+End Function
+Function Test_NumColumnsNot2DArray() As TestResult
 Dim sFuncName As String
-Dim bTestPassed As Boolean
+Dim eTestResult As TestResult
 Dim aTmp() As String
 
 setup:
+    On Error GoTo err:
     sFuncName = CsModuleName & ".NumColumnsNot2DArray"
     ReDim aTmp(0 To 100)
 
 main:
 
     If NumColumns(aTmp, bAssert:=False) <> -1 Then
-        GoTo fail
+        eTestResult = TestResult.Failure
+    Else
+        eTestResult = TestResult.OK
     End If
-
-success:
-    bTestPassed = True
+    On Error GoTo 0
     GoTo teardown
     
-fail:
-    bTestPassed = False
+err:
+    eTestResult = TestResult.Error
     
 teardown:
-    Call TestLogIt(sFuncName, bTestPassed)
+    Test_NumColumnsNot2DArray = eTestResult
     
-End Sub
+End Function
 
-Sub Test_NumColumnsVariant()
+Function Test_NumColumnsVariant() As TestResult
 Dim sFuncName As String
-Dim bTestPassed As Boolean
+Dim eTestResult As TestResult
 Dim aTmp() As Variant
 
 setup:
+    On Error GoTo err:
     sFuncName = CsModuleName & ".NumColumnsVariant"
     ReDim aTmp(0 To 100, 0 To 3)
 
 main:
 
     If NumColumns(aTmp) <> 4 Then
-        GoTo fail
+        eTestResult = TestResult.Failure
+    Else
+        eTestResult = TestResult.OK
     End If
-
-success:
-    bTestPassed = True
+    On Error GoTo 0
     GoTo teardown
     
-fail:
-    bTestPassed = False
+err:
+    eTestResult = TestResult.Error
     
 teardown:
-    Call TestLogIt(sFuncName, bTestPassed)
+    Test_NumColumnsVariant = eTestResult
     
-End Sub
+End Function
 
-Sub Test_ReDim2DArray()
+Function Test_ReDim2DArray() As TestResult
 Dim aTmp() As String
 Dim aTmpVariant As Variant
 
 Dim sFuncName As String
-Dim bTestPassed As Boolean
+Dim eTestResult As TestResult
 
 setup:
+    On Error GoTo err:
     sFuncName = CsModuleName & "." & "ReDim2DArray"
     aTmp = Init2DStringArray([{"A","B","C","","","";"D","E","F","","","";"","","","","",""}])
     aTmpVariant = Init2DVariantArray(aTmp)
@@ -116,30 +100,30 @@ main:
     aTmp = ReDim2DArray(aTmp, 2, 3)
     
     If ArrayNDtoString(aTmp) <> "A^B^C$$D^E^F" Then
-        GoTo fail
+        eTestResult = TestResult.Failure
+        GoTo teardown
     End If
-    
+
     aTmpVariant = ReDim2DArray(aTmpVariant, 2, 3)
     
     If ArrayNDtoString(aTmpVariant) <> "A^B^C$$D^E^F" Then
-        GoTo fail
+        eTestResult = TestResult.Failure
+    Else
+        eTestResult = TestResult.OK
     End If
-    
-    
-success:
-    bTestPassed = True
+    On Error GoTo 0
     GoTo teardown
     
-fail:
-    bTestPassed = False
+err:
+    eTestResult = TestResult.Error
     
 teardown:
-    Call TestLogIt(sFuncName, bTestPassed)
+    Test_ReDim2DArray = eTestResult
+    
+End Function
 
-End Sub
 
-
-Sub Test_InArray()
+Function Test_InArray() As TestResult
 ' test that an inarray can be used in a conditional check like an IF Then statement
 Dim a2dTmp() As String
 Dim aNdTmp() As String
@@ -147,35 +131,37 @@ Dim aTmp() As String
 Dim a2dIntTmp() As Integer
 Dim aIntTmp() As Integer
 Dim sFuncName As String
-Dim bTestPassed As Boolean
+Dim eTestResult As TestResult
 
 setup:
+    On Error GoTo err:
     sFuncName = CsModuleName & "." & "InArray"
     
 main:
 
     If InArray(Array("A", "B"), "A") <> True Then
-        GoTo fail
+        eTestResult = TestResult.Failure
+        GoTo teardown
     End If
 
 
     If InArray(Array("A", "B"), "C") <> False Then
-        GoTo fail
+        eTestResult = TestResult.Failure
+    Else
+        eTestResult = TestResult.OK
     End If
-    
-success:
-    bTestPassed = True
+    On Error GoTo 0
     GoTo teardown
     
-fail:
-    bTestPassed = False
+err:
+    eTestResult = TestResult.Error
     
 teardown:
-    Call TestLogIt(sFuncName, bTestPassed)
+    Test_InArray = eTestResult
 
-End Sub
+End Function
 
-Sub Test_ArrayNDtoString()
+Function Test_ArrayNDtoString() As TestResult
 ' test 2d 1d and nd; decoded and plain
 Dim a2dTmp() As String
 Dim aNdTmp() As String
@@ -183,9 +169,10 @@ Dim aTmp() As String
 Dim a2dIntTmp() As Integer
 Dim aIntTmp() As Integer
 Dim sFuncName As String
-Dim bTestPassed As Boolean
+Dim eTestResult As TestResult
 
 setup:
+    On Error GoTo err:
     sFuncName = CsModuleName & "." & "ArrayNDtoString"
     
 main:
@@ -194,46 +181,48 @@ main:
     aTmp = InitStringArray(Array("A", "B"))
 
     If ArrayNDtoString(a2dTmp) <> "A^B$$C^D" Then
-        GoTo fail
+        eTestResult = TestResult.Failure
+        GoTo teardown
     End If
     
     If ArrayNDtoString(a2dTmp, bUUEncode:=True) <> "QQ==^Qg==$$Qw==^RA==" Then
-        GoTo fail
+        eTestResult = TestResult.Failure
+        GoTo teardown
     End If
     
     If ArrayNDtoString(aTmp) <> "A$$B" Then
-        GoTo fail
+        eTestResult = TestResult.Failure
+        GoTo teardown
     End If
     
     If ArrayNDtoString(aTmp, bUUEncode:=True) <> "QQ==$$Qg==" Then
-        GoTo fail
+        eTestResult = TestResult.Failure
+        GoTo teardown
     End If
-    
-    Debug.Print ArrayNDtoString(aNdTmp)
-    
+
     If ArrayNDtoString(aNdTmp) <> "A^B^C$$D^E^F$$G^H^I" Then
-        GoTo fail
+        eTestResult = TestResult.Failure
+        GoTo teardown
     End If
         
     If ArrayNDtoString(aNdTmp, sRowDelim:="_", sFieldDelim:="&") <> "A&B&C_D&E&F_G&H&I" Then
-        GoTo fail
+        eTestResult = TestResult.Failure
+    Else
+        eTestResult = TestResult.OK
     End If
-     
-    
-success:
-    bTestPassed = True
+    On Error GoTo 0
     GoTo teardown
-    
-fail:
-    bTestPassed = False
+     
+err:
+    eTestResult = TestResult.Error
     
 teardown:
-    Call TestLogIt(sFuncName, bTestPassed)
+    Test_ArrayNDtoString = eTestResult
+    
+End Function
 
-End Sub
 
-
-Sub Test_Is2DArray()
+Function Test_Is2DArray() As TestResult
 ' Test if can detect 2d integer and string arrays
 Dim a2dTmp() As String
 Dim aTmp() As String
@@ -243,6 +232,7 @@ Dim sFuncName As String
 Dim bTestPassed As Boolean
 
 setup:
+    On Error GoTo err:
     sFuncName = CsModuleName & "." & "Is2DArray"
     
 main:
@@ -250,101 +240,111 @@ main:
     aTmp = InitStringArray(Array("A", "B"))
 
     If Is2DArray(a2dTmp) = False Then
-        GoTo fail
+        eTestResult = TestResult.Failure
+        GoTo teardown
     End If
     
     If Is2DArray(aTmp) = True Then
-        GoTo fail
+        eTestResult = TestResult.Failure
+        GoTo teardown
     End If
     
     a2dIntTmp = Init2DIntArray([{1,2;3,4}])
     aTmp = InitStringArray(Array(1, 2))
 
     If Is2DArray(a2dIntTmp) = False Then
-        GoTo fail
+        eTestResult = TestResult.Failure
+        GoTo teardown
     End If
     
     If Is2DArray(aIntTmp) = True Then
-        GoTo fail
+        eTestResult = TestResult.Failure
+    Else
+        eTestResult = TestResult.OK
     End If
-    
-success:
-    bTestPassed = True
+    On Error GoTo 0
     GoTo teardown
     
-fail:
-    bTestPassed = False
+err:
+    eTestResult = TestResult.Error
     
 teardown:
-    Call TestLogIt(sFuncName, bTestPassed)
-
-End Sub
-Sub Test_HasNDimensions()
+    Test_Is2DArray = eTestResult
+    
+End Function
+Function Test_HasNDimensions() As TestResult
 ' Using variant, int and string arrays, test both true/false cases
 
 Dim sFuncName As String
 Dim vSource() As String
 Dim aSource() As Integer
 
-Dim bTestPassed As Boolean
+Dim eTestResult As TestResult
 
 setup:
+    On Error GoTo err:
     sFuncName = CsModuleName & "." & "HasNDimensions"
     
 main:
     vSource = Init2DStringArray([{"a","b";"c","d"}])
     
     If HasNDimensions(vSource, 2) = False Then
-        GoTo fail
+        eTestResult = TestResult.Failure
+        GoTo teardown
     End If
     
     vSource = InitStringArray(Array("A", "B"))
 
     If HasNDimensions(vSource, 1) = False Then
-        GoTo fail
+        eTestResult = TestResult.Failure
+        GoTo teardown
     End If
     
     If HasNDimensions(vSource, 3) = True Then
-        GoTo fail
+        eTestResult = TestResult.Failure
+        GoTo teardown
     End If
     
     aSource = Init2DIntArray([{1,2;3,4}])
     
     If HasNDimensions(aSource, 2) = False Then
-        GoTo fail
+        eTestResult = TestResult.Failure
+        GoTo teardown
     End If
     
     aSource = InitIntArray(Array(1, 2))
 
     If HasNDimensions(aSource, 1) = False Then
-        GoTo fail
+        eTestResult = TestResult.Failure
+        GoTo teardown
     End If
     
     If HasNDimensions(aSource, 3) = True Then
-        GoTo fail
+        eTestResult = TestResult.Failure
+    Else
+        eTestResult = TestResult.OK
     End If
-
-success:
-    bTestPassed = True
+    On Error GoTo 0
     GoTo teardown
     
-fail:
-    bTestPassed = False
+err:
+    eTestResult = TestResult.Error
     
 teardown:
-    Call TestLogIt(sFuncName, bTestPassed)
-End Sub
+    Test_HasNDimensions = eTestResult
+    
+End Function
 
 
-Sub Test_ConvertArrayFromRangeto1D()
+Function Test_ConvertArrayFromRangeto1D() As TestResult
 ' test compare success and failure cases for variant, integer and string arrays
 Dim sFuncName As String
 Dim vSource() As String
 Dim vTarget() As String
 
-Dim bTestPassed As Boolean
-
+Dim eTestResult As TestResult
 setup:
+    On Error GoTo err:
     sFuncName = CsModuleName & "." & "ConvertArrayFromRangeto1D"
     ReDim vSource(1 To 2, 1 To 2)
 main:
@@ -356,19 +356,22 @@ main:
     vTarget = ConvertArrayFromRangeto1D(vSource)
     
     If EqualsArray(vTarget, Array("A", "C")) <> True Then
-        GoTo fail
+        eTestResult = TestResult.Failure
+    Else
+        eTestResult = TestResult.OK
     End If
-success:
-    bTestPassed = True
+    On Error GoTo 0
     GoTo teardown
     
-fail:
-    bTestPassed = False
+err:
+    eTestResult = TestResult.Error
     
 teardown:
-    Call TestLogIt(sFuncName, bTestPassed)
-End Sub
-Sub Test_EqualsArray()
+    Test_ConvertArrayFromRangeto1D = eTestResult
+    
+End Function
+
+Function Test_EqualsArray() As TestResult
 ' Array Compare - test compare success and failure cases for variant, integer and string arrays
 Dim vArray1() As Variant
 Dim vArray2() As Variant
@@ -378,9 +381,10 @@ Dim aArrayInt1() As String
 Dim aArrayInt2() As String
 Dim bResult As Boolean
 Dim sFuncName As String
-Dim bTestPassed As Boolean
+Dim eTestResult As TestResult
 
 setup:
+    On Error GoTo err:
     sFuncName = CsModuleName & "." & "EqualsArray"
     vArray1 = Array("tmp1", "tmp2")
     vArray2 = Array("tmp1", "tmp2")
@@ -396,7 +400,8 @@ main:
     bResult = EqualsArray(vArray1, vArray2)
     
     If bResult <> True Then
-        GoTo fail
+        eTestResult = TestResult.Failure
+    GoTo teardown
     End If
 
     ' String arrays
@@ -407,7 +412,8 @@ main:
     bResult = EqualsArray(aArray1, aArray2)
     
     If bResult <> True Then
-        GoTo fail
+        eTestResult = TestResult.Failure
+        GoTo teardown
     End If
     
     aArray2(0) = "tmp1"
@@ -416,10 +422,10 @@ main:
     bResult = EqualsArray(aArray1, aArray2)
     
     If bResult <> False Then
-        GoTo fail
+        eTestResult = TestResult.Failure
+        GoTo teardown
     End If
     
-
     ' Integer arrays
     aArrayInt1(0) = 1
     aArrayInt1(1) = 2
@@ -428,7 +434,8 @@ main:
     bResult = EqualsArray(aArrayInt1, aArrayInt2)
     
     If bResult <> True Then
-        GoTo fail
+        eTestResult = TestResult.Failure
+        GoTo teardown
     End If
 
     aArrayInt2(0) = 2
@@ -437,16 +444,18 @@ main:
     bResult = EqualsArray(aArrayInt1, aArrayInt2)
     
     If bResult <> False Then
-        GoTo fail
+        eTestResult = TestResult.Failure
+    Else
+        eTestResult = TestResult.OK
     End If
-    
-success:
-    bTestPassed = True
+    On Error GoTo 0
     GoTo teardown
-
-fail:
-    bTestPassed = False
-
+    
+err:
+    eTestResult = TestResult.Error
+    
 teardown:
-    Call TestLogIt(sFuncName, bTestPassed)
-End Sub
+    Test_EqualsArray = eTestResult
+    
+End Function
+

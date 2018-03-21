@@ -14,7 +14,7 @@ Sub TestRunner()
 End Sub
 Sub Test_DoQueryDBRows()
 Dim sFuncName As String, sResults As String, sExecPath As String, sDatabaseName As String, _
-    sTableName As String, sFilename As String, sDataPath As String, sExpectedResult As String
+    sTableName As String, sFileName As String, sDataPath As String, sExpectedResult As String
 Dim bDeleteFlag As Boolean, bDecodeFlag As Boolean, bTestPassed As Boolean
 Dim aColumnDefns() As Variant
 Dim aRows() As String, aColumns() As String, aArgs() As String, aFields() As String
@@ -31,24 +31,24 @@ setup:
     aColumnDefns = Init2DVariantArray([{"FirstName","Text";"LastName","Text";"Country","Text";"Description","Text";"Age","Integer"}])
     aColumns = InitStringArray(Array("FirstName", "LastName", "Country", "Description", "Age"))
     aRows = ReadFile2Array(sDataPath)
-    sFilename = "C:\\Users\\burtnolej\\unifoo.txt"
+    sFileName = "C:\\Users\\burtnolej\\unifoo.txt"
     sExecPath = "C:\Users\burtnolej\Documents\GitHub\quadviewer\utils\excel\"
 
     CreatePySqliteArgsFile sDatabaseName, sTableName, bDeleteFlag:=bDeleteFlag, _
                             aColumns:=aColumns, aColumnDefns:=aColumnDefns, _
-                            aRows:=aRows, sFilename:=sFilename
+                            aRows:=aRows, sFileName:=sFileName
                             
     ' create the database and table
     aArgs = InitStringArray(Array("python", sExecPath & "excel_database_util.py", _
             "--access_type create", _
-            "--input_filename " & sFilename))
+            "--input_filename " & sFileName))
     
     sResults = ShellRun(aArgs)
     
     ' insert rows
     aArgs = InitStringArray(Array("python", sExecPath & "excel_database_util.py", _
             "--access_type insert", _
-            "--input_filename " & sFilename))
+            "--input_filename " & sFileName))
             
     sResults = ShellRun(aArgs)
     
@@ -62,7 +62,7 @@ main:
             GoTo fail
         End If
     End With
-success:
+Success:
     bTestPassed = True
     GoTo teardown
     
@@ -71,14 +71,14 @@ fail:
     
 teardown:
     Call TestLogIt(sFuncName, bTestPassed)
-    Call DeleteFile(sFilename)
+    Call DeleteFile(sFileName)
     Call DeleteSheet(wb, "foobar")
     
 End Sub
 
 Sub Test_DoQueryDBRowsResultFile()
 Dim sFuncName As String, sResults As String, sExecPath As String, sDatabaseName As String, _
-    sTableName As String, sFilename As String, sDataPath As String, sExpectedResult As String, _
+    sTableName As String, sFileName As String, sDataPath As String, sExpectedResult As String, _
     sResultFilePath As String
 Dim bDeleteFlag As Boolean, bDecodeFlag As Boolean, bTestPassed As Boolean
 Dim aColumnDefns() As Variant
@@ -96,24 +96,24 @@ setup:
     aColumnDefns = Init2DVariantArray([{"FirstName","Text";"LastName","Text";"Country","Text";"Description","Text";"Age","Integer"}])
     aColumns = InitStringArray(Array("FirstName", "LastName", "Country", "Description", "Age"))
     aRows = ReadFile2Array(sDataPath)
-    sFilename = "C:\\Users\\burtnolej\\foo.txt"
+    sFileName = "C:\\Users\\burtnolej\\foo.txt"
     sExecPath = "C:\Users\burtnolej\Documents\GitHub\quadviewer\utils\"
 
     CreatePySqliteArgsFile sDatabaseName, sTableName, bDeleteFlag:=bDeleteFlag, _
                             bDecodeFlag:=bDecodeFlag, aColumns:=aColumns, aColumnDefns:=aColumnDefns, _
-                            aRows:=aRows, sFilename:=sFilename
+                            aRows:=aRows, sFileName:=sFileName
                             
     ' create the database and table
     aArgs = InitStringArray(Array("python", sExecPath & "excel_database_util.py", _
             "--access_type create", _
-            "--input_filename " & sFilename))
+            "--input_filename " & sFileName))
     
     sResults = ShellRun(aArgs)
     
     ' insert rows
     aArgs = InitStringArray(Array("python", sExecPath & "excel_database_util.py", _
             "--access_type insert", _
-            "--input_filename " & sFilename))
+            "--input_filename " & sFileName))
             
     sResults = ShellRun(aArgs)
     
@@ -131,7 +131,7 @@ main:
         End If
     End With
     
-success:
+Success:
     bTestPassed = True
     GoTo teardown
     
@@ -140,7 +140,7 @@ fail:
     
 teardown:
     Call TestLogIt(sFuncName, bTestPassed)
-    Call DeleteFile(sFilename)
+    Call DeleteFile(sFileName)
     Call DeleteSheet(wb, "foobar")
     Call DeleteFile(sResultFilePath)
     
@@ -149,7 +149,7 @@ End Sub
 
 Sub Test_DoQueryDBRowsResultFileLarge()
 Dim sFuncName As String, sResults As String, sExecPath As String, sDatabaseName As String, _
-    sTableName As String, sFilename As String, sDataPath As String, sExpectedResult As String, _
+    sTableName As String, sFileName As String, sDataPath As String, sExpectedResult As String, _
     sResultFilePath As String
 Dim bDeleteFlag As Boolean, bDecodeFlag As Boolean, bTestPassed As Boolean
 Dim aColumnDefns() As Variant
@@ -169,21 +169,21 @@ setup:
     
     Debug.Print "before parsing input data file" & GetDateString(Now)
     aRows = ReadFile2Array(sDataPath)
-    sFilename = "C:\\Users\\burtnolej\\foo.txt"
+    sFileName = "C:\\Users\\burtnolej\\foo.txt"
     sExecPath = "C:\Users\burtnolej\Documents\GitHub\quadviewer\utils\"
 
     Debug.Print "before creating args file" & GetDateString(Now)
 
     CreatePySqliteArgsFile sDatabaseName, sTableName, bDeleteFlag:=bDeleteFlag, _
                             bDecodeFlag:=bDecodeFlag, aColumns:=aColumns, aColumnDefns:=aColumnDefns, _
-                            aRows:=aRows, sFilename:=sFilename
+                            aRows:=aRows, sFileName:=sFileName
     
     Debug.Print "before create" & GetDateString(Now)
     
     ' create the database and table
     aArgs = InitStringArray(Array("python", sExecPath & "excel_database_util.py", _
             "--access_type create", _
-            "--input_filename " & sFilename))
+            "--input_filename " & sFileName))
     
     sResults = ShellRun(aArgs)
     
@@ -192,7 +192,7 @@ setup:
     ' insert rows
     aArgs = InitStringArray(Array("python", sExecPath & "excel_database_util.py", _
             "--access_type insert", _
-            "--input_filename " & sFilename))
+            "--input_filename " & sFileName))
             
     sResults = ShellRun(aArgs)
     
@@ -202,7 +202,7 @@ main:
     sResultFilePath = DoQueryDBRows(wb, "foobar", "foobar", "foobar", True, "select * from foobar", _
        bResultFile:=True)
 
-success:
+Success:
     bTestPassed = True
     GoTo teardown
     
@@ -211,7 +211,7 @@ fail:
     
 teardown:
     Call TestLogIt(sFuncName, bTestPassed)
-    Call DeleteFile(sFilename)
+    Call DeleteFile(sFileName)
     Call DeleteSheet(wb, "foobar")
     Call DeleteFile(sResultFilePath)
     

@@ -1,26 +1,17 @@
 Attribute VB_Name = "Test_Dict_Utils"
 Option Explicit
-
 Const CsModuleName = "Test_Dict_Utils"
 
-Sub TestRunner()
-    'GetLogFile
-    Log_Utils.LogFilter = "8,9"
-    Test_Dict2Array
-    
-    'GetLogFile
-    
-End Sub
-Sub Test_Dict2Array()
+Function Test_Dict2Array() As TestResult
 Dim sFuncName As String
 Dim dTmp As New Dictionary
 Dim dTmp2 As New Dictionary
 Dim dTmp3 As New Dictionary
 Dim aResult() As String
-Dim bTestPassed As Boolean
+Dim eTestResult As TestResult
 
 setup:
-    
+    On Error GoTo err:
     sFuncName = CsModuleName & "." & "Dict2Array"
 
     dTmp2.Add "item1", "foo"
@@ -34,18 +25,17 @@ setup:
     aResult = Dict2Array(dTmp, InitStringArray(Array("item1", "item2")))
     
     If ArrayNDtoString(aResult) <> "foo^foo^bar$$foo2^foo2^bar2" Then
-        GoTo fail
+        eTestResult = TestResult.Failure
+    Else
+        eTestResult = TestResult.OK
     End If
-    
-success:
-    bTestPassed = True
+    On Error GoTo 0
     GoTo teardown
-
-fail:
-    bTestPassed = False
+    
+err:
+    eTestResult = TestResult.Error
     
 teardown:
-
-    Call TestLogIt(sFuncName, bTestPassed)
-End Sub
+    Test_Dict2Array = eTestResult
+End Function
 

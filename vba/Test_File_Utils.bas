@@ -1,24 +1,15 @@
 Attribute VB_Name = "Test_File_Utils"
 Option Explicit
-
 Const CsModuleName = "Test_File_Utils"
 
-Sub TestRunner()
-    'GetLogFile
-    Log_Utils.LogFilter = "8,9"
-    
-    Test_FilesAreSame
-    TestReadFile2Array
-    
-    'GetLogFile
-End Sub
-Sub TestReadFile2Array()
+Function TestReadFile2Array() As TestResult
 Dim sFuncName As String, sText As String, sFilePath As String
 Dim oFile As Object
 Dim aTmp() As String
-Dim bTestPassed As Boolean
+Dim eTestResult As TestResult
 
 setup:
+    On Error GoTo err:
     sFuncName = CsModuleName & "." & "ReadFile2Array"
     sText = "valA^valB^valC" & vbCrLf & "valA1^valB2^valC2" & vbCrLf & "valA3^valB3^valC3"
     sFilePath = "C:\Users\burtnolej\tmp.txt"
@@ -29,32 +20,32 @@ setup:
 main:
     aTmp = ReadFile2Array(sFilePath)
     If UBound(aTmp, 2) <> 2 Then
-        GoTo fail
+        eTestResult = TestResult.Failure
     ElseIf UBound(aTmp, 1) <> 2 Then
-        GoTo fail
+        eTestResult = TestResult.Failure
+    Else
+        eTestResult = TestResult.OK
     End If
-    
-success:
-    bTestPassed = True
+    On Error GoTo 0
     GoTo teardown
-
-fail:
-    bTestPassed = False
-
-teardown:
-    Call TestLogIt(sFuncName, bTestPassed)
-    Call DeleteFile(sFilePath)
-    Exit Sub
     
-End Sub
+err:
+    eTestResult = TestResult.Error
+    
+teardown:
+    TestReadFile2Array = eTestResult
+    Call DeleteFile(sFilePath)
+    
+End Function
 
-Sub Test_FilesAreSame()
+Function Test_FilesAreSame() As TestResult
 Dim sFuncName As String
 Dim sPath As String
-Dim bTestPassed As Boolean
+Dim eTestResult As TestResult
 Dim sFile1Name As String, sFile2Name As String, sFile3Name As String
 
 setup:
+    On Error GoTo err:
     sFuncName = CsModuleName & "." & "FilesAreSame"
     sPath = "C:\Users\burtnolej\"
     
@@ -73,25 +64,26 @@ setup:
 main:
 
     If FilesAreSame(sFile1Name, sFile2Name) = False Then
-        GoTo fail
+        eTestResult = TestResult.Failure
+        GoTo teardown
     End If
     
     If FilesAreSame(sFile1Name, sFile3Name) = True Then
-        GoTo fail
+        eTestResult = TestResult.Failure
+    Else
+        eTestResult = TestResult.OK
     End If
-    
-success:
-    bTestPassed = True
+    On Error GoTo 0
     GoTo teardown
     
-fail:
-    bTestPassed = False
+err:
+    eTestResult = TestResult.Error
     
 teardown:
+    Test_NumColumns = eTestResult
     Call DeleteFile(sFile1Name)
     Call DeleteFile(sFile2Name)
     Call DeleteFile(sFile3Name)
-    Call TestLogIt(sFuncName, bTestPassed)
-End Sub
+End Function
 
 

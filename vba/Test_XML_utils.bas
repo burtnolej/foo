@@ -42,7 +42,7 @@ setup:
         GoTo fail
     End If
 
-success:
+Success:
     bTestPassed = True
     GoTo teardown
     
@@ -76,9 +76,9 @@ main:
     End If
     
 err:
-    GoTo success
+    GoTo Success
 
-success:
+Success:
     bTestPassed = True
     GoTo teardown
     
@@ -116,9 +116,9 @@ main:
     End If
     
 err:
-    GoTo success
+    GoTo Success
 
-success:
+Success:
     bTestPassed = True
     GoTo teardown
     
@@ -152,9 +152,9 @@ main:
     End If
     
 err:
-    GoTo success
+    GoTo Success
 
-success:
+Success:
     bTestPassed = True
     GoTo teardown
     

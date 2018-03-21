@@ -149,7 +149,7 @@ main:
         Set nTmp = .Names.Item(sRangeName)
         On Error GoTo 0
         If nTmp Is Nothing Then
-            FuncLogIt sFuncName, "Could not find name [" & sRangeName & "]", C_MODULE_NAME, LogMsgType.FAILURE
+            FuncLogIt sFuncName, "Could not find name [" & sRangeName & "]", C_MODULE_NAME, LogMsgType.Failure
         Else
             On Error GoTo err
             nTmp.Delete

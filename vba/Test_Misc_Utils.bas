@@ -36,9 +36,9 @@ main:
     End If
     
 err:
-    GoTo success
+    GoTo Success
 
-success:
+Success:
     bTestPassed = True
     GoTo teardown
     
@@ -65,9 +65,9 @@ main:
     End If
     
 err:
-    GoTo success
+    GoTo Success
 
-success:
+Success:
     bTestPassed = True
     GoTo teardown
     
@@ -93,9 +93,9 @@ main:
     End If
     
 err:
-    GoTo success
+    GoTo Success
 
-success:
+Success:
     bTestPassed = True
     GoTo teardown
     
@@ -122,9 +122,9 @@ main:
     End If
     
 err:
-    GoTo success
+    GoTo Success
 
-success:
+Success:
     bTestPassed = True
     GoTo teardown
     
@@ -150,9 +150,9 @@ main:
     End If
     
 err:
-    GoTo success
+    GoTo Success
 
-success:
+Success:
     bTestPassed = True
     GoTo teardown
     
@@ -178,9 +178,9 @@ main:
     End If
     
 err:
-    GoTo success
+    GoTo Success
 
-success:
+Success:
     bTestPassed = True
     GoTo teardown
     
@@ -208,9 +208,9 @@ main:
         GoTo fail
     End If
 err:
-    GoTo success
+    GoTo Success
 
-success:
+Success:
     bTestPassed = True
     GoTo teardown
     
@@ -236,9 +236,9 @@ main:
     End If
     
 err:
-    GoTo success
+    GoTo Success
 
-success:
+Success:
     bTestPassed = True
     GoTo teardown
     
@@ -263,9 +263,9 @@ main:
     On Error GoTo 0
     GoTo fail
 err:
-    GoTo success
+    GoTo Success
 
-success:
+Success:
     bTestPassed = True
     GoTo teardown
     
@@ -289,11 +289,11 @@ main:
     On Error GoTo err
     IsInstance True, vbBoolean, sFuncName:=sFuncName
     On Error GoTo 0
-    GoTo success
+    GoTo Success
 err:
     GoTo fail
 
-success:
+Success:
     bTestPassed = True
     GoTo teardown
     
@@ -317,7 +317,7 @@ main:
         GoTo fail
     End If
 
-success:
+Success:
     bTestPassed = True
     GoTo teardown
     
@@ -342,7 +342,7 @@ main:
         GoTo fail
     End If
 
-success:
+Success:
     bTestPassed = True
     GoTo teardown
     
@@ -366,7 +366,7 @@ main:
         GoTo fail
     End If
 
-success:
+Success:
     bTestPassed = True
     GoTo teardown
     
@@ -392,7 +392,7 @@ main:
     End If
     
     
-success:
+Success:
     bTestPassed = True
     GoTo teardown
     

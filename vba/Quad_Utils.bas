@@ -1,12 +1,12 @@
 Attribute VB_Name = "Quad_Utils"
 Public Const sExecPath = "C:\\Users\\burtnolej\\Documents\\GitHub\\quadviewer\\app\\quad\\utils\\excel\\"
 Public Const sRuntimeDir = "C:\\Users\\burtnolej\\Documents\\runtime\\"
-Public Const sFilename = "C:\\Users\\burtnolej\\Development\\uupyshell.args.txt"
+Public Const sFileName = "C:\\Users\\burtnolej\\Development\\uupyshell.args.txt"
 
 Public Sub CreateQuadArgsFile(sDatabaseName As String, _
         sSpName As String, _
         Optional dSpArgs As Dictionary, _
-        Optional sFilename As String = "C:\Users\burtnolej\Development\uupyshell.args.txt", _
+        Optional sFileName As String = "C:\Users\burtnolej\Development\uupyshell.args.txt", _
         Optional sRuntimeDir As String = "C:\Users\burtnolej\Documents\runtime")
 
 Dim PYTHONPATH As String, xSpArgs As String, sTmp As String
@@ -14,21 +14,21 @@ Dim PYTHONPATH As String, xSpArgs As String, sTmp As String
     PYTHONPATH = LCase(Environ("PYTHONPATH"))
 
     On Error Resume Next 'in case running for first time and nothing to delete
-    Call DeleteFile(sFilename)
+    Call DeleteFile(sFileName)
     On Error GoTo 0
-    Call TouchFile(sFilename)
+    Call TouchFile(sFileName)
     
     
 
-    Call AppendFile(sFilename, "database_name:" & UUEncode(sDatabaseName) & vbCrLf)
-    Call AppendFile(sFilename, "sp_name:" & UUEncode(sSpName) & vbCrLf)
+    Call AppendFile(sFileName, "database_name:" & UUEncode(sDatabaseName) & vbCrLf)
+    Call AppendFile(sFileName, "sp_name:" & UUEncode(sSpName) & vbCrLf)
 
     If IsSet(dSpArgs) = True Then
         xSpArgs = CreateXMLDocfromDict(dSpArgs).xml
-        Call AppendFile(sFilename, "sp_args:" & UUEncode(xSpArgs) & vbCrLf)
+        Call AppendFile(sFileName, "sp_args:" & UUEncode(xSpArgs) & vbCrLf)
     End If
     
-    Call AppendFile(sFilename, "runtime_dir:" & UUEncode(Quad_Utils.sRuntimeDir) & vbCrLf)
+    Call AppendFile(sFileName, "runtime_dir:" & UUEncode(Quad_Utils.sRuntimeDir) & vbCrLf)
         
 End Sub
 
@@ -44,7 +44,7 @@ Dim sRuntimePath As String
     'aArgs = InitStringArray(Array("python", Quad_Utils.sExecPath & "excel_data_utils.py", _
     '        "input_file", sFilename))
             
-    aArgs = InitStringArray(Array("python", Quad_Utils.sExecPath & "excel_data_utils.py", "--input_file", sFilename))
+    aArgs = InitStringArray(Array("python", Quad_Utils.sExecPath & "excel_data_utils.py", "--input_file", sFileName))
     result = ShellRun(aArgs)
     
     GetQuadStudentSchedule = result

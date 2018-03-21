@@ -35,7 +35,7 @@ main:
         GoTo fail
     End If
     
-success:
+Success:
     bTestPassed = True
     GoTo teardown
 

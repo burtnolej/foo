@@ -99,7 +99,7 @@ Dim iCount As Integer
 
     If sModuleName <> "" Then
         ReDim vModulesNames(0 To 0)
-        vFileNames(0) = sDirectory & "/" & sFilename
+        vFileNames(0) = sDirectory & "/" & sFileName
     Else
         vFileNames = GetFolderFiles(sDirectory & "/")
     End If
@@ -122,7 +122,8 @@ Dim iCount As Integer
     'set VBComp = GetModule(
     
 End Function
-Function GetProcsInModules(wb As Workbook, Optional sModuleName As String) As Dictionary
+Function GetProcsInModules(wb As Workbook, Optional sModuleName As String, _
+            Optional bTestsOnly As Boolean = False) As Dictionary
 Dim VBProj As VBIDE.VBProject
 Dim VBComp As VBIDE.VBComponent
 Dim vModuleNames() As String
@@ -152,6 +153,11 @@ main:
         
         For i = 1 To VBComp.CodeModule.CountOfLines
             sProcName = VBComp.CodeModule.ProcOfLine(i, vbext_pk_Proc)
+            
+            If bTestsOnly = True And Left(sProcName, 4) <> "Test" Then
+                GoTo nextproc
+            End If
+                
             If sProcName = BLANK Then
                 ' pass
             ElseIf VBComp.CodeModule.Lines(i, 1) <> BLANK Then ' official start of proc can be blank line above the proc
@@ -166,6 +172,7 @@ main:
                     dProc.Add sProcName, dDetails
                 End If
             End If
+nextproc:
         Next i
     Next sModName
     

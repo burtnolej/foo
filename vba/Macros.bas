@@ -12,7 +12,12 @@ Public Sub RunTests()
     Test_Format_Utils.TestRunner
     'Test_Log_Utils.TestRunner
     Test_MAcros.TestRunner
+    
+    'only problem left is with import_modules test
     Test_Module_Utils.TestRunner
+    
+    'after that go back to making quad queries output more readable and in a file
+    
     Test_OS_Utils.TestRunner
     Test_Range_Utils.TestRunner
     Test_String_Utils.TestRunner
@@ -27,7 +32,7 @@ End Sub
 Public Sub DoViewLogs()
 Dim vFileNames() As String
 Dim sLogPath As String
-Dim sFilename As Variant
+Dim sFileName As Variant
 Dim sFuncName As String
 Dim iCount As Integer
 Dim vFile() As String
@@ -55,19 +60,19 @@ Dim rSource As Range
     
     Set wsTmp = CreateSheet(Application.ActiveWorkbook, sSheetName)
     
-    For Each sFilename In vFileNames
-        If InStr(sFilename, "_log") <> 0 Then
-            FuncLogIt sFuncName, "Found log [" & sFilename & "] loading", C_MODULE_NAME, LogMsgType.OK
+    For Each sFileName In vFileNames
+        If InStr(sFileName, "_log") <> 0 Then
+            FuncLogIt sFuncName, "Found log [" & sFileName & "] loading", C_MODULE_NAME, LogMsgType.OK
             
-            vFile = ReadFile2Array(sLogPath & sFilename, sFieldDelim:="|")
+            vFile = ReadFile2Array(sLogPath & sFileName, sFieldDelim:="|")
             
             Set rSource = RangeFromStrArray(vFile, wsTmp, iRowNum, 0)
             Set rSource = rSource.Resize(, 1).Offset(, 3)
-            rSource.Value = sFilename
+            rSource.Value = sFileName
             
             iRowNum = iRowNum + UBound(vFile) + 1
         End If
-    Next sFilename
+    Next sFileName
     
     iCount = 1
     For Each iColWidth In aColWidths
@@ -87,7 +92,7 @@ Public Sub DoImportModules()
 Dim VBProj As VBIDE.VBProject
 Dim VBComp As VBIDE.VBComponent
 Dim wbTmp As Workbook
-Dim sBookname As String
+Dim sBookName As String
 Dim sFileDir As String
 Dim sRootDirectory As String
 Dim sImportModuleDirPath As String

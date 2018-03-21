@@ -18,18 +18,18 @@ Dim fileName As String
     GetFileFromPath = fso.GetFileName(sPath)
 End Function
 
-Public Sub FileMove(sFilename As String, sSourcePath As String, sTargetPath As String)
+Public Sub FileMove(sFileName As String, sSourcePath As String, sTargetPath As String)
 Dim objFSO As Object
 Dim sFuncName As String
     sFuncName = "FileMove"
     Set objFSO = CreateObject("Scripting.FileSystemObject")
     On Error GoTo err
-    objFSO.MoveFile sSourcePath & sFilename, sTargetPath & sFilename
+    objFSO.MoveFile sSourcePath & sFileName, sTargetPath & sFileName
     On Error GoTo 0
-    FuncLogIt sFuncName, "Moved [" & sFilename & "] from  [" & sSourcePath & "] to [" & sTargetPath & "]", C_MODULE_NAME, LogMsgType.FAILURE
+    FuncLogIt sFuncName, "Moved [" & sFileName & "] from  [" & sSourcePath & "] to [" & sTargetPath & "]", C_MODULE_NAME, LogMsgType.Failure
     Exit Sub
 err:
-    FuncLogIt sFuncName, "Failed to move [" & sFilename & "] from  [" & sSourcePath & "] to [" & sTargetPath & "] with err [" & err.Description & "]", C_MODULE_NAME, LogMsgType.FAILURE
+    FuncLogIt sFuncName, "Failed to move [" & sFileName & "] from  [" & sSourcePath & "] to [" & sTargetPath & "] with err [" & err.Description & "]", C_MODULE_NAME, LogMsgType.Failure
 
 End Sub
 Public Function GetFolderFiles(sPath As String, Optional bDateSorted As Boolean = False) As String()
@@ -61,7 +61,7 @@ Dim sFuncName As String
     Set CreateDir = oDir
     Exit Function
 err:
-    FuncLogIt sFuncName, "Failed to create Dir [" & sPath & "] with err [" & err.Description & "]", C_MODULE_NAME, LogMsgType.FAILURE
+    FuncLogIt sFuncName, "Failed to create Dir [" & sPath & "] with err [" & err.Description & "]", C_MODULE_NAME, LogMsgType.Failure
     
 End Function
 Public Sub RemoveDir(sPath As String)
@@ -167,11 +167,11 @@ Dim sFuncName As String
     On Error GoTo err
     objFSO.DeleteFile sPath
     On Error GoTo 0
-    FuncLogIt sFuncName, "Deleted [" & sPath & "]", C_MODULE_NAME, LogMsgType.FAILURE
+    FuncLogIt sFuncName, "Deleted [" & sPath & "]", C_MODULE_NAME, LogMsgType.Failure
     Exit Function
     
 err:
-    FuncLogIt sFuncName, "Failed to delete [" & sPath & "] with err [" & err.Description & "]", C_MODULE_NAME, LogMsgType.FAILURE
+    FuncLogIt sFuncName, "Failed to delete [" & sPath & "] with err [" & err.Description & "]", C_MODULE_NAME, LogMsgType.Failure
 
 End Function
 

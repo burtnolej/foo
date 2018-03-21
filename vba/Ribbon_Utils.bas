@@ -186,7 +186,7 @@ setup:
     GoTo exitsub
     
 fail:
-    FuncLogIt sFuncName, "Could not find an action for  in [" & control.ID & "] definitions", C_MODULE_NAME, LogMsgType.FAILURE
+    FuncLogIt sFuncName, "Could not find an action for  in [" & control.ID & "] definitions", C_MODULE_NAME, LogMsgType.Failure
     GoTo exitsub
 
 err:

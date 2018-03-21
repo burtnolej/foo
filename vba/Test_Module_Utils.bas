@@ -15,7 +15,7 @@ Sub TestImportModules()
 Dim VBProj As VBIDE.VBProject
 Dim VBComp As VBIDE.VBComponent
 Dim wbTmp As Workbook
-Dim sBookname As String
+Dim sBookName As String
 Dim sFileDir As String
 Dim sRootDirectory As String
 Dim sExportModuleDir As String
@@ -30,9 +30,9 @@ setup:
     sFuncName = CsModuleName & "." & "ImportModules"
     sModuleName = "tmp1"
     sRootDirectory = "C:\Users\burtnolej"
-    sBookname = "tmp.xls"
+    sBookName = "tmp.xls"
     sSuffix = "_" & GetDateString(Now(), "mmddyy")
-    Set wbTmp = CreateBook(sRootDirectory & "\" & sBookname)
+    Set wbTmp = CreateBook(sRootDirectory & "\" & sBookName)
     sExportModuleDir = "tmp_exported_modules"
     sCode = "public function test() as String" & vbNewLine & _
             "    test=" & """barfoo""" & vbNewLine & _
@@ -52,7 +52,7 @@ main:
         GoTo fail
     End If
     
-success:
+Success:
     bTestPassed = True
     GoTo teardown
 
@@ -64,7 +64,7 @@ teardown:
     Call DeleteModule(wbTmp, sModuleName)
     Call CloseBook(wbTmp)
     Call RemoveDir(sExportModuleDirPath)
-    Call DeleteBook(sRootDirectory & "\" & sBookname)
+    Call DeleteBook(sRootDirectory & "\" & sBookName)
     
     
 End Sub
@@ -102,7 +102,7 @@ main:
         GoTo fail
     End If
 
-success:
+Success:
     bTestPassed = True
     GoTo teardown
     
@@ -172,7 +172,7 @@ main:
         GoTo fail
     End If
     
-success:
+Success:
     
     bTestPassed = True
     GoTo teardown

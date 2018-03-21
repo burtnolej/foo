@@ -4,7 +4,7 @@ Public fLogFile As Object
 Enum LogMsgType
     FATAL = 0
     Error = 1
-    FAILURE = 2
+    Failure = 2
     INFO = 3
     OK = 4
     DEBUGGING = 7
@@ -67,7 +67,7 @@ Sub WriteToLog(aVals() As String, aWidths() As Integer, Optional sCaller As Stri
 ' or display in the Immediate window if a log file has not been setup
 Dim sLogStr As String
 Dim sTimestamp As String
-Dim sBookname As String
+Dim sBookName As String
 Dim aHeaderVals() As String
 Dim aHeaderWidths() As Integer
 
@@ -75,8 +75,8 @@ Dim aHeaderWidths() As Integer
     
     If sCaller <> "" Then
         sTimestamp = GetDateString(Now(), "ddmmyyHHSS")
-        sBookname = ActiveWorkbook.Name
-        aHeaderVals = InitStringArray(Array(sTimestamp, sBookname, sCaller))
+        sBookName = ActiveWorkbook.Name
+        aHeaderVals = InitStringArray(Array(sTimestamp, sBookName, sCaller))
         aHeaderWidths = InitIntArray(Array(14, 10, 20))
         sLogStr = Array2String(aHeaderVals, aWidths:=aHeaderWidths, sDelim:=sDelim) & sDelim
     End If

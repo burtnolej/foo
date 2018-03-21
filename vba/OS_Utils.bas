@@ -39,7 +39,7 @@ Dim sCwd As String
     If oExec.ExitCode = 0 Then
         FuncLogIt sFuncName, "executed shell cmd [" & sCmd & "]", C_MODULE_NAME, LogMsgType.OK
     Else
-        FuncLogIt sFuncName, "Error executing shell cmd [" & sCmd & "]", C_MODULE_NAME, LogMsgType.FAILURE
+        FuncLogIt sFuncName, "Error executing shell cmd [" & sCmd & "]", C_MODULE_NAME, LogMsgType.Failure
         ShellRun = "-1"
         Exit Function
     End If

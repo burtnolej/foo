@@ -22,6 +22,12 @@ Option Explicit
 ' Function  | CreateSheet           | (wb As Workbook, sSheetName As String, Optional bOverwrite As Boolean) As Worksheet
 
 Const C_MODULE_NAME = "Workbook_Utils"
+Public Function OpenBook(sName As String) As Workbook
+    Set OpenBook = Workbooks.Open(sName)
+End Function
+Public Function BookExists(sName As String) As Boolean
+    BookExists = FileExists(sName)
+End Function
 Public Function CreateBook(sName) As Workbook
     Set CreateBook = Workbooks.Add
     CreateBook.SaveAs sName

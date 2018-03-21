@@ -460,7 +460,7 @@ exitfunc:
 
 err:
     Set LoadDefinitions = Nothing
-    FuncLogIt sFuncName, "loading in definitions in [" & err.Description & "] definitions", C_MODULE_NAME, LogMsgType.FAILURE
+    FuncLogIt sFuncName, "loading in definitions in [" & err.Description & "] definitions", C_MODULE_NAME, LogMsgType.Failure
 
 End Function
 Public Function Validate(wbBook As Workbook, sSheetName As String, rTarget As Range) As Boolean
@@ -490,7 +490,7 @@ Dim mThisModule As VBComponent
     
     If dDefinitions.Exists(sDefnName) = False Then
         FuncLogIt sFuncName, "Loading definition for  in [" & sDefnName & "]", C_MODULE_NAME, _
-            LogMsgType.FAILURE
+            LogMsgType.Failure
     Else
         Set dDefnDetail = dDefinitions.Item(sDefnName)
         sValidType = dDefnDetail.Item("validation_type")
@@ -515,12 +515,12 @@ Dim mThisModule As VBComponent
 err:
     SetBgColorFromString sSheetName, rTarget, C_RGB_ERROR
     FuncLogIt sFuncName, "Error [" & err.Description & "]", C_MODULE_NAME, _
-            LogMsgType.FAILURE
+            LogMsgType.Failure
     Exit Function
 
 err_name:
     FuncLogIt sFuncName, "Error with range name for [" & rTarget.Address & "} [" & err.Description & "]", C_MODULE_NAME, _
-            LogMsgType.FAILURE
+            LogMsgType.Failure
 End Function
 
 

@@ -82,3 +82,31 @@ s0 = ""
    
    Debug.Print UBound(a2)
 End Sub
+
+Function Test_NumColumns() As TestResult
+Dim sFuncName As String
+Dim eTestResult As TestResult
+Dim aTmp() As String
+
+setup:
+    On Error GoTo err:
+    sFuncName = CsModuleName & ".NumColumns"
+    ReDim aTmp(0 To 100, 0 To 3)
+
+main:
+    If NumColumns(aTmp) <> 4 Then
+        eTestResult = TestResult.Failure
+    Else
+        eTestResult = TestResult.OK
+    End If
+    On Error GoTo 0
+    GoTo teardown
+    
+err:
+    eTestResult = TestResult.Error
+    
+teardown:
+    Test_NumColumns = eTestResult
+    
+End Function
+

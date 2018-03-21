@@ -47,7 +47,7 @@ main:
         GoTo fail
     End If
 
-success:
+Success:
     bTestPassed = True
     GoTo teardown
     
@@ -73,7 +73,7 @@ Dim bTestPassed As Boolean
         GoTo fail
     End If
 
-success:
+Success:
     bTestPassed = True
     GoTo teardown
     
