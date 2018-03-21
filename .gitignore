@@ -15,3 +15,9 @@ utils/.id.dat
 test.log
 utils/test_gifs/
 apps/youtube_download/*mp3
+*.pyc
+python_log.txt
+excel_log.txt
+b64*
+uni*
+uu*

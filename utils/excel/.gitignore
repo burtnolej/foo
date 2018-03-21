@@ -1,1 +1,5 @@
 *.pyc
+python_log.txt
+b64*
+uni*
+uu*
