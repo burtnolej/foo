@@ -1,19 +1,11 @@
 Attribute VB_Name = "Test_Format_Utils"
 Option Explicit
 Const CsModuleName = "Test_Format_Utils"
-Sub TestRunner()
-    'GetLogFile
-    Log_Utils.LogFilter = "8,9"
-    Test_BgColor
-    Test_CopyFormat
-  
-    'GetLogFile
-End Sub
-Sub Test_CopyFormat()
+Function Test_CopyFormat() As TestResult
 Dim sFuncName As String
 Dim wsTmp As Worksheet
 Dim sSheetName As String
-Dim bTestPassed As Boolean
+Dim eTestResult As TestResult
 Dim rSource As Range
 Dim rTarget As Range
 Dim cRGB As RGBColor
@@ -39,29 +31,29 @@ main:
     Set cRGB = GetBgColor(sSheetName, rTarget)
     
     If cRGB.AsString <> "255,255,0" Then
-        GoTo fail
+        eTestResult = TestResult.Failure
+    Else
+        eTestResult = TestResult.OK
     End If
-    
-Success:
-    bTestPassed = True
+    On Error GoTo 0
     GoTo teardown
     
-fail:
-    bTestPassed = False
+err:
+    eTestResult = TestResult.Error
     
 teardown:
+    Test_CopyFormat = eTestResult
     DeleteSheet ActiveWorkbook, sSheetName
-    Call TestLogIt(sFuncName, bTestPassed)
-End Sub
+End Function
 
-Sub Test_BgColor()
+Function Test_BgColor() As TestResult
 Dim sFuncName As String
 Dim wsTmp As Worksheet
 Dim sResult As String
 Dim rCell As Range
 Dim cRGB As RGBColor
 Dim sSheetName As String
-Dim bTestPassed As Boolean
+Dim eTestResult As TestResult
 
 setup:
     sFuncName = CsModuleName & "." & "BgColor"
@@ -77,18 +69,18 @@ main:
     Set cRGB = GetBgColor(sSheetName, rCell)
     
     If cRGB.AsString <> "255,0,0" Then
-        GoTo fail
+        eTestResult = TestResult.Failure
+    Else
+        eTestResult = TestResult.OK
     End If
-    
-Success:
-    bTestPassed = True
+    On Error GoTo 0
     GoTo teardown
     
-fail:
-    bTestPassed = False
+err:
+    eTestResult = TestResult.Error
     
 teardown:
+    Test_BgColor = eTestResult
     DeleteSheet ActiveWorkbook, sSheetName
-    Call TestLogIt(sFuncName, bTestPassed)
-End Sub
+End Function
 

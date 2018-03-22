@@ -29,6 +29,16 @@ Public Function Encode(sValue As String, sEncoding As String) As String
     Encode = sValue
     
 End Function
+Public Function Decode(sValue As String, sEncoding As String) As String
+
+    If sEncoding = "uu" Then
+        Decode = UUDecode(sValue)
+        Exit Function
+    End If
+    
+    Decode = sValue
+    
+End Function
 Public Sub CreatePySqliteArgsFile( _
     sDatabaseName As String, _
     sTableName As String, _
@@ -250,7 +260,8 @@ Dim sExecPath As String
     If bResultFile = True Then
         ReDim Preserve aArgs(0 To UBound(aArgs) + 1)
         aArgs(UBound(aArgs)) = "--result_file " & sRuntimePath & sResultFileName
-        CleanString ShellRun(aArgs)
+
+        ShellRun aArgs
         ' return location of result file to caller
         DBQuery = sRuntimePath & sResultFileName
     Else

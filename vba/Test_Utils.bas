@@ -17,7 +17,8 @@ Dim vModulesNames() As String
 Dim iCount As Integer
 
     ReDim vModulesNames(0 To 100)
-    Set wbTmp = Workbooks(sBookName)
+    Set wbTmp = OpenBook(sBookName)
+    'Set wbTmp = Workbooks(sBookName)
     
 
     Set VBProj = wbTmp.VBProject
@@ -116,7 +117,7 @@ Dim sExecPath As String
         End If
     Next sModuleTest
     
-    aRows = ReDim2DArray(aRows, iResultCount - 1, 6)
+    aRows = ReDim2DArray(aRows, iResultCount, 6)
         
     CreatePySqliteArgsFile sDatabaseName, sTableName, aColumnDefns:=aColumnDefns, sFileName:=sFileName, _
                            aRows:=aRows, aColumns:=aColumns
@@ -169,11 +170,12 @@ Dim vSplits() As String
     TestFromPython = Join(vSplits, HAT)
 End Function
 Sub DoProjectTestRunner()
-    'ProjectTestRunner aIncModules:=InitStringArray(Array("Test_Array_Utils", "Test_DB_Utils", _
-    '                        "Test_Entry_Utils", "Test_Dict_Utils", "Test_Filter_Utils"))
-    'ProjectTestRunner aIncModules:=InitStringArray(Array("Test_Array_Utils")), bToDB:=True
-    ProjectTestRunner sIncModules:="Test_Array_Utils,Test_Dict_Utils", bToDB:=True
-    
+Dim sIncModules As String
+
+    sIncModules = "Test_Array_Utils,Test_DB_Utils,Test_Entry_Utils,Test_Dict_Utils"
+    sIncModules = sIncModules & ",Test_Filter_Utils,Test_Format_Utils,Test_Macros"
+    'sIncModules = "Test_Macros"
+    ProjectTestRunner sIncModules
 End Sub
 Sub ProjectTestRunner(sIncModules As String)
 'Optional aIncModules As Variant,
@@ -193,7 +195,7 @@ Dim vTestResult As Variant
     If sIncModules <> "" Then
         aIncModules = Split(sIncModules, ",")
     End If
-    aProjectTestModules = GetTestModulesInBook("vba_source_new.xlsm")
+    aProjectTestModules = GetTestModulesInBook("C:\\Users\\burtnolej\\Documents\\GitHub\\quadviewer\\vba_source_new.xlsm")
     
     Set dProjectTestResultSummary = InitTestSummary()
     dProjectTestResult.Add "summary", dProjectTestResultSummary
@@ -237,8 +239,11 @@ End Sub
 Function ModuleTestRunner(ByRef dModuleTestResult As Dictionary, sModuleName As String)
 Dim eTestResult As TestResult
 Dim sTest As Variant
-
-    Set dTestCases = GetTestsInModule(Workbooks("vba_source_new.xlsm"), sModuleName)
+Dim wbTmp As Workbook
+    
+    Set wbTmp = OpenBook("C:\\Users\\burtnolej\\Documents\\GitHub\\quadviewer\\vba_source_new.xlsm")
+    'Set dTestCases = GetTestsInModule(Workbooks("vba_source_new.xlsm"), sModuleName)
+    Set dTestCases = GetTestsInModule(wbTmp, sModuleName)
     For Each sTestCase In dTestCases
         eTestResult = TestResult.Error
         On Error Resume Next

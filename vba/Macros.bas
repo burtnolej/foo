@@ -11,7 +11,7 @@ Public Sub RunTests()
     Test_Filter_Utils.TestRunner
     Test_Format_Utils.TestRunner
     'Test_Log_Utils.TestRunner
-    Test_MAcros.TestRunner
+    Test_Macros.TestRunner
     
     'only problem left is with import_modules test
     Test_Module_Utils.TestRunner
@@ -265,9 +265,9 @@ Dim sDirectory As String, sTmpDirectory As String, sFuncName As String
     
 End Sub
 
-Public Function DoQueryDBRows(wb As Workbook, sSheetName As String, sDatabaseName As String, sTableName As String, _
-                    bDeleteFlag As Boolean, sQryStr As String, Optional bDecodeFlag As Boolean = False, _
-                    Optional bResultFile As Boolean = False) As String
+Public Function DoQueryDBRows(wb As Workbook, sSheetName As String, sDatabaseName As String, _
+                    sTableName As String, bDeleteFlag As Boolean, sQryStr As String, _
+                    Optional sEncoding As String = "uu", Optional bResultFile As Boolean = False) As String
 Dim sQryResults As String
 Dim rTarget As Range
 Dim iWidth As Integer, iLength As Integer
@@ -294,11 +294,7 @@ Dim aResults As Variant
         aFields = Split(aRows(i), "^")
         iWidth = UBound(aFields)
         For j = 0 To iWidth
-            If bDecodeFlag = True Then
-                aResults(i, j) = StrConv(DecodeBase64(aFields(j)), vbUnicode)
-            Else
-                aResults(i, j) = aFields(j)
-            End If
+            aResults(i, j) = Decode(CStr(aFields(j)), sEncoding)
         Next j
     Next i
     
@@ -312,9 +308,6 @@ Dim aResults As Variant
     
     CreateFilter wb, sSheetName, rTarget.Offset(-1).Rows(1), UBound(aResults) + 1
 
-    'iType = vbDefaultButton2
-    'PopUpWindow CStr(iRowsInserted) & " inserted into " & sTableName & " in " & sDatabaseName, _
-    '                    "Insert Rows", iType
     If bResultFile = True Then
         ' for testing purposes useful for the caller to know where the result file is
         ' DBQuery returns the result filepath when in result file mode
