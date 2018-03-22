@@ -4,13 +4,13 @@ import sys
 import os
 from os import remove, environ, path
 from time import sleep
-from misc_utils import Enum, os_dir_exists, os_file_exists
-from misc_utils_log import Log, logger
-from database_util import Database, tbl_create, tbl_index_count, \
+from utils.misc_basic.misc_utils import Enum, os_dir_exists, os_file_exists
+from utils.misc_basic.misc_utils_log import Log, logger
+from utils.database.database_util import Database, tbl_create, tbl_index_count, \
      tbl_index_defn_get, schema_read, schema_get, schema_tbl_get, \
      schema_col_get, schema_tbl_pk_get, schema_print, schema_execute, \
      schema_data_get, tbl_count_get
-from database_table_util import tbl_rows_get, tbl_rows_insert, \
+from utils.database.database_table_util import tbl_rows_get, tbl_rows_insert, \
      tbl_rows_insert_from_schema, tbl_cols_get, tbl_col_add, \
      dbtblgeneric, tbl_move
 

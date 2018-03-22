@@ -1,10 +1,10 @@
 import sys
 import unittest
-from excel_git_utils import GitExcelHelper, log, PRIORITY
-from misc_utils import write_text_to_file, append_text_to_file, os_file_delete, \
+from utils.excel.excel_git_utils import GitExcelHelper, log, PRIORITY
+from utils.misc_basic.misc_utils import write_text_to_file, append_text_to_file, os_file_delete, \
      os_file_to_string, get_2darray_from_file, os_file_exists, \
      uuencode, uudecode, encode, decode
-from git_utils import GitBase, GitRepoHelper, GitCommitHelper
+from utils.git.git_utils import GitBase, GitRepoHelper, GitCommitHelper
 from os import getcwd,chdir
 
 from os import path

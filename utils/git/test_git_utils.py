@@ -2,9 +2,10 @@ import sys
 import unittest
 from github import Github, Repository, InputGitTreeElement, GitBlob, GitTree, \
      Commit, GitCommit, GitRef
-from git_utils import GitBase, GitRepoHelper, GitCommitHelper
-from misc_utils import write_text_to_file, uuencode, uudecode, append_text_to_file, \
+from utils.git.git_utils import GitBase, GitRepoHelper, GitCommitHelper
+from utils.misc_basic.misc_utils import write_text_to_file, uuencode, uudecode, append_text_to_file, \
      b64decode
+from time import sleep
     
 class Test_GitLogin(unittest.TestCase):
     
@@ -32,11 +33,14 @@ class Test_GitCreateRepo(unittest.TestCase):
         
 class Test_GitBase(unittest.TestCase):
     def setUp(self):
+        sleep(5)
         self.token = GitBase._get_token()
         self.reponame = "testpygithub"
         self.github = GitBase._login(self.token)
         self.user = GitBase._get_user(self.github)
+        sleep(1)
         self.repo = GitRepoHelper._create_repo(self.user,self.reponame,auto_init=True)
+        sleep(1)
         
     def tearDown(self):
         GitRepoHelper._delete_repo(self.repo)
@@ -349,6 +353,6 @@ if __name__ == "__main__":
     suite.addTest(unittest.TestLoader().loadTestsFromTestCase(Test_GitRepoHelperPublic))
     suite.addTest(unittest.TestLoader().loadTestsFromTestCase(Test_GitRepoHelperPublic_GetCommits))        
     suite.addTest(unittest.TestLoader().loadTestsFromTestCase(Test_GitCommitHelperPublic_Commit))
-    
+
     unittest.TextTestRunner(verbosity=2).run(suite)
     

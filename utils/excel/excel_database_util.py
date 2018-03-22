@@ -1,9 +1,9 @@
-from database_util import Database, tbl_create, tbl_exists, tbl_list
-from database_table_util import tbl_query, _quotestrs, tbl_rows_insert, _quotestrs, \
+from utils.database.database_util import Database, tbl_create, tbl_exists, tbl_list
+from utils.database.database_table_util import tbl_query, _quotestrs, tbl_rows_insert, _quotestrs, \
      tbl_cols_get, _quotestrs
-from misc_utils import  os_file_to_string, write_text_to_file, os_file_exists, \
+from utils.misc_basic.misc_utils import  os_file_to_string, write_text_to_file, os_file_exists, \
      append_text_to_file, uuencode, uudecode, b64decode, b64decode, tb2str
-from misc_utils_log import Log, logger, PRIORITY
+from utils.misc_basic.misc_utils_log import Log, logger, PRIORITY
 from collections import OrderedDict
 import inspect
 from datetime import datetime

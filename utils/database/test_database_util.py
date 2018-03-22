@@ -2,17 +2,17 @@
 import unittest
 import sys
 
-from database_util import Database, tbl_create, tbl_index_count, \
+from utils.database.database_util import Database, tbl_create, tbl_index_count, \
      tbl_index_defn_get, schema_read, schema_get, schema_tbl_get, \
      schema_col_get, schema_tbl_pk_get, schema_print, schema_execute, \
      schema_data_get, tbl_exists, tbl_count_get
 
-from database_table_util import tbl_rows_insert, tbl_rows_get
+from utils.database.database_table_util import tbl_rows_insert, tbl_rows_get
 
-from misc_utils import Enum, os_dir_exists, os_file_exists
+from utils.misc_basic.misc_utils import Enum, os_dir_exists, os_file_exists
 
-from misc_utils import Enum
-from misc_utils_generic import GenericBase
+from utils.misc_basic.misc_utils import Enum
+from utils.misc_basic.misc_utils_generic import GenericBase
 from os import remove, environ, path
 
 PY2 = sys.version_info[0] == 2

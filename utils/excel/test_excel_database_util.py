@@ -1,13 +1,13 @@
-from database_util import Database, tbl_create, tbl_exists
-from database_table_util import tbl_query, tbl_rows_insert, _quotestrs, \
+from utils.database.database_util import Database, tbl_create, tbl_exists
+from utils.database.database_table_util import tbl_query, tbl_rows_insert, _quotestrs, \
      tbl_rows_get
 import base64
 import sys
 import unittest
-from excel_database_util import DatabaseQueryTable, \
+from utils.excel.excel_database_util import DatabaseQueryTable, \
      DatabaseCreateTable, DatabaseInsertRows, DatabaseBase, DatabaseMisc, \
      log, PRIORITY, DatabaseBase
-from misc_utils import write_text_to_file, append_text_to_file, os_file_delete, \
+from utils.misc_basic.misc_utils import write_text_to_file, append_text_to_file, os_file_delete, \
      os_file_to_string, get_2darray_from_file, put_2darray_in_file, \
      b64encode, uudecode, os_dir_exists
 
