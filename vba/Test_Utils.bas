@@ -172,9 +172,9 @@ End Function
 Sub DoProjectTestRunner()
 Dim sIncModules As String
 
-    sIncModules = "Test_Array_Utils,Test_DB_Utils,Test_Entry_Utils,Test_Dict_Utils"
-    sIncModules = sIncModules & ",Test_Filter_Utils,Test_Format_Utils,Test_Macros"
-    'sIncModules = "Test_Macros"
+    'sIncModules = "Test_Array_Utils,Test_DB_Utils,Test_Entry_Utils,Test_Dict_Utils"
+    'sIncModules = sIncModules & ",Test_Filter_Utils,Test_Format_Utils,Test_Macros,Test_Misc_Utils,Test_Module_Utils"
+    sIncModules = "Test_Module_Utils,Test_OS_Utils,Test_Quad_Utils"
     ProjectTestRunner sIncModules
 End Sub
 Sub ProjectTestRunner(sIncModules As String)

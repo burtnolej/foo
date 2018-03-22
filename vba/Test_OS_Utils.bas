@@ -1,21 +1,9 @@
 Attribute VB_Name = "Test_OS_Utils"
 Option Explicit
 Const CsModuleName = "Test_Shell_Utils"
-Sub TestRunner()
-    'GetLogFile
-    Log_Utils.LogFilter = "8,9"
-    
-    ' test that single and multi line results can be parsed
-    Test_ShellRun
-    
-
-    Test_PopUpWindow
-
-    'GetLogFile
-End Sub
-Sub Test_ShellRun()
+Function Test_ShellRun() As TestResult
 Dim sFuncName As String
-Dim bTestPassed As Boolean
+Dim eTestResult As TestResult
 Dim aArgs() As String
 Dim aResults() As String
 
@@ -28,7 +16,8 @@ main:
     aArgs = InitStringArray(Array("hostname"))
 
     If ShellRun(aArgs) <> "puma-PC" & vbCrLf Then
-        GoTo fail
+        eTestResult = TestResult.Failure
+        GoTo teardown
     End If
 
     aArgs = InitStringArray(Array("systeminfo"))
@@ -36,7 +25,8 @@ main:
     aResults = Split(ShellRun(aArgs), vbCrLf)
     
     If aResults(6) <> "Registered Owner:          burtnolej" Then
-        GoTo fail
+        eTestResult = TestResult.Failure
+        GoTo teardown
     End If
     
     aArgs = InitStringArray(Array("foobar"))
@@ -44,25 +34,25 @@ main:
     aResults = Split(ShellRun(aArgs), vbCrLf)
     
     If aResults(0) <> "-1" Then
-        GoTo fail
+        eTestResult = TestResult.Failure
+    Else
+        eTestResult = TestResult.OK
     End If
-
-Success:
-    bTestPassed = True
+    On Error GoTo 0
     GoTo teardown
     
-fail:
-    bTestPassed = False
+err:
+    eTestResult = TestResult.Error
     
 teardown:
-    Call TestLogIt(sFuncName, bTestPassed)
-End Sub
+    Test_ShellRun = eTestResult
+End Function
 
-Sub Test_PopUpWindow()
+Function Test_PopUpWindow() As TestResult
 Dim sFuncName As String
 Dim iType As Integer
 Dim iReturnCode As Integer
-Dim bTestPassed As Boolean
+Dim eTestResult As TestResult
     
     sFuncName = "PopUpWindow"
     
@@ -70,18 +60,18 @@ Dim bTestPassed As Boolean
     iReturnCode = PopUpWindow("This is a sensible question", "This is my title", iType, iWait:=1)
     
     If iReturnCode <> -1 Then
-        GoTo fail
+        eTestResult = TestResult.Failure
+    Else
+        eTestResult = TestResult.OK
     End If
-
-Success:
-    bTestPassed = True
+    On Error GoTo 0
     GoTo teardown
     
-fail:
-    bTestPassed = False
+err:
+    eTestResult = TestResult.Error
     
 teardown:
-    Call TestLogIt(sFuncName, bTestPassed)
-End Sub
+    Test_PopUpWindow = eTestResult
+End Function
 
 

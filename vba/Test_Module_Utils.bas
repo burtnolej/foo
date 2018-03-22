@@ -2,16 +2,7 @@ Attribute VB_Name = "Test_Module_Utils"
 Option Explicit
 'Sub    TestExportModules()
 Const CsModuleName = "Test_Module_Utils"
-Sub TestRunner()
-    'GetLogFile
-    Log_Utils.LogFilter = "8,9"
-    TestExportModules
-    TestImportModules
-    TestGetProcsInModules
-    
-    'GetLogFile "test.log"
-End Sub
-Sub TestImportModules()
+Function TestImportModules() As TestResult
 Dim VBProj As VBIDE.VBProject
 Dim VBComp As VBIDE.VBComponent
 Dim wbTmp As Workbook
@@ -24,7 +15,7 @@ Dim sSuffix As String
 Dim sExportModuleDirPath As String
 Dim sModuleName As String
 Dim sFuncName As String
-Dim bTestPassed As Boolean
+Dim eTestResult As TestResult
 
 setup:
     sFuncName = CsModuleName & "." & "ImportModules"
@@ -49,27 +40,27 @@ main:
     Call ImportModules(wbTmp, sExportModuleDirPath)
     
     If ModuleExists(wbTmp, sModuleName) <> True Then
-        GoTo fail
+        eTestResult = TestResult.Failure
+    Else
+        eTestResult = TestResult.OK
     End If
-    
-Success:
-    bTestPassed = True
+    On Error GoTo 0
     GoTo teardown
-
-fail:
-    bTestPassed = False
-
+    
+err:
+    eTestResult = TestResult.Error
+    
 teardown:
-    Call TestLogIt(sFuncName, bTestPassed)
+    TestImportModules = eTestResult
     Call DeleteModule(wbTmp, sModuleName)
     Call CloseBook(wbTmp)
     Call RemoveDir(sExportModuleDirPath)
     Call DeleteBook(sRootDirectory & "\" & sBookName)
     
     
-End Sub
+End Function
 
-Sub TestExportModules()
+Function TestExportModules() As TestResult
 Dim sFuncName As String
 Dim wsTmp As Worksheet
 Dim sModuleName As String
@@ -78,7 +69,7 @@ Dim sResult As String
 Dim sDirectory As String
 Dim sResultFileName As String
 Dim sSuffix As String
-Dim bTestPassed As Boolean
+Dim eTestResult As TestResult
 
 setup:
     sFuncName = CsModuleName & "." & "ExportModules"
@@ -99,27 +90,27 @@ main:
     Call ExportModules(Application.ActiveWorkbook, sDirectory, sSuffix, sModuleName)
     
     If FileExists(sResultFileName) <> True Then
-        GoTo fail
+        eTestResult = TestResult.Failure
+    Else
+        eTestResult = TestResult.OK
     End If
-
-Success:
-    bTestPassed = True
+    On Error GoTo 0
     GoTo teardown
     
-fail:
-    bTestPassed = False
+err:
+    eTestResult = TestResult.Error
     
 teardown:
-    Call TestLogIt(sFuncName, bTestPassed)
+    TestExportModules = eTestResult
     Call DeleteModule(Application.ActiveWorkbook, sModuleName)
     Call DeleteFile(sResultFileName)
-End Sub
-Sub TestGetProcsInModules()
+End Function
+Function TestGetProcsInModules() As TestResult
 Dim sFuncName As String
 Dim wsTmp As Worksheet
 Dim sCode As String, sCode2 As String
 Dim sModuleName As String
-Dim bTestPassed As Boolean
+Dim eTestResult As TestResult
 Dim dProc As Dictionary, dDetail As Dictionary
 Dim sProc As Variant
 Dim wb As Workbook
@@ -155,33 +146,36 @@ main:
     Set dProc = GetProcAnalysis(wb, dProc)
     
     If dProc.Exists("test") = False Then
-        GoTo fail
+        eTestResult = TestResult.Failure
+        GoTo teardown
     End If
     If dProc.Exists("test2") = False Then
-        GoTo fail
+        eTestResult = TestResult.Failure
+        GoTo teardown
     End If
     If dProc.Exists("test3") = False Then
-        GoTo fail
+       eTestResult = TestResult.Failure
+       GoTo teardown
     End If
 
     If dProc.Item("test3").Item("Args") <> "Public Function test3(sFoo As String, Optional sBar As String) As String" Then
-        GoTo fail
+        eTestResult = TestResult.Failure
+        GoTo teardown
     End If
     
     If Split(dProc.Item("test3").Item("Comments"), vbNewLine)(1) <> "'comment line 2" Then
-        GoTo fail
+        eTestResult = TestResult.Failure
+    Else
+        eTestResult = TestResult.OK
     End If
-    
-Success:
-    
-    bTestPassed = True
+    On Error GoTo 0
     GoTo teardown
     
-fail:
-    bTestPassed = False
+err:
+    eTestResult = TestResult.Error
     
 teardown:
+    TestGetProcsInModules = eTestResult
     Call CloseBook(wb)
     Call DeleteBook(wbName & ".xlsx")
-    Call TestLogIt(sFuncName, bTestPassed)
-End Sub
+End Function

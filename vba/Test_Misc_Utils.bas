@@ -1,30 +1,8 @@
 Attribute VB_Name = "Test_Misc_Utils"
 Const CsModuleName = "Test_Misc_Utils"
-
-Sub TestRunner()
-    'GetLogFile
-    Log_Utils.LogFilter = "8,9"
-    Test_UUEncode
-    Test_IsInstanceExceptionFail
-    Test_IsInstanceExceptionPass
-    Test_IsInstanceFail
-    Test_IsInstancePass
-    Test_IsEqual
-    Test_IsDict
-    Test_IsDictFail
-    Test_MyVarTypeEnumDict
-    Test_MyVarTypeEnum
-    Test_MyVarTypeEnumStrArray4Columns
-    Test_MyVarTypeStringArray3Columns
-    
-    'GetLogFile
-    
-End Sub
-
-
-Sub Test_MyVarTypeEnum()
+Function Test_MyVarTypeEnum() As TestResult
 Dim sFuncName As String
-Dim bTestPassed As Boolean
+Dim eTestResult As TestResult
 Dim sTmp As String
 
 setup:
@@ -32,27 +10,24 @@ setup:
     
 main:
     If EnumVarType(MyVarType(sTmp)) <> "vbString" Then
-        GoTo fail
+        eTestResult = TestResult.Failure
+    Else
+        eTestResult = TestResult.OK
     End If
-    
-err:
-    GoTo Success
-
-Success:
-    bTestPassed = True
+    On Error GoTo 0
     GoTo teardown
     
-fail:
-    bTestPassed = False
+err:
+    eTestResult = TestResult.Error
     
 teardown:
-    Call TestLogIt(sFuncName, bTestPassed)
+    Test_MyVarTypeEnum = eTestResult
     
-End Sub
+End Function
 
-Sub Test_MyVarTypeEnumStrArray4Columns()
+Function Test_MyVarTypeEnumStrArray4Columns() As TestResult
 Dim sFuncName As String
-Dim bTestPassed As Boolean
+Dim eTestResult As TestResult
 Dim aTmp() As String
 
 setup:
@@ -61,27 +36,25 @@ setup:
     
 main:
     If EnumVarType(MyVarType(aTmp)) <> "vb2DStringArray4Columns" Then
-        GoTo fail
+        eTestResult = TestResult.Failure
+    Else
+        eTestResult = TestResult.OK
     End If
-    
-err:
-    GoTo Success
-
-Success:
-    bTestPassed = True
+    On Error GoTo 0
     GoTo teardown
     
-fail:
-    bTestPassed = False
+err:
+    eTestResult = TestResult.Error
     
 teardown:
-    Call TestLogIt(sFuncName, bTestPassed)
+    Test_MyVarTypeEnumStrArray4Columns = eTestResult
     
-End Sub
+    
+End Function
 
-Sub Test_MyVarTypeEnumDict()
+Function Test_MyVarTypeEnumDict() As TestResult
 Dim sFuncName As String
-Dim bTestPassed As Boolean
+Dim eTestResult As TestResult
 Dim dTmp As New Dictionary
 
 setup:
@@ -89,28 +62,26 @@ setup:
     
 main:
     If EnumVarType(MyVarType(dTmp)) <> "vbDict" Then
-        GoTo fail
+        eTestResult = TestResult.Failure
+    Else
+        eTestResult = TestResult.OK
     End If
-    
-err:
-    GoTo Success
-
-Success:
-    bTestPassed = True
+    On Error GoTo 0
     GoTo teardown
     
-fail:
-    bTestPassed = False
+err:
+    eTestResult = TestResult.Error
     
 teardown:
-    Call TestLogIt(sFuncName, bTestPassed)
+    Test_MyVarTypeEnumDict = eTestResult
     
-End Sub
+    
+End Function
 
 
-Sub Test_MyVarTypeDict()
+Function Test_MyVarTypeDict() As TestResult
 Dim sFuncName As String
-Dim bTestPassed As Boolean
+Dim eTestResult As TestResult
 Dim dTmp As New Dictionary
 
 setup:
@@ -118,27 +89,25 @@ setup:
     
 main:
     If MyVarType(dTmp) <> 21 Then
-        GoTo fail
+        eTestResult = TestResult.Failure
+    Else
+        eTestResult = TestResult.OK
     End If
-    
-err:
-    GoTo Success
-
-Success:
-    bTestPassed = True
+    On Error GoTo 0
     GoTo teardown
     
-fail:
-    bTestPassed = False
+err:
+    eTestResult = TestResult.Error
     
 teardown:
-    Call TestLogIt(sFuncName, bTestPassed)
+    Test_MyVarTypeDict = eTestResult
     
-End Sub
+    
+End Function
 
-Sub Test_MyVarTypeStringArray()
+Function Test_MyVarTypeStringArray() As TestResult
 Dim sFuncName As String
-Dim bTestPassed As Boolean
+Dim eTestResult As TestResult
 Dim aTmp() As String
 
 setup:
@@ -146,27 +115,25 @@ setup:
     aTmp = InitStringArray(Array("foo", "bar"))
 main:
     If MyVarType(aTmp) <> 23 Then
-        GoTo fail
+        eTestResult = TestResult.Failure
+    Else
+        eTestResult = TestResult.OK
     End If
-    
-err:
-    GoTo Success
-
-Success:
-    bTestPassed = True
+    On Error GoTo 0
     GoTo teardown
     
-fail:
-    bTestPassed = False
+err:
+    eTestResult = TestResult.Error
     
 teardown:
-    Call TestLogIt(sFuncName, bTestPassed)
+    Test_MyVarTypeStringArray = eTestResult
     
-End Sub
+    
+End Function
 
-Sub Test_MyVarTypeStringArray3Columns()
+Function Test_MyVarTypeStringArray3Columns() As TestResult
 Dim sFuncName As String
-Dim bTestPassed As Boolean
+Dim eTestResult As TestResult
 Dim aTmp() As String
 
 setup:
@@ -174,26 +141,24 @@ setup:
     aTmp = Init2DStringArray([{"col1", "col2","col3";"val1","val2","val3"}])
 main:
     If MyVarType(aTmp) <> 48 Then
-        GoTo fail
+        eTestResult = TestResult.Failure
+    Else
+        eTestResult = TestResult.OK
     End If
-    
-err:
-    GoTo Success
-
-Success:
-    bTestPassed = True
+    On Error GoTo 0
     GoTo teardown
     
-fail:
-    bTestPassed = False
+err:
+    eTestResult = TestResult.Error
     
 teardown:
-    Call TestLogIt(sFuncName, bTestPassed)
+    Test_MyVarTypeStringArray3Columns = eTestResult
     
-End Sub
-Sub Test_IsDict()
+    
+End Function
+Function Test_IsDict() As TestResult
 Dim sFuncName As String
-Dim bTestPassed As Boolean
+Dim eTestResult As TestResult
 Dim dTmp As New Dictionary
 
 setup:
@@ -201,30 +166,30 @@ setup:
     
 main:
     If IsDict(dTmp) = False Then
-        GoTo fail
+        eTestResult = TestResult.Failure
+        GoTo teardown
     End If
     
     If dTmp.Count <> 0 Then
-        GoTo fail
+        eTestResult = TestResult.Failure
+    Else
+        eTestResult = TestResult.OK
     End If
-err:
-    GoTo Success
-
-Success:
-    bTestPassed = True
+    On Error GoTo 0
     GoTo teardown
     
-fail:
-    bTestPassed = False
+err:
+    eTestResult = TestResult.Error
     
 teardown:
-    Call TestLogIt(sFuncName, bTestPassed)
+    Test_IsDict = eTestResult
     
-End Sub
+    
+End Function
 
-Sub Test_IsDictFail()
+Function Test_IsDictFail() As TestResult
 Dim sFuncName As String
-Dim bTestPassed As Boolean
+Dim eTestResult As TestResult
 Dim dTmp As String
 
 setup:
@@ -232,27 +197,24 @@ setup:
     
 main:
     If IsDict(dTmp) = True Then
-        GoTo fail
+        eTestResult = TestResult.Failure
+    Else
+        eTestResult = TestResult.OK
     End If
-    
-err:
-    GoTo Success
-
-Success:
-    bTestPassed = True
+    On Error GoTo 0
     GoTo teardown
     
-fail:
-    bTestPassed = False
+err:
+    eTestResult = TestResult.Error
     
 teardown:
-    Call TestLogIt(sFuncName, bTestPassed)
+    Test_IsDictFail = eTestResult
     
-End Sub
+End Function
 
-Sub Test_IsInstanceExceptionFail()
+Function Test_IsInstanceExceptionFail() As TestResult
 Dim sFuncName As String
-Dim bTestPassed As Boolean
+Dim eTestResult As TestResult
 
 setup:
     sFuncName = CsModuleName & ".IsInstanceExceptionFail"
@@ -261,26 +223,21 @@ main:
     On Error GoTo err
     IsInstance "foobar", vbBoolean, sFuncName:=sFuncName
     On Error GoTo 0
-    GoTo fail
-err:
-    GoTo Success
-
-Success:
-    bTestPassed = True
+    eTestResult = TestResult.OK
     GoTo teardown
     
-fail:
-    bTestPassed = False
+err:
+    eTestResult = TestResult.Error
     
 teardown:
-    Call TestLogIt(sFuncName, bTestPassed)
+    Test_IsInstanceExceptionFail = eTestResult
     
-End Sub
+End Function
 
 
-Sub Test_IsInstanceExceptionPass()
+Function Test_IsInstanceExceptionPass() As TestResult
 Dim sFuncName As String
-Dim bTestPassed As Boolean
+Dim eTestResult As TestResult
 
 setup:
     sFuncName = CsModuleName & ".IsInstanceExceptionPass"
@@ -289,98 +246,94 @@ main:
     On Error GoTo err
     IsInstance True, vbBoolean, sFuncName:=sFuncName
     On Error GoTo 0
-    GoTo Success
-err:
-    GoTo fail
-
-Success:
-    bTestPassed = True
+    eTestResult = TestResult.OK
     GoTo teardown
     
-fail:
-    bTestPassed = False
     
+err:
+    eTestResult = TestResult.Error
+        
 teardown:
-    Call TestLogIt(sFuncName, bTestPassed)
+    Test_IsInstanceExceptionPass = eTestResult
     
-End Sub
+End Function
 
-Sub Test_IsInstanceFail()
+Function Test_IsInstanceFail() As TestResult
 Dim sFuncName As String
-Dim bTestPassed As Boolean
+Dim eTestResult As TestResult
 
 setup:
     sFuncName = CsModuleName & ".IsInstanceFail"
     
 main:
     If IsInstance("foobar", vbBoolean, sFuncName:=sFuncName, bAssert:=False) = True Then
-        GoTo fail
+        eTestResult = TestResult.Failure
+    Else
+        eTestResult = TestResult.OK
     End If
-
-Success:
-    bTestPassed = True
+    On Error GoTo 0
     GoTo teardown
     
-fail:
-    bTestPassed = False
+err:
+    eTestResult = TestResult.Error
     
 teardown:
-    Call TestLogIt(sFuncName, bTestPassed)
+    Test_IsInstanceFail = eTestResult
     
-End Sub
+End Function
 
 
-Sub Test_IsInstancePass()
+Function Test_IsInstancePass() As TestResult
 Dim sFuncName As String
-Dim bTestPassed As Boolean
+Dim eTestResult As TestResult
 
 setup:
     sFuncName = CsModuleName & ".IsInstancePass"
     
 main:
     If IsInstance(True, vbBoolean, sFuncName:=sFuncName, bAssert:=False) = False Then
-        GoTo fail
+        eTestResult = TestResult.Failure
+    Else
+        eTestResult = TestResult.OK
     End If
-
-Success:
-    bTestPassed = True
+    On Error GoTo 0
     GoTo teardown
     
-fail:
-    bTestPassed = False
+err:
+    eTestResult = TestResult.Error
     
 teardown:
-    Call TestLogIt(sFuncName, bTestPassed)
+    Test_IsInstancePass = eTestResult
     
-End Sub
+End Function
 
-Sub Test_IsEqual()
+Function Test_IsEqual() As TestResult
 Dim sFuncName As String
-Dim bTestPassed As Boolean
+Dim eTestResult As TestResult
 
 setup:
     sFuncName = CsModuleName & ".IsEqual"
     
 main:
     If IsEqual(10, 10, sFuncName:=sFuncName, bAssert:=False) = False Then
-        GoTo fail
+        eTestResult = TestResult.Failure
+    Else
+        eTestResult = TestResult.OK
     End If
-
-Success:
-    bTestPassed = True
+    On Error GoTo 0
     GoTo teardown
     
-fail:
-    bTestPassed = False
+err:
+    eTestResult = TestResult.Error
     
 teardown:
-    Call TestLogIt(sFuncName, bTestPassed)
+    Test_IsEqual = eTestResult
     
-End Sub
+End Function
 
-Sub Test_UUEncode()
+Function Test_UUEncode() As TestResult
 Dim sFuncName As String, sTmp As String
-Dim bTestPassed As Boolean
+Dim eTestResult As TestResult
 
 setup:
     sFuncName = CsModuleName & "." & "UUEncode"
@@ -388,18 +341,16 @@ setup:
 main:
 
     If UUDecode(UUEncode(sTmp)) <> sTmp Then
-        GoTo fail
+        eTestResult = TestResult.Failure
+    Else
+        eTestResult = TestResult.OK
     End If
-    
-    
-Success:
-    bTestPassed = True
+    On Error GoTo 0
     GoTo teardown
     
-fail:
-    bTestPassed = False
+err:
+    eTestResult = TestResult.Error
     
 teardown:
-    Call TestLogIt(sFuncName, bTestPassed)
-
-End Sub
+    Test_UUEncode = eTestResult
+End Function
