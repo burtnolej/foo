@@ -1,4 +1,6 @@
 Attribute VB_Name = "Module_Utils"
+Const C_MODULE_NAME = "Module_Utils"
+
 Public Function CreateModule(xlwb As Workbook, sModuleName As String, sCode As String) As VBComponent
 Dim module As VBComponent
     Set module = xlwb.VBProject.VBComponents.Add(vbext_ct_StdModule)
@@ -18,6 +20,7 @@ Dim VBComp As VBIDE.VBComponent
     Set VBComp = Nothing
 
 End Sub
+
 Sub DeleteModule(xlwb As Workbook, sModuleName As String)
 Dim VBProj As VBIDE.VBProject
 Dim VBComp As VBIDE.VBComponent
@@ -90,36 +93,52 @@ End Function
 
 Function ImportModules(xlwb As Workbook, sDirectory As String, _
                     Optional sModuleName As String, _
-                    Optional bOverwrite As Boolean = True) As Integer
+                    Optional bOverwrite As Boolean = True, _
+                    Optional sIgnoreModules As String, _
+                    Optional bDryRun As Boolean = False) As Integer
 Dim VBProj As VBIDE.VBProject
 Dim VBComps As VBIDE.VBComponents
 Dim VBComp As VBIDE.VBComponent
-Dim vFileNames() As String
+Dim vFileNames() As String, vIgnoreModules() As String
 Dim iCount As Integer
+Dim sFuncName As String
 
+    sFuncName = C_MODULE_NAME & "." & "ImportModules"
     If sModuleName <> "" Then
         ReDim vModulesNames(0 To 0)
         vFileNames(0) = sDirectory & "/" & sModuleName
     Else
         vFileNames = GetFolderFiles(sDirectory & "/")
     End If
-    
+
     Set VBComps = xlwb.VBProject.VBComponents
     
     For Each sFile In vFileNames
         sModuleName = Split(sFile, ".")(0)
-        If ModuleExists(xlwb, sModuleName) = True And bOverwrite = False Then
-            Debug.Print "skipping " & sModuleName & " as exists and bOverwrite = False"
+        vIgnoreModules = Split(sIgnoreModules, ",")
+        If InArray(vIgnoreModules, sModuleName) = False Then
+            If ModuleExists(xlwb, sModuleName) = True And bOverwrite = False Then
+                FuncLogIt sFuncName, "skipping " & sModuleName & " as exists and bOverwrite = False", C_MODULE_NAME, LogMsgType.INFO
+            ElseIf ModuleExists(xlwb, sModuleName) = True And bOverwrite = True Then
+                FuncLogIt sFuncName, "deleting [" & sModuleName & "] as exists but overwrite=True", C_MODULE_NAME, LogMsgType.INFO
+                If bDryRun = False Then
+                    DeleteModule xlwb, sModuleName
+                    VBComps.Import sDirectory & "/" & sFile
+                End If
+            Else
+                On Error Resume Next
+                If bDryRun = False Then
+                    VBComps.Import sDirectory & "/" & sFile
+                End If
+                iCount = iCount + 1
+                FuncLogIt sFuncName, "importing [" & sModuleName & "]", C_MODULE_NAME, LogMsgType.INFO
+                On Error GoTo 0
+            End If
         Else
-            On Error Resume Next
-            VBComps.Import sDirectory & "/" & sFile
-            iCount = iCount + 1
-            Debug.Print "importing " & sFile
-            On Error GoTo 0
+            FuncLogIt sFuncName, "skipping [" & sFile & "] as in ignore list", C_MODULE_NAME, LogMsgType.INFO
         End If
     Next sFile
     ImportModules = iCount
-    'set VBComp = GetModule(
     
 End Function
 Function GetProcsInModules(wb As Workbook, Optional sModuleName As String, _

@@ -11,7 +11,7 @@ Public Sub RunTests()
     Test_Filter_Utils.TestRunner
     Test_Format_Utils.TestRunner
     'Test_Log_Utils.TestRunner
-    Test_Macros.TestRunner
+    Test_MAcros.TestRunner
     
     'only problem left is with import_modules test
     Test_Module_Utils.TestRunner
@@ -106,13 +106,11 @@ Dim iCount As Integer
 
 setup:
     sFuncName = CsModuleName & "." & "ImportModules"
-    'sImportModuleDirPath = "D:\Personal\VBA\current"
     sImportModuleDirPath = "C:\Users\burtnolej\Documents\GitHub\quadviewer\vba"
-    'sBookname = "Deloitte.xls"
-    'Set wbTmp = CreateBook(sExportModuleDirPath & "\" & sBookname)
     Set wbTmp = ActiveWorkbook
 main:
-    iCount = ImportModules(wbTmp, sImportModuleDirPath, bOverwrite:=False)
+    iCount = ImportModules(wbTmp, sImportModuleDirPath, bOverwrite:=True, _
+            sIgnoreModules:="Module_Utils,Macros,ThisWorkbook", bDryRun:=False)
     
     Debug.Print "Imported " & CStr(iCount) & " modules from " & sImportModuleDirPath
 
