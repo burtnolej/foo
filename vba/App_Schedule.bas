@@ -7,6 +7,7 @@ Attribute VB_Name = "App_Schedule"
 'Public Function BuildScheduleView
 
 Option Explicit
+Const C_MODULE_NAME = "App_Schedule"
 Public vSource As Variant
 Public vColumns As Variant
 
@@ -31,10 +32,13 @@ Public Function BuildSchedule(sBookName As String, _
 'param:sCacheBookName, if you dont want the cache sheet to reside in the current activebook, will create a new book (good for testing)
 'rtype:Worksheet, the sheet object where the schedule view has been written
 '"""
-Dim sResultFileName As String, sTemplateBookName As String, sCacheSheetName As String, sDataType As String
+Dim sResultFileName As String, sTemplateBookName As String, sCacheSheetName As String, sDataType As String, sFuncName As String
 Dim aSchedule() As String
 Dim aColumnWidths() As Integer
 Dim iFormatWidth As Integer, iFormatHeight As Integer, iColWidthCount As Integer
+
+setup:
+    sFuncName = C_MODULE_NAME & "." & "BuildSchedule"
 
     ' Assertions --------------------------------
     If InArray(Array("student", "teacher"), sScheduleType) = False Then
@@ -57,17 +61,14 @@ Dim iFormatWidth As Integer, iFormatHeight As Integer, iColWidthCount As Integer
     
     If sTemplateRangeName = "" Then
         sTemplateRangeName = "f" & sScheduleType & "ScheduleCell"
+        FuncLogIt sFuncName, "Template range name not set so defaulting to  [" & sTemplateRangeName & "]", C_MODULE_NAME, LogMsgType.INFO
     End If
     
-    If sCacheBookName = "" Then
-       sCacheBookName = Quad_Utils.sCacheBookName
-    End If
-    
-    If sCacheBookPath = "" Then
-        sCacheBookPath = Quad_Utils.sCacheBookPath
-    End If
-    
+    SetCacheBook sCacheBookName, sCacheBookPath
+main:
     If IsDataCached(sCacheBookPath, sCacheBookName, sDataType, sScheduleType, iPersonID) = False Then
+        FuncLogIt sFuncName, "Data cache NOT found for [" & sScheduleType & "_" & CStr(iPersonID) & "]", C_MODULE_NAME, LogMsgType.INFO
+
         ' get the raw data from the database and return the filename that holds the results
         sResultFileName = GetScheduleDataFromDB(iPersonID, sScheduleType)
         ' parse the raw data in the result file and return an array of the data
@@ -75,6 +76,7 @@ Dim iFormatWidth As Integer, iFormatHeight As Integer, iColWidthCount As Integer
         ' store the parsed raw data in a back sheet, return the sheet name
         sCacheSheetName = CacheData(sCacheBookPath, sCacheBookName, aSchedule, sDataType, sScheduleType, iPersonID)
     Else
+        FuncLogIt sFuncName, "Data cache found for [" & sScheduleType & "_" & CStr(iPersonID) & "]", C_MODULE_NAME, LogMsgType.INFO
         sCacheSheetName = CacheData(sCacheBookPath, sCacheBookName, aSchedule, sDataType, sScheduleType, iPersonID, _
                     bCacheNameOnly:=True)
     End If
@@ -89,15 +91,34 @@ Dim iFormatWidth As Integer, iFormatHeight As Integer, iColWidthCount As Integer
   
 End Function
 Public Function GetScheduleDataFromDB(sPersonId As Integer, _
-                        sScheduleType As String, _
-                        Optional sPeriod As String, _
-                        Optional sDay As String) As String
+                                      sScheduleType As String, _
+                             Optional sPeriod As String, _
+                             Optional sDay As String, _
+                             Optional sCacheName As String, _
+                             Optional sCachePath As String) As String
 
 Dim sDatabasePath As String, sResultFileName As String, sSpName As String, sResults As String
 Dim dSpArgs As New Dictionary
+Dim sFuncName As String
 
- InitVariantArray (Array("bar1", "bar2"))
- 
+setup:
+    sFuncName = C_MODULE_NAME & "." & "GetScheduleDataFromDB"
+    
+    ' Assertions --------------------------------
+    If InArray(Array("student", "teacher"), sScheduleType) = False Then
+        err.Raise ErrorMsgType.BAD_ARGUMENT, Description:="arg sScheduleType needs to be in [student|teacher] got [" & sScheduleType & "]"
+    End If
+    
+    If IsValidPersonID(sPersonId, sScheduleType) = False Then
+        err.Raise ErrorMsgType.BAD_ARGUMENT, Description:="not a valid person id"
+    Else
+         FuncLogIt sFuncName, "[" & sScheduleType & "] id[" & CStr(sPersonId) & "] is VALID", C_MODULE_NAME, LogMsgType.INFO
+    End If
+    ' END Assertions ----------------------------
+    
+    SetCacheBook sCacheBookName, sCacheBookPath
+
+main:
     If sScheduleType = "student" Then
         sSpName = "student_schedule"
         dSpArgs.Add "students", InitVariantArray(Array(sPersonId))
@@ -105,13 +126,17 @@ Dim dSpArgs As New Dictionary
         sSpName = "teacher_schedule"
         dSpArgs.Add "teachers", InitVariantArray(Array(sPersonId))
     End If
+    FuncLogIt sFuncName, "schedule type is [" & sScheduleType & "] using sp [" & sSpName & "]", C_MODULE_NAME, LogMsgType.INFO
     
     If sPeriod <> "" Then
         dSpArgs.Add "periods", InitVariantArray(Split(sPeriod, ","))
+        FuncLogIt sFuncName, "Period WHERE clause specified  [" & sPeriod & "]", C_MODULE_NAME, LogMsgType.INFO
     End If
 
     If sDay <> "" Then
         dSpArgs.Add "days", InitVariantArray(Split(sDay, ","))
+        FuncLogIt sFuncName, "Day WHERE clause specified  [" & sDay & "]", C_MODULE_NAME, LogMsgType.INFO
+
     End If
     
     GetQuadDataFromDB cDatabasePath, sSpName, dSpArgs:=dSpArgs, sResultFileName:=cResultFileName, bHeaderFlag:=True

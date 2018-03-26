@@ -184,21 +184,20 @@ err:
     HasNDimensions = False
 
 End Function
-Public Function ConvertArrayFromRangeto1D(a2DVals As Variant) As String()
+Public Function ConvertArrayFromRangeto1D(a2DVals As Variant, _
+                    Optional bHz As Boolean = False) As String()
 Dim iTmp() As String
 Dim sFuncName As String
 
 setup:
     sFuncName = C_MODULE_NAME & "." & "Convert2Dto1D"
     
-    ReDim iTmp(0 To UBound(a2DVals) - 1)
-    
-    If LBound(a2DVals) <> 1 Then
+    If LBound(a2DVals) <> 1 And LBound(a2DVals, 2) = 1 Then
         FuncLogIt sFuncName, "To be used with an array thats been converted from a range, so x dimension starts at 1 not 0", C_MODULE_NAME, LogMsgType.Error
         err.Raise Number:=C_ERROR_RANGE + ArrayErrors.NotArrayFromRange
     End If
 
-    If LBound(a2DVals, 2) <> 1 Then
+    If LBound(a2DVals, 2) <> 1 And LBound(a2DVals) = 1 Then
         FuncLogIt sFuncName, "To be used with an array thats been converted from a range, so y dimension starts at 1 not 0", C_MODULE_NAME, LogMsgType.Error
         err.Raise Number:=C_ERROR_RANGE + ArrayErrors.NotArrayFromRange
     End If
@@ -208,11 +207,22 @@ setup:
          err.Raise Number:=C_ERROR_RANGE + ArrayErrors.ArgNot2DArray
     End If
     
-    For i = 0 To UBound(a2DVals) - 1
-        For j = 0 To 0
-            iTmp(i) = a2DVals(i + 1, j + 1)
+    If bHz = False Then
+        ReDim iTmp(0 To UBound(a2DVals) - 1)
+        For i = 0 To UBound(a2DVals) - 1
+            For j = 0 To 0
+                iTmp(i) = a2DVals(i + 1, j + 1)
+            Next j
+        Next i
+    Else
+        ReDim iTmp(0 To UBound(a2DVals, 2) - 1)
+        For j = 0 To UBound(a2DVals, 2) - 1
+            For i = 0 To 0
+                iTmp(j) = a2DVals(i + 1, j + 1)
+            Next i
         Next j
-    Next i
+    End If
+    
     
     ConvertArrayFromRangeto1D = iTmp
     

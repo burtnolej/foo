@@ -10,10 +10,94 @@ Option Explicit
 'Test_BuildSchedule_Student_Cached
 'Test_BuildSchedule_Student_NotCached
 'Test_BuildSchedule_Student_Multi
+'Test_IsValidPersonID_Student
+'Test_IsValidPersonID_Student_NotFound
+'Test_IsValidPersonID_Teacher
+'Test_IsValidPersonID_Teacher_NotFound
 
-Sub test()
-    Test_BuildSchedule_Student_Multi
-End Sub
+Public Function Test_IsValidPersonID_Student() As TestResult
+Dim eTestResult As TestResult
+    If IsValidPersonID(70, "student") = False Then
+        eTestResult = TestResult.Failure
+        GoTo teardown
+    End If
+
+    eTestResult = TestResult.OK
+    GoTo teardown
+
+err:
+    eTestResult = TestResult.Error
+    
+teardown:
+    Test_IsValidPersonID_Student = eTestResult
+    
+    DeleteSheet Workbooks(Quad_Utils.sCacheBookName), "person_student"
+    CloseBook Workbooks(Quad_Utils.sCacheBookName)
+    DeleteBook sCacheBookName
+End Function
+Public Function Test_IsValidPersonID_Student_NotFound() As TestResult
+Dim eTestResult As TestResult
+    If IsValidPersonID(999, "student") = True Then
+        eTestResult = TestResult.Failure
+        GoTo teardown
+    End If
+
+    eTestResult = TestResult.OK
+    GoTo teardown
+
+err:
+    eTestResult = TestResult.Error
+    
+teardown:
+    Test_IsValidPersonID_Student_NotFound = eTestResult
+    
+    DeleteSheet Workbooks(Quad_Utils.sCacheBookName), "person_student"
+    CloseBook Workbooks(Quad_Utils.sCacheBookName)
+    DeleteBook sCacheBookName
+End Function
+
+Public Function Test_IsValidPersonID_Teacher() As TestResult
+Dim eTestResult As TestResult
+    If IsValidPersonID(70, "teacher") = False Then
+        eTestResult = TestResult.Failure
+        GoTo teardown
+    End If
+
+    eTestResult = TestResult.OK
+    GoTo teardown
+
+err:
+    eTestResult = TestResult.Error
+    
+teardown:
+    Test_IsValidPersonID_Teacher = eTestResult
+    
+    DeleteSheet Workbooks(Quad_Utils.sCacheBookName), "person_student"
+    CloseBook Workbooks(Quad_Utils.sCacheBookName)
+    DeleteBook sCacheBookName
+End Function
+
+Public Function Test_IsValidPersonID_Teacher_NotFound() As TestResult
+Dim eTestResult As TestResult
+    If IsValidPersonID(999, "teacher") = True Then
+        eTestResult = TestResult.Failure
+        GoTo teardown
+    End If
+
+    eTestResult = TestResult.OK
+    GoTo teardown
+
+err:
+    eTestResult = TestResult.Error
+    
+teardown:
+    Test_IsValidPersonID_Teacher_NotFound = eTestResult
+    
+    DeleteSheet Workbooks(Quad_Utils.sCacheBookName), "person_student"
+    CloseBook Workbooks(Quad_Utils.sCacheBookName)
+    DeleteBook sCacheBookName
+End Function
+
 Public Function Test_BuildSchedule_Student_Multi() As TestResult
 '"" get a full schedule for 1 student, parse and put into a backsheet
 '""

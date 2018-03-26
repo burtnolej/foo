@@ -1,6 +1,6 @@
 Attribute VB_Name = "File_Utils"
 Const C_MODULE_NAME = "File_Utils"
-Public Function DirExists(sPathCWD As String, sDirName As String) As Boolean
+Public Function DirExists(sPath As String) As Boolean
 Dim objFSO As Object
 Dim oFile As Object
 

@@ -3,19 +3,54 @@ Attribute VB_Name = "App_Person"
 'Public Function GetPersonData
 
 Option Explicit
+Const C_MODULE_NAME = "App_Person"
+Const cTeacherLookUpCol = "idFaculty"
+Const cStudentLookUpCol = "idStudent"
 
+Public Function IsValidPersonID(iPersonID As Integer, _
+                                sDataSubType As String) As Boolean
+Dim sFuncName As String, sLookUpCol As String
+Dim wsPersonDataCache As Worksheet
+
+setup:
+    sFuncName = C_MODULE_NAME & "." & "IsValidPersonID"
+    
+    ' Assertions --------------------------------
+    If InArray(Array("student", "teacher"), sDataSubType) = False Then
+        err.Raise ErrorMsgType.BAD_ARGUMENT, Description:="arg sDataSubType needs to be in [student|teacher] got [" & sDataSubType & "]"
+    End If
+    ' END Assertions --------------------------------
+    
+main:
+    Set wsPersonDataCache = GetPersonData("", "", sDataSubType, sScope:="all")
+
+    If sDataSubType = "teacher" Then
+        sLookUpCol = cTeacherLookUpCol
+    Else
+        sLookUpCol = cStudentLookUpCol
+    End If
+    
+    If SheetTableLookup(wsPersonDataCache, "data", sLookUpCol, iPersonID) <> -1 Then
+        IsValidPersonID = True
+        Exit Function
+    End If
+    
+    IsValidPersonID = False
+    
+End Function
 Public Function GetPersonData(sBookName As String, _
                               sBookPath As String, _
                               sDataSubType As String, _
                      Optional sScope As String = "specified", _
-                     Optional sCacheBookName As String) As Worksheet
+                     Optional sCacheBookName As String, _
+                     Optional sCacheBookPath As String) As Worksheet
 Dim sDataType As String, sResultFileName As String, sCacheSheetName As String
 Dim aSchedule() As String
 
+    SetBook sBookName, sBookPath
+    SetCacheBook sCacheBookName, sCacheBookPath
+
     sDataType = "person"
-    If sCacheBookName = "" Then
-        sCacheBookName = sBookName
-    End If
     
     If IsDataCached(Quad_Utils.sCacheBookPath, sCacheBookName, sDataType, sDataSubType) = False Then
         sResultFileName = GetPersonDataFromDB(sDataSubType, sScope:=sScope)

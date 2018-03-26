@@ -4,15 +4,116 @@ Attribute VB_Name = "Quad_Utils"
 'Public Sub CreateQuadArgsFile
 'Public Function IsDataCached
 'Public Function GetQuadDataFromDB
+'Public Function Row2Dict
+'Public Function SheetTableLookup()
+
+Const C_MODULE_NAME = "Quad_Utils"
 
 Public Const sExecPath = "C:\\Users\\burtnolej\\Documents\\GitHub\\quadviewer\\app\\quad\\utils\\excel\\"
 Public Const sRuntimeDir = "C:\\Users\\burtnolej\\Documents\\runtime\\"
 Public Const sFileName = "C:\\Users\\burtnolej\\Development\\uupyshell.args.txt"
 Public Const sDayEnum = "M,T,W,R,F"
 Public Const sBookName = "vba_source_new.xlsm"
+Public Const sBookPath = "C:\\Users\\burtnolej\\Documents\\GitHub\\quadviewer\\"
 Public Const sCacheBookName = "cache.xls"
 Public Const sCacheBookPath = "C:\\Users\\burtnolej\\Documents\\Runtime"
 Public Const cTemplateBookName = "vba_source_new.xlsm"
+
+
+Public Function SheetTableLookup(wsDataSheet As Worksheet, sRangeName As String, _
+                            sLookupColName As String, vLookUpVal As Variant) As Integer
+' assumes row 1 contains the column names
+':param:sLookupColName, string, column name that will be used as AboveAverage unique index to lookup by
+Dim vColumnNames As Variant, vColumnNamesTransposed As Variant
+Dim rColumns As Range, rData As Range
+Dim iColumnIdx As Integer
+
+    With wsDataSheet
+        Set rData = .Range(sRangeName)
+        Set rColumns = rData.Resize(1)
+        vColumnNames = rColumns
+        vColumnNamesTransposed = ConvertArrayFromRangeto1D(vColumnNames, bHz:=True)
+        iColumnIdx = IndexArray(vColumnNamesTransposed, sLookupColName) + 1
+        On Error GoTo notfound
+        SheetTableLookup = Application.Match(CStr(vLookUpVal), rData.Columns(iColumnIdx), 0)
+        Exit Function
+        On Error GoTo 0
+    End With
+notfound:
+    SheetTableLookup = -1
+
+End Function
+
+Public Function Row2Dict(wsDataSheet As Worksheet, sRangeName As String, iRowId As Integer) As Dictionary
+Dim vColumnNames As Variant, vDataRow As Variant, vColumnNamesTransposed As Variant, vDataRowTransposed As Variant
+Dim rColumns As Range, rData As Range, rDataRow As Range
+Dim iColumnIdx As Integer
+Dim dValues As New Dictionary
+Dim iCell As Variant
+
+    With wsDataSheet
+        Set rData = .Range(sRangeName)
+        Set rColumns = rData.Resize(1)
+        Set rDataRow = rData.Resize(1).Offset(iRowId - 1)
+        vColumnNames = rColumns
+        vDataRow = rDataRow
+        vColumnNamesTransposed = ConvertArrayFromRangeto1D(vColumnNames, bHz:=True)
+        vDataRowTransposed = ConvertArrayFromRangeto1D(vDataRow, bHz:=True)
+        
+        For iCell = 0 To UBound(vColumnNamesTransposed)
+            dValues.Add vColumnNamesTransposed(iCell), vDataRowTransposed(iCell)
+        Next iCell
+    End With
+    
+    Set Row2Dict = dValues
+        
+End Function
+
+Public Sub SetCacheBook(ByRef sCacheBookName As String, ByRef sCacheBookPath As String)
+Dim sFuncName As String
+
+setup:
+    sFuncName = C_MODULE_NAME & "." & "SetCacheBook"
+    ' Assertions --------------------------------
+    If sCacheBookPath <> "" And DirExists(sCacheBookPath) = False Then
+        err.Raise ErrorMsgType.BAD_ARGUMENT, Description:="arg sCacheBookPath dir not found"
+    End If
+    ' END Assertions -----------------------------
+
+main:
+    If sCacheBookName = "" Then
+        sCacheBookName = Quad_Utils.sCacheBookName
+        FuncLogIt sFuncName, "Cache workbook name not set so defaulting to [" & sCacheBookName & "]", C_MODULE_NAME, LogMsgType.INFO
+    End If
+    
+    If sCacheBookPath = "" Then
+        sCacheBookPath = Quad_Utils.sCacheBookPath
+        FuncLogIt sFuncName, "Cache workbook path not set so defaulting to [" & sCacheBookPath & "]", C_MODULE_NAME, LogMsgType.INFO
+    End If
+End Sub
+
+Public Sub SetBook(ByRef sBookName As String, ByRef sBookPath As String)
+Dim sFuncName As String
+
+setup:
+    sFuncName = C_MODULE_NAME & "." & "SetBook"
+    ' Assertions --------------------------------
+    If sBookPath <> "" And DirExists(sBookPath) = False Then
+        err.Raise ErrorMsgType.BAD_ARGUMENT, Description:="arg sBookPath dir not found"
+    End If
+    ' END Assertions -----------------------------
+
+main:
+    If sBookName = "" Then
+        sBookName = Quad_Utils.sBookName
+        FuncLogIt sFuncName, "main workbook name not set so defaulting to [" & sCacheBookName & "]", C_MODULE_NAME, LogMsgType.INFO
+    End If
+    
+    If sBookPath = "" Then
+        sBookPath = Quad_Utils.sBookPath
+        FuncLogIt sFuncName, "main workbook path not set so defaulting to [" & sBookPath & "]", C_MODULE_NAME, LogMsgType.INFO
+    End If
+End Sub
 
 Public Sub CreateQuadArgsFile(sDatabaseName As String, _
         sSpName As String, _

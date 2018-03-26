@@ -1,45 +1,85 @@
 Attribute VB_Name = "Test_Quad_Utils"
 Option Explicit
+'Function TestSheetTableLookup()
+'Function TestRowAsDict()
+
 Const CsModuleName = "Test_Quad_Utils"
 
-Public Function Test_GetQuadStudentSchedule() As TestResult
-Dim sDatabasePath As String, sResults As String, resultstr As String
-Dim sSpName As String
-Dim dSpArgs As New Dictionary
-Dim sResultFileName As String
-Dim eTestResult As TestResult
+Function TestSheetTableLookup() As TestResult
 
-    sDatabasePath = "C:\Users\burtnolej\Documents\GitHub\quadviewer\app\quad\utils\excel\test_misc\QuadQA.db"
-    sResultFileName = "C:\\Users\\burtnolej\\Documents\\runtime\\pyshell_results.txt"
-    sSpName = "student_schedule"
+Dim sInputStr As String, sRangeName As String, sFuncName As String, sSheetName As String
+Dim iChunkLen As Integer
+Dim vSource() As String
+Dim eTestResult As TestResult
+Dim wsTmp As Worksheet
+Dim rTarget As Range
+
+setup:
+    sFuncName = CsModuleName & "." & "SheetTableLookup"
+    sSheetName = "test"
+    sRangeName = "data"
+    Set wsTmp = CreateSheet(ActiveWorkbook, sSheetName, bOverwrite:=True)
+    vSource = Init2DStringArray([{"A", "B", "C";"a1","a2","a3";"b1","b2","b3"}])
+    Set rTarget = RangeFromStrArray(vSource, wsTmp, 0, 0)
+    CreateNamedRange ActiveWorkbook, rTarget.Address, sSheetName, sRangeName, "True"
     
-    dSpArgs.Add "periods", InitVariantArray(Array(1, 2))
-    dSpArgs.Add "days", InitVariantArray(Array("M", "F"))
-    dSpArgs.Add "students", InitVariantArray(Array(70))
-    
-    sResults = GetQuadStudentSchedule(sDatabasePath, sSpName, dSpArgs:=dSpArgs, _
-                    sResultFileName:=sResultFileName)
-    
-   If FileExists(sResultFileName) Then
-        resultstr = ReadFile(sResultFileName)
-    Else
-        eTestResult = TestResult.Failure
-        GoTo teardown
-    End If
-    
-    If Split(Split(resultstr, "$$")(3), "^")(2) <> "Typing.com" Then
+main:
+
+    If SheetTableLookup(wsTmp, sRangeName, "B", "b2") <> 3 Then
         eTestResult = TestResult.Failure
     Else
         eTestResult = TestResult.OK
     End If
     On Error GoTo 0
     GoTo teardown
-
+    
 err:
     eTestResult = TestResult.Error
     
 teardown:
-    Test_GetQuadStudentSchedule = eTestResult
-    
+    DeleteSheet ActiveWorkbook, sSheetName
+    TestSheetTableLookup = eTestResult
 End Function
+Function TestRowAsDict() As TestResult
 
+Dim sInputStr As String, sRangeName As String, sFuncName As String, sSheetName As String
+Dim iChunkLen As Integer
+Dim vSource() As String
+Dim eTestResult As TestResult
+Dim wsTmp As Worksheet
+Dim rTarget As Range
+Dim dResult As New Dictionary
+
+setup:
+    sFuncName = CsModuleName & "." & "TestRowAsDict"
+    sSheetName = "test"
+    sRangeName = "data"
+    Set wsTmp = CreateSheet(ActiveWorkbook, sSheetName, bOverwrite:=True)
+    vSource = Init2DStringArray([{"A", "B", "C";"a1","a2","a3";"b1","b2","b3"}])
+    Set rTarget = RangeFromStrArray(vSource, wsTmp, 0, 0)
+    CreateNamedRange ActiveWorkbook, rTarget.Address, sSheetName, sRangeName, "True"
+    
+main:
+
+    Set dResult = Row2Dict(wsTmp, sRangeName, 3)
+    
+    If dResult.Count <> 3 Then
+        eTestResult = TestResult.Failure
+        GoTo teardown
+    ElseIf dResult.Item("C") <> "b3" Then
+        eTestResult = TestResult.Failure
+        GoTo teardown
+        eTestResult = TestResult.Failure
+    Else
+        eTestResult = TestResult.OK
+    End If
+    On Error GoTo 0
+    GoTo teardown
+    
+err:
+    eTestResult = TestResult.Error
+    
+teardown:
+    DeleteSheet ActiveWorkbook, sSheetName
+    TestRowAsDict = eTestResult
+End Function
