@@ -81,9 +81,9 @@ ReDim vModulesNames(0 To 100)
 
     For i = 0 To UBound(vModulesNames)
         Set VBComp = GetModule(xlwb, vModulesNames(i))
-        path = sDirectory & vModulesNames(i) & sSuffix & ".bas"
+        Path = sDirectory & vModulesNames(i) & sSuffix & ".bas"
         
-        Call VBComp.Export(path)
+        Call VBComp.Export(Path)
     Next i
 
 End Function

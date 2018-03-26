@@ -1,31 +1,14 @@
 Attribute VB_Name = "Test_String_Utils"
 Option Explicit
-'Sub TestPadStr_Left
-'Sub TestPadStr_Right
-'Sub TestStr2Array_Small()
-'Sub TestStr2Array_NotEven()
-
 Const CsModuleName = "Test_String_Utils"
 
-Sub TestRunner()
-    Call TestPadStr_Left
-    Call TestPadStr_Right
-    Call TestStr2Array
-    Call TestStr2Array_Small
-    Call TestStr2Array_NotEven
-    Call TestCleanString
-    Call TestReplaceSpace
-    Call TestPadStr_Ascii ' create n * some ascii number
-    Call TestAsciiReplace
-    Call TestAsciiReplaceMulti
-End Sub
-Sub TestStr2Array()
+Function TestStr2Array() As TestResult
 Dim sInputStr As String
 Dim iChunkLen As Integer
 Dim sResult() As String
 Dim sExpectedResult As String
 Dim sFuncName As String
-Dim bTestPassed As Boolean
+Dim eTestResult As TestResult
 
 setup:
     sFuncName = CsModuleName & "." & "Str2Array"
@@ -37,28 +20,28 @@ main:
     sResult = Str2Array(sInputStr, iChunkLen)
     
     If Join(sResult, ",") <> sExpectedResult Then
-        GoTo fail
+        eTestResult = TestResult.Failure
+    Else
+        eTestResult = TestResult.OK
     End If
- 
-Success:
-    bTestPassed = True
+    On Error GoTo 0
     GoTo teardown
-
-fail:
-    bTestPassed = False
-
-teardown:
-    Call TestLogIt(sFuncName, bTestPassed)
     
-    Exit Sub
-End Sub
-Sub TestStr2Array_NotEven()
+err:
+    eTestResult = TestResult.Error
+    
+teardown:
+    TestStr2Array = eTestResult
+    
+    Exit Function
+End Function
+Function TestStr2Array_NotEven() As TestResult
 Dim sInputStr As String
 Dim iChunkLen As Integer
 Dim sResult() As String
 Dim sExpectedResult As String
 Dim sFuncName As String
-Dim bTestPassed As Boolean
+Dim eTestResult As TestResult
 
 setup:
     sFuncName = CsModuleName & "." & "Str2Array_NotEven"
@@ -70,29 +53,29 @@ main:
     sResult = Str2Array(sInputStr, iChunkLen)
     
     If Join(sResult, ",") <> sExpectedResult Then
-        GoTo fail
+        eTestResult = TestResult.Failure
+    Else
+        eTestResult = TestResult.OK
     End If
- 
-Success:
-    bTestPassed = True
+    On Error GoTo 0
     GoTo teardown
-
-fail:
-    bTestPassed = False
-
-teardown:
-    Call TestLogIt(sFuncName, bTestPassed)
     
-    Exit Sub
-End Sub
-Sub TestStr2Array_Small()
+err:
+    eTestResult = TestResult.Error
+    
+teardown:
+    TestStr2Array_NotEven = eTestResult
+    
+    Exit Function
+End Function
+Function TestStr2Array_Small() As TestResult
 ' input str is smaller or equal to the chunk length
 Dim sInputStr As String
 Dim iChunkLen As Integer
 Dim sResult() As String
 Dim sExpectedResult As String
 Dim sFuncName As String
-Dim bTestPassed As Boolean
+Dim eTestResult As TestResult
 
 setup:
     sFuncName = CsModuleName & "." & "Str2Array_Small"
@@ -104,22 +87,22 @@ main:
     sResult = Str2Array(sInputStr, iChunkLen)
     
     If Join(sResult, ",") <> sExpectedResult Then
-        GoTo fail
+        eTestResult = TestResult.Failure
+    Else
+        eTestResult = TestResult.OK
     End If
- 
-Success:
-    bTestPassed = True
+    On Error GoTo 0
     GoTo teardown
-
-fail:
-    bTestPassed = False
-
-teardown:
-    Call TestLogIt(sFuncName, bTestPassed)
     
-    Exit Sub
-End Sub
-Sub TestPadStr_Left()
+err:
+    eTestResult = TestResult.Error
+    
+teardown:
+    TestStr2Array_Small = eTestResult
+    
+    Exit Function
+End Function
+Function TestPadStr_Left() As TestResult
 Dim sInputStr As String
 Dim sDirection As String
 Dim iPadLength As Integer
@@ -127,7 +110,7 @@ Dim sPadChar As String
 Dim sResult As String
 Dim sExpectedResult As String
 Dim sFuncName As String
-Dim bTestPassed As Boolean
+Dim eTestResult As TestResult
 
 setup:
     sFuncName = CsModuleName & "." & "PadStr_Left"
@@ -140,23 +123,20 @@ main:
     sResult = PadStr(sInputStr, sDirection, iPadLength, sPadChar)
 
     If sResult <> sExpectedResult Then
-        GoTo fail
+        eTestResult = TestResult.Failure
+    Else
+        eTestResult = TestResult.OK
     End If
- 
-Success:
-    bTestPassed = True
+    On Error GoTo 0
     GoTo teardown
-
-fail:
-    bTestPassed = False
-
-teardown:
-    Call TestLogIt(sFuncName, bTestPassed)
-    Exit Sub
     
-    Debug.Print sResult
-End Sub
-Sub TestPadStr_Ascii()
+err:
+    eTestResult = TestResult.Error
+    
+teardown:
+    TestPadStr_Left = eTestResult
+End Function
+Function TestPadStr_Ascii() As TestResult
 Dim sInputStr As String
 Dim sDirection As String
 Dim iPadLength As Integer
@@ -164,7 +144,7 @@ Dim sPadAscii As String
 Dim sResult As String
 Dim sExpectedResult As String
 Dim sFuncName As String
-Dim bTestPassed As Boolean
+Dim eTestResult As TestResult
 
 setup:
     sFuncName = CsModuleName & "." & "PadStr_Left"
@@ -177,23 +157,20 @@ main:
     sResult = PadStr(sInputStr, sDirection, iPadLength, sPadAscii, bAsciiFlag:=True, iAscii:=43)
 
     If sResult <> sExpectedResult Then
-        GoTo fail
+        eTestResult = TestResult.Failure
+    Else
+        eTestResult = TestResult.OK
     End If
- 
-Success:
-    bTestPassed = True
+    On Error GoTo 0
     GoTo teardown
-
-fail:
-    bTestPassed = False
-
-teardown:
-    Call TestLogIt(sFuncName, bTestPassed)
-    Exit Sub
     
-    Debug.Print sResult
-End Sub
-Sub TestPadStr_Right()
+err:
+    eTestResult = TestResult.Error
+    
+teardown:
+    TestPadStr_Ascii = eTestResult
+End Function
+Function TestPadStr_Right() As TestResult
 Dim sInputStr As String
 Dim sDirection As String
 Dim iPadLength As Integer
@@ -201,7 +178,7 @@ Dim sPadChar As String
 Dim sResult As String
 Dim sExpectedResult As String
 Dim sFuncName As String
-Dim bTestPassed As Boolean
+Dim eTestResult As TestResult
 
 
 setup:
@@ -215,24 +192,21 @@ main:
     sResult = PadStr(sInputStr, sDirection, iPadLength, sPadChar)
 
     If sResult <> sExpectedResult Then
-        GoTo fail
+        eTestResult = TestResult.Failure
+    Else
+        eTestResult = TestResult.OK
     End If
- 
-Success:
-    bTestPassed = True
+    On Error GoTo 0
     GoTo teardown
-
-fail:
-    bTestPassed = False
-
-teardown:
-    Call TestLogIt(sFuncName, bTestPassed)
-    Exit Sub
     
-    Debug.Print sResult
-End Sub
+err:
+    eTestResult = TestResult.Error
+    
+teardown:
+    TestPadStr_Right = eTestResult
+End Function
 
-Sub TestCleanString()
+Function TestCleanString() As TestResult
 Dim sInputStr As String
 Dim sDirection As String
 Dim iPadLength As Integer
@@ -240,8 +214,7 @@ Dim sPadChar As String
 Dim sResult As String
 Dim sExpectedResult As String
 Dim sFuncName As String
-Dim bTestPassed As Boolean
-
+Dim eTestResult As TestResult
 setup:
     sFuncName = CsModuleName & "." & "CleanString"
     sInputStr = "foo" & Chr(10) & Chr(13) & "bar" & Chr(10) & Chr(13)
@@ -249,28 +222,27 @@ setup:
 main:
     sResult = GetStrAscii(CleanString(sInputStr))
     If sExpectedResult <> sResult Then
-        GoTo fail
+        eTestResult = TestResult.Failure
+    Else
+        eTestResult = TestResult.OK
     End If
- 
-Success:
-    bTestPassed = True
+    On Error GoTo 0
     GoTo teardown
-
-fail:
-    bTestPassed = False
-
-teardown:
-    Call TestLogIt(sFuncName, bTestPassed)
-    Exit Sub
     
-End Sub
+err:
+    eTestResult = TestResult.Error
+    
+teardown:
+    TestCleanString = eTestResult
+    
+End Function
 
-Sub TestReplaceSpace()
+Function TestReplaceSpace() As TestResult
 Dim sInputStr As String
 Dim sOutputStr As String
 Dim sExpectedResult As String
 Dim sFuncName As String
-Dim bTestPassed As Boolean
+Dim eTestResult As TestResult
 
 setup:
     sInputStr = "abc def"
@@ -280,29 +252,28 @@ setup:
 main:
     sOutputStr = Replace(sInputStr, " ", "%s")
     If sExpectedResult <> sOutputStr Then
-        GoTo fail
+        eTestResult = TestResult.Failure
+    Else
+        eTestResult = TestResult.OK
     End If
-    
-Success:
-    bTestPassed = True
+    On Error GoTo 0
     GoTo teardown
-
-fail:
-    bTestPassed = False
-
-teardown:
-    Call TestLogIt(sFuncName, bTestPassed)
-    Exit Sub
     
-End Sub
+err:
+    eTestResult = TestResult.Error
+    
+teardown:
+    TestReplaceSpace = eTestResult
+    
+End Function
 
 
-Sub TestAsciiReplace()
+Function TestAsciiReplace() As TestResult
 Dim sInputStr As String
 Dim sOutputStr As String
 Dim sExpectedResult As String
 Dim sFuncName As String
-Dim bTestPassed As Boolean
+Dim eTestResult As TestResult
 
 setup:
     sInputStr = "abc def"
@@ -312,28 +283,27 @@ setup:
 main:
     sOutputStr = AsciiReplace(sInputStr, 32, 43)
     If sExpectedResult <> sOutputStr Then
-        GoTo fail
+        eTestResult = TestResult.Failure
+    Else
+        eTestResult = TestResult.OK
     End If
-    
-Success:
-    bTestPassed = True
+    On Error GoTo 0
     GoTo teardown
-
-fail:
-    bTestPassed = False
-
-teardown:
-    Call TestLogIt(sFuncName, bTestPassed)
-    Exit Sub
     
-End Sub
+err:
+    eTestResult = TestResult.Error
+    
+teardown:
+    TestAsciiReplace = eTestResult
+    
+End Function
 
-Sub TestAsciiReplaceMulti()
+Function TestAsciiReplaceMulti() As TestResult
 Dim sInputStr As String
 Dim sOutputStr As String
 Dim sExpectedResult As String
 Dim sFuncName As String
-Dim bTestPassed As Boolean
+Dim eTestResult As TestResult
 
 setup:
     sInputStr = "abc def"
@@ -343,18 +313,17 @@ setup:
 main:
     sOutputStr = AsciiReplace(sInputStr, 32, 43, iToCount:=3)
     If sExpectedResult <> sOutputStr Then
-        GoTo fail
+        eTestResult = TestResult.Failure
+    Else
+        eTestResult = TestResult.OK
     End If
-    
-Success:
-    bTestPassed = True
+    On Error GoTo 0
     GoTo teardown
-
-fail:
-    bTestPassed = False
-
-teardown:
-    Call TestLogIt(sFuncName, bTestPassed)
-    Exit Sub
     
-End Sub
+err:
+    eTestResult = TestResult.Error
+    
+teardown:
+    TestAsciiReplaceMulti = eTestResult
+    
+End Function

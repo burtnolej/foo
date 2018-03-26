@@ -1,21 +1,8 @@
 Attribute VB_Name = "Test_XML_utils"
 Option Explicit
 Const CsModuleName = "Test_XML_Utils"
-
-Sub TestRunner()
-    'GetLogFile
-    Log_Utils.LogFilter = "8,9"
-    Test_CreateXMLDocfromDict
-    'Test_CreateXMLDocfromDictMultiValues
-    
-    Test_CreateXMLDocfromArrayWithAttributes
-    Test_CreateCustomUIXMLDocFromArray
-    'GetLogFile
-    
-End Sub
-
-Sub Test_CreateCustomUIXMLDocFromArray()
-Dim bTestPassed As Boolean
+Function Test_CreateCustomUIXMLDocFromArray() As TestResult
+Dim eTestResult As TestResult
 Dim aXMLElement() As String, aXMLElementAttr() As String, aXMLRootElementAttr() As String
 Dim sExpectedResult As String, sSchema As String, sFuncName As String
 Dim xDoc As MSXML2.DOMDocument
@@ -39,24 +26,24 @@ setup:
                                      aXMLRootElementAttr:=aXMLRootElementAttr)
     
     If xDoc.xml <> sExpectedResult & vbCrLf Then
-        GoTo fail
+        eTestResult = TestResult.Failure
+    Else
+        eTestResult = TestResult.OK
     End If
-
-Success:
-    bTestPassed = True
+    On Error GoTo 0
     GoTo teardown
     
-fail:
-    bTestPassed = False
+err:
+    eTestResult = TestResult.Error
     
 teardown:
-    Call TestLogIt(sFuncName, bTestPassed)
+    Test_CreateCustomUIXMLDocFromArray = eTestResult
     
-End Sub
+End Function
 
-Sub Test_CreateXMLDocfromDict()
+Function Test_CreateXMLDocfromDict() As TestResult
 Dim sFuncName As String, sExpectedResults As String
-Dim bTestPassed As Boolean
+Dim eTestResult As TestResult
 Dim dTmp As New Dictionary
 Dim xDoc As MSXML2.DOMDocument
 setup:
@@ -72,27 +59,24 @@ main:
     Set xDoc = CreateXMLDocfromDict(dTmp)
     
     If xDoc.xml <> sExpectedResults & vbCrLf Then
-        GoTo fail
+        eTestResult = TestResult.Failure
+    Else
+        eTestResult = TestResult.OK
     End If
-    
-err:
-    GoTo Success
-
-Success:
-    bTestPassed = True
+    On Error GoTo 0
     GoTo teardown
     
-fail:
-    bTestPassed = False
+err:
+    eTestResult = TestResult.Error
     
 teardown:
-    Call TestLogIt(sFuncName, bTestPassed)
+    Test_CreateXMLDocfromDict = eTestResult
     
-End Sub
-Sub Test_CreateXMLDocfromArrayWithAttributes()
+End Function
+Function Test_CreateXMLDocfromArrayWithAttributes() As TestResult
 
 Dim sFuncName As String, sExpectedResults As String
-Dim bTestPassed As Boolean
+Dim eTestResult As TestResult
 Dim aXMLElement() As String
 Dim aXMLElementAttr() As String
 
@@ -112,28 +96,25 @@ setup:
 main:
     Set xDoc = CreateXMLDocfromArray(aXMLElement, aXMLElementAttr:=aXMLElementAttr)
     If xDoc.xml <> sExpectedResults & vbCrLf Then
-        GoTo fail
+        eTestResult = TestResult.Failure
+    Else
+        eTestResult = TestResult.OK
     End If
-    
-err:
-    GoTo Success
-
-Success:
-    bTestPassed = True
+    On Error GoTo 0
     GoTo teardown
     
-fail:
-    bTestPassed = False
+err:
+    eTestResult = TestResult.Error
     
 teardown:
-    Call TestLogIt(sFuncName, bTestPassed)
+    Test_CreateXMLDocfromArrayWithAttributes = eTestResult
     
-End Sub
+End Function
 
 
-Sub Test_CreateXMLDocfromDictMultiValues()
+Function Test_CreateXMLDocfromDictMultiValues() As TestResult
 Dim sFuncName As String, sExpectedResults As String
-Dim bTestPassed As Boolean
+Dim eTestResult As TestResult
 Dim dTmp As New Dictionary
 Dim xDoc As MSXML2.DOMDocument
 setup:
@@ -148,20 +129,17 @@ main:
     Set xDoc = CreateXMLDocfromDict(dTmp)
     
     If xDoc.xml <> sExpectedResults & vbCrLf Then
-        GoTo fail
+        eTestResult = TestResult.Failure
+    Else
+        eTestResult = TestResult.OK
     End If
-    
-err:
-    GoTo Success
-
-Success:
-    bTestPassed = True
+    On Error GoTo 0
     GoTo teardown
     
-fail:
-    bTestPassed = False
+err:
+    eTestResult = TestResult.Error
     
 teardown:
-    Call TestLogIt(sFuncName, bTestPassed)
+    Test_CreateXMLDocfromDictMultiValues = eTestResult
     
-End Sub
+End Function

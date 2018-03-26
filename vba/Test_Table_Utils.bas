@@ -1,44 +1,7 @@
 Attribute VB_Name = "Test_Table_Utils"
 Option Explicit
 Const CsModuleName = "Test_Table_Utils"
-
-Sub TestRunner()
-    'GetLogFile
-    Log_Utils.LogFilter = "8,9"
-    
-    ' 1: Create tables
-    ' ----------------------------------------------------------------------------------------------
-    ' From a definition, create table sheets and all the named ranges that set where to find a particular
-    ' field on the sheet and show many fields exists and what they are
-    TestCreateTables
-    
-    ' 2: Add and retreve table Record manually
-    ' ----------------------------------------------------------------------------------------------
-    ' From a definition, create entry forms, fill out values for a record, manually call function
-    ' to add the single record (dont validate and use button) and then retreive the record by calling
-    ' GetRecord function
-    TestAddTableRecordManual
-    
-    ' 3: Add and retreve multiple Records from 1 table manually
-    ' ----------------------------------------------------------------------------------------------
-    ' as 2)
-    TestAddTableMultipleRecordManual
-    
-    ' 4: Add and retreve multiple Records from Multi tables manually
-    ' ----------------------------------------------------------------------------------------------
-    ' as 2)
-    TestAddTableMultipleRecordMultiTableManual
-    
-    ' 5: Add bad records
-    ' ----------------------------------------------------------------------------------------------
-    ' Try to set a value for a field that does not exist
-    TestAddTableRecordFail
-
-    'GetLogFile
-End Sub
-
-
-Sub TestAddTableRecordManual()
+Function TestAddTableRecordManual() As TestResult
 ' From a definition, create entry forms, fill out values for a record, manually call function
 ' to add the single record (dont validate and use button) and then retreive the record
 Dim sFuncName As String
@@ -50,7 +13,7 @@ Dim wsTmp As Worksheet
 Dim rTarget As Range
 Dim dDefinitions As Dictionary
 Dim dRecord As Dictionary
-Dim bTestPassed As Boolean
+Dim eTestResult As TestResult
 setup:
 
     sFuncName = CsModuleName & "." & "AddTableRecordManual"
@@ -73,39 +36,42 @@ main:
     Set dRecord = GetTableRecord("Foo", 1)
     
     If dRecord.Exists("FooAge") = False Then
-        GoTo fail
+         eTestResult = TestResult.Failure
+         GoTo teardown
     End If
 
     If dRecord.Exists("FooName") = False Then
-        GoTo fail
+         eTestResult = TestResult.Failure
+         GoTo teardown
     End If
     
     If dRecord.Item("FooName") <> "blahblah" Then
-        GoTo fail
+         eTestResult = TestResult.Failure
+         GoTo teardown
     End If
     
     If dRecord.Item("FooAge") <> "123" Then
-        GoTo fail
+        eTestResult = TestResult.Failure
+    Else
+        eTestResult = TestResult.OK
     End If
-    
-Success:
-    bTestPassed = True
+    On Error GoTo 0
     GoTo teardown
-
-fail:
-    Debug.Print err.Description
-    bTestPassed = False
+    
+err:
+    eTestResult = TestResult.Error
     
 teardown:
+    TestAddTableRecordManual = eTestResult
     DeleteSheet ActiveWorkbook, sSheetName
     DeleteSheet ActiveWorkbook, "Foo"
     DeleteSheet ActiveWorkbook, "Bar"
     DeleteEntryForms
-    Call TestLogIt(sFuncName, bTestPassed)
-End Sub
+
+End Function
 
 
-Sub TestCreateTables()
+Function TestCreateTables() As TestResult
 Dim sFuncName As String
 Dim sSheetName As String
 Dim sResultStr As String
@@ -115,7 +81,7 @@ Dim wsTmp As Worksheet
 Dim rTarget As Range
 Dim dDefinitions As Dictionary
 Dim dDefnDetails As Dictionary
-Dim bTestPassed As Boolean
+Dim eTestResult As TestResult
 setup:
 
     sFuncName = CsModuleName & "." & "CreateTables"
@@ -131,42 +97,46 @@ main:
     CreateTables
     
     If SheetExists(ActiveWorkbook, "foo") = False Then
-        GoTo fail
+         eTestResult = TestResult.Failure
+         GoTo teardown
     End If
     
     If SheetExists(ActiveWorkbook, "bar") = False Then
-        GoTo fail
+         eTestResult = TestResult.Failure
+         GoTo teardown
     End If
     
     If NamedRangeExists(ActiveWorkbook, "foo", "dbFooFooAge") = False Then
-        GoTo fail
+         eTestResult = TestResult.Failure
+         GoTo teardown
     End If
     
     If NamedRangeExists(ActiveWorkbook, "bar", "dbBarBarName") = False Then
-        GoTo fail
+         eTestResult = TestResult.Failure
+         GoTo teardown
     End If
     
     If NamedRangeExists(ActiveWorkbook, "bar", "iBarNextFree") = False Then
-        GoTo fail
+        eTestResult = TestResult.Failure
+    Else
+        eTestResult = TestResult.OK
     End If
-    
-Success:
-    bTestPassed = True
+    On Error GoTo 0
     GoTo teardown
-
-fail:
-    Debug.Print err.Description
-    bTestPassed = False
+    
+err:
+    eTestResult = TestResult.Error
     
 teardown:
+    TestCreateTables = eTestResult
     DeleteSheet ActiveWorkbook, sSheetName
     DeleteSheet ActiveWorkbook, "foo"
     DeleteSheet ActiveWorkbook, "bar"
-    Call TestLogIt(sFuncName, bTestPassed)
-End Sub
+
+End Function
 
 
-Sub TestAddTableMultipleRecordManual()
+Function TestAddTableMultipleRecordManual() As TestResult
 ' From a definition, create entry forms, fill out values for a record, manually call function
 ' to add the single record (dont validate and use button) and then retreive the record
 Dim sFuncName As String
@@ -178,7 +148,7 @@ Dim wsTmp As Worksheet
 Dim rTarget As Range
 Dim dDefinitions As Dictionary
 Dim dRecord As Dictionary
-Dim bTestPassed As Boolean
+Dim eTestResult As TestResult
 setup:
 
     sFuncName = CsModuleName & "." & "TestAddTableMultipleRecordManual"
@@ -208,55 +178,58 @@ main:
     
     AddTableRecord "Foo"
     
-    
     Set dRecord = GetTableRecord("Foo", 1)
     
     If dRecord.Exists("FooAge") = False Then
-        GoTo fail
+        eTestResult = TestResult.Failure
+        GoTo teardown
     End If
 
     If dRecord.Item("FooAge") <> 123 Then
-        GoTo fail
+        eTestResult = TestResult.Failure
+        GoTo teardown
     End If
     
     Set dRecord = GetTableRecord("Foo", 2)
     
     If dRecord.Exists("FooAge") = False Then
-        GoTo fail
+        eTestResult = TestResult.Failure
+        GoTo teardown
     End If
 
     If dRecord.Item("FooAge") <> 666 Then
-        GoTo fail
+        eTestResult = TestResult.Failure
+        GoTo teardown
     End If
     
     Set dRecord = GetTableRecord("Foo", 3)
     
     If dRecord.Exists("FooAge") = False Then
-        GoTo fail
+        eTestResult = TestResult.Failure
+        GoTo teardown
     End If
 
     If dRecord.Item("FooAge") <> 444 Then
-        GoTo fail
+        eTestResult = TestResult.Failure
+    Else
+        eTestResult = TestResult.OK
     End If
-
-    
-Success:
-    bTestPassed = True
+    On Error GoTo 0
     GoTo teardown
-
-fail:
-    Debug.Print err.Description
-    bTestPassed = False
+    
+err:
+    eTestResult = TestResult.Error
     
 teardown:
+    TestAddTableMultipleRecordManual = eTestResult
     DeleteSheet ActiveWorkbook, sSheetName
     DeleteSheet ActiveWorkbook, "Foo"
     DeleteSheet ActiveWorkbook, "Bar"
     DeleteEntryForms
-    Call TestLogIt(sFuncName, bTestPassed)
-End Sub
 
-Sub TestAddTableMultipleRecordMultiTableManual()
+End Function
+
+Function TestAddTableMultipleRecordMultiTableManual() As TestResult
 ' From a definition, create entry forms, fill out values for a record, manually call function
 ' to add the single record (dont validate and use button) and then retreive the record
 Dim sFuncName As String
@@ -268,7 +241,7 @@ Dim wsTmp As Worksheet
 Dim rTarget As Range
 Dim dDefinitions As Dictionary
 Dim dRecord As Dictionary
-Dim bTestPassed As Boolean
+Dim eTestResult As TestResult
 setup:
 
     sFuncName = CsModuleName & "." & "TestAddTableMultipleRecordMultiTableManual"
@@ -318,41 +291,43 @@ main:
     Set dRecord = GetTableRecord("Foo", 3)
     
     If dRecord.Exists("FooAge") = False Then
-        GoTo fail
+        eTestResult = TestResult.Failure
+        GoTo teardown
     End If
 
     If dRecord.Item("FooAge") <> 444 Then
-        GoTo fail
+        eTestResult = TestResult.Failure
+        GoTo teardown
     End If
     
     Set dRecord = GetTableRecord("Bar", 3)
     
     If dRecord.Exists("BarAge") = False Then
-        GoTo fail
+        eTestResult = TestResult.Failure
+        GoTo teardown
     End If
 
     If dRecord.Item("BarAge") <> 444 Then
-        GoTo fail
+        eTestResult = TestResult.Failure
+    Else
+        eTestResult = TestResult.OK
     End If
-
-    
-Success:
-    bTestPassed = True
+    On Error GoTo 0
     GoTo teardown
-
-fail:
-    Debug.Print err.Description
-    bTestPassed = False
+    
+err:
+    eTestResult = TestResult.Error
     
 teardown:
+    TestAddTableMultipleRecordMultiTableManual = eTestResult
     DeleteSheet ActiveWorkbook, sSheetName
     DeleteSheet ActiveWorkbook, "Foo"
     DeleteSheet ActiveWorkbook, "Bar"
     DeleteEntryForms
-    Call TestLogIt(sFuncName, bTestPassed)
-End Sub
 
-Sub TestAddTableRecordFail()
+End Function
+
+Function TestAddTableRecordFail() As TestResult
 Dim sFuncName As String
 Dim sSheetName As String
 Dim sResultStr As String
@@ -362,7 +337,7 @@ Dim wsTmp As Worksheet
 Dim rTarget As Range
 Dim dDefinitions As Dictionary
 Dim dRecord As Dictionary
-Dim bTestPassed As Boolean
+Dim eTestResult As TestResult
 Dim iResultCode As Integer
 
 setup:
@@ -382,23 +357,24 @@ main:
     iResultCode = SetEntryValue("NewFoo", "BadFieldName", 123)
     
     If iResultCode <> -1 Then
-        GoTo fail
+        eTestResult = TestResult.Failure
+    Else
+        eTestResult = TestResult.OK
     End If
-    
-Success:
-    bTestPassed = True
+    On Error GoTo 0
     GoTo teardown
-
-fail:
-    Debug.Print err.Description
-    bTestPassed = False
+    
+err:
+    eTestResult = TestResult.Error
     
 teardown:
+    TestAddTableRecordFail = eTestResult
+    
     DeleteSheet ActiveWorkbook, sSheetName
     DeleteSheet ActiveWorkbook, "Foo"
     DeleteSheet ActiveWorkbook, "Bar"
     DeleteEntryForms
-    Call TestLogIt(sFuncName, bTestPassed)
-End Sub
+
+End Function
 
 

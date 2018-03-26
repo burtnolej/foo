@@ -34,6 +34,8 @@ main:
     With ActiveWorkbook.Sheets("NewStudent")
         .Range(.Cells(2, 2), .Cells(2, 2)) = 123
     End With
+    eTestResult = TestResult.OK
+    GoTo teardown
     
 err:
     eTestResult = TestResult.Error

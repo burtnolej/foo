@@ -1,23 +1,12 @@
 Attribute VB_Name = "Test_Workbook_Utils"
 Const CsModuleName = "Test_Workbook_Utils"
-
-Sub TestRunner()
-    'GetLogFile
-    Log_Utils.LogFilter = "8,9"
-    
-    Test_ShowSheet
-    Test_ToggleSheet
-    'GetLogFile
-End Sub
-
-Sub Test_ShowSheet()
-
+Function Test_ShowSheet() As TestResult
 Dim sFuncName As String
 Dim sSheetName As String
 Dim sResultStr As String
 Dim sExpectedResultStr As String
 Dim wsTmp As Worksheet
-Dim bTestPassed As Boolean
+Dim eTestResult As TestResult
 setup:
     
     sFuncName = CsModuleName & "." & "ShowSheet"
@@ -29,30 +18,30 @@ main:
     HideSheet ActiveWorkbook, sSheetName
     ShowSheet ActiveWorkbook, sSheetName
     If SheetIsVisible(ActiveWorkbook, sSheetName) = False Then
-        GoTo fail
+        eTestResult = TestResult.Failure
+    Else
+        eTestResult = TestResult.OK
     End If
-
-Success:
-    bTestPassed = True
+    On Error GoTo 0
     GoTo teardown
-
-fail:
-    Debug.Print err.Description
-    bTestPassed = False
+    
+err:
+    eTestResult = TestResult.Error
     
 teardown:
+    Test_ShowSheet = eTestResult
     DeleteSheet ActiveWorkbook, sSheetName
-    Call TestLogIt(sFuncName, bTestPassed)
-End Sub
 
-Sub Test_ToggleSheet()
+End Function
+
+Function Test_ToggleSheet() As TestResult
 
 Dim sFuncName As String
 Dim sSheetName As String
 Dim sResultStr As String
 Dim sExpectedResultStr As String
 Dim wsTmp As Worksheet
-Dim bTestPassed As Boolean
+Dim eTestResult As TestResult
 setup:
     
     sFuncName = CsModuleName & "." & "ToggleSheet"
@@ -63,22 +52,23 @@ main:
 
     ToggleSheet ActiveWorkbook, sSheetName
     If SheetIsVisible(ActiveWorkbook, sSheetName) = True Then
-        GoTo fail
+        eTestResult = TestResult.Failure
+        GoTo teardown
     End If
     
     ToggleSheet ActiveWorkbook, sSheetName
     If SheetIsVisible(ActiveWorkbook, sSheetName) = False Then
-        GoTo fail
+        eTestResult = TestResult.Failure
+    Else
+        eTestResult = TestResult.OK
     End If
-
-Success:
-    bTestPassed = True
+    On Error GoTo 0
     GoTo teardown
-
-fail:
-    bTestPassed = False
+    
+err:
+    eTestResult = TestResult.Error
     
 teardown:
+    Test_ToggleSheet = eTestResult
     DeleteSheet ActiveWorkbook, sSheetName
-    Call TestLogIt(sFuncName, bTestPassed)
-End Sub
+End Function

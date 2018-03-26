@@ -104,6 +104,7 @@ Dim wsTmp As Worksheet
 Dim rSource As Range
 Dim sFuncName As String
 Dim vControls() As Variant
+Dim aControlIDSplit() As String
 
 setup:
     sFuncName = "OnAction"
@@ -113,6 +114,17 @@ setup:
     If control.ID = "LoadDefinitions" Then
         DoLoadDefinitions
         DumpDefinitions
+        
+    ElseIf Left(control.ID, 8) = "SchedBut" Then
+        aControlIDSplit = Split(control.ID, "_")
+        If UBound(aControlIDSplit) <> 2 Then
+            FuncLogIt sFuncName, "SchedBut ID is incorrectly formed [" & control.ID & "] needs to have 3 parts delimed by _", C_MODULE_NAME, LogMsgType.Error
+        Else
+            BuildSchedule Quad_Utils.cTemplateBookName, "C:\\Users\\burtnolej\\Documents\\GitHub\\quadviewer", _
+                    aControlIDSplit(1), CInt(aControlIDSplit(2)), sCacheBookName:=Quad_Utils.sCacheBookName, sCacheBookPath:=Quad_Utils.sCacheBookPath
+            
+        End If
+                
     ElseIf control.ID = "GenerateEntryForm" Then
         GenerateEntryForms
     ElseIf control.ID = "DeleteEntryForm" Then

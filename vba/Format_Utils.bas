@@ -39,19 +39,31 @@ Dim rColumn As Range
 End Sub
 Sub CopyFormat(sSourceSheetName As String, sTargetSheetName As String, sSourceAddress As String, sTargetAddress As String)
 
-    With ActiveWorkbook.Sheets(sSourceSheetName)
+    With Workbooks("vba_source_new.xlsm").Sheets(sSourceSheetName)
         .Activate
         .Range(sSourceAddress).Select
         Selection.Copy
     End With
     
-    With ActiveWorkbook.Sheets(sTargetSheetName)
+    With Workbooks("tmp.xls").Sheets(sTargetSheetName)
         .Activate
         .Range(sTargetAddress).Select
         Selection.PasteSpecial Paste:=xlPasteFormats, Operation:=xlNone, SkipBlanks:=False, Transpose:=False
         Application.CutCopyMode = False
     End With
 
+End Sub
+
+Sub CopyFormatRange(rSourceRange As Range, rTargetRange As Range)
+    rSourceRange.Select
+    Selection.Copy
+    
+    rTargetRange.Worksheet.Activate
+    rTargetRange.Select
+    'Application.CutCopyMode = False
+    
+    Selection.PasteSpecial Paste:=xlPasteFormats, Operation:=xlNone, SkipBlanks:=False, Transpose:=False
+            
 End Sub
 Sub SetBgColor(sSheetName As String, rTarget As Range, iRed As Integer, iGreen As Integer, iBlue As Integer)
     With GetSheet(Application.ActiveWorkbook, sSheetName)

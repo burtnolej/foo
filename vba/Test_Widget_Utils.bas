@@ -1,18 +1,11 @@
 Attribute VB_Name = "Test_Widget_Utils"
 Option Explicit
 Const CsModuleName = "Test_Widget_Utils"
-Sub TestRunner()
-    'GetLogFile
-    Log_Utils.LogFilter = "8,9"
-    Test_FormatButton
-  
-    'GetLogFile
-End Sub
-Sub Test_FormatButton()
+Function Test_FormatButton() As TestResult
 Dim sFuncName As String
 Dim wsTmp As Worksheet
 Dim sSheetName As String
-Dim bTestPassed As Boolean
+Dim eTestResult As TestResult
 Dim rSource As Range
 Dim rTarget As Range
 Dim cRGB As RGBColor
@@ -37,17 +30,18 @@ main:
     Set cRGB = GetBgColor(sSheetName, rTarget)
     
     If cRGB.AsString <> "255,255,0" Then
-        GoTo fail
+        eTestResult = TestResult.Failure
+    Else
+        eTestResult = TestResult.OK
     End If
-    
-Success:
-    bTestPassed = True
+    On Error GoTo 0
     GoTo teardown
     
-fail:
-    bTestPassed = False
+err:
+    eTestResult = TestResult.Error
     
 teardown:
+    Test_FormatButton = eTestResult
     DeleteSheet ActiveWorkbook, sSheetName
-    Call TestLogIt(sFuncName, bTestPassed)
-End Sub
+
+End Function

@@ -124,6 +124,7 @@ Public Function IsEqual(vValue1 As Variant, vValue2 As Variant, _
     IsEqual = True
         
 End Function
+
 Public Function IsInstance(oTmp As Variant, tObjType As MyVbType, _
             Optional sFuncName As String = "Unknown", _
             Optional bAssert As Boolean = True) As Boolean
@@ -195,13 +196,15 @@ Dim objNode As MSXML2.IXMLDOMElement
 End Function
 'Public Function IsSet(oTmp As Object) As Boolean
 Public Function IsSet(oTmp As Variant) As Boolean
-    
-    If IsEmpty(oTmp) Or IsMissing(oTmp) Then
-        If IsInstance(oTmp, vbObject, bAssert:=False) = True Then
-            If Not oTmp Is Nothing Then
-                GoTo istrue
-            End If
+
+    If IsInstance(oTmp, vbObject, bAssert:=False) = True Then
+        If oTmp Is Nothing Then
+            IsSet = False
+            Exit Function
         End If
+    End If
+        
+    If IsEmpty(oTmp) Or IsMissing(oTmp) Then
         IsSet = False
         Exit Function
     End If

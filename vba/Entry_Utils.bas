@@ -115,14 +115,14 @@ Dim wsTmp As Worksheet
     
 End Sub
 'Public Function IsValidInteger(ByVal iValue As Variant) As Boolean
-Public Function IsValidInteger(ParamArray Args()) As Boolean
+Public Function IsValidInteger(ParamArray args()) As Boolean
 Dim sFuncName As String
 Dim iValueTmp As Integer
 Dim iValue As Variant
 
 setup:
     sFuncName = C_MODULE_NAME & "." & "IsValidInteger"
-    iValue = Args(0)
+    iValue = args(0)
 
 main:
     On Error GoTo err
@@ -138,14 +138,14 @@ err:
 
 End Function
 
-Public Function IsValidPrep(ParamArray Args()) As Boolean
+Public Function IsValidPrep(ParamArray args()) As Boolean
 Dim sFuncName As String
 Dim aPreps() As String
 Dim iValue As Variant
  
 setup:
     sFuncName = C_MODULE_NAME & "." & "IsValidPrep"
-    iValue = Args(0)
+    iValue = args(0)
 
 main:
     aPreps = Split(C_PREPS, ",")
@@ -161,7 +161,7 @@ err:
     FuncLogIt sFuncName, "Value [" & CStr(iValue) & "] is invalid [" & NotValidPrep & "]", C_MODULE_NAME, LogMsgType.OK
 
 End Function
-Public Function IsMember(ParamArray Args()) As Boolean
+Public Function IsMember(ParamArray args()) As Boolean
 Dim sFuncName As String
 Dim aValues() As String
 Dim iValue As Variant
@@ -170,12 +170,12 @@ Dim sTableName As String
 setup:
     sFuncName = C_MODULE_NAME & "." & "IsMember"
     
-    If UBound(Args) <> 1 Then
-        FuncLogIt sFuncName, "Requires 2 parameters ]" & CStr(UBound(Args) + 1) & "] given", C_MODULE_NAME, LogMsgType.OK
+    If UBound(args) <> 1 Then
+        FuncLogIt sFuncName, "Requires 2 parameters ]" & CStr(UBound(args) + 1) & "] given", C_MODULE_NAME, LogMsgType.OK
         Exit Function
     End If
-    iValue = Args(0)
-    sTableName = Args(1)
+    iValue = args(0)
+    sTableName = args(1)
     
 main:
 
@@ -359,7 +359,7 @@ Dim sFuncName As String
 setup:
     sFuncName = C_MODULE_NAME & "." & "GenerateEntryForms"
 
-    If dDefinitions Is Nothing Then
+    If IsSet(dDefinitions) = False Then
         DoLoadDefinitions
     End If
     
@@ -375,7 +375,7 @@ setup:
                 "IsRecordValid Application.ActiveSheet.Name" & vbNewLine & _
                 "End Sub"
 
-        'AddCode2Module Workbooks("vba_source_new.xlsm"), wsTmp.CodeName, sCode
+        AddCode2Module Workbooks("vba_source_new.xlsm"), wsTmp.CodeName, sCode
         
         With wsTmp
             .Range(.Cells(iRow, 1), .Cells(iRow, 1)).Value = UCase(sAction)

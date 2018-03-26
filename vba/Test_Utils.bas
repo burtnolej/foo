@@ -9,7 +9,7 @@ End Enum
 
 Public Const sTestResultEnum = "OK,Failure,Error"
 
-Function GetTestModulesInBook(sBookName As String) As String()
+Function GetTestModulesInBook(sBookName As String, Optional sBookPath As String) As String()
 Dim wbTmp As Workbook
 Dim VBProj As VBIDE.VBProject
 Dim VBComp As VBIDE.VBComponent
@@ -17,7 +17,7 @@ Dim vModulesNames() As String
 Dim iCount As Integer
 
     ReDim vModulesNames(0 To 100)
-    Set wbTmp = OpenBook(sBookName)
+    Set wbTmp = OpenBook(sBookName, sPath:=sBookPath)
     'Set wbTmp = Workbooks(sBookName)
     
 
@@ -160,8 +160,6 @@ Dim dModuleTestResult As Dictionary
         End If
     Next sModuleTest
 End Sub
-
-
 Function TestFromPython(sList As String, sList2 As String) As String
 Dim vSplits() As String
 
@@ -172,10 +170,18 @@ End Function
 Sub DoProjectTestRunner()
 Dim sIncModules As String
 
-    'sIncModules = "Test_Array_Utils,Test_DB_Utils,Test_Entry_Utils,Test_Dict_Utils"
-    'sIncModules = sIncModules & ",Test_Filter_Utils,Test_Format_Utils,Test_Macros,Test_Misc_Utils,Test_Module_Utils"
-    sIncModules = "Test_Module_Utils,Test_OS_Utils,Test_Quad_Utils"
+    sIncModules = "Test_App_Schedule"
     ProjectTestRunner sIncModules
+    Exit Sub
+    sIncModules = sIncModules & ",Test_DB_Utils"
+    sIncModules = sIncModules & ",Test_Entry_Utils"
+    sIncModules = sIncModules & ",Test_Dict_Utils"
+    sIncModules = sIncModules & ",Test_Filter_Utils,Test_Format_Utils,Test_Macros,Test_Misc_Utils,Test_Module_Utils"
+    sIncModules = sIncModules & ",Test_Module_Utils,Test_OS_Utils,Test_Quad_Utils"
+    sIncModules = sIncModules & ",Test_Range_Utils,Test_String_Utils"
+    sIncModules = sIncModules & ",Test_Table_Utils,Test_Widget_Utils,Test_Workbook_Utils"
+    sIncModules = sIncModules & ",Test_XML_utils"
+    
 End Sub
 Sub ProjectTestRunner(sIncModules As String)
 'Optional aIncModules As Variant,
@@ -195,7 +201,10 @@ Dim vTestResult As Variant
     If sIncModules <> "" Then
         aIncModules = Split(sIncModules, ",")
     End If
-    aProjectTestModules = GetTestModulesInBook("C:\\Users\\burtnolej\\Documents\\GitHub\\quadviewer\\vba_source_new.xlsm")
+    'aProjectTestModules = GetTestModulesInBook("vba_source_new.xlsm")
+    aProjectTestModules = GetTestModulesInBook("vba_source_new.xlsm", _
+        sBookPath:="C:\\Users\\burtnolej\\Documents\\GitHub\\quadviewer")
+    
     
     Set dProjectTestResultSummary = InitTestSummary()
     dProjectTestResult.Add "summary", dProjectTestResultSummary
@@ -217,6 +226,7 @@ Dim vTestResult As Variant
         ' on the project, create a node for this module and assign the dict
         dProjectTestResult.Add sModuleTest, dModuleTestResult
         
+        Debug.Print sModuleTest
         ' run the tests for the module, passing by ref the dictionary to store the results
         ModuleTestRunner dModuleTestResult, CStr(sModuleTest)
         'Application.Run sModuleTest & ".ModuleTestRunner", dModuleTestResult
@@ -245,6 +255,7 @@ Dim wbTmp As Workbook
     'Set dTestCases = GetTestsInModule(Workbooks("vba_source_new.xlsm"), sModuleName)
     Set dTestCases = GetTestsInModule(wbTmp, sModuleName)
     For Each sTestCase In dTestCases
+        Debug.Print "   " & sTestCase
         eTestResult = TestResult.Error
         On Error Resume Next
         eTestResult = Application.Run(sModuleName & "." & sTestCase)

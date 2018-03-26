@@ -1,21 +1,11 @@
 Attribute VB_Name = "Test_Range_Utils"
 Option Explicit
 Const CsModuleName = "Test_Range_Utils"
-Sub TestRunner()
-    'GetLogFile
-    Log_Utils.LogFilter = "8,9"
-    Test_GetSheetNamedRanges
-    Test_ListFromRange
-    Test_IsCell
-    
-    'GetLogFile
-End Sub
-
-Sub Test_ListFromRange()
+Function Test_ListFromRange() As TestResult
 Dim sFuncName As String
 Dim wsTmp As Worksheet
 Dim sSheetName As String
-Dim bTestPassed As Boolean
+Dim eTestResult As TestResult
 Dim rTarget As Range
 Dim vSource() As String
 Dim vResult() As String
@@ -32,26 +22,28 @@ main:
     vResult = ListFromRange(wsTmp, rTarget.Address)
      
     If Array2String(vResult) <> "ACE" Then
-        GoTo fail
+        eTestResult = TestResult.Failure
+    Else
+        eTestResult = TestResult.OK
     End If
-    
-Success:
-    bTestPassed = True
+    On Error GoTo 0
     GoTo teardown
     
-fail:
-    bTestPassed = False
+err:
+    eTestResult = TestResult.Error
     
 teardown:
+    Test_ListFromRange = eTestResult
+    
     DeleteSheet ActiveWorkbook, sSheetName
-    Call TestLogIt(sFuncName, bTestPassed)
-End Sub
 
-Sub Test_IsCell()
+End Function
+
+Function Test_IsCell() As TestResult
 Dim sFuncName As String
 Dim wsTmp As Worksheet
 Dim sSheetName As String
-Dim bTestPassed As Boolean
+Dim eTestResult As TestResult
 Dim rTarget As Range
 
 setup:
@@ -64,32 +56,33 @@ setup:
 
 main:
     If IsCell(rTarget) = False Then
-        GoTo fail
+        eTestResult = TestResult.Failure
+        GoTo teardown
     End If
     
     Set rTarget = rTarget.Resize(, 2)
     
     If IsCell(rTarget) = True Then
-        GoTo fail
+        eTestResult = TestResult.Failure
+    Else
+        eTestResult = TestResult.OK
     End If
-    
-Success:
-    bTestPassed = True
+    On Error GoTo 0
     GoTo teardown
     
-fail:
-    bTestPassed = False
+err:
+    eTestResult = TestResult.Error
     
 teardown:
+    Test_IsCell = eTestResult
     DeleteSheet ActiveWorkbook, sSheetName
-    Call TestLogIt(sFuncName, bTestPassed)
     
-End Sub
-Sub Test_IsBlankCell()
+End Function
+Function Test_IsBlankCell() As TestResult
 Dim sFuncName As String
 Dim wsTmp As Worksheet
 Dim sSheetName As String
-Dim bTestPassed As Boolean
+Dim eTestResult As TestResult
 Dim rTarget As Range
 
 setup:
@@ -102,32 +95,33 @@ setup:
 
 main:
     If IsBlankCell(rTarget) = False Then
-        GoTo fail
+        eTestResult = TestResult.Failure
+        GoTo teardown
     End If
     
     rTarget.Value = 123
     
     If IsBlankCell(rTarget) = True Then
-        GoTo fail
+        eTestResult = TestResult.Failure
+    Else
+        eTestResult = TestResult.OK
     End If
-    
-Success:
-    bTestPassed = True
+    On Error GoTo 0
     GoTo teardown
     
-fail:
-    bTestPassed = False
+err:
+    eTestResult = TestResult.Error
     
 teardown:
+    Test_IsBlankCell = eTestResult
     DeleteSheet ActiveWorkbook, sSheetName
-    Call TestLogIt(sFuncName, bTestPassed)
     
-End Sub
-Sub Test_GetSheetNamedRanges()
+End Function
+Function Test_GetSheetNamedRanges() As TestResult
 Dim sFuncName As String
 Dim wsTmp As Worksheet
 Dim sSheetName As String
-Dim bTestPassed As Boolean
+Dim eTestResult As TestResult
 Dim aNames() As String
 
 setup:
@@ -142,31 +136,32 @@ main:
     aNames = GetSheetNamedRanges(ActiveWorkbook, sSheetName)
     
     If aNames(0) <> "range1" Then
-        GoTo fail
+        eTestResult = TestResult.Failure
+        GoTo teardown
     End If
     
     If aNames(1) <> "range2" Then
-        GoTo fail
+        eTestResult = TestResult.Failure
+    Else
+        eTestResult = TestResult.OK
     End If
-        
-Success:
-    bTestPassed = True
+    On Error GoTo 0
     GoTo teardown
     
-fail:
-    bTestPassed = False
+err:
+    eTestResult = TestResult.Error
     
 teardown:
+    Test_GetSheetNamedRanges = eTestResult
     DeleteSheet ActiveWorkbook, sSheetName
-    Call TestLogIt(sFuncName, bTestPassed)
-End Sub
+End Function
 
 
-Sub Test_ListFromRow()
+Function Test_ListFromRow() As TestResult
 Dim sFuncName As String
 Dim wsTmp As Worksheet
 Dim sSheetName As String
-Dim bTestPassed As Boolean
+Dim eTestResult As TestResult
 Dim rTarget As Range
 Dim vSource() As String
 Dim vResult() As Variant
@@ -178,23 +173,25 @@ setup:
     Set wsTmp = CreateSheet(ActiveWorkbook, sSheetName, bOverwrite:=True)
     vSource = Init2DStringArray([{"A", "B", "C";"","",""}])
     Set rTarget = RangeFromStrArray(vSource, wsTmp, 0, 0)
-    
+    ReDim vResult(0 To 0, 0 To 2)
 main:
 
-    vResult = rTarget.Resize(1)
-     
+    rTarget.Select
+    Set rTarget = rTarget.Resize(1)
+    rTarget.Select
+    vResult = rTarget.Value
     'If Array2String(vResult) <> "ACE" Then
-    '    GoTo fail
+    '    eTestResult = TestResult.Failure
+    'Else
+    '    eTestResult = TestResult.OK
     'End If
-    
-Success:
-    bTestPassed = True
+    On Error GoTo 0
     GoTo teardown
     
-fail:
-    bTestPassed = False
+err:
+    eTestResult = TestResult.Error
     
 teardown:
+    Test_ListFromRow = eTestResult
     DeleteSheet ActiveWorkbook, sSheetName
-    Call TestLogIt(sFuncName, bTestPassed)
-End Sub
+End Function

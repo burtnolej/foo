@@ -22,7 +22,10 @@ Option Explicit
 ' Function  | CreateSheet           | (wb As Workbook, sSheetName As String, Optional bOverwrite As Boolean) As Worksheet
 
 Const C_MODULE_NAME = "Workbook_Utils"
-Public Function OpenBook(sName As String) As Workbook
+Public Function OpenBook(ByVal sName As String, Optional sPath As String) As Workbook
+    If sPath <> "" Then
+        sName = sPath & "\\" & sName
+    End If
     Set OpenBook = Workbooks.Open(sName)
 End Function
 Public Function BookExists(sName As String) As Boolean
@@ -77,7 +80,19 @@ Dim wsCurrent As Worksheet
         End With
     End If
 End Sub
+Public Function GetSheets(wb As Workbook) As String()
+Dim aSheets() As String
+Dim iCount As Integer
+Dim iMaxSheets As Integer
+Dim wsSheet As Worksheet
 
+    iMaxSheets = wb.Sheets.Count
+    ReDim aSheets(0 To iMaxSheets - 1)
+    For iCount = 1 To iMaxSheets
+        aSheets(iCount - 1) = wb.Sheets(iCount).Name
+    Next iCount
+    GetSheets = aSheets
+End Function
 Public Function GetSheet(wb As Workbook, sSheetName As String, Optional bOverwrite As Boolean) As Worksheet
     Set GetSheet = wb.Sheets(sSheetName)
 End Function
@@ -169,8 +184,19 @@ Sub CloseBook(wbTmp As Workbook, Optional bSaveFlag As Boolean)
     Application.DisplayAlerts = True
 End Sub
 Public Sub DeleteSheet(wb As Workbook, sSheetName As String)
+Dim sFuncName As String
+setup:
+    sFuncName = C_MODULE_NAME & "." & "DeleteSheet"
     Application.DisplayAlerts = False
-    wb.Sheets(sSheetName).Delete
+
+main:
+    If wb.Sheets.Count = 1 Then
+        FuncLogIt sFuncName, "Could not delete sheet as its the only 1 left in the workbook", C_MODULE_NAME, LogMsgType.Error
+    Else
+        wb.Sheets(sSheetName).Delete
+    End If
+
+cleanup:
     Application.DisplayAlerts = True
 End Sub
 
