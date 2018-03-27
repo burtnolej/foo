@@ -532,6 +532,9 @@ err:
     
 teardown:
     Test_ParseRawData = eTestResult
+    DeleteSheet Workbooks(sCacheBookName), "person_student"
+    CloseBook Workbooks(sCacheBookName)
+    DeleteBook sCacheBookName
     
 End Function
 

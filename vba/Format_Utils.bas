@@ -37,15 +37,18 @@ Dim rColumn As Range
         Selection.RowHeight = iRowHeight
     End With
 End Sub
-Sub CopyFormat(sSourceSheetName As String, sTargetSheetName As String, sSourceAddress As String, sTargetAddress As String)
+Sub CopyFormat(sSourceSheetName As String, sTargetSheetName As String, _
+                sSourceAddress As String, sTargetAddress As String)
 
-    With Workbooks("vba_source_new.xlsm").Sheets(sSourceSheetName)
+    'With Workbooks("vba_source_new.xlsm").Sheets(sSourceSheetName)
+    With Workbooks(Quad_Utils.cTemplateBookName).Sheets(sSourceSheetName)
         .Activate
         .Range(sSourceAddress).Select
         Selection.Copy
     End With
     
-    With Workbooks("tmp.xls").Sheets(sTargetSheetName)
+    With ActiveWorkbook.Sheets(sTargetSheetName)
+    'With Workbooks("tmp.xls").Sheets(sTargetSheetName)
         .Activate
         .Range(sTargetAddress).Select
         Selection.PasteSpecial Paste:=xlPasteFormats, Operation:=xlNone, SkipBlanks:=False, Transpose:=False

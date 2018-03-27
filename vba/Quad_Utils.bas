@@ -78,6 +78,13 @@ setup:
     If sCacheBookPath <> "" And DirExists(sCacheBookPath) = False Then
         err.Raise ErrorMsgType.BAD_ARGUMENT, Description:="arg sCacheBookPath dir not found"
     End If
+    
+    If sCacheBookName <> "" And sCacheBookPath <> "" Then
+        If FileExists(sCacheBookPath & "\\" & sCacheBookName) = False Then
+            err.Raise ErrorMsgType.BAD_ARGUMENT, Description:="arg '" & sCacheBookPath & "\\" & sCacheBookName & "[ file not found"
+        End If
+    End If
+    
     ' END Assertions -----------------------------
 
 main:

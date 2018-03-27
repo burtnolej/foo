@@ -46,6 +46,9 @@ teardown:
     DeleteSheet ActiveWorkbook, sSheetName
 End Function
 
+Sub test()
+    TestGenerateEntryFormsMulti
+End Sub
 Function TestGenerateEntryFormsMulti() As TestResult
 Dim sFuncName As String
 Dim sSheetName As String
@@ -109,7 +112,7 @@ err:
 teardown:
     TestGenerateEntryFormsMulti = eTestResult
     DeleteEntryForms
-    DeleteSheet ActiveWorkbook, sSheetName
+    'DeleteSheet ActiveWorkbook, sSheetName
 
 End Function
 

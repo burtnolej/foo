@@ -8,7 +8,8 @@ Const cTeacherLookUpCol = "idFaculty"
 Const cStudentLookUpCol = "idStudent"
 
 Public Function IsValidPersonID(iPersonID As Integer, _
-                                sDataSubType As String) As Boolean
+                                sDataSubType As String, _
+                                Optional sCacheBookName As String = Quad_Utils.sCacheBookName) As Boolean
 Dim sFuncName As String, sLookUpCol As String
 Dim wsPersonDataCache As Worksheet
 
@@ -22,7 +23,7 @@ setup:
     ' END Assertions --------------------------------
     
 main:
-    Set wsPersonDataCache = GetPersonData("", "", sDataSubType, sScope:="all")
+    Set wsPersonDataCache = GetPersonData("", "", sDataSubType, sScope:="all", sCacheBookName:=sCacheBookName)
 
     If sDataSubType = "teacher" Then
         sLookUpCol = cTeacherLookUpCol

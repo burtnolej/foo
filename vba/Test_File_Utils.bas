@@ -80,7 +80,7 @@ err:
     eTestResult = TestResult.Error
     
 teardown:
-    Test_NumColumns = eTestResult
+    Test_FilesAreSame = eTestResult
     Call DeleteFile(sFile1Name)
     Call DeleteFile(sFile2Name)
     Call DeleteFile(sFile3Name)
