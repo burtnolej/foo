@@ -8,18 +8,6 @@ Attribute VB_Name = "Quad_Utils"
 'Public Function SheetTableLookup()
 
 Const C_MODULE_NAME = "Quad_Utils"
-
-Public Const sExecPath = "C:\\Users\\burtnolej\\Documents\\GitHub\\quadviewer\\app\\quad\\utils\\excel\\"
-Public Const sRuntimeDir = "C:\\Users\\burtnolej\\Documents\\runtime\\"
-Public Const sFileName = "C:\\Users\\burtnolej\\Development\\uupyshell.args.txt"
-Public Const sDayEnum = "M,T,W,R,F"
-Public Const sBookName = "vba_source_new.xlsm"
-Public Const sBookPath = "C:\\Users\\burtnolej\\Documents\\GitHub\\quadviewer\\"
-Public Const sCacheBookName = "cache.xls"
-Public Const sCacheBookPath = "C:\\Users\\burtnolej\\Documents\\Runtime"
-Public Const cTemplateBookName = "vba_source_new.xlsm"
-
-
 Public Function SheetTableLookup(wsDataSheet As Worksheet, sRangeName As String, _
                             sLookupColName As String, vLookUpVal As Variant) As Integer
 ' assumes row 1 contains the column names
@@ -122,12 +110,8 @@ main:
     End If
 End Sub
 
-Public Sub CreateQuadArgsFile(sDatabaseName As String, _
-        sSpName As String, _
+Public Sub CreateQuadArgsFile(clsQuadRuntime As Quad_Runtime, sSpName As String, _
         Optional dSpArgs As Dictionary, _
-        Optional sFileName As String = "C:\Users\burtnolej\Development\uupyshell.args.txt", _
-        Optional sRuntimeDir As String = "C:\Users\burtnolej\Documents\runtime", _
-        Optional sResultFileName As String, _
         Optional bHeaderFlag As Boolean = False)
 
 Dim PYTHONPATH As String, xSpArgs As String, sTmp As String
@@ -135,58 +119,45 @@ Dim PYTHONPATH As String, xSpArgs As String, sTmp As String
     PYTHONPATH = LCase(Environ("PYTHONPATH"))
 
     On Error Resume Next 'in case running for first time and nothing to delete
-    Call DeleteFile(sFileName)
+    Call DeleteFile(clsQuadRuntime.FileName)
     On Error GoTo 0
-    Call TouchFile(sFileName)
+    Call TouchFile(clsQuadRuntime.FileName)
     
-    Call AppendFile(sFileName, "database_name:" & UUEncode(sDatabaseName) & vbCrLf)
-    Call AppendFile(sFileName, "sp_name:" & UUEncode(sSpName) & vbCrLf)
+    Call AppendFile(clsQuadRuntime.FileName, "database_name:" & UUEncode(clsQuadRuntime.DatabasePath) & vbCrLf)
+    Call AppendFile(clsQuadRuntime.FileName, "sp_name:" & UUEncode(sSpName) & vbCrLf)
     
     If bHeaderFlag = True Then
-        Call AppendFile(sFileName, "header_flag:" & UUEncode("True") & vbCrLf)
+        Call AppendFile(clsQuadRuntime.FileName, "header_flag:" & UUEncode("True") & vbCrLf)
     End If
 
     If IsSet(dSpArgs) = True Then
         xSpArgs = CreateXMLDocfromDict(dSpArgs).xml
-        Call AppendFile(sFileName, "sp_args:" & UUEncode(xSpArgs) & vbCrLf)
+        Call AppendFile(clsQuadRuntime.FileName, "sp_args:" & UUEncode(xSpArgs) & vbCrLf)
     End If
     
-    Call AppendFile(sFileName, "runtime_dir:" & UUEncode(Quad_Utils.sRuntimeDir) & vbCrLf)
+    Call AppendFile(clsQuadRuntime.FileName, "runtime_dir:" & UUEncode(clsQuadRuntime.RuntimeDir) & vbCrLf)
     
-    If sResultFileName <> "" Then
-        Call AppendFile(sFileName, "result_file:" & UUEncode(sResultFileName) & vbCrLf)
+    If clsQuadRuntime.ResultFileName <> "" Then
+        Call AppendFile(clsQuadRuntime.FileName, "result_file:" & UUEncode(clsQuadRuntime.ResultFileName) & vbCrLf)
     End If
     
 End Sub
                            
-Public Function GetQuadDataFromDB(sDatabaseName As String, _
-                                 sSpName As String, _
+Public Sub GetQuadDataFromDB(clsQuadRuntime As Quad_Runtime, sSpName As String, _
                         Optional dSpArgs As Dictionary, _
-                        Optional sResultFileName As String, _
-                        Optional sFileName As String = "C:\Users\burtnolej\Development\uupyshell.args.txt", _
-                        Optional bHeaderFlag As Boolean = False) As String
+                        Optional bHeaderFlag As Boolean = False)
 ' get the raw data from a backsheet
 Dim sExecPath As String, sRuntimePath As String, sResult As String
 Dim aArgs() As String
 
-    CreateQuadArgsFile sDatabaseName, sSpName, dSpArgs:=dSpArgs, _
-                       sResultFileName:=sResultFileName, _
-                       bHeaderFlag:=bHeaderFlag, sFileName:=sFileName
-    aArgs = InitStringArray(Array("python", Quad_Utils.sExecPath & "excel_data_utils.py", "--input_file", sFileName))
+    CreateQuadArgsFile clsQuadRuntime, sSpName, dSpArgs:=dSpArgs, bHeaderFlag:=bHeaderFlag
+    aArgs = InitStringArray(Array("python", clsQuadRuntime.ExecPath & "excel_data_utils.py", "--input_file", clsQuadRuntime.FileName))
                     
-    sResult = ShellRun(aArgs)
+    ShellRun aArgs
     
-    If sResultFileName <> "" Then
-        GetQuadDataFromDB = sResultFileName
-    Else
-        GetQuadDataFromDB = sResult
-    End If
-End Function
+End Sub
 
-Public Function IsDataCached(sBookPath As String, _
-                             sCacheBookName As String, _
-                             sDataType As String, _
-                             sSubDataType As String, _
+Public Function IsDataCached(clsQuadRuntime As Quad_Runtime, sDataType As String, sSubDataType As String, _
                     Optional iDataId As Integer) As Boolean
 Dim sCacheSheetName As String
 
@@ -194,15 +165,8 @@ Dim sCacheSheetName As String
     If iDataId <> 0 Then
         sCacheSheetName = sCacheSheetName & "_" & CStr(iDataId)
     End If
-    
-    
-    If BookExists(sBookPath & "\\" & sCacheBookName) = False Then
-        IsDataCached = False
-        Exit Function
-    End If
 
-    OpenBook sCacheBookName, sPath:=sBookPath
-    IsDataCached = SheetExists(Workbooks(sCacheBookName), sCacheSheetName)
+    IsDataCached = SheetExists(clsQuadRuntime.CacheBook, sCacheSheetName)
                     
 End Function
 
@@ -233,11 +197,7 @@ Dim aSchedule() As String
     ParseRawData = aSchedule
 End Function
 
-Public Function CacheData(sBookPath As String, _
-                          sCacheBookName As String, _
-                          aData() As String, _
-                          sDataType As String, _
-                          sSubDataType As String, _
+Public Function CacheData(clsQuadRuntime As Quad_Runtime, aData() As String, sDataType As String, sSubDataType As String, _
                           Optional iDataId As Integer, _
                           Optional bCacheNameOnly As Boolean = False) As String
                                   
@@ -269,15 +229,9 @@ Dim sCacheSheetName As String
         GoTo endfunc
     End If
     
-    If BookExists(sBookPath & "\\" & sCacheBookName) = False Then
-        Set wbCache = CreateBook(sCacheBookName)
-    Else
-        Set wbCache = OpenBook(sCacheBookName, sPath:=sBookPath)
-    End If
-    
-    Set wsCache = CreateSheet(wbCache, sCacheSheetName, bOverwrite:=True)
-    If SheetExists(wbCache, "Sheet1") Then
-        DeleteSheet wbCache, "Sheet1" ' can be deleted now not only sheet
+    Set wsCache = CreateSheet(clsQuadRuntime.CacheBook, sCacheSheetName, bOverwrite:=True)
+    If SheetExists(clsQuadRuntime.CacheBook, "Sheet1") Then
+        DeleteSheet clsQuadRuntime.CacheBook, "Sheet1" ' can be deleted now not only sheet
     End If
     
     iNumRows = UBound(aData)
@@ -288,7 +242,7 @@ Dim sCacheSheetName As String
         Set rTarget = .Range(.Cells(1, 1), .Cells(iNumRows + 1, iNumCols + 1))
         rTarget.Value = aData
         
-        CreateNamedRange ActiveWorkbook, rTarget.Address, sCacheSheetName, cCacheRangeName, sLocalScope:="True"
+        CreateNamedRange ActiveWorkbook, rTarget.Address, sCacheSheetName, clsQuadRuntime.CacheRangeName, sLocalScope:="True"
     End With
 
 endfunc:

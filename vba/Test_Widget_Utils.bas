@@ -9,8 +9,11 @@ Dim eTestResult As TestResult
 Dim rSource As Range
 Dim rTarget As Range
 Dim cRGB As RGBColor
+Dim clsQuadRuntime As New Quad_Runtime
 
 setup:
+    clsQuadRuntime.InitProperties bInitializeCache:=True
+    
     sFuncName = CsModuleName & "." & "CopyFormat"
     sSheetName = "test"
     Set wsTmp = CreateSheet(ActiveWorkbook, sSheetName, bOverwrite:=True)
@@ -26,7 +29,8 @@ setup:
     
 main:
 
-    FormatButton sSheetName, rTarget, ButtonState.Invalid, sSourceSheetName:=sSheetName
+    FormatButton clsQuadRuntime.Book, clsQuadRuntime.Book, sSheetName, rTarget, ButtonState.Invalid, _
+            sSourceSheetName:=sSheetName
     Set cRGB = GetBgColor(sSheetName, rTarget)
     
     If cRGB.AsString <> "255,255,0" Then

@@ -23,8 +23,10 @@ Private pCacheBook As Workbook
 Private pTemplateBookPath As String
 Private pTemplateBookName As String
 Private pTemplateSheetName As String
+Private pTemplateCellSheetName As String
 Private pTemplateBook As Workbook
 Private pTemplateSheet As Worksheet
+Private pTemplateCellSheet As Worksheet
 
 Private pDatabasePath As String
 Private pResultFileName As String
@@ -41,16 +43,20 @@ Const cAppDir = "C:\\Users\\burtnolej\\Documents\\GitHub\\quadviewer\\"
 Const cExecPath = cAppDir & "app\\quad\\utils\\excel\\"
 Const cRuntimeDir = "C:\\Users\\burtnolej\\Documents\\runtime\\"
 
-Const cBookPath = cAppDir
-Const cBookName = "vba_source_new.xlsm"
+'Const cBookPath = cAppDir
+'Const cBookName = "vba_source_new.xlsm"
 
-Const cCacheBookName = "cache.xls"
+Const cBookPath = cRuntimeDir
+Const cBookName = "cache.xlsm"
+
+Const cCacheBookName = "cache.xlsm"
 Const cCacheBookPath = cRuntimeDir
 Const cCacheRangeName = "data"
 
 Const cTemplateBookPath = cAppDir
 Const cTemplateBookName = "vba_source_new.xlsm"
 Const cTemplateSheetName = "FormStyles"
+Const cTemplateCellSheetName = "CellStyles"
 
 Const cDatabasePath = cAppDir & "app\\quad\\utils\\excel\\test_misc\\QuadQA.db"
 Const cResultFileName = cRuntimeDir & "pyshell_results.txt"
@@ -178,6 +184,12 @@ End Property
 Public Property Let TemplateSheet(Value As Worksheet)
     Set pTemplateSheet = Value
 End Property
+Public Property Get TemplateCellSheet() As Worksheet
+    Set TemplateCellSheet = pTemplateCellSheet
+End Property
+Public Property Let TemplateCellSheet(Value As Worksheet)
+    Set pTemplateCellSheet = Value
+End Property
 Public Property Get TemplateBook() As Workbook
     Set TemplateBook = pTemplateBook
 End Property
@@ -239,10 +251,25 @@ Public Property Let TemplateSheetName(Value As String)
     Me.TemplateSheet = GetSheet(Me.TemplateBook, TemplateSheetName)
     
 End Property
+Public Property Get TemplateCellSheetName() As String
+    TemplateCellSheetName = pTemplateCellSheetName
+End Property
+Public Property Let TemplateCellSheetName(Value As String)
+
+    If Me.TemplateBookName = "" Then
+         err.Raise ErrorMsgType.DEPENDENT_ATTR_NOT_SET, Description:="TemplateBookName needs to be set before CacheBookRangeName"
+    End If
+    
+    pTemplateCellSheetName = Value
+    
+    If Me.TemplateCellSheetName <> cTemplateCellSheetName Then
+        FuncLogIt "Let_TemplateCellSheetName", "overidden to [" & Value & "] default was [" & cTemplateCellSheetName & "]", C_MODULE_NAME, LogMsgType.INFO
+    End If
+    
+    Me.TemplateCellSheet = GetSheet(Me.TemplateBook, TemplateCellSheetName)
+    
+End Property
 ' END Template ------------------
-
-
-
 
 ' misc ---------------------------------------------
 Public Property Get DayEnum() As String
@@ -351,13 +378,19 @@ Public Sub InitProperties( _
                  Optional sTemplateBookPath As String = cTemplateBookPath, _
                  Optional sTemplateBookName As String = cTemplateBookName, _
                  Optional sTemplateSheetName As String = cTemplateSheetName, _
+                 Optional sTemplateCellSheetName As String = cTemplateCellSheetName, _
                  Optional sDatabasePath As String = cDatabasePath, _
                  Optional sResultFileName As String = cResultFileName, _
                  Optional sExecPath As String = cExecPath, _
                  Optional sRuntimeDir As String = cRuntimeDir, _
                  Optional sFileName As String = cFileName, _
-                 Optional sDayEnum As String = cDayEnum)
+                 Optional sDayEnum As String = cDayEnum, _
+                 Optional bInitializeCache As Boolean = True)
 
+    If bInitializeCache = True Then
+        CreateBook sCacheBookName, sBookPath:=sCacheBookPath
+    End If
+    
     Me.BookPath = sBookPath
     Me.BookName = sBookName
     
@@ -368,6 +401,7 @@ Public Sub InitProperties( _
     Me.TemplateBookPath = sTemplateBookPath
     Me.TemplateBookName = sTemplateBookName
     Me.TemplateSheetName = sTemplateSheetName
+    Me.TemplateCellSheetName = sTemplateCellSheetName
     Me.DatabasePath = sDatabasePath
     Me.ResultFileName = sResultFileName
     Me.ExecPath = sExecPath

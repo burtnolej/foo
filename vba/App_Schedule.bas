@@ -8,31 +8,14 @@ Attribute VB_Name = "App_Schedule"
 
 Option Explicit
 Const C_MODULE_NAME = "App_Schedule"
-Public vSource As Variant
-Public vColumns As Variant
 
-Public Const cCacheRangeName = "data"
-Public Const cTemplateSheetName = "FormStyles"
-Public Const cDatabasePath = "C:\Users\burtnolej\Documents\GitHub\quadviewer\app\quad\utils\excel\test_misc\QuadQA.db"
-Public Const cResultFileName = "C:\\Users\\burtnolej\\Documents\\runtime\\pyshell_results.txt"
-
-
-Public Function BuildSchedule(sBookName As String, _
-                              sBookPath As String, _
-                              sScheduleType As String, _
-                              iPersonID As Integer, _
-                              Optional sTemplateRangeName As String, _
-                              Optional sCacheBookName As String, _
-                              Optional sCacheBookPath As String) As Worksheet
+Public Function BuildSchedule(clsQuadRuntime As Quad_Runtime, sScheduleType As String, iPersonID As Integer) As Worksheet
 '"""Using data from the database, and a format template, create a visual schedule on a new sheet
-'param:sBookName, string, workbook where the template's reside and where the cache and view will go if not overwritten
 'param:sScheduleType, string, either student or teacher
 'param:iPersonalId, integer, value of the student or teacher to retreive the schedule for
-'param:sTemplateRangeName, if the template range cannot be calculated f[schedule_type]ScheduleCell its passed here
-'param:sCacheBookName, if you dont want the cache sheet to reside in the current activebook, will create a new book (good for testing)
 'rtype:Worksheet, the sheet object where the schedule view has been written
 '"""
-Dim sResultFileName As String, sTemplateBookName As String, sCacheSheetName As String, sDataType As String, sFuncName As String
+Dim sResultFileName As String, sDataType As String, sFuncName As String, sTemplateRangeName As String, sCacheSheetName As String
 Dim aSchedule() As String
 Dim aColumnWidths() As Integer
 Dim iFormatWidth As Integer, iFormatHeight As Integer, iColWidthCount As Integer
@@ -44,63 +27,43 @@ setup:
     If InArray(Array("student", "teacher"), sScheduleType) = False Then
         err.Raise ErrorMsgType.BAD_ARGUMENT, Description:="arg sScheduleType needs to be in [student|teacher] got [" & sScheduleType & "]"
     End If
-    
-    If FileExists(sBookPath & "/" & sBookName) <> True Then
-         err.Raise ErrorMsgType.BAD_ARGUMENT, Description:="workbook [" & sBookName & "] does not exist"
-    End If
-    
-    If sTemplateRangeName <> "" Then
-        If NamedRangeExists(Workbooks(sBookName), cTemplateSheetName, sTemplateRangeName) <> True Then
-            err.Raise ErrorMsgType.BAD_ARGUMENT, Description:="named range [" & sTemplateRangeName & "] does not exist in [" & sBookName & "]"
-        End If
-    End If
     ' END Assertions --------------------------------
     
     sDataType = "schedule"
-    sTemplateBookName = sBookName 'for now just assume that the templates reside in the main workbook
+    sTemplateRangeName = "f" & sScheduleType & "ScheduleCell"
+    FuncLogIt sFuncName, "Template range name not set so defaulting to  [" & sTemplateRangeName & "]", C_MODULE_NAME, LogMsgType.INFO
     
-    If sTemplateRangeName = "" Then
-        sTemplateRangeName = "f" & sScheduleType & "ScheduleCell"
-        FuncLogIt sFuncName, "Template range name not set so defaulting to  [" & sTemplateRangeName & "]", C_MODULE_NAME, LogMsgType.INFO
-    End If
-    
-    SetCacheBook sCacheBookName, sCacheBookPath
 main:
-    If IsDataCached(sCacheBookPath, sCacheBookName, sDataType, sScheduleType, iPersonID) = False Then
+    If IsDataCached(clsQuadRuntime, sDataType, sScheduleType, iPersonID) = False Then
         FuncLogIt sFuncName, "Data cache NOT found for [" & sScheduleType & "_" & CStr(iPersonID) & "]", C_MODULE_NAME, LogMsgType.INFO
 
         ' get the raw data from the database and return the filename that holds the results
-        sResultFileName = GetScheduleDataFromDB(iPersonID, sScheduleType, sCacheBookName:=sCacheBookName, sCacheBookPath:=sCacheBookPath)
+        GetScheduleDataFromDB clsQuadRuntime, iPersonID, sScheduleType
                                      
         ' parse the raw data in the result file and return an array of the data
-        aSchedule = ParseRawData(ReadFile(sResultFileName))
+        aSchedule = ParseRawData(ReadFile(clsQuadRuntime.ResultFileName))
         ' store the parsed raw data in a back sheet, return the sheet name
-        sCacheSheetName = CacheData(sCacheBookPath, sCacheBookName, aSchedule, sDataType, sScheduleType, iPersonID)
+        sCacheSheetName = CacheData(clsQuadRuntime, aSchedule, sDataType, sScheduleType, iPersonID)
     Else
         FuncLogIt sFuncName, "Data cache found for [" & sScheduleType & "_" & CStr(iPersonID) & "]", C_MODULE_NAME, LogMsgType.INFO
-        sCacheSheetName = CacheData(sCacheBookPath, sCacheBookName, aSchedule, sDataType, sScheduleType, iPersonID, _
-                    bCacheNameOnly:=True)
+        sCacheSheetName = CacheData(clsQuadRuntime, aSchedule, sDataType, sScheduleType, iPersonID, bCacheNameOnly:=True)
     End If
     ' copy the template format to the clipboard
-    GetScheduleCellFormat iFormatWidth, iFormatHeight, sTemplateBookName, cTemplateSheetName, sTemplateRangeName
+    GetScheduleCellFormat clsQuadRuntime, iFormatWidth, iFormatHeight, sTemplateRangeName
     ' get the desired column widths from the template and return in an array
-    aColumnWidths = GetScheduleCellColWidths(sTemplateBookName, cTemplateSheetName, sTemplateRangeName, iColWidthCount)
+    aColumnWidths = GetScheduleCellColWidths(clsQuadRuntime, sTemplateRangeName, iColWidthCount)
     ' store the data needed to build the schedules as a module member variable for easy access
-    GetScheduleDataHelpers sCacheBookPath, sCacheBookName, sCacheSheetName
+    GetScheduleDataHelpers clsQuadRuntime, sCacheSheetName
     ' draw the schedule
-    Set BuildSchedule = BuildScheduleView(sCacheBookName, aColumnWidths, iFormatWidth, iFormatHeight, sScheduleType, iPersonID)
+    Set BuildSchedule = BuildScheduleView(clsQuadRuntime, aColumnWidths, iFormatWidth, iFormatHeight, sScheduleType, iPersonID)
   
 End Function
-Public Function GetScheduleDataFromDB(sPersonId As Integer, _
-                                      sScheduleType As String, _
+Public Sub GetScheduleDataFromDB(clsQuadRuntime As Quad_Runtime, sPersonId As Integer, sScheduleType As String, _
                              Optional sPeriod As String, _
-                             Optional sDay As String, _
-                             Optional sCacheBookName As String = Quad_Utils.sCacheBookName, _
-                             Optional sCacheBookPath As String) As String
+                             Optional sDay As String)
 
-Dim sDatabasePath As String, sResultFileName As String, sSpName As String, sResults As String
+Dim sResultFileName As String, sSpName As String, sResults As String, sFuncName As String
 Dim dSpArgs As New Dictionary
-Dim sFuncName As String
 
 setup:
     sFuncName = C_MODULE_NAME & "." & "GetScheduleDataFromDB"
@@ -110,14 +73,12 @@ setup:
         err.Raise ErrorMsgType.BAD_ARGUMENT, Description:="arg sScheduleType needs to be in [student|teacher] got [" & sScheduleType & "]"
     End If
     
-    If IsValidPersonID(sPersonId, sScheduleType, sCacheBookName:=sCacheBookName) = False Then
+    If IsValidPersonID(clsQuadRuntime, sPersonId, sScheduleType) = False Then
         err.Raise ErrorMsgType.BAD_ARGUMENT, Description:="not a valid person id"
     Else
          FuncLogIt sFuncName, "[" & sScheduleType & "] id[" & CStr(sPersonId) & "] is VALID", C_MODULE_NAME, LogMsgType.INFO
     End If
     ' END Assertions ----------------------------
-    
-    SetCacheBook sCacheBookName, sCacheBookPath
 
 main:
     If sScheduleType = "student" Then
@@ -139,30 +100,18 @@ main:
         FuncLogIt sFuncName, "Day WHERE clause specified  [" & sDay & "]", C_MODULE_NAME, LogMsgType.INFO
     End If
     
-    GetQuadDataFromDB cDatabasePath, sSpName, dSpArgs:=dSpArgs, sResultFileName:=cResultFileName, bHeaderFlag:=True
-                        
-    GetScheduleDataFromDB = cResultFileName
-End Function
-Function GetScheduleDataHelpers(Optional sCacheBookPath As String, _
-                                Optional sCacheBookName As String, _
-                                Optional sCacheSheetName As String, _
-                                Optional sCacheRangeName As String = cCacheRangeName)
+    GetQuadDataFromDB clsQuadRuntime, sSpName, dSpArgs:=dSpArgs, bHeaderFlag:=True
+
+End Sub
+Function GetScheduleDataHelpers(clsQuadRuntime As Quad_Runtime, sCacheSheetName As String)
 Dim iScheduleWidth As Integer, iScheduleHeight As Integer
 
     ' Assertions --------------------------------
-    SetCacheBook sCacheBookName, sCacheBookPath
-    
-    If SheetExists(Workbooks(sCacheBookName), sCacheSheetName) = False Then
-        err.Raise ErrorMsgType.BAD_ARGUMENT, Description:="arg sCacheSheetName does not exist in [" & sCacheBookName & "]"
-    End If
-    If NamedRangeExists(Workbooks(sCacheBookName), sCacheSheetName, sCacheRangeName) = False Then
-        err.Raise ErrorMsgType.BAD_ARGUMENT, Description:="arg sCacheRangeName does not exist in [" & sCacheRangeName & "]"
-    End If
     ' END Assertions ----------------------------
     
-    With Workbooks(sCacheBookName).Sheets(sCacheSheetName)
+    With clsQuadRuntime.CacheBook.Sheets(sCacheSheetName)
         .Activate
-        With .Range(sCacheRangeName)
+        With .Range(clsQuadRuntime.CacheRangeName)
             iScheduleWidth = .Columns.Count
             iScheduleHeight = .Rows.Count
             
@@ -170,17 +119,14 @@ Dim iScheduleWidth As Integer, iScheduleHeight As Integer
             ReDim vColumns(1 To 1, 1 To iScheduleWidth)
 
             .Rows(1).Select
-            vColumns = .Resize(1)
-            vSource = .Resize(.Rows.Count - 1).Offset(1)
+            clsQuadRuntime.CurrentSheetColumns = .Resize(1)
+            clsQuadRuntime.CurrentSheetSource = .Resize(.Rows.Count - 1).Offset(1)
         End With
     End With
 
 End Function
-Public Sub GetScheduleCellFormat(ByRef iFormatWidth As Integer, _
-                                 ByRef iFormatHeight As Integer, _
-                                 sSourceBookName As String, _
-                                 sSourceSheetName As String, _
-                                 sScheduleFormatRangeName As String)
+Public Sub GetScheduleCellFormat(clsQuadRuntime As Quad_Runtime, ByRef iFormatWidth As Integer, _
+                                 ByRef iFormatHeight As Integer, sScheduleFormatRangeName As String)
 'gets the template for the cell and puts it into the clipboard
 'param: sSourceBookName, string, the book that holds the templates (vba_source_new.xlsm)
 'param: sSourceSheetName, string, the sheet in sSourceBookName that holds the templates (FormStyles)
@@ -190,7 +136,7 @@ Public Sub GetScheduleCellFormat(ByRef iFormatWidth As Integer, _
 'this is where i had got up to .. adding assertions and logging ....
 'need to go through and default cache book to Quad_Utils in the signature
 Dim rScheduleFormatRange As Range
-    With Workbooks(sSourceBookName).Sheets(sSourceSheetName)
+    With clsQuadRuntime.TemplateSheet
         .Activate
         Set rScheduleFormatRange = .Range(sScheduleFormatRangeName)
         rScheduleFormatRange.Select
@@ -202,19 +148,15 @@ Dim rScheduleFormatRange As Range
     
 End Sub
         
-Public Function GetScheduleCellColWidths(sSourceBookName As String, _
-                                         sSourceSheetName As String, _
-                                         sScheduleFormatRangeName As String, _
+Public Function GetScheduleCellColWidths(clsQuadRuntime As Quad_Runtime, sScheduleFormatRangeName As String, _
                                          iColWidthCount As Integer) As Integer()
 ' get the column widths from the template and return in an integer array
-'param: sSourceBookName, string, the book that holds the templates (vba_source_new.xlsm)
-'param: sSourceSheetName, string, the sheet in sSourceBookName that holds the templates (FormStyles)
 'param: sScheduleFormatRangeName, string, named range that contains the specific format (fStudentScheduleCell
 Dim aColumnWidths() As Integer
 Dim rCell As Range
 
     ReDim aColumnWidths(0 To 20)
-    With Workbooks(sSourceBookName).Sheets(sSourceSheetName)
+    With clsQuadRuntime.TemplateSheet
         .Activate
         For Each rCell In Selection.Rows(1).Cells
             aColumnWidths(iColWidthCount) = rCell.EntireColumn.ColumnWidth
@@ -226,12 +168,9 @@ Dim rCell As Range
     GetScheduleCellColWidths = aColumnWidths
 End Function
 
-Function BuildScheduleView(sSourceBookName As String, _
-                           aColumnWidths() As Integer, _
-                           iFormatWidth As Integer, _
-                           iFormatHeight As Integer, _
-                           sScheduleType As String, _
-                           iPersonID As Integer) As Worksheet
+Function BuildScheduleView(clsQuadRuntime As Quad_Runtime, aColumnWidths() As Integer, _
+                           iFormatWidth As Integer, iFormatHeight As Integer, _
+                           sScheduleType As String, iPersonID As Integer) As Worksheet
 Dim rScheduleFormatTargetRange As Range, rCell As Range
 Dim wsCache As Worksheet
 Dim wbCache As Workbook
@@ -243,23 +182,23 @@ Dim i As Integer, j As Integer, iScheduleCurrentRow As Integer, iScheduleCurrent
     
     sScheduleSheetName = "view_" & sScheduleType & "_" & CStr(iPersonID)
     
-    Set wbCache = Workbooks(sSourceBookName)
-    Set wsCache = CreateSheet(wbCache, sScheduleSheetName, bOverwrite:=True)
+    Set wsCache = CreateSheet(clsQuadRuntime.Book, sScheduleSheetName, bOverwrite:=True)
 
-    With wbCache.Sheets(sScheduleSheetName)
+    With clsQuadRuntime.Book.Sheets(sScheduleSheetName)
+        .Activate
         ' for each data row (1 row is 1 day / period pair)
-        For i = 1 To UBound(vSource)
+        For i = 1 To UBound(clsQuadRuntime.CurrentSheetSource)
         
             ' generate a dictionary of the details
             Set dValues = New Dictionary
-            For j = 1 To UBound(vSource, 2)
-                dValues.Add vColumns(1, j), vSource(i, j)
+            For j = 1 To UBound(clsQuadRuntime.CurrentSheetSource, 2)
+                dValues.Add clsQuadRuntime.CurrentSheetColumns(1, j), clsQuadRuntime.CurrentSheetSource(i, j)
             Next j
             
             ' paste the formats into the corresponding cell on the "grid"
             iScheduleCurrentRow = iFormatHeight * CInt(dValues("idTimePeriod"))
-            iScheduleCurrentCol = iFormatWidth * (CInt(IndexArray(Split(sDayEnum, COMMA), dValues("cdDay"))) + 1)
-            Set rScheduleFormatTargetRange = .Range(.Cells(iScheduleCurrentRow, iScheduleCurrentCol), .Cells(iScheduleCurrentRow + iFormatHeight, iScheduleCurrentCol + iFormatWidth))
+            iScheduleCurrentCol = iFormatWidth * (CInt(IndexArray(Split(clsQuadRuntime.DayEnum, COMMA), dValues("cdDay"))) + 1)
+            Set rScheduleFormatTargetRange = .Range(.Cells(iScheduleCurrentRow, iScheduleCurrentCol), .Cells(iScheduleCurrentRow + iFormatHeight - 1, iScheduleCurrentCol + iFormatWidth - 1))
             rScheduleFormatTargetRange.Select
             Selection.PasteSpecial Paste:=xlPasteAll, Operation:=xlNone, SkipBlanks:=False, Transpose:=False
             

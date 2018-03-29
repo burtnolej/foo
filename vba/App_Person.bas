@@ -7,9 +7,7 @@ Const C_MODULE_NAME = "App_Person"
 Const cTeacherLookUpCol = "idFaculty"
 Const cStudentLookUpCol = "idStudent"
 
-Public Function IsValidPersonID(iPersonID As Integer, _
-                                sDataSubType As String, _
-                                Optional sCacheBookName As String = Quad_Utils.sCacheBookName) As Boolean
+Public Function IsValidPersonID(clsQuadRuntime As Quad_Runtime, iPersonID As Integer, sDataSubType As String) As Boolean
 Dim sFuncName As String, sLookUpCol As String
 Dim wsPersonDataCache As Worksheet
 
@@ -23,7 +21,7 @@ setup:
     ' END Assertions --------------------------------
     
 main:
-    Set wsPersonDataCache = GetPersonData("", "", sDataSubType, sScope:="all", sCacheBookName:=sCacheBookName)
+    Set wsPersonDataCache = GetPersonData(clsQuadRuntime, sDataSubType, sScope:="all")
 
     If sDataSubType = "teacher" Then
         sLookUpCol = cTeacherLookUpCol
@@ -39,36 +37,29 @@ main:
     IsValidPersonID = False
     
 End Function
-Public Function GetPersonData(sBookName As String, _
-                              sBookPath As String, _
-                              sDataSubType As String, _
-                     Optional sScope As String = "specified", _
-                     Optional sCacheBookName As String, _
-                     Optional sCacheBookPath As String) As Worksheet
-Dim sDataType As String, sResultFileName As String, sCacheSheetName As String
+Public Function GetPersonData(clsQuadRuntime As Quad_Runtime, sDataSubType As String, _
+                     Optional sScope As String = "specified") As Worksheet
+Dim sDataType As String, sCacheSheetName As String
 Dim aSchedule() As String
-
-    SetBook sBookName, sBookPath
-    SetCacheBook sCacheBookName, sCacheBookPath
 
     sDataType = "person"
     
-    If IsDataCached(Quad_Utils.sCacheBookPath, sCacheBookName, sDataType, sDataSubType) = False Then
-        sResultFileName = GetPersonDataFromDB(sDataSubType, sScope:=sScope)
-        aSchedule = ParseRawData(ReadFile(sResultFileName))
-        sCacheSheetName = CacheData(Quad_Utils.sCacheBookPath, sCacheBookName, aSchedule, sDataType, sDataSubType)
+    If IsDataCached(clsQuadRuntime, sDataType, sDataSubType) = False Then
+        GetPersonDataFromDB clsQuadRuntime, sDataSubType, sScope:=sScope
+        aSchedule = ParseRawData(ReadFile(clsQuadRuntime.ResultFileName))
+        sCacheSheetName = CacheData(clsQuadRuntime, aSchedule, sDataType, sDataSubType)
     Else
-        sCacheSheetName = CacheData(Quad_Utils.sCacheBookPath, sCacheBookName, aSchedule, sDataType, sDataSubType, bCacheNameOnly:=True)
+        sCacheSheetName = CacheData(clsQuadRuntime, aSchedule, sDataType, sDataSubType, bCacheNameOnly:=True)
     End If
     
-    Set GetPersonData = Workbooks(sCacheBookName).Sheets(sCacheSheetName)
+    Set GetPersonData = clsQuadRuntime.CacheBook.Sheets(sCacheSheetName)
     
 End Function
 
-Public Function GetPersonDataFromDB(sPersonType As String, _
+Public Sub GetPersonDataFromDB(clsQuadRuntime As Quad_Runtime, sPersonType As String, _
                            Optional sScope As String = "specified", _
-                           Optional iPersonID As String) As String
-Dim sDatabasePath As String, sResultFileName As String, sSpName As String, sResults As String
+                           Optional iPersonID As String)
+Dim sDatabasePath As String, sSpName As String, sResults As String
 Dim dSpArgs As New Dictionary
 
     ' Assertions --------------------------------
@@ -88,9 +79,7 @@ Dim dSpArgs As New Dictionary
         dSpArgs.Add sPersonType & "s", InitVariantArray(Array(iPersonID))
     End If
 
-    GetQuadDataFromDB cDatabasePath, sSpName, bHeaderFlag:=True, sResultFileName:=cResultFileName, _
-                    dSpArgs:=dSpArgs
-    
-    GetPersonDataFromDB = cResultFileName
-End Function
+    GetQuadDataFromDB clsQuadRuntime, sSpName, bHeaderFlag:=True, dSpArgs:=dSpArgs
+
+End Sub
 

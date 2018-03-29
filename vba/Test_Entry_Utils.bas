@@ -1,38 +1,67 @@
 Attribute VB_Name = "Test_Entry_Utils"
 Const CsModuleName = "Test_Entry_Utils"
 
+Sub test()
+    TestGenerateEntryForms
+End Sub
 Function TestGenerateEntryForms() As TestResult
-Dim sFuncName As String
-Dim sSheetName As String
-Dim sResultStr As String
-Dim sExpectedResultStr As String
+Dim sFuncName As String, sSheetName As String, sResultStr As String, sExpectedResultStr As String, sTargetSheetName As String
 Dim vSource() As String
 Dim wsTmp As Worksheet
 Dim rTarget As Range
-Dim dDefinitions As Dictionary
-Dim dDefnDetails As Dictionary
+Dim dDefinitions As Dictionary, dDefnDetails As Dictionary
 Dim eTestResult As TestResult
+Dim clsQuadRuntime As New Quad_Runtime
 
 setup:
+    clsQuadRuntime.InitProperties bInitializeCache:=False
+        
     On Error GoTo err:
     sFuncName = CsModuleName & "." & "GenerateEntryForms"
     sSheetName = "test"
-    Set wsTmp = CreateSheet(ActiveWorkbook, sSheetName, bOverwrite:=True)
+    sTargetSheetName = "NewStudent"
+    Set wsTmp = CreateSheet(clsQuadRuntime.Book, sSheetName, bOverwrite:=True)
     vSource = Init2DStringArray([{"NewStudent","Student","StudentAge","Integer","IsValidInteger";"NewStudent","Student","StudentPrep","IntegerRange","IsValidPrep"}])
     Set rTarget = RangeFromStrArray(vSource, wsTmp, 0, 1)
     Set Entry_Utils.dDefinitions = LoadDefinitions(wsTmp, rSource:=rTarget)
 
 main:
 
-    GenerateEntryForms
+    GenerateEntryForms clsQuadRuntime, clsQuadRuntime.TemplateCellSheetName
     
-    If SheetExists(ActiveWorkbook, "NewStudent") = False Then
+    If SheetExists(clsQuadRuntime.Book, sTargetSheetName) = False Then
         eTestResult = TestResult.Failure
         GoTo teardown
     End If
 
-    With ActiveWorkbook.Sheets("NewStudent")
-        .Range(.Cells(2, 2), .Cells(2, 2)) = 123
+    With clsQuadRuntime.Book.Sheets(sTargetSheetName)
+        Set rTarget = .Range(.Cells(2, 2), .Cells(2, 2))
+        rTarget = 123
+
+        Validate clsQuadRuntime.Book, sTargetSheetName, rTarget
+
+        If GetBgColor(sTargetSheetName, rTarget).AsString <> "0,255,0" Then
+            eTestResult = TestResult.Failure
+            GoTo teardown
+        End If
+        
+        Set rTarget = .Range(.Cells(3, 2), .Cells(3, 2))
+        rTarget = 4
+        
+        Validate clsQuadRuntime.Book, sTargetSheetName, rTarget
+        
+        If GetBgColor(sTargetSheetName, rTarget).AsString <> "0,255,0" Then
+            eTestResult = TestResult.Failure
+            GoTo teardown
+        End If
+        
+        IsRecordValid clsQuadRuntime.TemplateBook, clsQuadRuntime.CacheBook, "NewStudent", clsQuadRuntime.TemplateCellSheetName
+        
+        If GetBgColor(sTargetSheetName, clsQuadRuntime.Book.Sheets(sTargetSheetName).Range("bNewStudent")).AsString <> "51,204,51" Then
+            eTestResult = TestResult.Failure
+            GoTo teardown
+        End If
+
     End With
     eTestResult = TestResult.OK
     GoTo teardown
@@ -43,12 +72,13 @@ err:
 teardown:
     TestGenerateEntryForms = eTestResult
     DeleteEntryForms
-    DeleteSheet ActiveWorkbook, sSheetName
+    DeleteSheet clsQuadRuntime.Book, sSheetName
+    CloseBook clsQuadRuntime.CacheBook
+    DeleteBook clsQuadRuntime.CacheBookName
+    
 End Function
 
-Sub test()
-    TestGenerateEntryFormsMulti
-End Sub
+
 Function TestGenerateEntryFormsMulti() As TestResult
 Dim sFuncName As String
 Dim sSheetName As String

@@ -1,4 +1,5 @@
 Attribute VB_Name = "Format_Utils"
+
 Sub FormatParagraph(rTargetRange As Range)
     With rTargetRange
         .Columns.AutoFit
@@ -37,21 +38,17 @@ Dim rColumn As Range
         Selection.RowHeight = iRowHeight
     End With
 End Sub
-Sub CopyFormat(sSourceSheetName As String, sTargetSheetName As String, _
-                sSourceAddress As String, sTargetAddress As String)
+Sub CopyFormat(wbSourceBook As Workbook, wbTargetbook As Workbook, sSourceSheetName As String, _
+              sTargetSheetName As String, sSourceAddress As String, sTargetAddress As String)
 
-    'With Workbooks("vba_source_new.xlsm").Sheets(sSourceSheetName)
-    With Workbooks(Quad_Utils.cTemplateBookName).Sheets(sSourceSheetName)
-        .Activate
-        .Range(sSourceAddress).Select
-        Selection.Copy
+    On Error GoTo 0
+    
+    With wbSourceBook.Sheets(sSourceSheetName)
+        .Range(sSourceAddress).Copy
     End With
     
-    With ActiveWorkbook.Sheets(sTargetSheetName)
-    'With Workbooks("tmp.xls").Sheets(sTargetSheetName)
-        .Activate
-        .Range(sTargetAddress).Select
-        Selection.PasteSpecial Paste:=xlPasteFormats, Operation:=xlNone, SkipBlanks:=False, Transpose:=False
+    With wbTargetbook.Sheets(sTargetSheetName)
+        .Range(sTargetAddress).PasteSpecial Paste:=xlPasteFormats, Operation:=xlNone, SkipBlanks:=False, Transpose:=False
         Application.CutCopyMode = False
     End With
 

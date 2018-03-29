@@ -66,7 +66,8 @@ setup:
     
     SetEntryValue = 0
 End Function
-Public Function IsRecordValid(sSheetName As String) As Boolean
+Public Function IsRecordValid(wbSourceBook As Workbook, wbTargetbook As Workbook, _
+                sSheetName As String, sSourceSheetName As String) As Boolean
 Dim rEntryCell As Range
 Dim cRGB As RGBColor
 Dim sFuncName As String
@@ -76,7 +77,7 @@ setup:
 
 main:
 
-    aNames = GetSheetNamedRanges(ActiveWorkbook, sSheetName)
+    aNames = GetSheetNamedRanges(wbTargetbook, sSheetName)
     For Each name_ In aNames
         If Split(name_, "_")(0) = "e" & sSheetName Then
             Set rEntryCell = ActiveWorkbook.Sheets(sSheetName).Range(name_)
@@ -85,9 +86,8 @@ main:
                 IsRecordValid = False
                 FuncLogIt sFuncName, "Cell named [" & name_ & "] not valid", C_MODULE_NAME, LogMsgType.INFO
 
-                ChangeButton sSheetName, C_GOBUTTON_ROW, C_GOBUTTON_COL, ButtonState.Invalid, bTakeFocus:=False
+                ChangeButton wbSourceBook, wbTargetbook, sSheetName, C_GOBUTTON_ROW, C_GOBUTTON_COL, ButtonState.Invalid, sSourceSheetName, bTakeFocus:=False
 
-                
                 Exit Function
             End If
         End If
@@ -95,7 +95,8 @@ main:
     IsRecordValid = True
     FuncLogIt sFuncName, "Entry Form  [" & sSheetName & "] is valid", C_MODULE_NAME, LogMsgType.INFO
 
-    ChangeButton sSheetName, C_GOBUTTON_ROW, C_GOBUTTON_COL, ButtonState.Valid, bTakeFocus:=True
+    ChangeButton wbSourceBook, wbTargetbook, sSheetName, C_GOBUTTON_ROW, C_GOBUTTON_COL, _
+        ButtonState.Valid, sSourceSheetName, bTakeFocus:=True
 
 End Function
 Public Sub FormatCellInvalid(sSheetName As String, rCell As Range)
@@ -261,7 +262,9 @@ Dim sFuncName As String
         
 End Sub
 
-Public Function GenerateButton(sSheetName As String, iRow As Integer, iCol As Integer, eButtonState As ButtonState) As Range
+Public Function GenerateButton(wbSourceBook As Workbook, wbTargetbook As Workbook, _
+                               sSheetName As String, iRow As Integer, iCol As Integer, _
+                               eButtonState As ButtonState, sButtonFormatSheetName As String) As Range
 Dim sButtonRangeName As String
 
    With ActiveWorkbook.Sheets(sSheetName)
@@ -272,23 +275,25 @@ Dim sButtonRangeName As String
     
     Set GenerateButton = rCell
     
-    FormatButton sSheetName, GenerateButton, eButtonState
+    FormatButton wbSourceBook, wbTargetbook, sSheetName, GenerateButton, eButtonState, sButtonFormatSheetName
     
 End Function
 
-Public Sub ChangeButton(sSheetName As String, iRow As Integer, iCol As Integer, eButtonState As ButtonState, _
-        Optional bTakeFocus As Boolean = False)
+Public Sub ChangeButton(wbSourceBook As Workbook, wbTargetbook As Workbook, _
+                        sSheetName As String, iRow As Integer, iCol As Integer, _
+                        eButtonState As ButtonState, sButtonFormatSheetName As String, _
+                        Optional bTakeFocus As Boolean = False)
 Dim sButtonRangeName As String
 Dim rCurrentFocus As Range
 Dim rCell As Range
 
-   With ActiveWorkbook.Sheets(sSheetName)
+    EventsToggle False
+    With ActiveWorkbook.Sheets(sSheetName)
         Set rCurrentFocus = Selection
         Set rCell = .Range(.Cells(iRow, iCol), .Cells(iRow, iCol))
     End With
 
-    EventsToggle False
-    FormatButton sSheetName, rCell, eButtonState
+    FormatButton wbSourceBook, wbTargetbook, sSheetName, rCell, eButtonState, sButtonFormatSheetName
     
     If bTakeFocus = False Then
         rCurrentFocus.Select
@@ -345,7 +350,9 @@ Dim sKey As Variant
     Next sAction
     
 End Sub
-Public Sub GenerateEntryForms()
+Public Sub GenerateEntryForms(clsQuadRuntime As Quad_Runtime, sButtonFormatSheetName As String)
+'param: wbSourceBook, workbook, where the templates / formats are
+'param: wbTargetBook, workbook, where the entry forms will be constructed
 Dim dActions As Dictionary
 Dim sAction As Variant
 Dim sKey As Variant
@@ -368,16 +375,23 @@ setup:
     
         iRow = 1
         
-        Set wsTmp = CreateSheet(ActiveWorkbook, CStr(sAction), bOverwrite:=True)
+        Set wsTmp = CreateSheet(clsQuadRuntime.Book, CStr(sAction), bOverwrite:=True)
         
+        'Set wsTmp = GetSheet(clsQuadRuntime.Book, "NewStudent")
         sCode = "Private Sub Worksheet_Change(ByVal Target As Range)" & vbNewLine & _
-                "Validate Application.ActiveWorkbook, Application.ActiveSheet.Name, Target" & vbNewLine & _
-                "IsRecordValid Application.ActiveSheet.Name" & vbNewLine & _
+                "dim wbTarget as Workbook, wbSource as Workbook" & vbNewLine & _
+                "dim sSourceSheetName as string" & vbNewLine & _
+                "set wbSource= Workbooks(" & DOUBLEQUOTE & clsQuadRuntime.TemplateBookName & DOUBLEQUOTE & ")" & vbNewLine & _
+                "set wbTarget= Workbooks(" & DOUBLEQUOTE & clsQuadRuntime.BookName & DOUBLEQUOTE & ")" & vbNewLine & _
+                "sSourceSheetName = " & DOUBLEQUOTE & clsQuadRuntime.TemplateCellSheetName & DOUBLEQUOTE & vbNewLine & _
+                "Application.Run " & DOUBLEQUOTE & clsQuadRuntime.TemplateBook.Name & "!Validate" & DOUBLEQUOTE & ",Application.ActiveWorkbook, Application.ActiveSheet.Name, Target" & vbNewLine & _
+                "Application.Run " & DOUBLEQUOTE & clsQuadRuntime.TemplateBook.Name & "!IsRecordValid" & DOUBLEQUOTE & ",wbSource,wbTarget,Application.ActiveSheet.Name," & "sSourceSheetName" & vbNewLine & _
                 "End Sub"
 
-        'AddCode2Module Workbooks("vba_source_new.xlsm"), wsTmp.CodeName, sCode
+        AddCode2Module clsQuadRuntime.Book, wsTmp.CodeName, sCode
         
         With wsTmp
+                                
             .Range(.Cells(iRow, 1), .Cells(iRow, 1)).Value = UCase(sAction)
             iRow = iRow + 1
         
@@ -389,7 +403,7 @@ setup:
             Next sKey
         End With
         
-        GenerateButton CStr(sAction), C_GOBUTTON_ROW, C_GOBUTTON_COL, ButtonState.Invalid
+        GenerateButton clsQuadRuntime.TemplateBook, clsQuadRuntime.Book, CStr(sAction), C_GOBUTTON_ROW, C_GOBUTTON_COL, ButtonState.Invalid, sButtonFormatSheetName
         
         HideEntryForm CStr(sAction)
         FuncLogIt sFuncName, "Generated Form for action [" & sAction & "]", C_MODULE_NAME, LogMsgType.INFO
@@ -473,6 +487,7 @@ Dim bValid As Boolean
 Dim eThisErrorType As ErrorType
 Dim mThisModule As VBComponent
 
+    EventsToggle False
     On Error GoTo err_name
     If UBound(Split(rTarget.Name.Name, "!")) = 1 Then
         sDefnName = Split(rTarget.Name.Name, "!")(1)
@@ -510,6 +525,8 @@ Dim mThisModule As VBComponent
     
     SetBgColorFromString sSheetName, rTarget, C_RGB_INVALID
     Validate = False
+    EventsToggle True
+    
     Exit Function
 
 err:

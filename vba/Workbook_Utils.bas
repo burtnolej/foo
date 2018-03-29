@@ -23,6 +23,14 @@ Option Explicit
 
 Const C_MODULE_NAME = "Workbook_Utils"
 Public Function OpenBook(ByVal sName As String, Optional sPath As String) As Workbook
+Dim w As Variant
+
+    For Each w In Workbooks
+        If w.Name = sName Then
+            Set OpenBook = w
+            Exit Function
+        End If
+    Next w
     If sPath <> "" Then
         sName = sPath & "\\" & sName
     End If
@@ -31,9 +39,20 @@ End Function
 Public Function BookExists(sName As String) As Boolean
     BookExists = FileExists(sName)
 End Function
-Public Function CreateBook(sName) As Workbook
+Public Function CreateBook(sName As String, Optional sBookPath As String) As Workbook
+Dim sCwd As String
+    
+    If sBookPath <> "" Then
+        sCwd = GetHomePath
+        ChDir sBookPath
+    End If
+    
     Set CreateBook = Workbooks.Add
     CreateBook.SaveAs sName
+    
+    If sBookPath <> "" Then
+        ChDir sCwd
+    End If
 End Function
 Sub DeleteBook(sName As String)
     Application.DisplayAlerts = False

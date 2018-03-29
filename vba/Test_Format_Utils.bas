@@ -9,11 +9,14 @@ Dim eTestResult As TestResult
 Dim rSource As Range
 Dim rTarget As Range
 Dim cRGB As RGBColor
+Dim clsQuadRuntime As New Quad_Runtime
 
 setup:
+    clsQuadRuntime.InitProperties bInitializeCache:=True
+    
     sFuncName = CsModuleName & "." & "CopyFormat"
     sSheetName = "test"
-    Set wsTmp = CreateSheet(ActiveWorkbook, sSheetName, bOverwrite:=True)
+    Set wsTmp = CreateSheet(clsQuadRuntime.Book, sSheetName, bOverwrite:=True)
     
     With wsTmp
         Set rTarget = .Range(.Cells(1, 1), .Cells(1, 1))
@@ -25,7 +28,7 @@ setup:
 
     SetBgColor sSheetName, rSource, 255, 255, 0
     
-    CopyFormat sSheetName, sSheetName, "source", "target"
+    CopyFormat clsQuadRuntime.Book, sSheetName, clsQuadRuntime.Book, sSheetName, "source", "target"
 main:
 
     Set cRGB = GetBgColor(sSheetName, rTarget)

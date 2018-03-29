@@ -18,9 +18,10 @@ End Enum
 
 Const C_BUTTON_STATE = "Invalid,Pressed,Valid"
 
-Public Sub FormatButton(sTargetSheetName As String, rButton As Range, eButtonState As ButtonState, _
-    Optional sSourceSheetName As String = C_CELL_STYLES_SHEET)
+Public Sub FormatButton(wbSourceBook As Workbook, wbTargetbook As Workbook, _
+                        sTargetSheetName As String, rButton As Range, eButtonState As ButtonState, _
+                        sSourceSheetName As String)
 Dim eWRefCName As String
     eWRefCName = "fButton" & Split(C_BUTTON_STATE, ",")(eButtonState - 1)
-    CopyFormat sSourceSheetName, sTargetSheetName, eWRefCName, rButton.Address
+    CopyFormat wbSourceBook, wbTargetbook, sSourceSheetName, sTargetSheetName, eWRefCName, rButton.Address
 End Sub

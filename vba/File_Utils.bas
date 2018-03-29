@@ -14,7 +14,7 @@ Dim oFile As Object
 End Function
 Public Function GetFileFromPath(sPath As String) As String
 Dim fso As New FileSystemObject
-Dim fileName As String
+Dim FileName As String
     GetFileFromPath = fso.GetFileName(sPath)
 End Function
 
