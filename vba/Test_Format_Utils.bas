@@ -1,6 +1,8 @@
 Attribute VB_Name = "Test_Format_Utils"
 Option Explicit
 Const CsModuleName = "Test_Format_Utils"
+
+
 Function Test_CopyFormat() As TestResult
 Dim sFuncName As String
 Dim wsTmp As Worksheet
@@ -27,8 +29,8 @@ setup:
     rSource.Name = "source"
 
     SetBgColor sSheetName, rSource, 255, 255, 0
-    
-    CopyFormat clsQuadRuntime.Book, sSheetName, clsQuadRuntime.Book, sSheetName, "source", "target"
+    CopyFormat clsQuadRuntime.Book, clsQuadRuntime.Book, _
+            sSheetName, sSheetName, "source", "target"
 main:
 
     Set cRGB = GetBgColor(sSheetName, rTarget)
@@ -47,6 +49,9 @@ err:
 teardown:
     Test_CopyFormat = eTestResult
     DeleteSheet ActiveWorkbook, sSheetName
+    CloseBook clsQuadRuntime.CacheBook
+    DeleteBook clsQuadRuntime.CacheBookName, clsQuadRuntime.CacheBookPath
+    
 End Function
 
 Function Test_BgColor() As TestResult

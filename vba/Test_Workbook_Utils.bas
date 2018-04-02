@@ -8,13 +8,11 @@ Dim sExpectedResultStr As String
 Dim wsTmp As Worksheet
 Dim eTestResult As TestResult
 setup:
-    
     sFuncName = CsModuleName & "." & "ShowSheet"
     sSheetName = "test"
     Set wsTmp = CreateSheet(ActiveWorkbook, sSheetName, bOverwrite:=True)
 
 main:
-
     HideSheet ActiveWorkbook, sSheetName
     ShowSheet ActiveWorkbook, sSheetName
     If SheetIsVisible(ActiveWorkbook, sSheetName) = False Then
@@ -35,7 +33,6 @@ teardown:
 End Function
 
 Function Test_ToggleSheet() As TestResult
-
 Dim sFuncName As String
 Dim sSheetName As String
 Dim sResultStr As String

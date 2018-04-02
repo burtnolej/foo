@@ -33,6 +33,8 @@ Enum MyVbType
     vbVariantArray2Columns = 67
     vbVariantArray3Columns = 68
     vbVariantArray4Columns = 69
+    
+    vbQuadRuntime = 100
 
     vbUserDefinedType = 36 'Variants that contain user-defined types
     vbArray = 8192  'Array
@@ -44,6 +46,19 @@ Public Sub EventsToggle(bStatus As Boolean)
     Application.ScreenUpdating = bStatus
 End Sub
 
+Function IsQuadRuntime(obj As Variant) As Boolean
+    On Error GoTo err
+    If obj.IsAQuadRuntime = True Then
+        IsQuadRuntime = True
+        Exit Function
+    End If
+    
+    On Error GoTo 0
+    Exit Function
+err:
+    IsQuadRuntime = False
+    
+End Function
 Function IsDict(dTmp As Variant) As Boolean
     IsDict = True
     On Error GoTo err
@@ -59,12 +74,31 @@ Function IsDict(dTmp As Variant) As Boolean
 err:
     IsDict = False
 End Function
+
+#If VBA7 Then
+Function GetObj(ByVal lObjectPointer As LongPtr) As Object
+#Else
+Function GetObj(ByVal lObjectPointer As Long) As Object
+#End If
+
+    Dim obj As Object
+
+    Call CopyMemory(obj, lObjectPointer, LenB(lObjectPointer))
+
+    Set GetObj = obj
+    Set obj = Nothing
+End Function
+
+
 Function MyVarType(vObject As Variant) As Integer
 Dim iSubType As Integer
     Select Case VarType(vObject)
         Case 9
             If IsDict(vObject) Then
                 MyVarType = 24
+                Exit Function
+            ElseIf IsQuadRuntime(vObject) Then
+                MyVarType = 100
                 Exit Function
             End If
         Case Is >= 8192
@@ -103,6 +137,8 @@ Function EnumVarType(i As Long) As String
                             "vbError", "vbBoolean", "vbVariant", "vbDataObject", "vbDecimal", _
                             "", "", "", "", "vbByte", "", "", "", "vbLongLong", _
                             "vbDict", "vbIntArray", "vbStringArray", "vbVariantArray")(i)
+    ElseIf i = 100 Then
+        EnumVarType = "vbQuadRuntime"
     Else
         err.Raise 102, Description:=" VarType enum [" & CStr(i) & "] is not recognised"
     End If

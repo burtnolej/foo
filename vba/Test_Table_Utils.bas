@@ -14,8 +14,11 @@ Dim rTarget As Range
 Dim dDefinitions As Dictionary
 Dim dRecord As Dictionary
 Dim eTestResult As TestResult
-setup:
+Dim clsQuadRuntime As New Quad_Runtime
 
+setup:
+    clsQuadRuntime.InitProperties bInitializeCache:=True
+    
     sFuncName = CsModuleName & "." & "AddTableRecordManual"
     sSheetName = "test"
     Set wsTmp = CreateSheet(ActiveWorkbook, sSheetName, bOverwrite:=True)
@@ -26,7 +29,8 @@ main:
 
     Set Entry_Utils.dDefinitions = LoadDefinitions(wsTmp, rSource:=rTarget)
     CreateTables
-    GenerateEntryForms
+    
+    GenerateEntryForms clsQuadRuntime, clsQuadRuntime.TemplateCellSheetName
     
     SetEntryValue "NewFoo", "FooAge", 123
     SetEntryValue "NewFoo", "FooName", "blahblah"
@@ -67,6 +71,8 @@ teardown:
     DeleteSheet ActiveWorkbook, "Foo"
     DeleteSheet ActiveWorkbook, "Bar"
     DeleteEntryForms
+    CloseBook clsQuadRuntime.CacheBook
+    DeleteBook clsQuadRuntime.CacheBookName, clsQuadRuntime.CacheBookPath
 
 End Function
 
@@ -149,8 +155,10 @@ Dim rTarget As Range
 Dim dDefinitions As Dictionary
 Dim dRecord As Dictionary
 Dim eTestResult As TestResult
-setup:
+Dim clsQuadRuntime As New Quad_Runtime
 
+setup:
+    clsQuadRuntime.InitProperties bInitializeCache:=True
     sFuncName = CsModuleName & "." & "TestAddTableMultipleRecordManual"
     sSheetName = "test"
     Set wsTmp = CreateSheet(ActiveWorkbook, sSheetName, bOverwrite:=True)
@@ -161,8 +169,8 @@ main:
 
     Set Entry_Utils.dDefinitions = LoadDefinitions(wsTmp, rSource:=rTarget)
     CreateTables
-    GenerateEntryForms
-    
+    GenerateEntryForms clsQuadRuntime, clsQuadRuntime.TemplateCellSheetName
+        
     SetEntryValue "NewFoo", "FooAge", 123
     SetEntryValue "NewFoo", "FooName", "blahblah"
     
@@ -226,6 +234,8 @@ teardown:
     DeleteSheet ActiveWorkbook, "Foo"
     DeleteSheet ActiveWorkbook, "Bar"
     DeleteEntryForms
+    CloseBook clsQuadRuntime.CacheBook
+    DeleteBook clsQuadRuntime.CacheBookName, clsQuadRuntime.CacheBookPath
 
 End Function
 
@@ -242,8 +252,10 @@ Dim rTarget As Range
 Dim dDefinitions As Dictionary
 Dim dRecord As Dictionary
 Dim eTestResult As TestResult
-setup:
+Dim clsQuadRuntime As New Quad_Runtime
 
+setup:
+    clsQuadRuntime.InitProperties bInitializeCache:=True
     sFuncName = CsModuleName & "." & "TestAddTableMultipleRecordMultiTableManual"
     sSheetName = "test"
     Set wsTmp = CreateSheet(ActiveWorkbook, sSheetName, bOverwrite:=True)
@@ -254,7 +266,7 @@ main:
 
     Set Entry_Utils.dDefinitions = LoadDefinitions(wsTmp, rSource:=rTarget)
     CreateTables
-    GenerateEntryForms
+    GenerateEntryForms clsQuadRuntime, clsQuadRuntime.TemplateCellSheetName
     
     ' Table Foo
     SetEntryValue "NewFoo", "FooAge", 123
@@ -324,6 +336,8 @@ teardown:
     DeleteSheet ActiveWorkbook, "Foo"
     DeleteSheet ActiveWorkbook, "Bar"
     DeleteEntryForms
+    CloseBook clsQuadRuntime.CacheBook
+    DeleteBook clsQuadRuntime.CacheBookName, clsQuadRuntime.CacheBookPath
 
 End Function
 
@@ -339,9 +353,10 @@ Dim dDefinitions As Dictionary
 Dim dRecord As Dictionary
 Dim eTestResult As TestResult
 Dim iResultCode As Integer
+Dim clsQuadRuntime As New Quad_Runtime
 
 setup:
-
+    clsQuadRuntime.InitProperties bInitializeCache:=True
     sFuncName = CsModuleName & "." & "AddTableRecordFail"
     sSheetName = "test"
     Set wsTmp = CreateSheet(ActiveWorkbook, sSheetName, bOverwrite:=True)
@@ -352,7 +367,7 @@ main:
 
     Set Entry_Utils.dDefinitions = LoadDefinitions(wsTmp, rSource:=rTarget)
     CreateTables
-    GenerateEntryForms
+    GenerateEntryForms clsQuadRuntime, clsQuadRuntime.TemplateCellSheetName
     
     iResultCode = SetEntryValue("NewFoo", "BadFieldName", 123)
     
@@ -374,7 +389,9 @@ teardown:
     DeleteSheet ActiveWorkbook, "Foo"
     DeleteSheet ActiveWorkbook, "Bar"
     DeleteEntryForms
-
+    CloseBook clsQuadRuntime.CacheBook
+    DeleteBook clsQuadRuntime.CacheBookName, clsQuadRuntime.CacheBookPath
+    
 End Function
 
 

@@ -3,4 +3,7 @@ Option Explicit
 
 Enum ErrorMsgType
     BAD_ARGUMENT = 555
+    DEPENDENT_ATTR_NOT_SET = 556
+    BAD_FILE_EXTENSION = 557
+    NULL_OBJECT = 558
 End Enum

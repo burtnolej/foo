@@ -3,11 +3,6 @@ Option Explicit
 
 Const CsModuleName = "Test_Quad_Runtime"
 
-Sub terst()
-    'check to see if overridden goes into log
-    GetLogFile
-    Test_Init_Quad_Runtime_Override_Database
-End Sub
 Function Test_Init_Quad_Runtime_Default() As TestResult
 Dim sFuncName As String
 Dim eTestResult As TestResult
@@ -18,7 +13,7 @@ setup:
     Set clsQuadRuntime = New Quad_Runtime
 main:
     clsQuadRuntime.InitProperties
-    If clsQuadRuntime.BookPath <> "C:\\Users\\burtnolej\\Documents\\GitHub\\quadviewer\\" Then
+    If clsQuadRuntime.BookPath <> "C:\\Users\\burtnolej\\Documents\\runtime\\" Then
         eTestResult = TestResult.Failure
     Else
         eTestResult = TestResult.OK
@@ -31,21 +26,24 @@ err:
     
 teardown:
     Test_Init_Quad_Runtime_Default = eTestResult
+    CloseBook clsQuadRuntime.CacheBook
+    DeleteBook clsQuadRuntime.CacheBookName, clsQuadRuntime.CacheBookPath
     
     Exit Function
 End Function
 Function Test_Init_Quad_Runtime_Override_BookPath() As TestResult
-Dim sFuncName As String, sTmpBookName As String
+Dim sFuncName As String, sTmpBookName As String, sTmpBookPath As String
 Dim eTestResult As TestResult
 Dim clsQuadRuntime As Quad_Runtime
 Dim wbTmp As Workbook
 setup:
+    sTmpBookPath = "C:\Users\burtnolej"
     sTmpBookName = "tmp.xls"
-    Set wbTmp = CreateBook(sTmpBookName)
+    Set wbTmp = CreateBook(sTmpBookName, sBookPath:=sTmpBookPath)
     sFuncName = CsModuleName & "." & "Init_Quad_Runtime"
     Set clsQuadRuntime = New Quad_Runtime
 main:
-    clsQuadRuntime.InitProperties sBookPath:=wbTmp.Path, sBookName:=wbTmp.Name
+    clsQuadRuntime.InitProperties sBookPath:=sTmpBookPath, sBookName:=wbTmp.Name
     If clsQuadRuntime.BookPath <> wbTmp.Path Then
         eTestResult = TestResult.Failure
     Else
@@ -60,7 +58,9 @@ err:
 teardown:
     Test_Init_Quad_Runtime_Override_BookPath = eTestResult
     CloseBook wbTmp
-    DeleteBook sTmpBookName
+    DeleteBook sTmpBookName, sTmpBookPath
+    CloseBook clsQuadRuntime.CacheBook
+    DeleteBook clsQuadRuntime.CacheBookName, clsQuadRuntime.CacheBookPath
     Exit Function
 End Function
 Function Test_Init_Quad_Runtime_Override_BookPath_Invalid() As TestResult
@@ -73,7 +73,7 @@ setup:
     Set clsQuadRuntime = New Quad_Runtime
 main:
     On Error GoTo err
-    clsQuadRuntime.InitProperties sBookPath:="C:\\Users\\foobar"
+    clsQuadRuntime.InitProperties sBookPath:="C:\\Users\\burtnolej", bInitializeCache:=False
     eTestResult = TestResult.Failure
     GoTo teardown
     On Error GoTo 0
@@ -87,20 +87,27 @@ err:
     
 teardown:
     Test_Init_Quad_Runtime_Override_BookPath_Invalid = eTestResult
-    
+    'CloseBook clsQuadRuntime.CacheBook
+    'DeleteBook clsQuadRuntime.CacheBookName
     Exit Function
 End Function
 
 Function Test_Init_Quad_Runtime_Override_BookName() As TestResult
-Dim sFuncName As String
+Dim sFuncName As String, sBookName As String, sBookPath As String
 Dim eTestResult As TestResult
 Dim clsQuadRuntime As Quad_Runtime
 
 setup:
     sFuncName = CsModuleName & "." & "Init_Quad_Runtime"
     Set clsQuadRuntime = New Quad_Runtime
+    sBookPath = "C:\\Users\\burtnolej"
+    sBookName = "tmp2.xls"
+    'ChDir sBookPath
+    CreateBook sBookName, sBookPath:=sBookPath
+    CloseBook Workbooks(sBookName)
+    
 main:
-    clsQuadRuntime.InitProperties sBookPath:=ActiveWorkbook.Path, sBookName:=ActiveWorkbook.Name
+    clsQuadRuntime.InitProperties sBookPath:=sBookPath, sBookName:=sBookName
     If clsQuadRuntime.BookName <> ActiveWorkbook.Name Then
         eTestResult = TestResult.Failure
     Else
@@ -114,7 +121,10 @@ err:
     
 teardown:
     Test_Init_Quad_Runtime_Override_BookName = eTestResult
-    
+    CloseBook Workbooks(sBookName)
+    DeleteBook sBookName, sPath:=sBookPath
+    CloseBook clsQuadRuntime.CacheBook
+    DeleteBook clsQuadRuntime.CacheBookName, clsQuadRuntime.CacheBookPath
     Exit Function
 End Function
 
@@ -127,9 +137,7 @@ setup:
     sFuncName = CsModuleName & "." & "Init_Quad_Runtime"
     Set clsQuadRuntime = New Quad_Runtime
 main:
-    clsQuadRuntime.InitProperties sCacheBookPath:=ActiveWorkbook.Path, _
-                                  sCacheBookName:=ActiveWorkbook.Name, _
-                                  sCacheRangeName:="foo"
+    clsQuadRuntime.InitProperties sCacheRangeName:="foo"
     If clsQuadRuntime.CacheRangeName <> "foo" Then
         eTestResult = TestResult.Failure
     Else
@@ -143,13 +151,13 @@ err:
     
 teardown:
     Test_Init_Quad_Runtime_Override_CacheBookRangeName = eTestResult
-    clsQuadRuntime.CacheBook.Close
-    
+    CloseBook clsQuadRuntime.CacheBook
+    DeleteBook clsQuadRuntime.CacheBookName, clsQuadRuntime.CacheBookPath
     Exit Function
 End Function
 
 Function Test_Init_Quad_Runtime_Override_Template() As TestResult
-Dim sFuncName As String, sTemplateName As String, sTemplatePath As String, sTemplateSheetName As String
+Dim sFuncName As String, sTemplateName As String, sTemplatePath As String, sTemplateSheetName As String, sTemplateCellSheetName As String
 Dim eTestResult As TestResult
 Dim clsQuadRuntime As Quad_Runtime
 Dim wbTmp As Workbook
@@ -157,15 +165,21 @@ Dim wbTmp As Workbook
 setup:
     sFuncName = CsModuleName & "." & "Init_Quad_Runtime"
     Set clsQuadRuntime = New Quad_Runtime
-    sTemplateName = "tmp.xls"
+    sTemplatePath = "c:\\users\\burtnolej\\"
+    
+    sTemplateName = "tmp2.xlsx"
     sTemplateSheetName = "foo"
-    Set wbTmp = CreateBook(sTemplateName)
+    sTemplateCellSheetName = "foocell"
+    Set wbTmp = CreateBook(sTemplateName, sBookPath:=sTemplatePath)
     CreateSheet wbTmp, sTemplateSheetName
+    CreateSheet wbTmp, sTemplateCellSheetName
+    CloseBook wbTmp, bSaveFlag:=True
     
 main:
-    clsQuadRuntime.InitProperties sTemplateBookPath:=ActiveWorkbook.Path, _
-                                  sTemplateBookName:=ActiveWorkbook.Name, _
-                                  sTemplateSheetName:=sTemplateSheetName
+    clsQuadRuntime.InitProperties sTemplateBookPath:=sTemplatePath, _
+                                  sTemplateBookName:=sTemplateName, _
+                                  sTemplateSheetName:=sTemplateSheetName, _
+                                  sTemplateCellSheetName:=sTemplateCellSheetName
                                   
     If clsQuadRuntime.TemplateSheetName <> sTemplateSheetName Then
         eTestResult = TestResult.Failure
@@ -186,9 +200,10 @@ err:
     
 teardown:
     Test_Init_Quad_Runtime_Override_Template = eTestResult
-    CloseBook wbTmp
-    DeleteBook sTemplateName
-    clsQuadRuntime.CacheBook.Close
+    CloseBook clsQuadRuntime.TemplateBook
+    DeleteBook sTemplateName, sPath:=sTemplatePath
+    CloseBook clsQuadRuntime.CacheBook
+    DeleteBook clsQuadRuntime.CacheBookName, clsQuadRuntime.CacheBookPath
     Exit Function
 End Function
 
@@ -221,7 +236,8 @@ err:
 teardown:
     Test_Init_Quad_Runtime_Override_Database = eTestResult
     DeleteFile sDatabasePath
-    clsQuadRuntime.CacheBook.Close
+    CloseBook clsQuadRuntime.CacheBook
+    DeleteBook clsQuadRuntime.CacheBookName, clsQuadRuntime.CacheBookPath
     
     Exit Function
 End Function

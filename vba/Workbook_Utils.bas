@@ -41,23 +41,37 @@ Public Function BookExists(sName As String) As Boolean
 End Function
 Public Function CreateBook(sName As String, Optional sBookPath As String) As Workbook
 Dim sCwd As String
-    
+Dim ffFileFormat As XlFileFormat
+
     If sBookPath <> "" Then
         sCwd = GetHomePath
         ChDir sBookPath
     End If
     
-    Set CreateBook = Workbooks.Add
-    CreateBook.SaveAs sName
+    If Right(sName, 5) = ".xlsm" Then
+        ffFileFormat = xlOpenXMLWorkbookMacroEnabled
+    ElseIf Right(sName, 5) = ".xlsx" Then
+        ffFileFormat = xlOpenXMLWorkbook
+    ElseIf Right(sName, 4) = ".xls" Then
+        ffFileFormat = xlExcel12
+    Else
+        err.Raise Error_Utils.BAD_FILE_EXTENSION, "unsupported file extension"
+    End If
     
+    Set CreateBook = Workbooks.Add
+    
+    Application.DisplayAlerts = False
+    CreateBook.SaveAs sName, FileFormat:=ffFileFormat
+    Application.DisplayAlerts = True
+        
     If sBookPath <> "" Then
         ChDir sCwd
     End If
 End Function
-Sub DeleteBook(sName As String)
-    Application.DisplayAlerts = False
-    Call DeleteFile(sName)
-    Application.DisplayAlerts = True
+Sub DeleteBook(sName As String, Optional sPath As String)
+    'Application.DisplayAlerts = False
+    Call DeleteFile(sName, sPath:=sPath)
+    'Application.DisplayAlerts = True
 End Sub
 Public Sub MakeCellInteger(wsTmp As Worksheet, rCell As Range, Optional sTakeFocus As Boolean = False)
 Dim rCurrentCell As Range
@@ -196,10 +210,14 @@ End Function
 
 Sub CloseBook(wbTmp As Workbook, Optional bSaveFlag As Boolean)
     Application.DisplayAlerts = False
-    If bSaveFlag = True Then
-        Call wbTmp.Save
+    If IsSet(wbTmp) Then
+        If bSaveFlag = True Then
+            Call wbTmp.Save
+        End If
+        Call wbTmp.Close
+    Else
+        err.Raise ErrorMsgType.NULL_OBJECT, Description:="nothing workbook obj passed"
     End If
-    Call wbTmp.Close
     Application.DisplayAlerts = True
 End Sub
 Public Sub DeleteSheet(wb As Workbook, sSheetName As String)

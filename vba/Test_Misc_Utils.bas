@@ -1,5 +1,56 @@
 Attribute VB_Name = "Test_Misc_Utils"
 Const CsModuleName = "Test_Misc_Utils"
+
+
+Function Test_IsQuadRuntime() As TestResult
+Dim sFuncName As String
+Dim eTestResult As TestResult
+Dim clsQuadRuntime As New Quad_Runtime
+
+setup:
+    sFuncName = CsModuleName & ".MyVarTypeEnum"
+    
+main:
+    If IsQuadRuntime(clsQuadRuntime) = False Then
+        eTestResult = TestResult.Failure
+        GoTo teardown
+    End If
+    
+    eTestResult = TestResult.OK
+    GoTo teardown
+    
+err:
+    eTestResult = TestResult.Error
+    
+teardown:
+    Test_IsQuadRuntime = eTestResult
+    
+End Function
+Function Test_IsQuadRuntime_False() As TestResult
+Dim sFuncName As String
+Dim eTestResult As TestResult
+Dim clsQuadRuntime As New RGBColor
+
+setup:
+    sFuncName = CsModuleName & ".MyVarTypeEnum"
+    
+main:
+    If IsQuadRuntime(clsQuadRuntime) = True Then
+        eTestResult = TestResult.Failure
+        GoTo teardown
+    End If
+    
+    eTestResult = TestResult.OK
+    GoTo teardown
+    
+err:
+    eTestResult = TestResult.Error
+    
+teardown:
+    Test_IsQuadRuntime_False = eTestResult
+    
+End Function
+
 Function Test_MyVarTypeEnum() As TestResult
 Dim sFuncName As String
 Dim eTestResult As TestResult
@@ -78,6 +129,32 @@ teardown:
     
 End Function
 
+Function Test_MyVarTypeEnumQuadRuntime() As TestResult
+Dim sFuncName As String
+Dim eTestResult As TestResult
+Dim dTmp As New Quad_Runtime
+
+setup:
+    sFuncName = CsModuleName & ".MyVarTypeEnumQuadRuntime"
+    
+main:
+    If EnumVarType(MyVarType(dTmp)) <> "vbQuadRuntime" Then
+        eTestResult = TestResult.Failure
+    Else
+        eTestResult = TestResult.OK
+    End If
+    On Error GoTo 0
+    GoTo teardown
+    
+err:
+    eTestResult = TestResult.Error
+    
+teardown:
+    Test_MyVarTypeEnumQuadRuntime = eTestResult
+    
+    
+End Function
+
 
 Function Test_MyVarTypeDict() As TestResult
 Dim sFuncName As String
@@ -101,7 +178,6 @@ err:
     
 teardown:
     Test_MyVarTypeDict = eTestResult
-    
     
 End Function
 

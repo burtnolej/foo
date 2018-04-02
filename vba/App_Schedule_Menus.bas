@@ -9,11 +9,14 @@ Dim aXMLElement() As String, aXMLElementAttr() As String, aXMLRootElementAttr() 
 Dim iNumNodes As Integer, iMaxNumNodes As Integer
 Dim xDoc As MSXML2.DOMDocument
 Dim sName As String
+Dim clsQuadRuntime As Quad_Runtime
 
+    Set clsQuadRuntime = GetQuadRuntimeGlobal(bInitFlag:=True)
+    
     sDataSubType = "student"
     sScope = "all"
-
-    Set wsPersonDataCache = GetPersonData(Quad_Utils.sBookName, Quad_Utils.sCacheBookPath, sDataSubType, sScope:=sScope, sCacheBookName:=Quad_Utils.sCacheBookName)
+            
+    Set wsPersonDataCache = GetPersonData(clsQuadRuntime, sDataSubType, sScope:=sScope)
 
     With wsPersonDataCache
         Set rColumns = .Range("data").Resize(1)

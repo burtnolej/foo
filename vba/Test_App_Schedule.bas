@@ -14,6 +14,48 @@ Option Explicit
 'Test_IsValidPersonID_Student_NotFound
 'Test_IsValidPersonID_Teacher
 'Test_IsValidPersonID_Teacher_NotFound
+Sub test()
+    Test_CacheQuadRuntimePtr
+End Sub
+
+
+Public Function Test_CacheQuadRuntimePtr() As TestResult
+Dim eTestResult As TestResult
+Dim clsQuadRuntime As New Quad_Runtime
+Dim wbBook As Workbook
+
+setup:
+    clsQuadRuntime.InitProperties sDayEnum:="foobar", bInitializeCache:=True
+    LetQuadRuntimeGlobal clsQuadRuntime
+    Set clsQuadRuntime = Nothing
+    
+main:
+
+    Set clsQuadRuntime = GetQuadRuntimeGlobal
+
+    If IsQuadRuntime(clsQuadRuntime) = False Then
+        eTestResult = TestResult.Failure
+        GoTo teardown
+    End If
+
+    If clsQuadRuntime.DayEnum <> "foobar" Then
+        eTestResult = TestResult.Failure
+        GoTo teardown
+    End If
+
+
+    eTestResult = TestResult.OK
+    GoTo teardown
+
+err:
+    eTestResult = TestResult.Error
+    
+teardown:
+    Test_CacheQuadRuntimePtr = eTestResult
+    CloseBook clsQuadRuntime.CacheBook
+    DeleteBook clsQuadRuntime.CacheBookName, clsQuadRuntime.CacheBookPath
+
+End Function
 
 Public Function Test_IsValidPersonID_Student() As TestResult
 Dim eTestResult As TestResult
@@ -39,7 +81,8 @@ teardown:
     
     DeleteSheet clsQuadRuntime.CacheBook, "person_student"
     CloseBook clsQuadRuntime.CacheBook
-    DeleteBook clsQuadRuntime.CacheBookName
+    DeleteBook clsQuadRuntime.CacheBookName, clsQuadRuntime.CacheBookPath
+
 End Function
 
 Public Function Test_IsValidPersonID_Student_NotFound() As TestResult
@@ -65,7 +108,8 @@ teardown:
     
     DeleteSheet clsQuadRuntime.CacheBook, "person_student"
     CloseBook clsQuadRuntime.CacheBook
-    DeleteBook clsQuadRuntime.CacheBookName
+    DeleteBook clsQuadRuntime.CacheBookName, clsQuadRuntime.CacheBookPath
+
 End Function
 Public Function Test_IsValidPersonID_Teacher() As TestResult
 Dim eTestResult As TestResult
@@ -115,7 +159,8 @@ teardown:
     Test_IsValidPersonID_Teacher_NotFound = eTestResult
     DeleteSheet clsQuadRuntime.CacheBook, "person_student"
     CloseBook clsQuadRuntime.CacheBook
-    DeleteBook clsQuadRuntime.CacheBookName
+    DeleteBook clsQuadRuntime.CacheBookName, clsQuadRuntime.CacheBookPath
+
 End Function
 Public Function Test_BuildSchedule_Student_Multi() As TestResult
 '"" get a full schedule for 1 student, parse and put into a backsheet
@@ -158,12 +203,10 @@ teardown:
     DeleteSheet clsQuadRuntime.CacheBook, "schedule_" & sScheduleType & "_" & CStr(iPersonID)
     DeleteSheet clsQuadRuntime.CacheBook, wsSchedule.Name
     CloseBook clsQuadRuntime.CacheBook
-    DeleteBook clsQuadRuntime.CacheBookName
+    DeleteBook clsQuadRuntime.CacheBookName, clsQuadRuntime.CacheBookPath
+
     
 End Function
-Sub test()
-    Test_BuildSchedule_Student_Multi
-End Sub
 
 Public Function Test_BuildSchedule_Student_NotCached() As TestResult
 '"" get a full schedule for 1 student, parse and put into a backsheet
@@ -215,7 +258,8 @@ teardown:
     DeleteSheet clsQuadRuntime.CacheBook, "schedule_" & sScheduleType & "_" & CStr(iPersonID)
     DeleteSheet clsQuadRuntime.CacheBook, wsSchedule.Name
     CloseBook clsQuadRuntime.CacheBook
-    DeleteBook clsQuadRuntime.CacheBookName
+    DeleteBook clsQuadRuntime.CacheBookName, clsQuadRuntime.CacheBookPath
+
     
 End Function
 Public Function Test_BuildSchedule_Student_Cached() As TestResult
@@ -274,7 +318,8 @@ teardown:
     DeleteSheet clsQuadRuntime.CacheBook, "schedule_" & sScheduleType & "_" & CStr(iPersonID)
     DeleteSheet clsQuadRuntime.CacheBook, wsSchedule.Name
     CloseBook clsQuadRuntime.CacheBook
-    DeleteBook clsQuadRuntime.CacheBookName
+    DeleteBook clsQuadRuntime.CacheBookName, clsQuadRuntime.CacheBookPath
+
     
 End Function
 
@@ -311,7 +356,8 @@ err:
 teardown:
     Test_GetAllPersonDataFromDB = eTestResult
     CloseBook clsQuadRuntime.CacheBook
-    DeleteBook clsQuadRuntime.CacheBookName
+    DeleteBook clsQuadRuntime.CacheBookName, clsQuadRuntime.CacheBookPath
+
     
 End Function
 Public Function Test_GetPersonDataFromDB() As TestResult
@@ -348,7 +394,8 @@ err:
 teardown:
     Test_GetPersonDataFromDB = eTestResult
     CloseBook clsQuadRuntime.CacheBook
-    DeleteBook clsQuadRuntime.CacheBookName
+    DeleteBook clsQuadRuntime.CacheBookName, clsQuadRuntime.CacheBookPath
+
     
 End Function
 
@@ -390,7 +437,8 @@ err:
 teardown:
     Test_GetScheduleDataFromDB = eTestResult
     CloseBook clsQuadRuntime.CacheBook
-    DeleteBook clsQuadRuntime.CacheBookName
+    DeleteBook clsQuadRuntime.CacheBookName, clsQuadRuntime.CacheBookPath
+
     
 End Function
 Public Function Test_GetScheduleDataFromDB_1Period1Student() As TestResult
@@ -432,7 +480,8 @@ err:
 teardown:
     Test_GetScheduleDataFromDB_1Period1Student = eTestResult
     CloseBook clsQuadRuntime.CacheBook
-    DeleteBook clsQuadRuntime.CacheBookName
+    DeleteBook clsQuadRuntime.CacheBookName, clsQuadRuntime.CacheBookPath
+
     
 End Function
 Public Function Test_CacheData_Schedule() As TestResult
@@ -473,7 +522,8 @@ teardown:
     Test_CacheData_Schedule = eTestResult
     DeleteSheet clsQuadRuntime.CacheBook, sCacheSheetName
     CloseBook clsQuadRuntime.CacheBook
-    DeleteBook clsQuadRuntime.CacheBookName
+    DeleteBook clsQuadRuntime.CacheBookName, clsQuadRuntime.CacheBookPath
+
     
 End Function
 
@@ -514,7 +564,8 @@ teardown:
     Test_GetPersonData_Cached = eTestResult
     DeleteSheet clsQuadRuntime.CacheBook, wsCache.Name
     CloseBook clsQuadRuntime.CacheBook
-    DeleteBook clsQuadRuntime.CacheBookName
+    DeleteBook clsQuadRuntime.CacheBookName, clsQuadRuntime.CacheBookPath
+
     
 End Function
 
@@ -552,7 +603,8 @@ teardown:
     Test_GetPersonData_NotCached = eTestResult
     DeleteSheet clsQuadRuntime.CacheBook, wsCache.Name
     CloseBook clsQuadRuntime.CacheBook
-    DeleteBook clsQuadRuntime.CacheBookName
+    DeleteBook clsQuadRuntime.CacheBookName, clsQuadRuntime.CacheBookPath
+
     
 End Function
 Public Function Test_ParseRawData() As TestResult
@@ -587,7 +639,8 @@ err:
 teardown:
     Test_ParseRawData = eTestResult
     CloseBook clsQuadRuntime.CacheBook
-    DeleteBook clsQuadRuntime.CacheBookName
+    DeleteBook clsQuadRuntime.CacheBookName, clsQuadRuntime.CacheBookPath
+
     
 End Function
 

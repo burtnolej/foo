@@ -5,6 +5,96 @@ Option Explicit
 
 Const CsModuleName = "Test_Quad_Utils"
 
+Function TestGetAndInitQuadRuntimeNoVals() As TestResult
+Dim clsQuadRuntime As Quad_Runtime
+Dim eTestResult As TestResult
+Dim sFuncName As String
+
+setup:
+    sFuncName = CsModuleName & "." & "GetAndInitQuadRuntimeNoVals"
+    
+    Set clsQuadRuntime = GetQuadRuntimeGlobal(bInitFlag:=True)
+    
+    If clsQuadRuntime.DayEnum <> "M,T,W,R,F" Then
+        eTestResult = TestResult.Failure
+    Else
+        eTestResult = TestResult.OK
+    End If
+    On Error GoTo 0
+    GoTo teardown
+    
+err:
+    eTestResult = TestResult.Error
+    
+teardown:
+    TestGetAndInitQuadRuntimeNoVals = eTestResult
+    CloseBook clsQuadRuntime.CacheBook
+    DeleteBook clsQuadRuntime.CacheBookName, clsQuadRuntime.CacheBookPath
+    ResetQuadRuntimeGlobal
+
+End Function
+Function TestGetAndInitQuadRuntime() As TestResult
+Dim dValues As New Dictionary
+Dim clsQuadRuntime As Quad_Runtime
+Dim eTestResult As TestResult
+Dim sFuncName As String
+
+setup:
+    sFuncName = CsModuleName & "." & "TestGetAndInitQuadRuntime"
+    
+    dValues.Add "DayEnum", "foobar"
+    
+    Set clsQuadRuntime = GetQuadRuntimeGlobal(bInitFlag:=True, dQuadRuntimeValues:=dValues)
+    
+    If clsQuadRuntime.DayEnum <> "foobar" Then
+        eTestResult = TestResult.Failure
+    Else
+        eTestResult = TestResult.OK
+    End If
+    On Error GoTo 0
+    GoTo teardown
+    
+err:
+    eTestResult = TestResult.Error
+    
+teardown:
+    TestGetAndInitQuadRuntime = eTestResult
+    CloseBook clsQuadRuntime.CacheBook
+    DeleteBook clsQuadRuntime.CacheBookName, clsQuadRuntime.CacheBookPath
+    ResetQuadRuntimeGlobal
+
+End Function
+Function TestInitQuadRuntime() As TestResult
+Dim dValues As New Dictionary
+Dim clsQuadRuntime As Quad_Runtime
+Dim eTestResult As TestResult
+Dim sFuncName As String
+
+setup:
+    sFuncName = CsModuleName & "." & "InitQuadRuntime"
+    
+    dValues.Add "DayEnum", "foobar"
+    
+    Set clsQuadRuntime = InitQuadRuntimeGlobal(dQuadRuntimeValues:=dValues)
+    
+    If clsQuadRuntime.DayEnum <> "foobar" Then
+        eTestResult = TestResult.Failure
+    Else
+        eTestResult = TestResult.OK
+    End If
+    On Error GoTo 0
+    GoTo teardown
+    
+err:
+    eTestResult = TestResult.Error
+    
+teardown:
+    TestInitQuadRuntime = eTestResult
+    CloseBook clsQuadRuntime.CacheBook
+    DeleteBook clsQuadRuntime.CacheBookName, clsQuadRuntime.CacheBookPath
+    ResetQuadRuntimeGlobal
+
+End Function
 Function TestSheetTableLookup() As TestResult
 
 Dim sInputStr As String, sRangeName As String, sFuncName As String, sSheetName As String

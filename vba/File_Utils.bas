@@ -156,23 +156,31 @@ Dim oFile As Object
     Set objFSO = Nothing
 End Sub
 
-Public Function DeleteFile(sPath As String)
+Public Function DeleteFile(sFileName As String, Optional sPath As String)
 Dim objFSO As Object
 Dim oFile As Object
 Dim sFuncName As String
 
+    If sPath <> "" Then
+        If Right(sPath, 1) <> "\" Then
+        sFileName = sPath & "\\" & sFileName
+        Else
+            sFileName = sPath & sFileName
+        End If
+    End If
+        
     sFuncName = "DeleteFile"
     
     Set objFSO = CreateObject("Scripting.FileSystemObject")
     On Error GoTo err
-    objFSO.DeleteFile sPath
+    objFSO.DeleteFile sFileName
     On Error GoTo 0
-    FuncLogIt sFuncName, "Deleted [" & sPath & "]", C_MODULE_NAME, LogMsgType.Failure
+    FuncLogIt sFuncName, "Deleted [" & sFileName & "]", C_MODULE_NAME, LogMsgType.Failure
     Exit Function
     
 err:
-    FuncLogIt sFuncName, "Failed to delete [" & sPath & "] with err [" & err.Description & "]", C_MODULE_NAME, LogMsgType.Failure
-
+    FuncLogIt sFuncName, "Failed to delete [" & sFileName & "] with err [" & err.Description & "]", C_MODULE_NAME, LogMsgType.Failure
+    Debug.Print err.Description
 End Function
 
 Public Function WriteFile(sPath As String, sText As String)

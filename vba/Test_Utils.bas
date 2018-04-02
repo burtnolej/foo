@@ -174,15 +174,19 @@ Dim sIncModules As String
     'ProjectTestRunner sIncModules
     'ProjectTestRunner
     'Exit Sub
-    'sIncModules = "Test_Quad_Runtime"
-    'sIncModules = sIncModules & ",Test_App_Schedule,Test_Array_Utils"
-    'sIncModules = sIncModules & ",Test_DB_Utils"
+    sIncModules = "Test_Quad_Runtime"
+    sIncModules = sIncModules & ",Test_App_Schedule,Test_Array_Utils"
+    sIncModules = sIncModules & ",Test_DB_Utils"
     sIncModules = sIncModules & ",Test_Entry_Utils"
     sIncModules = sIncModules & ",Test_Dict_Utils,Test_File_Utils"
-    sIncModules = sIncModules & ",Test_Filter_Utils,Test_Format_Utils,Test_Macros,Test_Misc_Utils"
-    sIncModules = sIncModules & ",Test_Module_Utils,Test_OS_Utils,Test_Quad_Utils"
+    sIncModules = sIncModules & ",Test_Filter_Utils,Test_Format_Utils"
+    sIncModules = sIncModules & ",Test_Macros"
+    sIncModules = sIncModules & ",Test_Misc_Utils"
+    'sIncModules = sIncModules & ",Test_Module_Utils"
+    sIncModules = sIncModules & ",Test_OS_Utils,Test_Quad_Utils"
     sIncModules = sIncModules & ",Test_Range_Utils,Test_String_Utils"
-    sIncModules = sIncModules & ",Test_Table_Utils,Test_Widget_Utils,Test_Workbook_Utils"
+    sIncModules = sIncModules & ",Test_Table_Utils"
+    sIncModules = sIncModules & ",Test_Widget_Utils,Test_Workbook_Utils"
     sIncModules = sIncModules & ",Test_XML_utils"
     ProjectTestRunner sIncModules
     

@@ -64,6 +64,7 @@ Const cFileName = cRuntimeDir & "uupyshell.args.txt"
 
 Const cDayEnum = "M,T,W,R,F"
 
+
 ' Book -----------------------
 Public Property Get Book() As Workbook
     Set Book = pBook
@@ -369,6 +370,9 @@ Public Property Let ExecPath(Value As String)
 End Property
 ' END default directories
 
+Public Function IsAQuadRuntime() As Boolean
+    IsAQuadRuntime = True
+End Function
 Public Sub InitProperties( _
                  Optional sBookPath As String = cBookPath, _
                  Optional sBookName As String = cBookName, _
@@ -402,13 +406,14 @@ Public Sub InitProperties( _
     Me.TemplateBookName = sTemplateBookName
     Me.TemplateSheetName = sTemplateSheetName
     Me.TemplateCellSheetName = sTemplateCellSheetName
+    
     Me.DatabasePath = sDatabasePath
     Me.ResultFileName = sResultFileName
     Me.ExecPath = sExecPath
     Me.RuntimeDir = sRuntimeDir
     Me.FileName = sFileName
     Me.DayEnum = sDayEnum
-    
+
 End Sub
 
 

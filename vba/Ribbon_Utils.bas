@@ -105,6 +105,7 @@ Dim rSource As Range
 Dim sFuncName As String
 Dim vControls() As Variant
 Dim aControlIDSplit() As String
+Dim clsQuadRuntime As Quad_Runtime
 
 setup:
     sFuncName = "OnAction"
@@ -120,13 +121,13 @@ setup:
         If UBound(aControlIDSplit) <> 2 Then
             FuncLogIt sFuncName, "SchedBut ID is incorrectly formed [" & control.ID & "] needs to have 3 parts delimed by _", C_MODULE_NAME, LogMsgType.Error
         Else
-            'BuildSchedule Quad_Utils.cTemplateBookName, "C:\\Users\\burtnolej\\Documents\\GitHub\\quadviewer", _
-            '        aControlIDSplit(1), CInt(aControlIDSplit(2)), sCacheBookName:=Quad_Utils.sCacheBookName, sCacheBookPath:=Quad_Utils.sCacheBookPath
-            
+            Set clsQuadRuntime = GetQuadRuntimeGlobal(bInitFlag:=True)
+            BuildSchedule clsQuadRuntime, sScheduleType:=aControlIDSplit(1), iPersonID:=CInt(aControlIDSplit(2))
         End If
                 
     ElseIf control.ID = "GenerateEntryForm" Then
-        'GenerateEntryForms
+        Set clsQuadRuntime = GetQuadRuntimeGlobal(bInitFlag:=True)
+        GenerateEntryForms clsQuadRuntime, clsQuadRuntime.TemplateCellSheetName
     ElseIf control.ID = "DeleteEntryForm" Then
         DeleteEntryForms
     ElseIf control.ID = "Student" Then
@@ -264,4 +265,52 @@ Dim rSelection As Range
     returnedVal = xml
 End Sub
 
+Sub rxgal_getItemCount(control As IRibbonControl, ByRef returnedVal)
+'This callback tell the RibbonX how many labels you use in the Gallery
+    returnedVal = 12
+End Sub
 
+Sub rxgal_getItemLabel(control As IRibbonControl, index As Integer, ByRef returnedVal)
+''Use this if you want to use the cell values of "A1:A12" on Sheet2 as Label names
+'     returnedVal = Sheets("Sheet2").Cells(index + 1, 1).Value
+
+    Dim Labelname As Variant
+    Labelname = _
+    Array("Sheila Webster", _
+          "Brian Main", _
+          "Susan Zhang", _
+          "Anne Walzer", _
+          "Andrea Vogel", _
+          "Ronda Viescas", _
+          "Norman Harker", _
+          "Michelle Wells", _
+          "Wilma Yang", _
+          "Angel Wang", _
+          "Raymond Denny", _
+          "June Winograd")
+
+    On Error Resume Next
+    returnedVal = Labelname(index)
+    On Error GoTo 0
+End Sub
+
+Function GetGalleryContent(control As IRibbonControl, ByRef returnedVal)
+Dim sXML As String
+        sXML = sXML & "<gallery" & vbCrLf
+        sXML = sXML & "   id = ""rxgal2""" & vbCrLf
+        sXML = sXML & "   Label = ""My Label Gallery""" & vbCrLf
+        sXML = sXML & "   Columns = ""3""" & vbCrLf
+        sXML = sXML & "   Rows = ""100""" & vbCrLf
+        sXML = sXML & "   imageMso = ""HappyFace""" & vbCrLf
+        sXML = sXML & "   OnAction = ""rxgal_Click""" & vbCrLf
+        sXML = sXML & "   showItemLabel = ""true""" & vbCrLf
+        sXML = sXML & "   size=""large"">" & vbCrLf
+        sXML = sXML & "   <item id=""rxitem11"" label=""Brian Main""  />" & vbCrLf
+        sXML = sXML & "   <item id=""rxitem21"" label=""Susan Zhang"" />" & vbCrLf
+        sXML = sXML & "   <item id=""rxitem31"" label=""Anne Walzer""  />" & vbCrLf
+        sXML = sXML & " </gallery>"
+        
+        returnedVal = sXML
+        
+        Debug.Print returnedVal
+End Function

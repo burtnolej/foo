@@ -11,7 +11,7 @@ Public Sub RunTests()
     Test_Filter_Utils.TestRunner
     Test_Format_Utils.TestRunner
     'Test_Log_Utils.TestRunner
-    Test_MAcros.TestRunner
+    Test_Macros.TestRunner
     
     'only problem left is with import_modules test
     Test_Module_Utils.TestRunner

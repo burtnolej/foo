@@ -1,10 +1,10 @@
 Attribute VB_Name = "Test_Entry_Utils"
 Const CsModuleName = "Test_Entry_Utils"
 
-Sub test()
-    TestGenerateEntryForms
-End Sub
 Function TestGenerateEntryForms() As TestResult
+' 1 entry form
+' test if cell validation works
+' test if form validation works
 Dim sFuncName As String, sSheetName As String, sResultStr As String, sExpectedResultStr As String, sTargetSheetName As String
 Dim vSource() As String
 Dim wsTmp As Worksheet
@@ -14,7 +14,8 @@ Dim eTestResult As TestResult
 Dim clsQuadRuntime As New Quad_Runtime
 
 setup:
-    clsQuadRuntime.InitProperties bInitializeCache:=False
+    ResetQuadRuntimeGlobal
+    clsQuadRuntime.InitProperties bInitializeCache:=True
         
     On Error GoTo err:
     sFuncName = CsModuleName & "." & "GenerateEntryForms"
@@ -78,8 +79,8 @@ teardown:
     
 End Function
 
-
 Function TestGenerateEntryFormsMulti() As TestResult
+' multiple entry forms
 Dim sFuncName As String
 Dim sSheetName As String
 Dim sResultStr As String
@@ -91,10 +92,12 @@ Dim dDefinitions As Dictionary
 Dim dDefnDetails As Dictionary
 Dim eTestResult As TestResult
 Dim rEntry As Range
+Dim clsQuadRuntime As New Quad_Runtime
 
 setup:
+    clsQuadRuntime.InitProperties bInitializeCache:=True
     On Error GoTo err:
-    sFuncName = CsModuleName & "." & "GenerateEntryForms"
+    sFuncName = CsModuleName & "." & "GenerateEntryFormsMulti"
     sSheetName = "test"
     Set wsTmp = CreateSheet(ActiveWorkbook, sSheetName, bOverwrite:=True)
     vSource = Init2DStringArray([{"NewStudent","Student","StudentAge","Integer","IsValidInteger";"NewTeacher","Teacher","TeacherAge","Integer","IsValidInteger"}])
@@ -103,7 +106,7 @@ setup:
 
 main:
 
-    GenerateEntryForms
+    GenerateEntryForms clsQuadRuntime, clsQuadRuntime.TemplateCellSheetName
     
     If SheetExists(ActiveWorkbook, "NewStudent") = False Then
         eTestResult = TestResult.Failure
@@ -117,7 +120,7 @@ main:
     
     Set rEntry = GetEntryCell("NewStudent", "StudentAge")
     rEntry.Value = 123
-    Validate ActiveWorkbook, "NewStudent", rEntry
+    Validate clsQuadRuntime.Book, "NewStudent", rEntry
     
     If IsEntryValid("NewStudent", rEntry) = False Then
         eTestResult = TestResult.Failure
@@ -126,7 +129,7 @@ main:
     
     Set rEntry = GetEntryCell("NewTeacher", "TeacherAge")
     rEntry.Value = 666
-    Validate ActiveWorkbook, "NewTeacher", rEntry
+    Validate clsQuadRuntime.Book, "NewTeacher", rEntry
     
     If IsEntryValid("NewTeacher", rEntry) = False Then
         eTestResult = TestResult.Failure
@@ -142,52 +145,11 @@ err:
 teardown:
     TestGenerateEntryFormsMulti = eTestResult
     DeleteEntryForms
-    'DeleteSheet ActiveWorkbook, sSheetName
+    DeleteSheet clsQuadRuntime.Book, sSheetName
+    CloseBook clsQuadRuntime.CacheBook
+    DeleteBook clsQuadRuntime.CacheBookName
 
 End Function
-
-Function TestGenerateEntryFormsIsValid() As TestResult
-Dim sFuncName As String
-Dim sSheetName As String
-Dim sResultStr As String
-Dim sExpectedResultStr As String
-Dim vSource() As String
-Dim wsTmp As Worksheet
-Dim rTarget As Range
-Dim dDefinitions As Dictionary
-Dim dDefnDetails As Dictionary
-Dim eTestResult As TestResult
-
-setup:
-    On Error GoTo err:
-    sFuncName = CsModuleName & "." & "GenerateEntryForms"
-    sSheetName = "test"
-    Set wsTmp = CreateSheet(ActiveWorkbook, sSheetName, bOverwrite:=True)
-    vSource = Init2DStringArray([{"NewStudent","Student","StudentAge","Integer","IsValidInteger";"NewStudent","Student","StudentPrep","IntegerRange","IsValidPrep"}])
-    Set rTarget = RangeFromStrArray(vSource, wsTmp, 0, 1)
-    Set Entry_Utils.dDefinitions = LoadDefinitions(wsTmp, rSource:=rTarget)
-
-main:
-
-    GenerateEntryForms
-
-    With wsTmp
-        .Range("B2:B2").Value = 123
-        .Range("B3:B3").Value = 666
-    End With
-    
-    eTestResult = TestResult.OK
-    On Error GoTo 0
-    GoTo teardown
-    
-err:
-    eTestResult = TestResult.Error
-    
-teardown:
-    TestGenerateEntryFormsIsValid = eTestResult
-    DeleteSheet ActiveWorkbook, sSheetName
-End Function
-
 Function TestLoadDefinitions() As TestResult
 Dim sFuncName As String
 Dim sSheetName As String
@@ -251,7 +213,6 @@ teardown:
     TestLoadDefinitions = eTestResult
     DeleteSheet ActiveWorkbook, sSheetName
 End Function
-
 Function TestIsValidInteger() As TestResult
 Dim sFuncName As String
 Dim eTestResult As TestResult
@@ -331,8 +292,10 @@ Dim wsTmp As Worksheet
 Dim rTarget As Range
 Dim eTestResult As TestResult
 Dim rInput As Range
+Dim clsQuadRuntime As New Quad_Runtime
 
 setup:
+    clsQuadRuntime.InitProperties bInitializeCache:=True
     On Error GoTo err:
     sFuncName = CsModuleName & "." & "Validations"
     sSheetName = "test"
@@ -348,7 +311,7 @@ main:
     
     rInput.Value = 123
     rInput.Name = "eNewStudent_StudentAge"
-    bResult = Validate(ActiveWorkbook, "test", rInput)
+    bResult = Validate(clsQuadRuntime.Book, "test", rInput)
     
     If bResult = False Then
         eTestResult = TestResult.Failure
@@ -357,7 +320,7 @@ main:
     
     rInput.Value = "ABC"
     rInput.Name = "eNewStudent_StudentAge"
-    bResult = Validate(ActiveWorkbook, "test", rInput)
+    bResult = Validate(clsQuadRuntime.Book, "test", rInput)
     
     If bResult = True Then
         eTestResult = TestResult.Failure
@@ -373,7 +336,10 @@ err:
 teardown:
     TestValidations = eTestResult
     DeleteSheet ActiveWorkbook, sSheetName
+    CloseBook clsQuadRuntime.CacheBook
+    DeleteBook clsQuadRuntime.CacheBookName
 End Function
+
 Function TestIsMember() As TestResult
 Dim sFuncName As String
 Dim sSheetName As String
@@ -412,7 +378,6 @@ teardown:
     DeleteSheet ActiveWorkbook, sSheetName
     
 End Function
-
 Function Test_FormatCellInvalid() As TestResult
 Dim sFuncName As String
 Dim sSheetName As String
@@ -434,7 +399,13 @@ main:
     
     FormatCellInvalid "test", rTarget
 
+    If GetBgColor(sSheetName, rTarget).AsString <> "255,0,0" Then
+        eTestResult = TestResult.Failure
+        GoTo teardown
+    End If
+    
     eTestResult = TestResult.OK
+
 
     On Error GoTo 0
     GoTo teardown
@@ -446,6 +417,12 @@ teardown:
     Test_FormatCellInvalid = eTestResult
     DeleteSheet ActiveWorkbook, sSheetName
 End Function
+
+
+Sub test()
+    TestIsRecordValid
+End Sub
+
 Function TestIsRecordValid() As TestResult
 Dim sFuncName As String
 Dim sSheetName As String
@@ -459,7 +436,10 @@ Dim eTestResult As TestResult
 Dim rInput As Range
 Dim sKey As String
 
+Dim clsQuadRuntime As New Quad_Runtime
+
 setup:
+    clsQuadRuntime.InitProperties bInitializeCache:=True
     On Error GoTo err:
     sFuncName = CsModuleName & "." & "IsRecordValid"
     sSheetName = "TestNewStudent"
@@ -490,8 +470,8 @@ setup:
         GoTo teardown
     End If
 
-main:
-    If IsRecordValid(sSheetName) = True Then
+    If IsRecordValid(clsQuadRuntime.TemplateBook, clsQuadRuntime.Book, sSheetName, _
+                clsQuadRuntime.TemplateCellSheetName) = True Then
         eTestResult = TestResult.Failure
     Else
         eTestResult = TestResult.OK
@@ -505,5 +485,7 @@ err:
 teardown:
     TestIsRecordValid = eTestResult
     DeleteSheet ActiveWorkbook, sSheetName
-
+    CloseBook clsQuadRuntime.CacheBook
+    DeleteBook clsQuadRuntime.CacheBookName
+    
 End Function

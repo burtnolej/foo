@@ -8,6 +8,54 @@ Attribute VB_Name = "Quad_Utils"
 'Public Function SheetTableLookup()
 
 Const C_MODULE_NAME = "Quad_Utils"
+Private clsQuadRuntimeGlobal As Quad_Runtime
+Public Sub ResetQuadRuntimeGlobal()
+    Set clsQuadRuntimeGlobal = Nothing
+End Sub
+
+
+Public Function InitQuadRuntimeGlobal(Optional dQuadRuntimeValues As Dictionary) As Quad_Runtime
+Dim clsQuadRuntime As New Quad_Runtime
+Dim vKey As Variant
+
+    clsQuadRuntime.InitProperties
+    
+    If IsSet(dQuadRuntimeValues) Then
+        For Each vKey In dQuadRuntimeValues
+            CallByName clsQuadRuntime, vKey, VbLet, dQuadRuntimeValues.Item(vKey)
+        Next vKey
+    End If
+    
+    Set InitQuadRuntimeGlobal = clsQuadRuntime
+End Function
+Public Sub LetQuadRuntimeGlobal(clsQuadRuntime As Quad_Runtime)
+Dim sFuncName As String
+    sFuncName = C_MODULE_NAME & "." & "LetQuadRuntimeGlobal"
+    If IsInstance(clsQuadRuntime, vbQuadRuntime) = False Then
+        err.Raise ErrorMsgType.BAD_ARGUMENT, Description:="arg is not of type Quad_Runtime"
+    End If
+    
+    Set clsQuadRuntimeGlobal = clsQuadRuntime
+    FuncLogIt sFuncName, "Setting GLOBAL Quad_Utils.clsQuadRuntimeGlobal", C_MODULE_NAME, LogMsgType.INFO
+End Sub
+Public Function GetQuadRuntimeGlobal(Optional bInitFlag As Boolean = False, _
+                                     Optional dQuadRuntimeValues As Dictionary) As Quad_Runtime
+Dim sFuncName As String
+    sFuncName = C_MODULE_NAME & "." & "GetQuadRuntimeGlobal"
+    
+    If IsSet(clsQuadRuntimeGlobal) Then
+        Set GetQuadRuntimeGlobal = clsQuadRuntimeGlobal
+        FuncLogIt sFuncName, "GETTING GLOBAL Quad_Utils.clsQuadRuntimeGlobal", C_MODULE_NAME, LogMsgType.INFO
+    Else
+        If bInitFlag = True Then
+            Set GetQuadRuntimeGlobal = InitQuadRuntimeGlobal(dQuadRuntimeValues:=dQuadRuntimeValues)
+            FuncLogIt sFuncName, "Initializating GLOBAL Quad_Utils.clsQuadRuntimeGlobal", C_MODULE_NAME, LogMsgType.INFO
+        Else
+            Set GetQuadRuntimeGlobal = Nothing
+            FuncLogIt sFuncName, "Cannot GET GLOBAL Quad_Utils.clsQuadRuntimeGlobal as its not set", C_MODULE_NAME, LogMsgType.INFO
+        End If
+    End If
+End Function
 Public Function SheetTableLookup(wsDataSheet As Worksheet, sRangeName As String, _
                             sLookupColName As String, vLookUpVal As Variant) As Integer
 ' assumes row 1 contains the column names
