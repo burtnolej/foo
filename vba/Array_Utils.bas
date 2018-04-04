@@ -260,15 +260,47 @@ Dim sPadChar As String
     
     Array2String = sResult
 End Function
+
+Public Function Delim2Array(sScheduleStr As String) As String()
+Dim iNumRows As Integer, iNumCols As Integer, i As Integer, j As Integer
+Dim vRows As Variant
+Dim vFields As Variant
+Dim aSchedule() As String
+
+    vRows = Split(sScheduleStr, DOUBLEDOLLAR)
+    iNumRows = UBound(vRows)
+    iNumCols = UBound(Split(vRows(0), HAT))
+    
+    ReDim aSchedule(0 To iNumRows, 0 To iNumCols)
+    
+    For i = 0 To iNumRows
+        vFields = Split(vRows(i), HAT)
+        
+        For j = 0 To iNumCols
+            aSchedule(i, j) = vFields(j)
+        Next j
+    Next i
+    
+    Delim2Array = aSchedule
+End Function
+Public Function Init2DStringArrayFromString(sInitVals As String) As String()
+' allows a 2d string array to be instantiated from a $$/^ delimied string
+' this makes it easier to read when setting up in a test
+    Init2DStringArrayFromString = Init2DStringArray(Delim2Array(sInitVals))
+End Function
 Public Function Init2DStringArray(aInitVals As Variant) As String()
 Dim iTmp() As String
-ReDim iTmp(0 To UBound(aInitVals) - 1, 0 To UBound(aInitVals, 2) - 1)
-Dim i As Integer
-Dim j As Integer
+Dim i As Integer, j As Integer, iMaxi As Integer, iMaxj As Integer, iMini As Integer, iMiny As Integer
+'ReDim iTmp(0 To UBound(aInitVals) - 1, 0 To UBound(aInitVals, 2) - 1)
+    iMini = LBound(aInitVals)
+    iMinj = LBound(aInitVals, 2)
+    iMaxi = UBound(aInitVals) - iMini
+    iMaxj = UBound(aInitVals, 2) - iMinj
+    ReDim iTmp(0 To iMaxi, 0 To iMaxj)
 
-    For i = 0 To UBound(aInitVals) - 1
-        For j = 0 To UBound(aInitVals, 2) - 1
-            iTmp(i, j) = aInitVals(i + 1, j + 1)
+    For i = 0 To iMaxi
+        For j = 0 To iMaxj
+            iTmp(i, j) = aInitVals(i + iMini, j + iMinj)
         Next j
     Next i
     

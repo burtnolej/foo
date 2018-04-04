@@ -14,10 +14,6 @@ Option Explicit
 'Test_IsValidPersonID_Student_NotFound
 'Test_IsValidPersonID_Teacher
 'Test_IsValidPersonID_Teacher_NotFound
-Sub test()
-    Test_CacheQuadRuntimePtr
-End Sub
-
 
 Public Function Test_CacheQuadRuntimePtr() As TestResult
 Dim eTestResult As TestResult
@@ -569,6 +565,9 @@ teardown:
     
 End Function
 
+Sub tests()
+    Test_BuildSchedule_Student_NotCached
+End Sub
 Public Function Test_GetPersonData_NotCached() As TestResult
 '"" get a full schedule for 1 student, parse and put into a backsheet
 '""

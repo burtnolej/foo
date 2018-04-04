@@ -4,6 +4,74 @@ Option Explicit
 'Function TestRowAsDict()
 
 Const CsModuleName = "Test_Quad_Utils"
+Public Function Test_CacheData_Table() As TestResult
+'"" cache data but wrap in a table
+'""
+Dim sScope As String, sDataSubType As String, sResultStr As String, sExpectedResult As String, sCacheSheetName As String
+Dim sDefnSheetName As String, sDefn As String, sDataType As String
+Dim iPersonID As Integer
+Dim eTestResult As TestResult
+Dim aPersonData() As String, vSource() As String
+Dim clsQuadRuntime As New Quad_Runtime
+Dim wsTmp As Worksheet
+Dim rTarget As Range
+
+setup:
+    clsQuadRuntime.InitProperties bInitializeCache:=True
+    sDefnSheetName = "test_definition"
+    Set wsTmp = CreateSheet(clsQuadRuntime.Book, sDefnSheetName, bOverwrite:=True)
+    
+    'sDefn = "NewLesson^Lesson^sSubjectLongDesc^AlphaNumeric^IsMember^Subject" & DOUBLEDOLLAR
+    'sDefn = sDefn & "NewLesson^Lesson^sCourseNm^AlphaNumeric^IsMember^Course" & DOUBLEDOLLAR
+    'sDefn = sDefn & "NewLesson^Lesson^sClassFocusArea^AlphaNumeric^IsMember^Course" & DOUBLEDOLLAR
+    'sDefn = sDefn & "NewLesson^Lesson^sFacultyFirstNm^AlphaNumeric^IsMember^Faculty" & DOUBLEDOLLAR
+    'sDefn = sDefn & "NewLesson^Lesson^cdDay^AlphaNumeric^IsMember^DayCode" & DOUBLEDOLLAR
+    'sDefn = sDefn & "NewLesson^Lesson^idTimePeriod^AlphaNumeric^IsMember^ClassLecture" & DOUBLEDOLLAR
+    'sDefn = sDefn & "NewLesson^Lesson^idLocation^AlphaNumeric^IsMember^ClassLecture" & DOUBLEDOLLAR
+    'sDefn = sDefn & "NewLesson^Lesson^idSection^AlphaNumeric^IsMember^ClassLecture" & DOUBLEDOLLAR
+    'sDefn = sDefn & "NewLesson^Lesson^cdClassType^AlphaNumeric^IsMember^ClassTypeCode" & DOUBLEDOLLAR
+    'sDefn = sDefn & "NewLesson^Lesson^iFreq^AlphaNumeric^IsMember^Section" & DOUBLEDOLLAR
+    'sDefn = sDefn & "NewLesson^Lesson^idClassLecture^AlphaNumeric^IsMember^ClassLecture"
+    
+    sDefn = "new_person_student^person_student^sStudentFirstNm^AlphaNumeric^IsMember^Student" & DOUBLEDOLLAR
+    sDefn = sDefn & "new_person_student^person_student^sStudentLastNm^AlphaNumeric^IsMember^Student" & DOUBLEDOLLAR
+    sDefn = sDefn & "new_person_student^person_student^idStudent^AlphaNumeric^IsMember^Student" & DOUBLEDOLLAR
+    sDefn = sDefn & "new_person_student^person_student^idPrep^AlphaNumeric^IsMember^StudentLevel" & DOUBLEDOLLAR
+    sDefn = sDefn & "new_person_student^person_student^sPrepNm^AlphaNumeric^IsMember^PrepCode"
+           
+    vSource = Init2DStringArrayFromString(sDefn)
+    Set rTarget = RangeFromStrArray(vSource, wsTmp, 0, 1)
+    Set Entry_Utils.dDefinitions = LoadDefinitions(wsTmp, rSource:=rTarget)
+    
+    sDataType = "person"
+    sDataSubType = "student"
+    sScope = "all"
+    GetPersonDataFromDB clsQuadRuntime, sDataSubType, sScope:=sScope
+    aPersonData = ParseRawData(ReadFile(clsQuadRuntime.ResultFileName))
+    sCacheSheetName = CacheData(clsQuadRuntime, aPersonData, sDataType, sDataSubType, bInTable:=True)
+        
+    With clsQuadRuntime.CacheBook.Sheets(sCacheSheetName)
+        If .Range(.Cells(83, 2), .Cells(83, 2)).Value <> "Tzvi" Then
+            eTestResult = TestResult.Failure
+            GoTo teardown
+        Else
+            eTestResult = TestResult.OK
+        End If
+    End With
+    GoTo teardown
+
+err:
+    eTestResult = TestResult.Error
+    
+teardown:
+    Test_CacheData_Table = eTestResult
+    DeleteSheet clsQuadRuntime.CacheBook, sCacheSheetName
+    CloseBook clsQuadRuntime.CacheBook
+    DeleteBook clsQuadRuntime.CacheBookName, clsQuadRuntime.CacheBookPath
+
+    
+End Function
+
 
 Function TestGetAndInitQuadRuntimeNoVals() As TestResult
 Dim clsQuadRuntime As Quad_Runtime

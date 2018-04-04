@@ -1,6 +1,81 @@
 Attribute VB_Name = "Test_Table_Utils"
+'Function TestAddTableRecordManual()
+'Function TestCreateTables()
+'Function TestAddTableMultipleRecordManual()
+'Function TestAddTableMultipleRecordMultiTableManual()
+'Function TestAddTableRecordFail()
+'Function TestAddTableRecordAuto()
+
 Option Explicit
 Const CsModuleName = "Test_Table_Utils"
+
+Function TestAddTableRecordAuto() As TestResult
+Dim sFuncName As String, sSheetName As String, sResultStr As String, sExpectedResultStr As String, sColumns As String
+Dim vSource() As String, vRows() As String, vColNames() As String
+Dim wsTmp As Worksheet
+Dim rTarget As Range
+Dim dDefinitions As Dictionary
+Dim dRecord As Dictionary
+Dim eTestResult As TestResult
+Dim clsQuadRuntime As New Quad_Runtime
+
+setup:
+    clsQuadRuntime.InitProperties bInitializeCache:=True
+    
+    sFuncName = CsModuleName & "." & "AddTableRecordAuto"
+    sSheetName = "test"
+    Set wsTmp = CreateSheet(ActiveWorkbook, sSheetName, bOverwrite:=True)
+    vSource = Init2DStringArray([{"NewFoo","Foo","FooName","List","IsMember";"NewFoo","Foo","FooAge","Integer","IsValidInteger";"NewBar","Bar","BarName","List","IsMember";"NewBar","Bar","BarAge","Integer","IsValidInteger"}])
+    Set rTarget = RangeFromStrArray(vSource, wsTmp, 0, 1)
+    vRows = Init2DStringArray([{"Jon","43";"Quinton","6"}])
+    vColNames = InitStringArray(Array("FooName", "FooAge"))
+main:
+
+    Set Entry_Utils.dDefinitions = LoadDefinitions(wsTmp, rSource:=rTarget)
+    CreateTables
+        
+    AddTableRecordAuto ActiveWorkbook, "foo", vColNames, vRows
+    
+    Set dRecord = GetTableRecord("Foo", 2)
+    
+    If dRecord.Exists("FooAge") = False Then
+         eTestResult = TestResult.Failure
+         GoTo teardown
+    End If
+    
+    If dRecord.Exists("FooName") = False Then
+         eTestResult = TestResult.Failure
+         GoTo teardown
+    End If
+    
+    If dRecord.Item("FooName") <> "Quinton" Then
+         eTestResult = TestResult.Failure
+         GoTo teardown
+    End If
+    
+    If dRecord.Item("FooAge") <> "6" Then
+        eTestResult = TestResult.Failure
+    Else
+        eTestResult = TestResult.OK
+    End If
+
+
+    On Error GoTo 0
+    GoTo teardown
+    
+err:
+    eTestResult = TestResult.Error
+    
+teardown:
+    TestAddTableRecordAuto = eTestResult
+    DeleteSheet ActiveWorkbook, sSheetName
+    DeleteSheet ActiveWorkbook, "Foo"
+    DeleteSheet ActiveWorkbook, "Bar"
+    CloseBook clsQuadRuntime.CacheBook
+    DeleteBook clsQuadRuntime.CacheBookName, clsQuadRuntime.CacheBookPath
+
+End Function
+
 Function TestAddTableRecordManual() As TestResult
 ' From a definition, create entry forms, fill out values for a record, manually call function
 ' to add the single record (dont validate and use button) and then retreive the record
@@ -238,6 +313,8 @@ teardown:
     DeleteBook clsQuadRuntime.CacheBookName, clsQuadRuntime.CacheBookPath
 
 End Function
+
+
 
 Function TestAddTableMultipleRecordMultiTableManual() As TestResult
 ' From a definition, create entry forms, fill out values for a record, manually call function

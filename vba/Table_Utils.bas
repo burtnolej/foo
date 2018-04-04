@@ -1,4 +1,15 @@
 Attribute VB_Name = "Table_Utils"
+'Function   CalcCreatedTime         (sTableName As String)                  As Date
+'Function   CalcLastUpdatedTime     (sTableName As String)                  As Date
+'Function   CalcID                  (sTableName As String)                  As Integer
+'Sub        FormatID                (wsTmp As Worksheet, rCell As Range)
+'Sub        FormatLastUpdatedTime   (wsTmp As Worksheet, rCell As Range)
+'Sub        FormatCreatedTime       (wsTmp As Worksheet, rCell As Range)
+'Function   GetTableRecord          (sTableName As String, iID As Integer)  As Dictionary
+'Function   AddTableRecord          (sTableName As String)                  As Integer
+'Function   CreateTable             (sTableName As String)                  As Worksheet
+'Sub        CreateTableColumn       (wsTmp As Worksheet, iCol As Integer, sTableName As String, sFieldName As String)
+
 Option Explicit
 Const C_MODULE_NAME = "Table_Utils"
 
@@ -63,6 +74,78 @@ main:
     
     Set GetTableRecord = dRecord
 End Function
+Public Function AddTableRecordAuto(wbTmp As Workbook, sTableName As String, _
+        vColNames() As String, vRows() As String, _
+        Optional bAddDefaultFields As Boolean = True, Optional bBulkLoad As Boolean = False) As Integer
+' add 1 or more records to a "table"; used for bulk load from db or for creating tests
+' assumes records are "valid", all values need to be passed in as arguments
+' can provide a database table as the source
+' also flag that allows assumption columns are in the same order as the table so can be written to sheet in 1 write
+' param: sColumnNames, String Array; index for sRows retreived from posn in this list
+' param: sRows, String Array 2d ; data rows
+' param: sTableName, String; can derive the sheet that the rows need to be added to
+Dim sKey As Variant, sDetailKey As Variant, sSheetName As String, sColRange As String, sFuncName As String
+Dim dDetail As Dictionary
+Dim iRowCount As Integer, iColCount As Integer, iNextFree As Integer, iDefaultFieldCount As Integer
+Dim iMaxRow As Integer, iMaxCol As Integer
+Dim wsTable As Worksheet
+Dim rTarget As Range
+Dim aDefaultFields() As String
+
+    ' ASSERTIONS ---------------------------------------------------------
+
+    If Is2DArray(vRows) = False Then
+        err.Raise ErrorMsgType.BAD_ARGUMENT, Description:="arg is not of type 2D string array"
+    End If
+    
+    If IsInstance(vColNames, vbStringArray) = False Then
+        err.Raise ErrorMsgType.BAD_ARGUMENT, Description:="arg is not of type string array"
+    End If
+
+    If UBound(vColNames) <> UBound(vRows, 2) Then
+        err.Raise ErrorMsgType.BAD_ARGUMENT, Description:="col description array must have 1 item per column in rows array"
+    End If
+    ' END ASSERTIONS ------------------------------------------------------
+
+setup:
+    sFuncName = C_MODULE_NAME & "." & "AddTableRecordAuto"
+    Set wsTable = GetSheet(wbTmp, sTableName)
+    aDefaultFields = Split(C_DB_DEFAULT_FIELDS, ",")
+        
+main:
+
+    If bBulkLoad = False Then
+        iNextFree = wsTable.Range("i" & sTableName & "NextFree").Value + 1
+            
+        For iRowCount = 0 To UBound(vRows)
+            For iColCount = 0 To UBound(vRows, 2)
+                sColRange = GetDBColumnRange(sTableName, vColNames(iColCount))
+                wsTable.Range(sColRange).Rows(iNextFree) = vRows(iRowCount, iColCount)
+            Next iColCount
+    
+            For iDefaultFieldCount = 0 To UBound(aDefaultFields)
+                sColRange = GetDBColumnRange(sTableName, aDefaultFields(iDefaultFieldCount))
+                wsTable.Range(sColRange).Rows(iNextFree) = Application.Run("Calc" & aDefaultFields(iDefaultFieldCount), sTableName)
+            Next iDefaultFieldCount
+            wsTable.Range("i" & sTableName & "NextFree").Value = iNextFree
+            iNextFree = iNextFree + 1
+            
+        Next iRowCount
+    Else
+        If bAddDefaultFields = True Then
+            ' add default columns to array and calc values
+        End If
+        iMaxRow = UBound(vRows)
+        iMaxCol = UBound(vColNames)
+        With wsTable
+            Set rTarget = .Range(.Cells(1, 1), .Cells(iMaxRow + 1, iMaxCol + 1))
+            rTarget = vRows
+        End With
+        
+    End If
+    
+End Function
+
 Public Function AddTableRecord(sTableName As String) As Integer
 Dim sKey As Variant
 Dim dDefnDetails As Dictionary

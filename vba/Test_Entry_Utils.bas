@@ -1,6 +1,65 @@
 Attribute VB_Name = "Test_Entry_Utils"
 Const CsModuleName = "Test_Entry_Utils"
 
+Function TestGenerateEntryFormsIsMember() As TestResult
+' 1 entry form but record that requires IsMember validation
+Dim sFuncName As String, sSheetName As String, sResultStr As String, sExpectedResultStr As String, sTargetSheetName As String
+Dim vSource() As String
+Dim wsTmp As Worksheet
+Dim rTarget As Range
+Dim dDefinitions As Dictionary, dDefnDetails As Dictionary
+Dim eTestResult As TestResult
+Dim clsQuadRuntime As New Quad_Runtime
+
+setup:
+    ResetQuadRuntimeGlobal
+    clsQuadRuntime.InitProperties bInitializeCache:=True
+        
+    On Error GoTo err:
+    sFuncName = CsModuleName & "." & "GenerateEntryForms"
+    sSheetName = "test"
+    sTargetSheetName = "NewStudent"
+    Set wsTmp = CreateSheet(clsQuadRuntime.Book, sSheetName, bOverwrite:=True)
+    vSource = Init2DStringArray([{"NewStudent","Student","StudentName","AlphaNumeric","IsMember";"NewStudent","Student","StudentAge","Integer","IsValidInteger"}])
+    Set rTarget = RangeFromStrArray(vSource, wsTmp, 0, 1)
+    Set Entry_Utils.dDefinitions = LoadDefinitions(wsTmp, rSource:=rTarget)
+    CreateTables
+    'AddTableRecordAuto
+    
+main:
+
+    GenerateEntryForms clsQuadRuntime, clsQuadRuntime.TemplateCellSheetName
+    
+    'With clsQuadRuntime.Book.Sheets(sTargetSheetName)
+    '    Set rTarget = .Range(.Cells(2, 2), .Cells(2, 2))
+    '    rTarget = "Finbar"
+        'Set rTarget = .Range(.Cells(3, 2), .Cells(3, 2))
+        'rTarget = "666"
+        
+    '    Validate clsQuadRuntime.Book, sTargetSheetName, rTarget
+
+    '    If GetBgColor(sTargetSheetName, rTarget).AsString <> "0,255,0" Then
+    '        eTestResult = TestResult.Failure
+    '        GoTo teardown
+    '    End If
+
+    'End With
+    eTestResult = TestResult.OK
+    GoTo teardown
+    
+err:
+    eTestResult = TestResult.Error
+    
+teardown:
+    TestGenerateEntryFormsIsMember = eTestResult
+    DeleteEntryForms
+    DeleteSheet clsQuadRuntime.Book, sSheetName
+    CloseBook clsQuadRuntime.CacheBook
+    DeleteBook clsQuadRuntime.CacheBookName
+    
+End Function
+
+
 Function TestGenerateEntryForms() As TestResult
 ' 1 entry form
 ' test if cell validation works
@@ -339,7 +398,94 @@ teardown:
     CloseBook clsQuadRuntime.CacheBook
     DeleteBook clsQuadRuntime.CacheBookName
 End Function
-
+Function TestIsMemberOfTable() As TestResult
+Dim sFuncName As String, sSheetName As String, sTableName As String
+Dim eTestResult As TestResult
+Dim vSource() As String, vColNames() As String, vRows() As String
+Dim wsTmp As Worksheet
+Dim rTarget As Range, rInput As Range
+Dim bTestPassed As Boolean
+Dim clsQuadRuntime As New Quad_Runtime
+ 
+setup:
+    On Error GoTo err:
+    clsQuadRuntime.InitProperties bInitializeCache:=True
+    sSheetName = "test"
+    sFuncName = CsModuleName & "." & "IsMemberOfTable"
+    Set wsTmp = CreateSheet(ActiveWorkbook, sSheetName, bOverwrite:=True)
+    vSource = Init2DStringArray([{"NewFoo","Foo","FooName","List","IsMember";"NewFoo","Foo","FooAge","Integer","IsValidInteger";"NewBar","Bar","BarName","List","IsMember";"NewBar","Bar","BarAge","Integer","IsValidInteger"}])
+    Set rTarget = RangeFromStrArray(vSource, wsTmp, 0, 1)
+    vRows = Init2DStringArray([{"Jon","43";"Quinton","6"}])
+    vColNames = InitStringArray(Array("FooName", "FooAge"))
+    Set Entry_Utils.dDefinitions = LoadDefinitions(wsTmp, rSource:=rTarget)
+    CreateTables
+    AddTableRecordAuto ActiveWorkbook, "foo", vColNames, vRows
+    
+main:
+    If IsMember("Jon", "Foo", "FooName") <> True Then
+        eTestResult = TestResult.Failure
+    Else
+        eTestResult = TestResult.OK
+    End If
+    On Error GoTo 0
+    GoTo teardown
+    
+err:
+    eTestResult = TestResult.Error
+    
+teardown:
+    TestIsMemberOfTable = eTestResult
+    DeleteSheet ActiveWorkbook, sSheetName
+    DeleteSheet ActiveWorkbook, "Foo"
+    DeleteSheet ActiveWorkbook, "Bar"
+    CloseBook clsQuadRuntime.CacheBook
+    DeleteBook clsQuadRuntime.CacheBookName, clsQuadRuntime.CacheBookPath
+    
+End Function
+Function TestIsMemberOfTableFailure() As TestResult
+Dim sFuncName As String, sSheetName As String, sTableName As String
+Dim eTestResult As TestResult
+Dim vSource() As String, vColNames() As String, vRows() As String
+Dim wsTmp As Worksheet
+Dim rTarget As Range, rInput As Range
+Dim bTestPassed As Boolean
+Dim clsQuadRuntime As New Quad_Runtime
+ 
+setup:
+    On Error GoTo err:
+    clsQuadRuntime.InitProperties bInitializeCache:=True
+    sSheetName = "test"
+    sFuncName = CsModuleName & "." & "IsMemberOfTable"
+    Set wsTmp = CreateSheet(ActiveWorkbook, sSheetName, bOverwrite:=True)
+    vSource = Init2DStringArray([{"NewFoo","Foo","FooName","List","IsMember";"NewFoo","Foo","FooAge","Integer","IsValidInteger";"NewBar","Bar","BarName","List","IsMember";"NewBar","Bar","BarAge","Integer","IsValidInteger"}])
+    Set rTarget = RangeFromStrArray(vSource, wsTmp, 0, 1)
+    vRows = Init2DStringArray([{"Jon","43";"Quinton","6"}])
+    vColNames = InitStringArray(Array("FooName", "FooAge"))
+    Set Entry_Utils.dDefinitions = LoadDefinitions(wsTmp, rSource:=rTarget)
+    CreateTables
+    AddTableRecordAuto ActiveWorkbook, "foo", vColNames, vRows
+    
+main:
+    If IsMember("Nancy", "Foo", "FooName") <> False Then
+        eTestResult = TestResult.Failure
+    Else
+        eTestResult = TestResult.OK
+    End If
+    On Error GoTo 0
+    GoTo teardown
+    
+err:
+    eTestResult = TestResult.Error
+    
+teardown:
+    TestIsMemberOfTableFailure = eTestResult
+    DeleteSheet ActiveWorkbook, sSheetName
+    DeleteSheet ActiveWorkbook, "Foo"
+    DeleteSheet ActiveWorkbook, "Bar"
+    CloseBook clsQuadRuntime.CacheBook
+    DeleteBook clsQuadRuntime.CacheBookName, clsQuadRuntime.CacheBookPath
+    
+End Function
 Function TestIsMember() As TestResult
 Dim sFuncName As String
 Dim sSheetName As String
@@ -418,10 +564,6 @@ teardown:
     DeleteSheet ActiveWorkbook, sSheetName
 End Function
 
-
-Sub test()
-    TestIsRecordValid
-End Sub
 
 Function TestIsRecordValid() As TestResult
 Dim sFuncName As String

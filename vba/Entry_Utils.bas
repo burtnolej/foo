@@ -163,24 +163,32 @@ err:
 
 End Function
 Public Function IsMember(ParamArray args()) As Boolean
-Dim sFuncName As String
+Dim sFuncName As String, sTableName As String, sColRange As String
 Dim aValues() As String
 Dim iValue As Variant
-Dim sTableName As String
 
 setup:
+            
     sFuncName = C_MODULE_NAME & "." & "IsMember"
     
-    If UBound(args) <> 1 Then
-        FuncLogIt sFuncName, "Requires 2 parameters ]" & CStr(UBound(args) + 1) & "] given", C_MODULE_NAME, LogMsgType.OK
+    If UBound(args) < 1 Then
+        FuncLogIt sFuncName, "Requires at least 2 parameters ]" & CStr(UBound(args) + 1) & "] given", C_MODULE_NAME, LogMsgType.OK
         Exit Function
     End If
     iValue = args(0)
     sTableName = args(1)
+    If UBound(args) > 1 Then
+        ' col needs to be passed to do lookup in a "Table"
+        sColName = args(2)
+        sColRange = GetDBColumnRange(sTableName, sColName)
+    Else
+        ' this is the old pre-table range name
+        sColRange = "l" & sTableName
+    End If
     
 main:
 
-    aValues = ListFromRange(ActiveWorkbook.Sheets(sTableName), "l" & sTableName)
+    aValues = ListFromRange(ActiveWorkbook.Sheets(sTableName), sColRange)
     
     If InArray(aValues, iValue) = True Then
         IsMember = True

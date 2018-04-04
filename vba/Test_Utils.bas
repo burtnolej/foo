@@ -86,7 +86,7 @@ End Function
 
 Sub DumpTestResultsToDB(dProjectTestResult As Dictionary, sBookName As String, _
         sDatabaseName As String, sTableName As String, _
-        Optional sFileName As String = "C:\\Users\\burtnolej\\unifoo.txt")
+        Optional sFilename As String = "C:\\Users\\burtnolej\\unifoo.txt")
 Dim sModuleTest As Variant, vTestResult As Variant, sTestCase As Variant, vTestCase As Variant
 Dim aColumnDefns() As Variant, aRows() As String
 Dim aColumns() As String, aArgs() As String
@@ -119,22 +119,22 @@ Dim sExecPath As String
     
     aRows = ReDim2DArray(aRows, iResultCount, 6)
         
-    CreatePySqliteArgsFile sDatabaseName, sTableName, aColumnDefns:=aColumnDefns, sFileName:=sFileName, _
+    CreatePySqliteArgsFile sDatabaseName, sTableName, aColumnDefns:=aColumnDefns, sFilename:=sFilename, _
                            aRows:=aRows, aColumns:=aColumns
     
     ' test is the table already exists
     'CreatePySqliteArgsFile sDatabaseName, sTableName, sFileName:=sFileName
-    aArgs = InitStringArray(Array("python", sExecPath & "excel_database_util.py", "--access_type table_exists", "--input_filename " & sFileName))
+    aArgs = InitStringArray(Array("python", sExecPath & "excel_database_util.py", "--access_type table_exists", "--input_filename " & sFilename))
     If Left(ShellRun(aArgs), 4) <> "True" Then
         ' create db/table
         aArgs = InitStringArray(Array("python", sExecPath & "excel_database_util.py", _
-                "--access_type create", "--input_filename " & sFileName))
+                "--access_type create", "--input_filename " & sFilename))
         sResults = ShellRun(aArgs)
     End If
 
     ' insert rows
     aArgs = InitStringArray(Array("python", sExecPath & "excel_database_util.py", _
-            "--access_type insert", "--input_filename " & sFileName))
+            "--access_type insert", "--input_filename " & sFilename))
     sResults = ShellRun(aArgs)
     
 End Sub
@@ -170,13 +170,13 @@ End Function
 Sub DoProjectTestRunner()
 Dim sIncModules As String
 
-    'sIncModules = "Test_Quad_Runtime"
+    'sIncModules = "Test_Macros"
     'ProjectTestRunner sIncModules
     'ProjectTestRunner
     'Exit Sub
     sIncModules = "Test_Quad_Runtime"
     sIncModules = sIncModules & ",Test_App_Schedule,Test_Array_Utils"
-    sIncModules = sIncModules & ",Test_DB_Utils"
+    'sIncModules = sIncModules & ",Test_DB_Utils"
     sIncModules = sIncModules & ",Test_Entry_Utils"
     sIncModules = sIncModules & ",Test_Dict_Utils,Test_File_Utils"
     sIncModules = sIncModules & ",Test_Filter_Utils,Test_Format_Utils"
