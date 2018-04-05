@@ -138,7 +138,6 @@ err:
     FuncLogIt sFuncName, "Value [" & CStr(iValue) & "] is invalid [" & NotAnInteger & "]", C_MODULE_NAME, LogMsgType.OK
 
 End Function
-
 Public Function IsValidPrep(ParamArray args()) As Boolean
 Dim sFuncName As String
 Dim aPreps() As String
@@ -161,6 +160,15 @@ err:
     IsValidPrep = False
     FuncLogIt sFuncName, "Value [" & CStr(iValue) & "] is invalid [" & NotValidPrep & "]", C_MODULE_NAME, LogMsgType.OK
 
+End Function
+Public Function IsValidStudentName(ParamArray args()) As Boolean
+
+    'GetDBColumnRange("person_teacher","Name")
+    
+    IsValidStudentName = True
+End Function
+Public Function IsValidTeacherName(ParamArray args()) As Boolean
+    IsValidTeacherName = True
 End Function
 Public Function IsMember(ParamArray args()) As Boolean
 Dim sFuncName As String, sTableName As String, sColRange As String
@@ -446,6 +454,7 @@ main:
             sTableName = rRow.Columns(2)
             sFieldName = rRow.Columns(3)
             sValidationType = rRow.Columns(4)
+            sValidationParam = rRow.Columns(5)
             sValidationParam = rRow.Columns(5)
             
             Set dDefnDetail = New Dictionary

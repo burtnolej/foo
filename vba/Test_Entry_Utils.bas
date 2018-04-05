@@ -4,7 +4,8 @@ Const CsModuleName = "Test_Entry_Utils"
 Function TestGenerateEntryFormsIsMember() As TestResult
 ' 1 entry form but record that requires IsMember validation
 Dim sFuncName As String, sSheetName As String, sResultStr As String, sExpectedResultStr As String, sTargetSheetName As String
-Dim vSource() As String
+Dim sDefn As String
+Dim vSource() As String, vStudents() As String, vTeachers() As String, vLessons() As String
 Dim wsTmp As Worksheet
 Dim rTarget As Range
 Dim dDefinitions As Dictionary, dDefnDetails As Dictionary
@@ -20,11 +21,30 @@ setup:
     sSheetName = "test"
     sTargetSheetName = "NewStudent"
     Set wsTmp = CreateSheet(clsQuadRuntime.Book, sSheetName, bOverwrite:=True)
-    vSource = Init2DStringArray([{"NewStudent","Student","StudentName","AlphaNumeric","IsMember";"NewStudent","Student","StudentAge","Integer","IsValidInteger"}])
+    
+    sDefn = "NewStudent^Student^Name^String^^" & DOUBLEDOLLAR
+    sDefn = sDefn & "NewStudent^person_student^Age^Integer^IsInteger^" & DOUBLEDOLLAR
+    sDefn = sDefn & "NewStudent^person_student^Prep^Integer^IsValidPrep^" & DOUBLEDOLLAR
+    sDefn = sDefn & "NewTeacher^person_teacher^Name^String^^" & DOUBLEDOLLAR
+    sDefn = sDefn & "NewTeacher^person_teacher^Prep^Integer^IsValidPrep^" & DOUBLEDOLLAR
+    sDefn = sDefn & "NewLesson^Lesson^StudentName^String^IsValidStudentName^Student" & DOUBLEDOLLAR
+    sDefn = sDefn & "NewLesson^Lesson^TeacherName^String^IsValidTeacherName^Teacher"
+    vSource = Init2DStringArrayFromString(sDefn)
+    
     Set rTarget = RangeFromStrArray(vSource, wsTmp, 0, 1)
     Set Entry_Utils.dDefinitions = LoadDefinitions(wsTmp, rSource:=rTarget)
-    CreateTables
-    'AddTableRecordAuto
+    
+    sDefn = "Name^Age^Prep" & DOUBLEDOLLAR
+    sDefn = sDefn & "Jon^45^1" & DOUBLEDOLLAR
+    sDefn = sDefn & "Quinton^6^2"
+    vStudents = Init2DStringArrayFromString(sDefn)
+    sCacheSheetName = CacheData(clsQuadRuntime, vStudents, "person", "student", bInTable:=True)
+    
+    sDefn = "Name^Age^Prep" & DOUBLEDOLLAR
+    sDefn = sDefn & "Nancy^46^1" & DOUBLEDOLLAR
+    sDefn = sDefn & "Betty^36^2"
+    vTeachers = Init2DStringArrayFromString(sDefn)
+    sCacheSheetName = CacheData(clsQuadRuntime, vTeachers, "person", "teacher", bInTable:=True)
     
 main:
 
