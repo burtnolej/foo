@@ -68,6 +68,7 @@ err:
     
 teardown:
     TestAddTableRecordAuto = eTestResult
+    clsQuadRuntime.Delete
     DeleteSheet ActiveWorkbook, sSheetName
     DeleteSheet ActiveWorkbook, "Foo"
     DeleteSheet ActiveWorkbook, "Bar"
@@ -105,7 +106,7 @@ main:
     Set Entry_Utils.dDefinitions = LoadDefinitions(wsTmp, rSource:=rTarget)
     CreateTables
     
-    GenerateEntryForms clsQuadRuntime, clsQuadRuntime.TemplateCellSheetName
+    GenerateEntryForms clsQuadRuntime
     
     SetEntryValue "NewFoo", "FooAge", 123
     SetEntryValue "NewFoo", "FooName", "blahblah"
@@ -142,6 +143,7 @@ err:
     
 teardown:
     TestAddTableRecordManual = eTestResult
+    clsQuadRuntime.Delete
     DeleteSheet ActiveWorkbook, sSheetName
     DeleteSheet ActiveWorkbook, "Foo"
     DeleteSheet ActiveWorkbook, "Bar"
@@ -244,7 +246,7 @@ main:
 
     Set Entry_Utils.dDefinitions = LoadDefinitions(wsTmp, rSource:=rTarget)
     CreateTables
-    GenerateEntryForms clsQuadRuntime, clsQuadRuntime.TemplateCellSheetName
+    GenerateEntryForms clsQuadRuntime
         
     SetEntryValue "NewFoo", "FooAge", 123
     SetEntryValue "NewFoo", "FooName", "blahblah"
@@ -305,6 +307,7 @@ err:
     
 teardown:
     TestAddTableMultipleRecordManual = eTestResult
+    clsQuadRuntime.Delete
     DeleteSheet ActiveWorkbook, sSheetName
     DeleteSheet ActiveWorkbook, "Foo"
     DeleteSheet ActiveWorkbook, "Bar"
@@ -343,7 +346,7 @@ main:
 
     Set Entry_Utils.dDefinitions = LoadDefinitions(wsTmp, rSource:=rTarget)
     CreateTables
-    GenerateEntryForms clsQuadRuntime, clsQuadRuntime.TemplateCellSheetName
+    GenerateEntryForms clsQuadRuntime
     
     ' Table Foo
     SetEntryValue "NewFoo", "FooAge", 123
@@ -409,6 +412,7 @@ err:
     
 teardown:
     TestAddTableMultipleRecordMultiTableManual = eTestResult
+    clsQuadRuntime.Delete
     DeleteSheet ActiveWorkbook, sSheetName
     DeleteSheet ActiveWorkbook, "Foo"
     DeleteSheet ActiveWorkbook, "Bar"
@@ -444,7 +448,7 @@ main:
 
     Set Entry_Utils.dDefinitions = LoadDefinitions(wsTmp, rSource:=rTarget)
     CreateTables
-    GenerateEntryForms clsQuadRuntime, clsQuadRuntime.TemplateCellSheetName
+    GenerateEntryForms clsQuadRuntime
     
     iResultCode = SetEntryValue("NewFoo", "BadFieldName", 123)
     
@@ -461,7 +465,7 @@ err:
     
 teardown:
     TestAddTableRecordFail = eTestResult
-    
+    clsQuadRuntime.Delete
     DeleteSheet ActiveWorkbook, sSheetName
     DeleteSheet ActiveWorkbook, "Foo"
     DeleteSheet ActiveWorkbook, "Bar"

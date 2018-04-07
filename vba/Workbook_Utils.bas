@@ -54,6 +54,9 @@ Dim ffFileFormat As XlFileFormat
         ffFileFormat = xlOpenXMLWorkbook
     ElseIf Right(sName, 4) = ".xls" Then
         ffFileFormat = xlExcel12
+    ElseIf InStr(sName, ".") = 0 Then
+        sName = sName & ".xls"
+        ffFileFormat = xlExcel12
     Else
         err.Raise Error_Utils.BAD_FILE_EXTENSION, "unsupported file extension"
     End If

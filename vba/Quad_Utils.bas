@@ -6,14 +6,50 @@ Attribute VB_Name = "Quad_Utils"
 'Public Function GetQuadDataFromDB
 'Public Function Row2Dict
 'Public Function SheetTableLookup()
-
 Const C_MODULE_NAME = "Quad_Utils"
+
+Enum QuadDataType
+    schedule = 1
+    person = 2
+End Enum
+
+Const C_QUAD_DATA_TYPE = "schedule,person"
+
+Enum QuadSubDataType
+    student = 1
+    teacher = 2
+End Enum
+Const C_QUAD_SUB_DATA_TYPE = "student,teacher"
+
+Enum QuadScope
+    all = 1
+    specified = 2
+End Enum
+Const C_QUAD_SCOPE = "all,specified"
+
 Private clsQuadRuntimeGlobal As Quad_Runtime
+
+Function EnumQuadDataType(i As Long) As String
+    EnumQuadDataType = Split(C_QUAD_DATA_TYPE, COMMA)(i - 1)
+End Function
+Function GetQuadDataTypeEnumFromValue(sValue As String) As Long
+    GetQuadDataTypeEnumFromValue = IndexArray(C_QUAD_DATA_TYPE, sValue)
+End Function
+Function EnumQuadSubDataType(i As Long) As String
+    EnumQuadSubDataType = Split(C_QUAD_SUB_DATA_TYPE, COMMA)(i - 1)
+End Function
+Function GetQuadSubDataTypeEnumFromValue(sValue As String) As Long
+    GetQuadSubDataTypeEnumFromValue = IndexArray(C_QUAD_SUB_DATA_TYPE, sValue)
+End Function
+Function EnumQuadScope(i As Long) As String
+    EnumQuadScope = Split(C_QUAD_SCOPE, COMMA)(i - 1)
+End Function
+Function GetQuadScopeEnumFromValue(sValue As String) As Long
+    GetQuadScopeEnumFromValue = IndexArray(C_QUAD_SCOPE, sValue)
+End Function
 Public Sub ResetQuadRuntimeGlobal()
     Set clsQuadRuntimeGlobal = Nothing
 End Sub
-
-
 Public Function InitQuadRuntimeGlobal(Optional dQuadRuntimeValues As Dictionary) As Quad_Runtime
 Dim clsQuadRuntime As New Quad_Runtime
 Dim vKey As Variant
@@ -79,7 +115,6 @@ notfound:
     SheetTableLookup = -1
 
 End Function
-
 Public Function Row2Dict(wsDataSheet As Worksheet, sRangeName As String, iRowId As Integer) As Dictionary
 Dim vColumnNames As Variant, vDataRow As Variant, vColumnNamesTransposed As Variant, vDataRowTransposed As Variant
 Dim rColumns As Range, rData As Range, rDataRow As Range
@@ -104,7 +139,6 @@ Dim iCell As Variant
     Set Row2Dict = dValues
         
 End Function
-
 Public Sub SetCacheBook(ByRef sCacheBookName As String, ByRef sCacheBookPath As String)
 Dim sFuncName As String
 
@@ -134,7 +168,6 @@ main:
         FuncLogIt sFuncName, "Cache workbook path not set so defaulting to [" & sCacheBookPath & "]", C_MODULE_NAME, LogMsgType.INFO
     End If
 End Sub
-
 Public Sub SetBook(ByRef sBookName As String, ByRef sBookPath As String)
 Dim sFuncName As String
 
@@ -157,7 +190,6 @@ main:
         FuncLogIt sFuncName, "main workbook path not set so defaulting to [" & sBookPath & "]", C_MODULE_NAME, LogMsgType.INFO
     End If
 End Sub
-
 Public Sub CreateQuadArgsFile(clsQuadRuntime As Quad_Runtime, sSpName As String, _
         Optional dSpArgs As Dictionary, _
         Optional bHeaderFlag As Boolean = False)
@@ -204,12 +236,21 @@ Dim aArgs() As String
     ShellRun aArgs
     
 End Sub
-
-Public Function IsDataCached(clsQuadRuntime As Quad_Runtime, sDataType As String, sSubDataType As String, _
+Public Function IsDataCached(clsQuadRuntime As Quad_Runtime, _
+                             eQuadDataType As QuadDataType, _
+                             eQuadSubDataType As QuadSubDataType, _
                     Optional iDataId As Integer) As Boolean
+'<<<
+' purpose: has this data set already been cached
+' param  : clsQuadRuntime, Quad_Runtime; all config controlling names of books, sheets, ranges for
+'        :                 also contains any variables that need to be passed continually
+' param  : eQuadSubDataType, QuadSubDataType; what type of person are we querying
+' param  : eQuadDataType, QuadDataType; what type of data are we querying
+' returns: Boolean
+'>>>
 Dim sCacheSheetName As String
 
-    sCacheSheetName = sDataType & "_" & sSubDataType
+    sCacheSheetName = EnumQuadDataType(eQuadDataType) & "_" & EnumQuadSubDataType(eQuadSubDataType)
     If iDataId <> 0 Then
         sCacheSheetName = sCacheSheetName & "_" & CStr(iDataId)
     End If
@@ -218,56 +259,43 @@ Dim sCacheSheetName As String
                     
 End Function
 
-Public Function ParseRawData(sScheduleStr As String) As String()
+Public Function ParseRawData(sData As String) As String()
 '"" take the unparsed output returned from python and put into a 2d array
 '   where 1 row is 1 day/period and so # periods * # days in total (55 in the beginning)
 '   and then columns containing subject,studentname,classtype,location
-
-Dim iNumRows As Integer, iNumCols As Integer, i As Integer, j As Integer
-Dim vRows As Variant
-Dim vFields As Variant
-Dim aSchedule() As String
-
-    vRows = Split(sScheduleStr, DOUBLEDOLLAR)
-    iNumRows = UBound(vRows)
-    iNumCols = UBound(Split(vRows(0), HAT))
-    
-    ReDim aSchedule(0 To iNumRows, 0 To iNumCols)
-    
-    For i = 0 To iNumRows
-        vFields = Split(vRows(i), HAT)
-        
-        For j = 0 To iNumCols
-            aSchedule(i, j) = vFields(j)
-        Next j
-    Next i
-    
-    ParseRawData = aSchedule
+    ParseRawData = Delim2Array(sData)
 End Function
 
-Public Function CacheData(clsQuadRuntime As Quad_Runtime, aData() As String, sDataType As String, sSubDataType As String, _
-                          Optional iDataId As Integer, _
-                          Optional bCacheNameOnly As Boolean = False) As String
-                                  
-' in a backsheet
+Public Function CacheData(clsQuadRuntime As Quad_Runtime, _
+                          aData() As String, _
+                          eQuadDataType As QuadDataType, _
+                          eQuadSubDataType As QuadSubDataType, _
+                 Optional iDataId As Integer, _
+                 Optional bCacheNameOnly As Boolean = False, _
+                 Optional bInTable As Boolean = False) As String
+'<<<
+' purpose: take a data set (from db etc) and store it in a worksheet "cache"
+'        : store it in "Table" form if required, where Table adds column ranges etc
+'        : name of the worksheet is a concat of the passed args so it can be constructed automatically
+' param  : aData, string 2D array; contains the raw data to be stored
+'        : 1st row contains column names
+' param  : eQuadDataType, QuadDataType; what type of data are we querying
+' param  : eQuadSubDataType, QuadSubDataType; what type of person are we querying
+' param  : iDataID (optional), Integer; If its a specific person not all
+' param  : bCacheNameOnly, boolean; True if caller just wants to retreive worksheet name of cache
+' param  : bInTable, boolean; True if caller wants cache stored in Table form
+' returns: String; name of the cache worksheet
+'>>>
 Dim wbCache As Workbook
 Dim wsCache As Worksheet
-Dim iNumRows As Integer, iNumCols As Integer
+Dim iNumRows As Integer, iNumCols As Integer, iColCount As Integer
 Dim rTarget As Range
 Dim nData As Name
 Dim sCacheSheetName As String
+Dim vColNames() As String
 
-    ' Assertions --------------------------------
-    If InArray(Array("schedule", "person"), sDataType) = False Then
-        err.Raise ErrorMsgType.BAD_ARGUMENT, Description:="arg sPersonType needs to be in [schedule|person] got [" & sDataType & "]"
-    End If
-    
-    If InArray(Array("teacher", "student"), sSubDataType) = False Then
-        err.Raise ErrorMsgType.BAD_ARGUMENT, Description:="arg sScope needs to be in [teacher|student] got [" & sSubDataType & "]"
-    End If
-    ' END Assertions --------------------------------
-    
-    sCacheSheetName = sDataType & "_" & sSubDataType
+    sCacheSheetName = EnumQuadDataType(eQuadDataType) & "_" & EnumQuadSubDataType(eQuadSubDataType)
+
     If iDataId <> 0 Then
         sCacheSheetName = sCacheSheetName & "_" & CStr(iDataId)
     End If
@@ -277,21 +305,32 @@ Dim sCacheSheetName As String
         GoTo endfunc
     End If
     
-    Set wsCache = CreateSheet(clsQuadRuntime.CacheBook, sCacheSheetName, bOverwrite:=True)
-    If SheetExists(clsQuadRuntime.CacheBook, "Sheet1") Then
-        DeleteSheet clsQuadRuntime.CacheBook, "Sheet1" ' can be deleted now not only sheet
-    End If
-    
-    iNumRows = UBound(aData)
-    iNumCols = UBound(aData, 2)
-    
-    With wsCache
-        .Activate
-        Set rTarget = .Range(.Cells(1, 1), .Cells(iNumRows + 1, iNumCols + 1))
-        rTarget.Value = aData
+    ' wrap the data in a Table structure from Table_Utils or create manually
+    If bInTable = True Then
+        CreateTable sCacheSheetName
+        ReDim vColNames(0 To UBound(aData, 2))
+        For iColCount = 0 To UBound(aData, 2)
+            vColNames(iColCount) = aData(0, iColCount)
+        Next iColCount
+        AddTableRecordAuto clsQuadRuntime.CacheBook, sCacheSheetName, vColNames, aData, bBulkLoad:=True
+
+    Else
+        Set wsCache = CreateSheet(clsQuadRuntime.CacheBook, sCacheSheetName, bOverwrite:=True)
+        If SheetExists(clsQuadRuntime.CacheBook, "Sheet1") Then
+            DeleteSheet clsQuadRuntime.CacheBook, "Sheet1" ' can be deleted now not only sheet
+        End If
         
-        CreateNamedRange ActiveWorkbook, rTarget.Address, sCacheSheetName, clsQuadRuntime.CacheRangeName, sLocalScope:="True"
-    End With
+        iNumRows = UBound(aData)
+        iNumCols = UBound(aData, 2)
+        
+        With wsCache
+            .Activate
+            Set rTarget = .Range(.Cells(1, 1), .Cells(iNumRows + 1, iNumCols + 1))
+            rTarget.Value = aData
+            
+            CreateNamedRange ActiveWorkbook, rTarget.Address, sCacheSheetName, clsQuadRuntime.CacheRangeName, sLocalScope:="True"
+        End With
+    End If
 
 endfunc:
     CacheData = sCacheSheetName

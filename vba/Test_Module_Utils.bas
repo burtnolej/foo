@@ -105,6 +105,10 @@ teardown:
     Call DeleteModule(Application.ActiveWorkbook, sModuleName)
     Call DeleteFile(sResultFileName)
 End Function
+
+Sub test()
+    TestGetProcsInModules
+End Sub
 Function TestGetProcsInModules() As TestResult
 Dim sFuncName As String
 Dim wsTmp As Worksheet
@@ -121,17 +125,31 @@ setup:
     wbName = "foobar"
     
     sCode = "public function test(sFoo as string, optional sBar as string) as String" & vbNewLine & _
-            "'foo1 test function" & vbNewLine & _
+ _
+            "'<<<" & vbNewLine & _
+            "'param:sFoo, string" & vbNewLine & _
+            "'param:sBar, string" & vbNewLine & _
+            "'>>>" & vbNewLine & _
+ _
             "    test=" & """barfoo""" & vbNewLine & _
             "end function" & vbNewLine & _
             "" & vbNewLine & _
+ _
             "public sub test2(aTmp() as integer)" & vbNewLine & _
-            "'foo1 test2 sub" & vbNewLine & _
+ _
+            "'<<<" & vbNewLine & _
+            "'param:aTmp, integer array" & vbNewLine & _
+            "'>>>" & vbNewLine & _
+ _
             "    test=" & """barfoo""" & vbNewLine & _
             "end function"
     sCode2 = "public function test3(sFoo as string, optional sBar as string) as String" & vbNewLine & _
+            "'<<<" & vbNewLine & _
+ _
             "'foo2 test3 function" & vbNewLine & _
             "'comment line 2" & vbNewLine & _
+            "'>>>" & vbNewLine & _
+ _
             "    test=" & """barfoo""" & vbNewLine & _
             "end function" & vbNewLine
 

@@ -2,6 +2,75 @@ Attribute VB_Name = "Test_File_Utils"
 Option Explicit
 Const CsModuleName = "Test_File_Utils"
 
+
+Function TestInitFileArray() As TestResult
+Dim sFilePath As String
+Dim vArray() As String, vResultArray() As String
+Dim eTestResult As TestResult
+
+setup:
+    On Error GoTo err
+    sFilePath = "C:\\Users\\burtnolej\\foo.txt"
+    
+main:
+    InitFileArray sFilePath, 30
+    vResultArray = ReadFile2Array(sFilePath, bSingleCol:=True)
+
+    If vResultArray(15) <> " " Then
+        eTestResult = TestResult.Failure
+    Else
+        eTestResult = TestResult.OK
+    End If
+    On Error GoTo 0
+    GoTo teardown
+    
+err:
+    eTestResult = TestResult.Error
+    
+teardown:
+    TestInitFileArray = eTestResult
+    Call DeleteFile(sFilePath)
+End Function
+
+
+Function TestWriteArray2File() As TestResult
+Dim sFilePath As String
+Dim vArray() As String, vResultArray() As String
+Dim i As Integer
+Dim oFile As Object
+Dim eTestResult As TestResult
+
+setup:
+    On Error GoTo err
+    sFilePath = "C:\\Users\\burtnolej\\foo.txt"
+    Set oFile = CreateFile(sFilePath)
+    ReDim vArray(0 To 29)
+    
+    oFile.Close
+    For i = 0 To 29
+        vArray(i) = SPACE
+    Next i
+    
+    vArray(15) = "foobar"
+    
+    WriteArray2File vArray, sFilePath
+    vResultArray = ReadFile2Array(sFilePath, bSingleCol:=True)
+    
+    If vResultArray(15) <> "foobar" Then
+        eTestResult = TestResult.Failure
+    Else
+        eTestResult = TestResult.OK
+    End If
+    On Error GoTo 0
+    GoTo teardown
+    
+err:
+    eTestResult = TestResult.Error
+    
+teardown:
+    TestWriteArray2File = eTestResult
+    Call DeleteFile(sFilePath)
+End Function
 Function TestReadFile2Array() As TestResult
 Dim sFuncName As String, sText As String, sFilePath As String
 Dim oFile As Object
@@ -85,5 +154,57 @@ teardown:
     Call DeleteFile(sFile2Name)
     Call DeleteFile(sFile3Name)
 End Function
+Function Test_GetFolderFiles() As TestResult
+Dim sFuncName As String
+Dim sPath As String
+Dim eTestResult As TestResult
+Dim sFile1Name As String, sFile2Name As String, sFile3Name As String
+Dim vFiles() As String
+Dim vExtensions() As String
 
+setup:
+    'On Error GoTo err:
+    vExtensions = InitStringArray(Array("jpg", "png"))
+    sFuncName = CsModuleName & "." & "GetFolderFiles"
+    sPath = "C:\Users\burtnolej\icon"
+    CreateDir sPath
+    
+    sFile1Name = sPath & "\file1.jpg"
+    CreateFile sFile1Name
+   
+    sFile2Name = sPath & "\file2.png"
+    CreateFile sFile2Name
+    
+    sFile3Name = sPath & "\file3.txt"
+    CreateFile sFile3Name
+    
+main:
+
+    vFiles = GetFolderFiles(sPath & "\")
+    If UBound(vFiles) <> 2 Then
+        eTestResult = TestResult.Failure
+        GoTo teardown
+    End If
+    
+    vFiles = GetFolderFiles(sPath & "\", vExtensions:=vExtensions)
+    If UBound(vFiles) <> 1 Then
+        eTestResult = TestResult.Failure
+    Else
+        eTestResult = TestResult.OK
+    End If
+    On Error GoTo 0
+    GoTo teardown
+    
+err:
+    eTestResult = TestResult.Error
+    
+teardown:
+    Test_GetFolderFiles = eTestResult
+    Call DeleteFile(sFile1Name)
+    Call DeleteFile(sFile2Name)
+    Call DeleteFile(sFile3Name)
+    
+    RemoveDir sPath
+    
+End Function
 

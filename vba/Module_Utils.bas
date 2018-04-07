@@ -207,6 +207,7 @@ Dim VBCodeModule As VBIDE.CodeModule
 Dim iLineNum As Integer
 Dim sComments As String
 Dim dDetail As Dictionary
+Dim sInComments As String 'In,Out or None
 
     For Each sProcName In dProc.Keys
         sComments = ""
@@ -216,24 +217,30 @@ Dim dDetail As Dictionary
 
         Set VBCodeModule = dDetail.Item("CodeModule")
 
-        
+        sInComments = "None"
         For iLineNum = dDetail.Item("FirstLine") To dDetail.Item("FirstLine") + 10
-            If Left(VBCodeModule.Lines(iLineNum, 1), 1) = QUOTE Then
+            If Left(VBCodeModule.Lines(iLineNum, 1), 4) = "'<<<" Then
+                sInComments = "In"
+                GoTo nextilinenum
+            End If
+            
+            If Left(VBCodeModule.Lines(iLineNum, 1), 4) = "'>>>" Then
+                sInComments = "Out"
+                GoTo nextproc
+            End If
+            
+            If sInComments = "In" Then
                 If sComments = BLANK Then
                     sComments = VBCodeModule.Lines(iLineNum, 1)
                 Else
-                    sComments = vbCrLf & VBCodeModule.Lines(iLineNum, 1)
-
+                    sComments = sComments & vbCrLf & VBCodeModule.Lines(iLineNum, 1)
                 End If
-            Else
-                ' we assume there are no comments after a non comment line
-                ' even if its the first tested line
-                GoTo nextilinenum
             End If
 
 nextilinenum:
         Next iLineNum
-        
+
+nextproc:
     dDetail.Add "Comments", sComments
     dProc.Remove sProcName
     dProc.Add sProcName, dDetail

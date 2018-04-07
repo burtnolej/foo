@@ -1,4 +1,17 @@
 Attribute VB_Name = "Ribbon_Utils"
+'Public Sub getPressed(control As IRibbonControl, ByRef returnedVal)
+'Public Sub GetText(control As IRibbonControl, ByRef returnedVal)
+'Function GetControlValues(Optional ByRef vControls As Variant) As Dictionary
+'Public Sub OnChange(control As IRibbonControl, text As Variant, Optional sControlID As String)
+'Sub OnAction(control As IRibbonControl, Optional bCheckbox As Boolean)
+'Function RibbonState() As Long
+'Sub ribbonLoaded(ribbon As IRibbonUI)
+'Sub rxgal_getImage(control As IRibbonControl, ByRef returnedVal)
+'Sub rxgal_getItemImage(control As IRibbonControl, index As Integer, ByRef returnedVal)
+'Sub rxgal_getItemLabel(control As IRibbonControl, index As Integer, ByRef returnedVal)
+'Sub rxgal_getItemCount(control As IRibbonControl, ByRef returnedVal)
+'Sub GetContent(control As IRibbonControl, ByRef returnedVal)
+
 Option Explicit
 Const C_MODULE_NAME = "Ribbon_Utils"
 
@@ -24,9 +37,7 @@ Dim checkVal As Boolean
 Dim ListItemsRg As Range
 Dim dStartDate As Double
 Public Sub getPressed(control As IRibbonControl, ByRef returnedVal)
-'
 ' Code for getPressed callback. Ribbon control checkBox
-'
     If control.ID = "checkboxShowMessage" Then
         returnedVal = checkVal
     End If
@@ -122,12 +133,14 @@ setup:
             FuncLogIt sFuncName, "SchedBut ID is incorrectly formed [" & control.ID & "] needs to have 3 parts delimed by _", C_MODULE_NAME, LogMsgType.Error
         Else
             Set clsQuadRuntime = GetQuadRuntimeGlobal(bInitFlag:=True)
-            BuildSchedule clsQuadRuntime, sScheduleType:=aControlIDSplit(1), iPersonID:=CInt(aControlIDSplit(2))
+            BuildSchedule clsQuadRuntime, _
+                            eQuadSubDataType:=GetQuadSubDataTypeEnumFromValue(aControlIDSplit(1)), _
+                            iPersonID:=CInt(aControlIDSplit(2))
         End If
                 
     ElseIf control.ID = "GenerateEntryForm" Then
         Set clsQuadRuntime = GetQuadRuntimeGlobal(bInitFlag:=True)
-        GenerateEntryForms clsQuadRuntime, clsQuadRuntime.TemplateCellSheetName
+        GenerateEntryForms clsQuadRuntime
     ElseIf control.ID = "DeleteEntryForm" Then
         DeleteEntryForms
     ElseIf control.ID = "Student" Then
@@ -152,7 +165,8 @@ setup:
         DoViewLogs
     ElseIf control.ID = "RefreshRibbon" Then
         RefreshRibbon
-        
+    ElseIf control.ID = "EventsOn" Then
+        EventsToggle True
     ' Git
     ElseIf control.ID = "Commit" Then
         Set dControlValues = GetControlValues(vControls)
@@ -294,23 +308,33 @@ Sub rxgal_getItemLabel(control As IRibbonControl, index As Integer, ByRef return
     On Error GoTo 0
 End Sub
 
-Function GetGalleryContent(control As IRibbonControl, ByRef returnedVal)
-Dim sXML As String
-        sXML = sXML & "<gallery" & vbCrLf
-        sXML = sXML & "   id = ""rxgal2""" & vbCrLf
-        sXML = sXML & "   Label = ""My Label Gallery""" & vbCrLf
-        sXML = sXML & "   Columns = ""3""" & vbCrLf
-        sXML = sXML & "   Rows = ""100""" & vbCrLf
-        sXML = sXML & "   imageMso = ""HappyFace""" & vbCrLf
-        sXML = sXML & "   OnAction = ""rxgal_Click""" & vbCrLf
-        sXML = sXML & "   showItemLabel = ""true""" & vbCrLf
-        sXML = sXML & "   size=""large"">" & vbCrLf
-        sXML = sXML & "   <item id=""rxitem11"" label=""Brian Main""  />" & vbCrLf
-        sXML = sXML & "   <item id=""rxitem21"" label=""Susan Zhang"" />" & vbCrLf
-        sXML = sXML & "   <item id=""rxitem31"" label=""Anne Walzer""  />" & vbCrLf
-        sXML = sXML & " </gallery>"
+Sub rxgal_getItemImage(control As IRibbonControl, index As Integer, ByRef returnedVal)
+'This callback runs for every picture that is in the Img folder
+'Fnum is the number of times it run this code line
+Dim sImagePath As String
+Dim vFiles() As String
+Dim vExtensions() As String
+
+
+    If index > 8 Then
+        index = index - 8
+    End If
+    
+    vExtensions = InitStringArray(Array("png", "jpg"))
+    sImagePath = "C:\Users\burtnolej\Pictures\icons\"
+    vFiles = GetFolderFiles(sImagePath, vExtensions:=vExtensions)
+    Set returnedVal = LoadPictureGDI(sImagePath & vFiles(index))
         
-        returnedVal = sXML
-        
-        Debug.Print returnedVal
-End Function
+End Sub
+
+Sub rxgal_getImage(control As IRibbonControl, ByRef returnedVal)
+Dim sImagePath As String
+Dim vFiles() As String
+Dim vExtensions() As String
+    
+    vExtensions = InitStringArray(Array("png", "jpg"))
+    sImagePath = "C:\Users\burtnolej\Pictures\icons\"
+    vFiles = GetFolderFiles(sImagePath, vExtensions:=vExtensions)
+    Set returnedVal = LoadPictureGDI(sImagePath & vFiles(1))
+
+End Sub

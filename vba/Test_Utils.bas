@@ -171,12 +171,16 @@ Sub DoProjectTestRunner()
 Dim sIncModules As String
 
     'sIncModules = "Test_Macros"
-    'ProjectTestRunner sIncModules
+    
     'ProjectTestRunner
     'Exit Sub
     sIncModules = "Test_Quad_Runtime"
-    sIncModules = sIncModules & ",Test_App_Schedule,Test_Array_Utils"
-    'sIncModules = sIncModules & ",Test_DB_Utils"
+    'ProjectTestRunner sIncModules
+    'Exit Sub
+    sIncModules = sIncModules & ",Test_App_Schedule"
+    sIncModules = sIncModules & ",Test_App_Person"
+    sIncModules = sIncModules & ",Test_Array_Utils"
+    sIncModules = sIncModules & ",Test_DB_Utils"
     sIncModules = sIncModules & ",Test_Entry_Utils"
     sIncModules = sIncModules & ",Test_Dict_Utils,Test_File_Utils"
     sIncModules = sIncModules & ",Test_Filter_Utils,Test_Format_Utils"
@@ -267,6 +271,7 @@ Dim wbTmp As Workbook
         eTestResult = TestResult.Error
         On Error Resume Next
         eTestResult = Application.Run(sModuleName & "." & sTestCase)
+        Debug.Print "     =>" & eTestResult
         On Error GoTo 0
         AddTestResults dModuleTestResult, eTestResult, sTestCase
         

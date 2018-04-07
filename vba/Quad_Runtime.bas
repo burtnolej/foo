@@ -39,12 +39,13 @@ Private pDayEnum As String
 Private pCurrentSheetSource As Variant
 Private pCurrentSheetColumns As Variant
 
+Private pQuadRuntimeCacheFile As Object
+Private pQuadRuntimeCacheFileName As String
+Private pQuadRuntimeCacheFileArray() As String
+
 Const cAppDir = "C:\\Users\\burtnolej\\Documents\\GitHub\\quadviewer\\"
 Const cExecPath = cAppDir & "app\\quad\\utils\\excel\\"
 Const cRuntimeDir = "C:\\Users\\burtnolej\\Documents\\runtime\\"
-
-'Const cBookPath = cAppDir
-'Const cBookName = "vba_source_new.xlsm"
 
 Const cBookPath = cRuntimeDir
 Const cBookName = "cache.xlsm"
@@ -61,9 +62,10 @@ Const cTemplateCellSheetName = "CellStyles"
 Const cDatabasePath = cAppDir & "app\\quad\\utils\\excel\\test_misc\\QuadQA.db"
 Const cResultFileName = cRuntimeDir & "pyshell_results.txt"
 Const cFileName = cRuntimeDir & "uupyshell.args.txt"
+Const cQuadRuntimeEnum = "BookPath,BookName,CacheBookName,CacheBookPath,CacheRangeName,TemplateBookPath,TemplateBookName,TemplateSheetName,TemplateCellSheetName,DatabasePath,ResultFileName,ExecPath,RuntimeDir,FileName,DayEnum,CurrentSheetSource,CurrentSheetColumns,QuadRuntimeCacheFileName"
 
 Const cDayEnum = "M,T,W,R,F"
-
+Const cQuadRuntimeCacheFileName = "C:\\Users\\burtnolej\\quad_runtime_cache.txt"
 
 ' Book -----------------------
 Public Property Get Book() As Workbook
@@ -72,43 +74,48 @@ End Property
 Public Property Let Book(Value As Workbook)
     Set pBook = Value
 End Property
-
 Public Property Get BookPath() As String
     BookPath = pBookPath
 End Property
 Public Property Let BookPath(Value As String)
+Dim sCachedValue As String, sOrigValue As String, sConstValue As String
+Dim sFuncName As String
+
+setup:
+    sFuncName = "BookPath"
+    sConstValue = cBookPath
     
+main:
     If DirExists(Value) <> True Then
          err.Raise ErrorMsgType.BAD_ARGUMENT, Description:="workbook [" & Value & "] does not exist"
     End If
     
-    pBookPath = Value
-    
-    If Me.BookPath <> cBookPath Then
-        FuncLogIt "Let_BookPath", "overidden to [" & Value & "] default was [" & cBookPath & "]", C_MODULE_NAME, LogMsgType.INFO
-    End If
+    pBookPath = GetUpdatedValue(sFuncName, sConstValue, Value)
     
 End Property
 Public Property Get BookName() As String
     BookName = pBookName
 End Property
 Public Property Let BookName(Value As String)
+Dim sCachedValue As String, sOrigValue As String, sConstValue As String
+Dim sFuncName As String
 
+setup:
+    sFuncName = "BookName"
+    sConstValue = cBookName
+
+main:
     If Me.BookPath = "" Then
          err.Raise ErrorMsgType.DEPENDENT_ATTR_NOT_SET, Description:="BookPath needs to be set before BookName"
     End If
     
-    If FileExists(Me.BookPath & "\\" & Value) = False Then
+    pBookName = GetUpdatedValue(sFuncName, sConstValue, Value)
+    
+    If FileExists(Me.BookPath & "\\" & pBookName) = False Then
         err.Raise ErrorMsgType.BAD_ARGUMENT, Description:="BookName file does not exist [" & Value & "]"
     End If
     
-    pBookName = Value
-    
-    If Me.BookName <> cBookName Then
-        FuncLogIt "Let_BookName", "overidden to [" & Value & "] default was [" & cBookName & "]", C_MODULE_NAME, LogMsgType.INFO
-    End If
-    
-    Me.Book = OpenBook(Me.BookName, sPath:=Me.BookPath)
+    Me.Book = OpenBook(pBookName, sPath:=Me.BookPath)
     
 End Property
 'END Book ----------------------
@@ -126,14 +133,18 @@ Public Property Get CacheBookPath() As String
     CacheBookPath = pCacheBookPath
 End Property
 Public Property Let CacheBookPath(Value As String)
+Dim sCachedValue As String, sOrigValue As String, sConstValue As String
+Dim sFuncName As String
+
+setup:
+    sFuncName = "CacheBookPath"
+    sConstValue = cCacheBookPath
+    
     If DirExists(Value) <> True Then
          err.Raise ErrorMsgType.BAD_ARGUMENT, Description:="workbook [" & Value & "] does not exist"
     End If
-    pCacheBookPath = Value
     
-    If Me.CacheBookPath <> cCacheBookPath Then
-        FuncLogIt "Let_CacheBookPath", "overidden to [" & Value & "] default was [" & cCacheBookPath & "]", C_MODULE_NAME, LogMsgType.INFO
-    End If
+    pCacheBookPath = GetUpdatedValue(sFuncName, sConstValue, Value)
 
 End Property
 Public Property Get CacheBookName() As String
@@ -141,7 +152,13 @@ Public Property Get CacheBookName() As String
     CacheBookName = pCacheBookName
 End Property
 Public Property Let CacheBookName(Value As String)
+Dim sCachedValue As String, sOrigValue As String, sConstValue As String
+Dim sFuncName As String
 
+setup:
+    sFuncName = "CacheBookName"
+    sConstValue = cCacheBookName
+    
     If Me.CacheBookPath = "" Then
          err.Raise ErrorMsgType.DEPENDENT_ATTR_NOT_SET, Description:="CacheBookPath needs to be set before CacheBookName"
     End If
@@ -149,12 +166,7 @@ Public Property Let CacheBookName(Value As String)
     If FileExists(Me.CacheBookPath & "\\" & Value) = False Then
         err.Raise ErrorMsgType.BAD_ARGUMENT, Description:="CacheBookName file does not exist [" & Value & "]"
     End If
-    pCacheBookName = Value
-    
-    
-    If Me.CacheBookPath <> cCacheBookPath Then
-        FuncLogIt "Let_CacheBookPath", "overidden to [" & Value & "] default was [" & CacheBookPath & "]", C_MODULE_NAME, LogMsgType.INFO
-    End If
+    pCacheBookName = GetUpdatedValue(sFuncName, sConstValue, Value)
     
     Me.CacheBook = OpenBook(Me.CacheBookName, sPath:=Me.CacheBookPath)
     
@@ -163,17 +175,18 @@ Public Property Get CacheRangeName() As String
     CacheRangeName = pCacheRangeName
 End Property
 Public Property Let CacheRangeName(Value As String)
+Dim sCachedValue As String, sOrigValue As String, sConstValue As String
+Dim sFuncName As String
 
+setup:
+    sFuncName = "CacheRangeName"
+    sConstValue = cCacheRangeName
+    
     If Me.CacheBookName = "" Then
          err.Raise ErrorMsgType.DEPENDENT_ATTR_NOT_SET, Description:="CacheBookName needs to be set before CacheBookRangeName"
     End If
     
-    pCacheRangeName = Value
-    
-    
-    If Me.CacheRangeName <> cCacheRangeName Then
-        FuncLogIt "Let_CacheRangeName", "overidden to [" & Value & "] default was [" & CacheRangeName & "]", C_MODULE_NAME, LogMsgType.INFO
-    End If
+    pCacheRangeName = GetUpdatedValue(sFuncName, sConstValue, Value)
     
 End Property
 ' END Cache ------------------
@@ -201,14 +214,17 @@ Public Property Get TemplateBookPath() As String
     TemplateBookPath = pTemplateBookPath
 End Property
 Public Property Let TemplateBookPath(Value As String)
+Dim sCachedValue As String, sOrigValue As String, sConstValue As String
+Dim sFuncName As String
+
+setup:
+    sFuncName = "TemplateBookPath"
+    sConstValue = cTemplateBookPath
+    
     If DirExists(Value) <> True Then
          err.Raise ErrorMsgType.BAD_ARGUMENT, Description:="workbook [" & Value & "] does not exist"
     End If
-    pTemplateBookPath = Value
-    
-    If Me.TemplateBookPath <> cTemplateBookPath Then
-        FuncLogIt "Let_TemplateBookPath", "overidden to [" & Value & "] default was [" & cTemplateBookPath & "]", C_MODULE_NAME, LogMsgType.INFO
-    End If
+    pTemplateBookPath = GetUpdatedValue(sFuncName, sConstValue, Value)
 
 End Property
 Public Property Get TemplateBookName() As String
@@ -216,7 +232,13 @@ Public Property Get TemplateBookName() As String
     TemplateBookName = pTemplateBookName
 End Property
 Public Property Let TemplateBookName(Value As String)
+Dim sCachedValue As String, sOrigValue As String, sConstValue As String
+Dim sFuncName As String
 
+setup:
+    sFuncName = "TemplateBookName"
+    sConstValue = cTemplateBookName
+    
     If Me.TemplateBookPath = "" Then
          err.Raise ErrorMsgType.DEPENDENT_ATTR_NOT_SET, Description:="TemplateBookPath needs to be set before CacheBookName"
     End If
@@ -224,12 +246,7 @@ Public Property Let TemplateBookName(Value As String)
     If FileExists(Me.TemplateBookPath & "\\" & Value) = False Then
         err.Raise ErrorMsgType.BAD_ARGUMENT, Description:="TemplateBookName file does not exist [" & Value & "]"
     End If
-    pTemplateBookName = Value
-    
-    
-    If Me.TemplateBookPath <> cTemplateBookPath Then
-        FuncLogIt "Let_TemplateBookPath", "overidden to [" & Value & "] default was [" & cTemplateBookName & "]", C_MODULE_NAME, LogMsgType.INFO
-    End If
+    pTemplateBookName = GetUpdatedValue(sFuncName, sConstValue, Value)
     
     Me.TemplateBook = OpenBook(Me.TemplateBookName, sPath:=Me.TemplateBookPath)
     
@@ -238,16 +255,18 @@ Public Property Get TemplateSheetName() As String
     TemplateSheetName = pTemplateSheetName
 End Property
 Public Property Let TemplateSheetName(Value As String)
+Dim sCachedValue As String, sOrigValue As String, sConstValue As String
+Dim sFuncName As String
 
+setup:
+    sFuncName = "TemplateSheetName"
+    sConstValue = cTemplateSheetName
+    
     If Me.TemplateBookName = "" Then
          err.Raise ErrorMsgType.DEPENDENT_ATTR_NOT_SET, Description:="TemplateBookName needs to be set before CacheBookRangeName"
     End If
     
-    pTemplateSheetName = Value
-    
-    If Me.TemplateSheetName <> cTemplateSheetName Then
-        FuncLogIt "Let_TemplateSheetName", "overidden to [" & Value & "] default was [" & cTemplateSheetName & "]", C_MODULE_NAME, LogMsgType.INFO
-    End If
+    pTemplateSheetName = GetUpdatedValue(sFuncName, sConstValue, Value)
     
     Me.TemplateSheet = GetSheet(Me.TemplateBook, TemplateSheetName)
     
@@ -256,16 +275,18 @@ Public Property Get TemplateCellSheetName() As String
     TemplateCellSheetName = pTemplateCellSheetName
 End Property
 Public Property Let TemplateCellSheetName(Value As String)
+Dim sCachedValue As String, sOrigValue As String, sConstValue As String
+Dim sFuncName As String
 
+setup:
+    sFuncName = "TemplateCellSheetName"
+    sConstValue = cTemplateCellSheetName
+    
     If Me.TemplateBookName = "" Then
          err.Raise ErrorMsgType.DEPENDENT_ATTR_NOT_SET, Description:="TemplateBookName needs to be set before CacheBookRangeName"
     End If
     
-    pTemplateCellSheetName = Value
-    
-    If Me.TemplateCellSheetName <> cTemplateCellSheetName Then
-        FuncLogIt "Let_TemplateCellSheetName", "overidden to [" & Value & "] default was [" & cTemplateCellSheetName & "]", C_MODULE_NAME, LogMsgType.INFO
-    End If
+    pTemplateCellSheetName = GetUpdatedValue(sFuncName, sConstValue, Value)
     
     Me.TemplateCellSheet = GetSheet(Me.TemplateBook, TemplateCellSheetName)
     
@@ -277,54 +298,85 @@ Public Property Get DayEnum() As String
     DayEnum = pDayEnum
 End Property
 Public Property Let DayEnum(Value As String)
-    pDayEnum = Value
-    If Me.DayEnum <> cDayEnum Then
-        FuncLogIt "Let_DayEnum", "overidden to [" & Value & "] default was [" & cDayEnum & "]", C_MODULE_NAME, LogMsgType.INFO
-    End If
+Dim sCachedValue As String, sOrigValue As String, sConstValue As String
+Dim sFuncName As String
+
+setup:
+    sFuncName = "DayEnum"
+    sConstValue = cDayEnum
+main:
+    pDayEnum = GetUpdatedValue(sFuncName, sConstValue, Value)
 End Property
 Public Property Get FileName() As String
     FileName = pFileName
 End Property
 Public Property Let FileName(Value As String)
+Dim sCachedValue As String, sOrigValue As String, sConstValue As String
+Dim sFuncName As String
+
+setup:
+    sFuncName = "FileName"
+    sConstValue = cFileName
+    
     If FileExists(Value) = False Then
         FuncLogIt "Let_FileName", "file currently does not exist to [" & Value & "]", C_MODULE_NAME, LogMsgType.INFO
     End If
-
-    pFileName = Value
-    
-    If Me.FileName <> cFileName Then
-        FuncLogIt "Let_FileName", "overidden to [" & Value & "] default was [" & cFileName & "]", C_MODULE_NAME, LogMsgType.INFO
-    End If
+main:
+    pFileName = GetUpdatedValue(sFuncName, sConstValue, Value)
 End Property
 Public Property Get DatabasePath() As String
     DatabasePath = pDatabasePath
 End Property
 Public Property Let DatabasePath(Value As String)
-Dim sTmpValue As String
+Dim sCachedValue As String, sOrigValue As String, sConstValue As String, sTmpValue As String
+Dim sFuncName As String
+
+setup:
+    sFuncName = "DatabasePath"
+    sConstValue = cDatabasePath
     If Right(Value, 6) <> ".sqlite" Then
         sTmpValue = Value & ".sqlite"
     End If
     If FileExists(sTmpValue) = False Then
         err.Raise ErrorMsgType.BAD_ARGUMENT, Description:="Database file does not exist [" & Value & "]"
     End If
-    pDatabasePath = Value
+main:
+    pDatabasePath = GetUpdatedValue(sFuncName, sConstValue, Value)
 
-    If Me.DatabasePath <> cDatabasePath Then
-        FuncLogIt "Let_DatabasePath", "overidden to [" & Value & "] default was [" & cDatabasePath & "]", C_MODULE_NAME, LogMsgType.INFO
-    End If
 End Property
 Public Property Get ResultFileName() As String
     ResultFileName = pResultFileName
 End Property
 Public Property Let ResultFileName(Value As String)
+Dim sCachedValue As String, sOrigValue As String, sConstValue As String, sTmpValue As String
+Dim sFuncName As String
+setup:
+    sFuncName = "ResultFileName"
+    sConstValue = cResultFileName
     If FileExists(Value) = False Then
         FuncLogIt "Let_ResultFileName", "file currently does not exist to [" & Value & "]", C_MODULE_NAME, LogMsgType.INFO
     End If
-    pResultFileName = Value
+main:
+    pResultFileName = GetUpdatedValue(sFuncName, sConstValue, Value)
+End Property
+Public Property Get QuadRuntimeCacheFileName() As String
+    QuadRuntimeCacheFileName = pQuadRuntimeCacheFileName
+End Property
+Public Property Let QuadRuntimeCacheFileName(Value As String)
+Dim sCachedValue As String, sOrigValue As String, sConstValue As String, sTmpValue As String
+Dim sFuncName As String
+setup:
+    sFuncName = "QuadRuntimeCacheFileName"
+    sConstValue = cQuadRuntimeCacheFileName
+main:
+    pQuadRuntimeCacheFileName = GetUpdatedValue(sFuncName, sConstValue, Value)
     
-    If Me.ResultFileName <> cResultFileName Then
-        FuncLogIt "Let_ResultFileName", "overidden to [" & Value & "] default was [" & cResultFileName & "]", C_MODULE_NAME, LogMsgType.INFO
-    End If
+End Property
+Public Property Get QuadRuntimeCacheFile() As Object
+    Set QuadRuntimeCacheFile = pQuadRuntimeCacheFile
+End Property
+Public Property Let QuadRuntimeCacheFile(Value As Object)
+    Set pQuadRuntimeCacheFile = Value
 End Property
 ' END Misc -------------------------------------------
 
@@ -348,28 +400,123 @@ Public Property Get RuntimeDir() As String
     RuntimeDir = pRuntimeDir
 End Property
 Public Property Let RuntimeDir(Value As String)
+Dim sCachedValue As String, sOrigValue As String, sConstValue As String, sTmpValue As String
+Dim sFuncName As String
+setup:
+    sFuncName = "RuntimeDir"
+    sConstValue = cRuntimeDir
+    
     If DirExists(Value) = False Then
         FuncLogIt "Let_RuntimeDir", "file currently does not exist to [" & Value & "]", C_MODULE_NAME, LogMsgType.INFO
     End If
-    pRuntimeDir = Value
-    If Me.RuntimeDir <> cRuntimeDir Then
-        FuncLogIt "Let_RuntimeDir", "overidden to [" & Value & "] default was [" & cRuntimeDir & "]", C_MODULE_NAME, LogMsgType.INFO
-    End If
+main:
+    pRuntimeDir = GetUpdatedValue(sFuncName, sConstValue, Value)
+
 End Property
 Public Property Get ExecPath() As String
     ExecPath = pExecPath
 End Property
 Public Property Let ExecPath(Value As String)
+Dim sCachedValue As String, sOrigValue As String, sConstValue As String, sTmpValue As String
+Dim sFuncName As String
+setup:
+    sFuncName = "ExecPath"
+    sConstValue = cExecPath
+    
     If DirExists(Value) = False Then
         FuncLogIt "Let_ExecPath", "file currently does not exist to [" & Value & "]", C_MODULE_NAME, LogMsgType.INFO
     End If
-    pExecPath = Value
-    If Me.ExecPath <> cExecPath Then
-        FuncLogIt "Let_ExecPath", "overidden to [" & Value & "] default was [" & cExecPath & "]", C_MODULE_NAME, LogMsgType.INFO
-    End If
+main:
+    pExecPath = GetUpdatedValue(sFuncName, sConstValue, Value)
+
 End Property
 ' END default directories
 
+
+Function GetUpdatedValue(sFuncName As String, sConstValue As String, Value As String) As Variant
+'<<<
+' purpose: parses passed value, with default (stored as Const) and any prev update retreived from
+'        : from cache to calc current value (cached val > passed arg > default const val)
+' param  : sFuncName, String
+' param  : sConstValue, String
+' param  : Value, String
+' returns: value to set member attr to , variant
+'>>>
+Dim sCachedValue As String, sOrigValue As String
+    sCachedValue = RetreiveOverride(sFuncName)
+    If sCachedValue <> " " Then
+        sOrigValue = Value
+        Value = sCachedValue
+        FuncLogIt "Let_" & sFuncName, "retreived value from overide cache file to [" & sCachedValue & "] instead of [" & sOrigValue & "]", C_MODULE_NAME, LogMsgType.INFO
+    Else
+        If Value <> sConstValue Then
+            FuncLogIt "Let_" & sFuncName, "overidden to [" & Value & "] default was [" & sConstValue & "]", C_MODULE_NAME, LogMsgType.INFO
+            PersistOverride sFuncName, Value
+        End If
+    End If
+    
+    GetUpdatedValue = Value
+End Function
+
+Function GetAttrEnum(sAttrName As String) As Integer
+    GetAttrEnum = IndexArray(Split(cQuadRuntimeEnum, COMMA), sAttrName)
+End Function
+
+Public Property Get QuadRuntimeCacheFileArray() As String()
+    QuadRuntimeCacheFileArray = pQuadRuntimeCacheFileArray
+End Property
+Public Property Let QuadRuntimeCacheFileArray(Value() As String)
+    pQuadRuntimeCacheFileArray = Value
+End Property
+
+
+Sub PersistOverride(sFuncName As String, sValue As String)
+Dim iRow As Integer
+Dim vCurrentState() As String
+Dim sCurrentValue As String
+
+    iRow = GetAttrEnum(sFuncName)
+    vCurrentState = ReadFile2Array(Me.QuadRuntimeCacheFileName, bSingleCol:=True)
+    sCurrentValue = vCurrentState(iRow)
+    vCurrentState(iRow) = sValue
+    WriteArray2File vCurrentState, Me.QuadRuntimeCacheFileName
+
+    FuncLogIt "PersistOverride", "updated QuadRuntime persist file [" & Me.QuadRuntimeCacheFileName & "] for [" & sFuncName & "] from [" & sCurrentValue & "] to [" & sValue & "]", C_MODULE_NAME, LogMsgType.INFO
+
+End Sub
+
+'write some tests for this
+'then put into each Letter
+'then create a rehydrate option for QuadRuntime
+'then call rehydrate from validate
+Function RetreiveOverride(sFuncName As String) As String
+Dim iRow As Integer
+Dim vResults() As String
+
+    iRow = GetAttrEnum(sFuncName)
+    vResults = Me.QuadRuntimeCacheFileArray
+    RetreiveOverride = vResults(iRow)
+End Function
+
+Sub InitOveride(Optional bRecover As Boolean = True)
+Dim vResults() As String
+'purpose: if bRecover is True, parse and store cache file contents, otherwise
+'       : initialize; each Let'er will use cached value if not explicitly overidden
+    
+    If bRecover = False Then
+        Me.QuadRuntimeCacheFile = InitFileArray(cQuadRuntimeCacheFileName, 30)
+    End If
+    
+    If FileExists(cQuadRuntimeCacheFileName) = False Then
+        Me.QuadRuntimeCacheFile = InitFileArray(cQuadRuntimeCacheFileName, 30)
+    Else
+        Me.QuadRuntimeCacheFile = OpenFile(cQuadRuntimeCacheFileName, 8)
+    End If
+
+    vResults = ReadFile2Array(cQuadRuntimeCacheFileName, bSingleCol:=True)
+    Me.QuadRuntimeCacheFileArray = vResults
+
+End Sub
 Public Function IsAQuadRuntime() As Boolean
     IsAQuadRuntime = True
 End Function
@@ -387,13 +534,19 @@ Public Sub InitProperties( _
                  Optional sResultFileName As String = cResultFileName, _
                  Optional sExecPath As String = cExecPath, _
                  Optional sRuntimeDir As String = cRuntimeDir, _
-                 Optional sFileName As String = cFileName, _
+                 Optional sFilename As String = cFileName, _
                  Optional sDayEnum As String = cDayEnum, _
-                 Optional bInitializeCache As Boolean = True)
+                 Optional sQuadRuntimeCacheFileName As String = cQuadRuntimeCacheFileName, _
+                 Optional bInitializeCache As Boolean = True, _
+                 Optional bHydrateFromCache As Boolean = False)
 
+    Me.InitOveride
+    
     If bInitializeCache = True Then
         CreateBook sCacheBookName, sBookPath:=sCacheBookPath
     End If
+    
+    Me.QuadRuntimeCacheFileName = sQuadRuntimeCacheFileName
     
     Me.BookPath = sBookPath
     Me.BookName = sBookName
@@ -411,11 +564,18 @@ Public Sub InitProperties( _
     Me.ResultFileName = sResultFileName
     Me.ExecPath = sExecPath
     Me.RuntimeDir = sRuntimeDir
-    Me.FileName = sFileName
+    Me.FileName = sFilename
     Me.DayEnum = sDayEnum
 
 End Sub
 
+Public Sub Delete()
+Dim oFile As Object
+
+    Set oFile = Me.QuadRuntimeCacheFile
+    oFile.Close
+    DeleteFile Me.QuadRuntimeCacheFileName
+End Sub
 
 
 

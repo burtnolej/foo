@@ -18,31 +18,48 @@ Dim FileName As String
     GetFileFromPath = fso.GetFileName(sPath)
 End Function
 
-Public Sub FileMove(sFileName As String, sSourcePath As String, sTargetPath As String)
+Public Sub FileMove(sFilename As String, sSourcePath As String, sTargetPath As String)
 Dim objFSO As Object
 Dim sFuncName As String
     sFuncName = "FileMove"
     Set objFSO = CreateObject("Scripting.FileSystemObject")
     On Error GoTo err
-    objFSO.MoveFile sSourcePath & sFileName, sTargetPath & sFileName
+    objFSO.MoveFile sSourcePath & sFilename, sTargetPath & sFilename
     On Error GoTo 0
-    FuncLogIt sFuncName, "Moved [" & sFileName & "] from  [" & sSourcePath & "] to [" & sTargetPath & "]", C_MODULE_NAME, LogMsgType.Failure
+    FuncLogIt sFuncName, "Moved [" & sFilename & "] from  [" & sSourcePath & "] to [" & sTargetPath & "]", C_MODULE_NAME, LogMsgType.Failure
     Exit Sub
 err:
-    FuncLogIt sFuncName, "Failed to move [" & sFileName & "] from  [" & sSourcePath & "] to [" & sTargetPath & "] with err [" & err.Description & "]", C_MODULE_NAME, LogMsgType.Failure
+    FuncLogIt sFuncName, "Failed to move [" & sFilename & "] from  [" & sSourcePath & "] to [" & sTargetPath & "] with err [" & err.Description & "]", C_MODULE_NAME, LogMsgType.Failure
 
 End Sub
-Public Function GetFolderFiles(sPath As String, Optional bDateSorted As Boolean = False) As String()
+Public Function GetFolderFiles(sPath As String, Optional bDateSorted As Boolean = False, _
+                Optional vExtensions As Variant) As String()
 Dim vFileNames() As String
 Dim i As Integer
 Dim objFSO As Object
+Dim sExtension As String
+
     ReDim vFileNames(0 To 10000)
     Set objFSO = CreateObject("Scripting.FileSystemObject")
     File = Dir(sPath)
     While (File <> "")
-        vFileNames(i) = File
-        i = i + 1
-        File = Dir
+        
+        If IsSet(vExtensions) = True Then
+            sExtension = Split(File, ".")(UBound(Split(File, ".")))
+            If InArray(vExtensions, sExtension) = True Then
+                vFileNames(i) = File
+                i = i + 1
+                GoTo nextiter
+            End If
+        Else
+            vFileNames(i) = File
+            i = i + 1
+            GoTo nextiter
+        End If
+
+        
+nextiter:
+    File = Dir
     Wend
     ReDim Preserve vFileNames(0 To i - 1)
     GetFolderFiles = vFileNames
@@ -85,29 +102,123 @@ Dim iLineNum As Integer
     Loop
 End Function
 Public Function ReadFile2Array(sPath As String, _
-                                Optional sFieldDelim As String = "^") As String()
-' Assumes rows are deliminated by newlines
-Dim iCol As Integer
-Dim iRow As Integer
+                                Optional sFieldDelim As String = "^", _
+                                Optional bSingleCol As Boolean = False) As String()
+'<<<
+' purpose: take a flat file and represent in an array; default is a 2d array with
+'        : full line in the first col (_,0)
+' param  : sPath, string; file path to parse
+' param  : sFieldDelim (optional), split the line by delim and store in n columns (_,n)
+' param  : bSingleCol (optional), force into a 1d array
+' returns: array of strings;
+'>>>
+Dim iCol As Integer, iRow As Integer
 Dim aTmpRow() As String, aTmp() As String
 
-    ReDim aTmp(0 To 10000, 0 To 100)
-
+    If bSingleCol = True Then
+        ReDim aTmp(0 To 10000)
+    Else
+        ReDim aTmp(0 To 10000, 0 To 100)
+    End If
+    
     Set oFile = OpenFile(sPath, 1)
     iRow = 0
     Do While oFile.AtEndOfStream = False
-        aTmpRow = Split(oFile.ReadLine, sFieldDelim)
-        For iCol = 0 To UBound(aTmpRow)
-            aTmp(iRow, iCol) = aTmpRow(iCol)
-        Next iCol
+        If bSingleCol = True Then
+            aTmp(iRow) = oFile.ReadLine
+        Else
+            aTmpRow = Split(oFile.ReadLine, sFieldDelim)
+            For iCol = 0 To UBound(aTmpRow)
+                aTmp(iRow, iCol) = aTmpRow(iCol)
+            Next iCol
+        End If
 
         iRow = iRow + 1
     Loop
     
-    aTmp = ReDim2DArray(aTmp, iRow, iCol)
+    If bSingleCol = True Then
+        ReDim Preserve aTmp(0 To iRow - 1)
+    Else
+        aTmp = ReDim2DArray(aTmp, iRow, iCol)
+    End If
     
     ReadFile2Array = aTmp
 End Function
+
+Public Function InitFileArray(sFilePath As String, _
+                             iNumLines As Integer, _
+                    Optional sInitVal As String = SPACE, _
+                    Optional bCreateFile As Boolean = True, _
+                    Optional bCloseFile As Boolean = True) As Object
+'<<<
+' purpose: create a file that is indexed so its easy to read/write to a specific line
+' param  : sFilePath, string; file path to create
+' param  : iNumLines, integer; the length of the file (in lines)
+' param  : sInitVal (optional), string; default value in each line (cant have nothing)
+' param  : bCreateFile (optional), whether or not to create the file before writing
+' param  : bCloseFile (optional), whether or not to leave the file open
+' returns: array of strings;
+'>>>
+Dim oFile As Object
+Dim vArray() As String
+Dim sFuncName As String
+
+setup:
+    sFuncName = C_MODULE_NAME & "." & "InitFileArray"
+    ReDim vArray(0 To iNumLines - 1)
+    ' ASSERTIONS ----------------------------------------
+    If sInitVal = BLANK Then
+        err.Raise ErrorMsgType.BAD_ARGUMENT, Description:="init val cannot be BLANK"
+    Else
+        FuncLogIt sFuncName, "init val cannot be BLANK", C_MODULE_NAME, LogMsgType.INFO
+    End If
+    ' END ASSERTIONS -------------------------------------
+    
+main:
+    If bCreateFile = True Then
+        Set oFile = CreateFile(sFilePath)
+        oFile.Close
+    Else
+        If FileExists(sFilePath) = True Then
+            Set oFile = OpenFile(sFilePath, 2)
+        Else
+            err.Raise ErrorMsgType.BAD_ARGUMENT, Description:="file [" & sFilePath & "] does not exist"
+        End If
+    End If
+    
+    For i = 0 To iNumLines - 1
+        vArray(i) = sInitVal
+    Next i
+    
+    WriteArray2File vArray, sFilePath
+    
+    Set InitFileArray = oFile
+End Function
+Public Sub WriteArray2File(vSource() As String, sFilePath As String)
+'<<<
+' purpose: take a 1d array of strings and write directly to a file; 1 array item to 1 line
+' param  : vSource, array of strings;
+' param  : sFilePath, string; path to file
+'>>>
+Dim oFile As Object
+Dim sArray As String, sFuncName As String
+
+setup:
+    sFuncName = C_MODULE_NAME & "." & "WriteArray2File"
+    ' ASSERTIONS ----------------------------------------
+    If FileExists(sFilePath) = False Then
+        err.Raise ErrorMsgType.BAD_ARGUMENT, Description:="file does not exist"
+    Else
+        FuncLogIt sFuncName, "file [" & sFilePath & "] does not exist", C_MODULE_NAME, LogMsgType.INFO
+    End If
+    ' END ASSERTIONS -------------------------------------
+
+    sArray = Array2String(vSource, sDelim:=vbNewLine)
+    Set oFile = OpenFile(sFilePath, 2)
+    oFile.Write sArray
+    oFile.Close
+    
+End Sub
 Public Function FileExists(sPath As String) As Boolean
     If Dir(sPath) <> "" Then
         FileExists = True
@@ -156,16 +267,16 @@ Dim oFile As Object
     Set objFSO = Nothing
 End Sub
 
-Public Function DeleteFile(sFileName As String, Optional sPath As String)
+Public Function DeleteFile(sFilename As String, Optional sPath As String)
 Dim objFSO As Object
 Dim oFile As Object
 Dim sFuncName As String
 
     If sPath <> "" Then
         If Right(sPath, 1) <> "\" Then
-        sFileName = sPath & "\\" & sFileName
+        sFilename = sPath & "\\" & sFilename
         Else
-            sFileName = sPath & sFileName
+            sFilename = sPath & sFilename
         End If
     End If
         
@@ -173,13 +284,13 @@ Dim sFuncName As String
     
     Set objFSO = CreateObject("Scripting.FileSystemObject")
     On Error GoTo err
-    objFSO.DeleteFile sFileName
+    objFSO.DeleteFile sFilename
     On Error GoTo 0
-    FuncLogIt sFuncName, "Deleted [" & sFileName & "]", C_MODULE_NAME, LogMsgType.Failure
+    FuncLogIt sFuncName, "Deleted [" & sFilename & "]", C_MODULE_NAME, LogMsgType.Failure
     Exit Function
     
 err:
-    FuncLogIt sFuncName, "Failed to delete [" & sFileName & "] with err [" & err.Description & "]", C_MODULE_NAME, LogMsgType.Failure
+    FuncLogIt sFuncName, "Failed to delete [" & sFilename & "] with err [" & err.Description & "]", C_MODULE_NAME, LogMsgType.Failure
     Debug.Print err.Description
 End Function
 
@@ -189,7 +300,9 @@ Dim oFile As Object
     oFile.Write (sText)
     Set oFile = Nothing
 End Function
-
+Public Function WriteFileObject(oFile As Object, sText As String)
+    oFile.Write (sText)
+End Function
 Public Function FilesAreSame(ByVal fFirst As String, ByVal fSecond As String) As Boolean
 Dim lLen1 As Long, lLen2 As Long
 Dim iFileNum1 As Integer

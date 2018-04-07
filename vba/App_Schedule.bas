@@ -9,44 +9,40 @@ Attribute VB_Name = "App_Schedule"
 Option Explicit
 Const C_MODULE_NAME = "App_Schedule"
 
-Public Function BuildSchedule(clsQuadRuntime As Quad_Runtime, sScheduleType As String, iPersonID As Integer) As Worksheet
+Public Function BuildSchedule(clsQuadRuntime As Quad_Runtime, _
+                              eQuadSubDataType As QuadSubDataType, _
+                              iPersonID As Integer) As Worksheet
 '"""Using data from the database, and a format template, create a visual schedule on a new sheet
 'param:sScheduleType, string, either student or teacher
 'param:iPersonalId, integer, value of the student or teacher to retreive the schedule for
 'rtype:Worksheet, the sheet object where the schedule view has been written
 '"""
-Dim sResultFileName As String, sDataType As String, sFuncName As String, sTemplateRangeName As String, sCacheSheetName As String
+Dim sResultFileName As String, sFuncName As String, sTemplateRangeName As String, sCacheSheetName As String
 Dim aSchedule() As String
 Dim aColumnWidths() As Integer
 Dim iFormatWidth As Integer, iFormatHeight As Integer, iColWidthCount As Integer
 
 setup:
     sFuncName = C_MODULE_NAME & "." & "BuildSchedule"
-
-    ' Assertions --------------------------------
-    If InArray(Array("student", "teacher"), sScheduleType) = False Then
-        err.Raise ErrorMsgType.BAD_ARGUMENT, Description:="arg sScheduleType needs to be in [student|teacher] got [" & sScheduleType & "]"
-    End If
-    ' END Assertions --------------------------------
-    
-    sDataType = "schedule"
-    sTemplateRangeName = "f" & sScheduleType & "ScheduleCell"
+    sTemplateRangeName = "f" & EnumQuadSubDataType(eQuadSubDataType) & "ScheduleCell"
     FuncLogIt sFuncName, "Template range name not set so defaulting to  [" & sTemplateRangeName & "]", C_MODULE_NAME, LogMsgType.INFO
     
 main:
-    If IsDataCached(clsQuadRuntime, sDataType, sScheduleType, iPersonID) = False Then
-        FuncLogIt sFuncName, "Data cache NOT found for [" & sScheduleType & "_" & CStr(iPersonID) & "]", C_MODULE_NAME, LogMsgType.INFO
+    If IsDataCached(clsQuadRuntime, QuadDataType.schedule, eQuadSubDataType, iPersonID) = False Then
+        FuncLogIt sFuncName, "Data cache NOT found for [" & EnumQuadSubDataType(eQuadSubDataType) & "_" & CStr(iPersonID) & "]", C_MODULE_NAME, LogMsgType.INFO
 
         ' get the raw data from the database and return the filename that holds the results
-        GetScheduleDataFromDB clsQuadRuntime, iPersonID, sScheduleType
+        GetScheduleDataFromDB clsQuadRuntime, iPersonID, eQuadSubDataType
                                      
         ' parse the raw data in the result file and return an array of the data
         aSchedule = ParseRawData(ReadFile(clsQuadRuntime.ResultFileName))
         ' store the parsed raw data in a back sheet, return the sheet name
-        sCacheSheetName = CacheData(clsQuadRuntime, aSchedule, sDataType, sScheduleType, iPersonID)
+        sCacheSheetName = CacheData(clsQuadRuntime, aSchedule, QuadDataType.schedule, _
+                            eQuadSubDataType, iPersonID)
     Else
-        FuncLogIt sFuncName, "Data cache found for [" & sScheduleType & "_" & CStr(iPersonID) & "]", C_MODULE_NAME, LogMsgType.INFO
-        sCacheSheetName = CacheData(clsQuadRuntime, aSchedule, sDataType, sScheduleType, iPersonID, bCacheNameOnly:=True)
+        FuncLogIt sFuncName, "Data cache found for [" & EnumQuadSubDataType(eQuadSubDataType) & "_" & CStr(iPersonID) & "]", C_MODULE_NAME, LogMsgType.INFO
+        sCacheSheetName = CacheData(clsQuadRuntime, aSchedule, QuadDataType.schedule, eQuadSubDataType, _
+                            iPersonID, bCacheNameOnly:=True)
     End If
     ' copy the template format to the clipboard
     GetScheduleCellFormat clsQuadRuntime, iFormatWidth, iFormatHeight, sTemplateRangeName
@@ -55,12 +51,14 @@ main:
     ' store the data needed to build the schedules as a module member variable for easy access
     GetScheduleDataHelpers clsQuadRuntime, sCacheSheetName
     ' draw the schedule
-    Set BuildSchedule = BuildScheduleView(clsQuadRuntime, aColumnWidths, iFormatWidth, iFormatHeight, sScheduleType, iPersonID)
+    Set BuildSchedule = BuildScheduleView(clsQuadRuntime, aColumnWidths, iFormatWidth, iFormatHeight, eQuadSubDataType, iPersonID)
   
 End Function
-Public Sub GetScheduleDataFromDB(clsQuadRuntime As Quad_Runtime, sPersonId As Integer, sScheduleType As String, _
-                             Optional sPeriod As String, _
-                             Optional sDay As String)
+Public Sub GetScheduleDataFromDB(clsQuadRuntime As Quad_Runtime, _
+                                 sPersonId As Integer, _
+                                 eQuadSubDataType As QuadSubDataType, _
+                        Optional sPeriod As String, _
+                        Optional sDay As String)
 
 Dim sResultFileName As String, sSpName As String, sResults As String, sFuncName As String
 Dim dSpArgs As New Dictionary
@@ -69,26 +67,22 @@ setup:
     sFuncName = C_MODULE_NAME & "." & "GetScheduleDataFromDB"
     
     ' Assertions --------------------------------
-    If InArray(Array("student", "teacher"), sScheduleType) = False Then
-        err.Raise ErrorMsgType.BAD_ARGUMENT, Description:="arg sScheduleType needs to be in [student|teacher] got [" & sScheduleType & "]"
-    End If
-    
-    If IsValidPersonID(clsQuadRuntime, sPersonId, sScheduleType) = False Then
+    If IsValidPersonID(clsQuadRuntime, sPersonId, eQuadSubDataType) = False Then
         err.Raise ErrorMsgType.BAD_ARGUMENT, Description:="not a valid person id"
     Else
-         FuncLogIt sFuncName, "[" & sScheduleType & "] id[" & CStr(sPersonId) & "] is VALID", C_MODULE_NAME, LogMsgType.INFO
+         FuncLogIt sFuncName, "[" & EnumQuadSubDataType(eQuadSubDataType) & "] id[" & CStr(sPersonId) & "] is VALID", C_MODULE_NAME, LogMsgType.INFO
     End If
     ' END Assertions ----------------------------
 
 main:
-    If sScheduleType = "student" Then
+    If eQuadSubDataType = QuadSubDataType.student Then
         sSpName = "student_schedule"
         dSpArgs.Add "students", InitVariantArray(Array(sPersonId))
-    ElseIf sScheduleType = "teacher" Then
+    ElseIf eQuadSubDataType = QuadSubDataType.teacher Then
         sSpName = "teacher_schedule"
         dSpArgs.Add "teachers", InitVariantArray(Array(sPersonId))
     End If
-    FuncLogIt sFuncName, "schedule type is [" & sScheduleType & "] using sp [" & sSpName & "]", C_MODULE_NAME, LogMsgType.INFO
+    FuncLogIt sFuncName, "schedule type is [" & EnumQuadSubDataType(eQuadSubDataType) & "] using sp [" & sSpName & "]", C_MODULE_NAME, LogMsgType.INFO
     
     If sPeriod <> "" Then
         dSpArgs.Add "periods", InitVariantArray(Split(sPeriod, ","))
@@ -168,9 +162,12 @@ Dim rCell As Range
     GetScheduleCellColWidths = aColumnWidths
 End Function
 
-Function BuildScheduleView(clsQuadRuntime As Quad_Runtime, aColumnWidths() As Integer, _
-                           iFormatWidth As Integer, iFormatHeight As Integer, _
-                           sScheduleType As String, iPersonID As Integer) As Worksheet
+Function BuildScheduleView(clsQuadRuntime As Quad_Runtime, _
+                           aColumnWidths() As Integer, _
+                           iFormatWidth As Integer, _
+                           iFormatHeight As Integer, _
+                           eQuadSubDataType As QuadSubDataType, _
+                           iPersonID As Integer) As Worksheet
 Dim rScheduleFormatTargetRange As Range, rCell As Range
 Dim wsCache As Worksheet
 Dim wbCache As Workbook
@@ -180,7 +177,7 @@ Dim i As Integer, j As Integer, iScheduleCurrentRow As Integer, iScheduleCurrent
 
     DoEventsOff
     
-    sScheduleSheetName = "view_" & sScheduleType & "_" & CStr(iPersonID)
+    sScheduleSheetName = "view_" & EnumQuadSubDataType(eQuadSubDataType) & "_" & CStr(iPersonID)
     
     Set wsCache = CreateSheet(clsQuadRuntime.Book, sScheduleSheetName, bOverwrite:=True)
 

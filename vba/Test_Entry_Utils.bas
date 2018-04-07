@@ -1,5 +1,60 @@
 Attribute VB_Name = "Test_Entry_Utils"
 Const CsModuleName = "Test_Entry_Utils"
+Function T_e_s_tGenerateEntryFormsLoadRefDataFromDB() As TestResult
+Dim sFuncName As String, sSheetName As String, sResultStr As String, sExpectedResultStr As String, sTargetSheetName As String
+Dim sDefn As String
+Dim vSource() As String, vStudents() As String, vTeachers() As String, vLessons() As String
+Dim wsTmp As Worksheet
+Dim rTarget As Range
+Dim dDefinitions As Dictionary, dDefnDetails As Dictionary
+Dim eTestResult As TestResult
+Dim clsQuadRuntime As New Quad_Runtime
+
+setup:
+    ResetQuadRuntimeGlobal
+    clsQuadRuntime.InitProperties bInitializeCache:=True
+
+    sFuncName = CsModuleName & "." & "GenerateEntryForms"
+    sSheetName = "test"
+    sTargetSheetName = "NewLesson"
+    Set wsTmp = CreateSheet(clsQuadRuntime.Book, sSheetName, bOverwrite:=True)
+    
+    'instead of table name, need to also be able to specify a vba function that also loads the data
+    'like GetPersonData. Because if you call the function it will give you the name of the worksheet
+    'that will have the data.
+    'need to be able to pass into GetPersonData to cache in a Table
+    
+    sDefn = "NewLesson^Lesson^SFirstName^String^IsMember^&GetPersonData^sStudentFirstNm" & DOUBLEDOLLAR
+    sDefn = sDefn & "NewLesson^Lesson^LastName^String^IsMember^&GetPersonData^sStudentLastNm" & DOUBLEDOLLAR
+    sDefn = sDefn & "NewLesson^Lesson^Prep^Integer^IsValidPrep^^"
+    
+    vSource = Init2DStringArrayFromString(sDefn)
+
+    Set rTarget = RangeFromStrArray(vSource, wsTmp, 0, 1)
+    Set Entry_Utils.dDefinitions = LoadDefinitions(wsTmp, rSource:=rTarget)
+
+main:
+    GenerateEntryForms clsQuadRuntime, bLoadRefData:=True
+
+    EventsToggle True
+    With clsQuadRuntime.Book.Sheets(sTargetSheetName)
+        Set rTarget = .Range(.Cells(2, 2), .Cells(2, 2))
+        rTarget = "Jon"
+        Validate clsQuadRuntime.Book, sTargetSheetName, rTarget
+    End With
+        
+err:
+    eTestResult = TestResult.Error
+    
+teardown:
+    TestGenerateEntryFormsLoadRefDataFromDB = eTestResult
+    clsQuadRuntime.Delete
+    DeleteEntryForms
+    DeleteSheet clsQuadRuntime.Book, sSheetName
+    CloseBook clsQuadRuntime.CacheBook
+    DeleteBook clsQuadRuntime.CacheBookName
+    
+End Function
 
 Function TestGenerateEntryFormsIsMember() As TestResult
 ' 1 entry form but record that requires IsMember validation
@@ -16,19 +71,20 @@ setup:
     ResetQuadRuntimeGlobal
     clsQuadRuntime.InitProperties bInitializeCache:=True
         
-    On Error GoTo err:
+    'On Error GoTo err:
     sFuncName = CsModuleName & "." & "GenerateEntryForms"
     sSheetName = "test"
-    sTargetSheetName = "NewStudent"
+    sTargetSheetName = "NewLesson"
     Set wsTmp = CreateSheet(clsQuadRuntime.Book, sSheetName, bOverwrite:=True)
     
-    sDefn = "NewStudent^Student^Name^String^^" & DOUBLEDOLLAR
-    sDefn = sDefn & "NewStudent^person_student^Age^Integer^IsInteger^" & DOUBLEDOLLAR
-    sDefn = sDefn & "NewStudent^person_student^Prep^Integer^IsValidPrep^" & DOUBLEDOLLAR
-    sDefn = sDefn & "NewTeacher^person_teacher^Name^String^^" & DOUBLEDOLLAR
-    sDefn = sDefn & "NewTeacher^person_teacher^Prep^Integer^IsValidPrep^" & DOUBLEDOLLAR
-    sDefn = sDefn & "NewLesson^Lesson^StudentName^String^IsValidStudentName^Student" & DOUBLEDOLLAR
-    sDefn = sDefn & "NewLesson^Lesson^TeacherName^String^IsValidTeacherName^Teacher"
+    sDefn = "NewStudent^person_student^Name^String^^^" & DOUBLEDOLLAR
+    sDefn = sDefn & "NewStudent^person_student^Age^Integer^IsInteger^^" & DOUBLEDOLLAR
+    sDefn = sDefn & "NewStudent^person_student^Prep^Integer^IsValidPrep^^" & DOUBLEDOLLAR
+    sDefn = sDefn & "NewTeacher^person_teacher^Name^String^^^" & DOUBLEDOLLAR
+    sDefn = sDefn & "NewTeacher^person_teacher^Age^Integer^IsInteger^^" & DOUBLEDOLLAR
+    sDefn = sDefn & "NewTeacher^person_teacher^Prep^Integer^IsValidPrep^^" & DOUBLEDOLLAR
+    sDefn = sDefn & "NewLesson^Lesson^StudentName^String^IsMember^person_student^Name" & DOUBLEDOLLAR
+    sDefn = sDefn & "NewLesson^Lesson^TeacherName^String^IsMember^person_teacher^Name"
     vSource = Init2DStringArrayFromString(sDefn)
     
     Set rTarget = RangeFromStrArray(vSource, wsTmp, 0, 1)
@@ -38,32 +94,38 @@ setup:
     sDefn = sDefn & "Jon^45^1" & DOUBLEDOLLAR
     sDefn = sDefn & "Quinton^6^2"
     vStudents = Init2DStringArrayFromString(sDefn)
-    sCacheSheetName = CacheData(clsQuadRuntime, vStudents, "person", "student", bInTable:=True)
+    sCacheSheetName = CacheData(clsQuadRuntime, vStudents, QuadDataType.person, QuadSubDataType.student, bInTable:=True)
     
     sDefn = "Name^Age^Prep" & DOUBLEDOLLAR
     sDefn = sDefn & "Nancy^46^1" & DOUBLEDOLLAR
     sDefn = sDefn & "Betty^36^2"
     vTeachers = Init2DStringArrayFromString(sDefn)
-    sCacheSheetName = CacheData(clsQuadRuntime, vTeachers, "person", "teacher", bInTable:=True)
+    sCacheSheetName = CacheData(clsQuadRuntime, vTeachers, QuadDataType.person, QuadSubDataType.teacher, bInTable:=True)
     
 main:
 
-    GenerateEntryForms clsQuadRuntime, clsQuadRuntime.TemplateCellSheetName
+    GenerateEntryForms clsQuadRuntime, bLoadRefData:=False
     
-    'With clsQuadRuntime.Book.Sheets(sTargetSheetName)
-    '    Set rTarget = .Range(.Cells(2, 2), .Cells(2, 2))
-    '    rTarget = "Finbar"
-        'Set rTarget = .Range(.Cells(3, 2), .Cells(3, 2))
-        'rTarget = "666"
+    EventsToggle True
+    With clsQuadRuntime.Book.Sheets(sTargetSheetName)
+        Set rTarget = .Range(.Cells(2, 2), .Cells(2, 2))
+        rTarget = "Jon"
+        Validate clsQuadRuntime.Book, sTargetSheetName, rTarget
+    
+        If GetBgColor(sTargetSheetName, rTarget).AsString <> "0,255,0" Then
+            eTestResult = TestResult.Failure
+            GoTo teardown
+        End If
         
-    '    Validate clsQuadRuntime.Book, sTargetSheetName, rTarget
+        Set rTarget = .Range(.Cells(3, 2), .Cells(3, 2))
+        rTarget = "Betty"
+        Validate clsQuadRuntime.Book, sTargetSheetName, rTarget
 
-    '    If GetBgColor(sTargetSheetName, rTarget).AsString <> "0,255,0" Then
-    '        eTestResult = TestResult.Failure
-    '        GoTo teardown
-    '    End If
-
-    'End With
+        If GetBgColor(sTargetSheetName, rTarget).AsString <> "0,255,0" Then
+            eTestResult = TestResult.Failure
+            GoTo teardown
+        End If
+    End With
     eTestResult = TestResult.OK
     GoTo teardown
     
@@ -72,14 +134,13 @@ err:
     
 teardown:
     TestGenerateEntryFormsIsMember = eTestResult
+    clsQuadRuntime.Delete
     DeleteEntryForms
     DeleteSheet clsQuadRuntime.Book, sSheetName
     CloseBook clsQuadRuntime.CacheBook
     DeleteBook clsQuadRuntime.CacheBookName
     
 End Function
-
-
 Function TestGenerateEntryForms() As TestResult
 ' 1 entry form
 ' test if cell validation works
@@ -93,13 +154,12 @@ Dim eTestResult As TestResult
 Dim clsQuadRuntime As New Quad_Runtime
 
 setup:
+    'On Error GoTo err:
+    sFuncName = CsModuleName & "." & "GenerateEntryForms"
+    sTargetSheetName = "NewStudent"
     ResetQuadRuntimeGlobal
     clsQuadRuntime.InitProperties bInitializeCache:=True
-        
-    On Error GoTo err:
-    sFuncName = CsModuleName & "." & "GenerateEntryForms"
     sSheetName = "test"
-    sTargetSheetName = "NewStudent"
     Set wsTmp = CreateSheet(clsQuadRuntime.Book, sSheetName, bOverwrite:=True)
     vSource = Init2DStringArray([{"NewStudent","Student","StudentAge","Integer","IsValidInteger";"NewStudent","Student","StudentPrep","IntegerRange","IsValidPrep"}])
     Set rTarget = RangeFromStrArray(vSource, wsTmp, 0, 1)
@@ -107,7 +167,7 @@ setup:
 
 main:
 
-    GenerateEntryForms clsQuadRuntime, clsQuadRuntime.TemplateCellSheetName
+    GenerateEntryForms clsQuadRuntime
     
     If SheetExists(clsQuadRuntime.Book, sTargetSheetName) = False Then
         eTestResult = TestResult.Failure
@@ -151,6 +211,7 @@ err:
     
 teardown:
     TestGenerateEntryForms = eTestResult
+    clsQuadRuntime.Delete
     DeleteEntryForms
     DeleteSheet clsQuadRuntime.Book, sSheetName
     CloseBook clsQuadRuntime.CacheBook
@@ -185,7 +246,7 @@ setup:
 
 main:
 
-    GenerateEntryForms clsQuadRuntime, clsQuadRuntime.TemplateCellSheetName
+    GenerateEntryForms clsQuadRuntime
     
     If SheetExists(ActiveWorkbook, "NewStudent") = False Then
         eTestResult = TestResult.Failure
@@ -223,6 +284,7 @@ err:
     
 teardown:
     TestGenerateEntryFormsMulti = eTestResult
+    clsQuadRuntime.Delete
     DeleteEntryForms
     DeleteSheet clsQuadRuntime.Book, sSheetName
     CloseBook clsQuadRuntime.CacheBook
@@ -414,6 +476,7 @@ err:
     
 teardown:
     TestValidations = eTestResult
+    clsQuadRuntime.Delete
     DeleteSheet ActiveWorkbook, sSheetName
     CloseBook clsQuadRuntime.CacheBook
     DeleteBook clsQuadRuntime.CacheBookName
@@ -442,7 +505,8 @@ setup:
     AddTableRecordAuto ActiveWorkbook, "foo", vColNames, vRows
     
 main:
-    If IsMember("Jon", "Foo", "FooName") <> True Then
+   
+    If IsMember("Jon", "Foo", Array("Foo", "FooName")) <> True Then
         eTestResult = TestResult.Failure
     Else
         eTestResult = TestResult.OK
@@ -455,6 +519,7 @@ err:
     
 teardown:
     TestIsMemberOfTable = eTestResult
+    clsQuadRuntime.Delete
     DeleteSheet ActiveWorkbook, sSheetName
     DeleteSheet ActiveWorkbook, "Foo"
     DeleteSheet ActiveWorkbook, "Bar"
@@ -486,7 +551,7 @@ setup:
     AddTableRecordAuto ActiveWorkbook, "foo", vColNames, vRows
     
 main:
-    If IsMember("Nancy", "Foo", "FooName") <> False Then
+    If IsMember("Nancy", "Foo", Array("Foo", "FooName")) <> False Then
         eTestResult = TestResult.Failure
     Else
         eTestResult = TestResult.OK
@@ -499,49 +564,12 @@ err:
     
 teardown:
     TestIsMemberOfTableFailure = eTestResult
+    clsQuadRuntime.Delete
     DeleteSheet ActiveWorkbook, sSheetName
     DeleteSheet ActiveWorkbook, "Foo"
     DeleteSheet ActiveWorkbook, "Bar"
     CloseBook clsQuadRuntime.CacheBook
     DeleteBook clsQuadRuntime.CacheBookName, clsQuadRuntime.CacheBookPath
-    
-End Function
-Function TestIsMember() As TestResult
-Dim sFuncName As String
-Dim sSheetName As String
-Dim eTestResult As TestResult
-Dim vSource() As String
-Dim wsTmp As Worksheet
-Dim rTarget As Range
-Dim bTestPassed As Boolean
-Dim rInput As Range
-Dim sTableName As String
-
-setup:
-    On Error GoTo err:
-    sFuncName = CsModuleName & "." & "IsMember"
-    sSheetName = "test"
-    Set wsTmp = CreateSheet(ActiveWorkbook, sSheetName, bOverwrite:=True)
-    vSource = Init2DStringArray([{"AA";"BB";"CC";"DD";"EE";"FF";"GG";"HH"}])
-    Set rTarget = RangeFromStrArray(vSource, wsTmp, 0, 1)
-    
-    CreateNamedRange ActiveWorkbook, rTarget.Address, sSheetName, "l" & sSheetName, "True"
-    
-main:
-    If IsMember("BB", sSheetName) <> True Then
-        eTestResult = TestResult.Failure
-    Else
-        eTestResult = TestResult.OK
-    End If
-    On Error GoTo 0
-    GoTo teardown
-    
-err:
-    eTestResult = TestResult.Error
-    
-teardown:
-    TestIsMember = eTestResult
-    DeleteSheet ActiveWorkbook, sSheetName
     
 End Function
 Function Test_FormatCellInvalid() As TestResult
@@ -646,6 +674,7 @@ err:
     
 teardown:
     TestIsRecordValid = eTestResult
+    clsQuadRuntime.Delete
     DeleteSheet ActiveWorkbook, sSheetName
     CloseBook clsQuadRuntime.CacheBook
     DeleteBook clsQuadRuntime.CacheBookName

@@ -161,16 +161,32 @@ err:
     FuncLogIt sFuncName, "Value [" & CStr(iValue) & "] is invalid [" & NotValidPrep & "]", C_MODULE_NAME, LogMsgType.OK
 
 End Function
-Public Function IsValidStudentName(ParamArray args()) As Boolean
-
-    'GetDBColumnRange("person_teacher","Name")
-    
-    IsValidStudentName = True
-End Function
-Public Function IsValidTeacherName(ParamArray args()) As Boolean
-    IsValidTeacherName = True
-End Function
 Public Function IsMember(ParamArray args()) As Boolean
+Dim sColumnRange As String
+Dim vValid2DValues() As Variant
+Dim vValidValues() As String
+Dim sLookUpTableName As String
+Dim sLookUpColumnName As String, sValue As String
+
+    sValue = args(0)
+    sLookUpTableName = args(2)(0)
+    sLookUpColumnName = args(2)(1)
+
+    If Left(sLookUpTableName, 1) = "&" Then
+        'GetPersonData
+    End If
+    
+    sColumnRange = GetDBColumnRange(sLookUpTableName, sLookUpColumnName)
+    
+    vValidValues = ListFromRange(ActiveWorkbook.Sheets(sLookUpTableName), sColumnRange)
+    If InArray(vValidValues, sValue) = False Then
+        IsMember = False
+        Exit Function
+    End If
+    
+    IsMember = True
+End Function
+Public Function IsMemberOrig(ParamArray args()) As Boolean
 Dim sFuncName As String, sTableName As String, sColRange As String
 Dim aValues() As String
 Dim iValue As Variant
@@ -366,18 +382,22 @@ Dim sKey As Variant
     Next sAction
     
 End Sub
-Public Sub GenerateEntryForms(clsQuadRuntime As Quad_Runtime, sButtonFormatSheetName As String)
-'param: wbSourceBook, workbook, where the templates / formats are
-'param: wbTargetBook, workbook, where the entry forms will be constructed
+Public Sub GenerateEntryForms(clsQuadRuntime As Quad_Runtime, Optional bLoadRefData As Boolean = False)
+'<<<
+'purpose: based on Definitions, create a set of sheets that serve as entry screens;
+'       : add callback code to the sheets so that user entries are processed immediately
+'       : add buttons, that can be used to submit completed records
+'       : cache reference data for use in validations when user enters data
+'       :
+'param  : clsQuadRuntime, Quad_Runtime; all config controlling names of books, sheets, ranges for
+'       :                 also contains any variables that need to be passed continually
+'param  : bLoadRefData, Boolean; when true will force loading of ref data from db
+'>>>
 Dim dActions As Dictionary
-Dim sAction As Variant
-Dim sKey As Variant
-Dim sCode As String
+Dim sAction As Variant, sKey As Variant
+Dim sCode As String, sFieldName As String, sFuncName As String
 Dim iRow As Integer
-Dim sFieldName As String
-Dim rCell As Range
-Dim rButton As Range
-Dim sFuncName As String
+Dim rCell As Range, rButton As Range
 
 setup:
     sFuncName = C_MODULE_NAME & "." & "GenerateEntryForms"
@@ -391,9 +411,8 @@ setup:
     
         iRow = 1
         
+        ' create the entry sheet and add call back code
         Set wsTmp = CreateSheet(clsQuadRuntime.Book, CStr(sAction), bOverwrite:=True)
-        
-        'Set wsTmp = GetSheet(clsQuadRuntime.Book, "NewStudent")
         sCode = "Private Sub Worksheet_Change(ByVal Target As Range)" & vbNewLine & _
                 "dim wbTarget as Workbook, wbSource as Workbook" & vbNewLine & _
                 "dim sSourceSheetName as string" & vbNewLine & _
@@ -406,8 +425,8 @@ setup:
 
         AddCode2Module clsQuadRuntime.Book, wsTmp.CodeName, sCode
         
+        ' for each entry in the definition generate a input field
         With wsTmp
-                                
             .Range(.Cells(iRow, 1), .Cells(iRow, 1)).Value = UCase(sAction)
             iRow = iRow + 1
         
@@ -419,7 +438,8 @@ setup:
             Next sKey
         End With
         
-        GenerateButton clsQuadRuntime.TemplateBook, clsQuadRuntime.Book, CStr(sAction), C_GOBUTTON_ROW, C_GOBUTTON_COL, ButtonState.Invalid, sButtonFormatSheetName
+        ' generate the commit record button
+        GenerateButton clsQuadRuntime.TemplateBook, clsQuadRuntime.Book, CStr(sAction), C_GOBUTTON_ROW, C_GOBUTTON_COL, ButtonState.Invalid, clsQuadRuntime.TemplateCellSheetName
         
         HideEntryForm CStr(sAction)
         FuncLogIt sFuncName, "Generated Form for action [" & sAction & "]", C_MODULE_NAME, LogMsgType.INFO
@@ -427,22 +447,18 @@ setup:
     Next sAction
 End Sub
 Public Function LoadDefinitions(wsTmp As Worksheet, Optional rSource As Range = Nothing) As Dictionary
-Dim dDefinitions As New Dictionary
-Dim dDefnDetail As Dictionary
+Dim dDefinitions As New Dictionary, dDefnDetail As Dictionary
 Dim dDefnActions As New Dictionary 'holds a discrete list of actions that have been defined
 Dim dDefnTables As New Dictionary 'holds a discrete list of tables that have been defined
 Dim rRow As Range
-Dim sTableName As String
-Dim sFieldName As String
-Dim sActionName As String
-Dim sValidationType As String
-Dim sValidationParam As String
-Dim sFuncName As String
-Dim sKey As String
+Dim sTableName As String, sFieldName As String, sActionName As String, sValidationType As String
+Dim sValidationParam As String, sFuncName As String, sKey As String
+Dim vValidationParams() As String
+Dim iCol As Integer, iValidationParamCount As Integer
 
 setup:
-    sFuncName = C_MODULE_NAME & "." & "LoadDefinitions"
 
+    sFuncName = C_MODULE_NAME & "." & "LoadDefinitions"
 main:
     If rSource Is Nothing Then
         Set rSource = Range("rDefinitions")
@@ -450,11 +466,12 @@ main:
     
     With wsTmp
         For Each rRow In rSource.Rows
+            ReDim vValidationParams(0 To 3)
+            iValidationParamCount = 0
             sActionName = rRow.Columns(1)
             sTableName = rRow.Columns(2)
             sFieldName = rRow.Columns(3)
             sValidationType = rRow.Columns(4)
-            sValidationParam = rRow.Columns(5)
             sValidationParam = rRow.Columns(5)
             
             Set dDefnDetail = New Dictionary
@@ -462,6 +479,18 @@ main:
             dDefnDetail.Add "validation_param", sValidationParam
             dDefnDetail.Add "db_table_name", sTableName
             dDefnDetail.Add "db_field_name", sFieldName
+            
+            For iCol = 6 To 9
+                If rRow.Columns(iCol).Value <> "" Then
+                    vValidationParams(iValidationParamCount) = rRow.Columns(iCol).Value
+                    iValidationParamCount = iValidationParamCount + 1
+                End If
+            Next iCol
+            
+            If iValidationParamCount > 0 Then
+                ReDim Preserve vValidationParams(0 To iValidationParamCount - 1)
+                dDefnDetail.Add "validation_args", vValidationParams
+            End If
             
             sKey = "e" & sActionName & "_" & sFieldName
             If dDefinitions.Exists(sKey) = True Then
@@ -499,7 +528,7 @@ Dim sFuncName As String
 Dim sDefnName As String
 Dim dDefnDetail As Dictionary
 Dim sValidType As String
-Dim sValidFunc As String
+Dim vValidParams() As String
 Dim bValid As Boolean
 Dim eThisErrorType As ErrorType
 Dim mThisModule As VBComponent
@@ -526,12 +555,16 @@ Dim mThisModule As VBComponent
     Else
         Set dDefnDetail = dDefinitions.Item(sDefnName)
         sValidType = dDefnDetail.Item("validation_type")
-        sValidFunc = dDefnDetail.Item("validation_param")
-        FuncLogIt sFuncName, "Using validation  [" & sValidType & "] [" & sValidFunc & "]", C_MODULE_NAME, _
+        sFuncName = dDefnDetail.Item("validation_param")
+        If IsSet(dDefnDetail.Item("validation_args")) = True Then
+            vValidParams = dDefnDetail.Item("validation_args")
+        End If
+        
+        FuncLogIt sFuncName, "Using validation  [" & sValidType & "] [" & sFuncName & "]", C_MODULE_NAME, _
             LogMsgType.OK
         
         On Error GoTo err
-        Validate = Application.Run(sValidFunc, rTarget.Value, dDefnDetail.Item("db_table_name"))
+        Validate = Application.Run(sFuncName, rTarget.Value, dDefnDetail.Item("db_table_name"), vValidParams)
         On Error GoTo 0
         
         If Validate = True Then

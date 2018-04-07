@@ -46,6 +46,7 @@ err:
     
 teardown:
     Test_FormatButton = eTestResult
+    clsQuadRuntime.Delete
     DeleteSheet ActiveWorkbook, sSheetName
     CloseBook clsQuadRuntime.CacheBook
     DeleteBook clsQuadRuntime.CacheBookName, clsQuadRuntime.CacheBookPath

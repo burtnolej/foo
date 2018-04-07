@@ -32,7 +32,7 @@ End Sub
 Public Sub DoViewLogs()
 Dim vFileNames() As String
 Dim sLogPath As String
-Dim sFileName As Variant
+Dim sFilename As Variant
 Dim sFuncName As String
 Dim iCount As Integer
 Dim vFile() As String
@@ -60,19 +60,19 @@ Dim rSource As Range
     
     Set wsTmp = CreateSheet(Application.ActiveWorkbook, sSheetName)
     
-    For Each sFileName In vFileNames
-        If InStr(sFileName, "_log") <> 0 Then
-            FuncLogIt sFuncName, "Found log [" & sFileName & "] loading", C_MODULE_NAME, LogMsgType.OK
+    For Each sFilename In vFileNames
+        If InStr(sFilename, "_log") <> 0 Then
+            FuncLogIt sFuncName, "Found log [" & sFilename & "] loading", C_MODULE_NAME, LogMsgType.OK
             
-            vFile = ReadFile2Array(sLogPath & sFileName, sFieldDelim:="|")
+            vFile = ReadFile2Array(sLogPath & sFilename, sFieldDelim:="|")
             
             Set rSource = RangeFromStrArray(vFile, wsTmp, iRowNum, 0)
             Set rSource = rSource.Resize(, 1).Offset(, 3)
-            rSource.Value = sFileName
+            rSource.Value = sFilename
             
             iRowNum = iRowNum + UBound(vFile) + 1
         End If
-    Next sFileName
+    Next sFilename
     
     iCount = 1
     For Each iColWidth In aColWidths
