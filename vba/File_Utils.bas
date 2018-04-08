@@ -141,6 +141,7 @@ Dim aTmpRow() As String, aTmp() As String
     Else
         aTmp = ReDim2DArray(aTmp, iRow, iCol)
     End If
+    oFile.Close
     
     ReadFile2Array = aTmp
 End Function

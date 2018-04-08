@@ -48,7 +48,7 @@ Sub CopyFormat(wbSourceBook As Workbook, wbTargetbook As Workbook, sSourceSheetN
     End With
     
     With wbTargetbook.Sheets(sTargetSheetName)
-        .Range(sTargetAddress).PasteSpecial Paste:=xlPasteFormats, Operation:=xlNone, SkipBlanks:=False, Transpose:=False
+        .Range(sTargetAddress).PasteSpecial Paste:=xlPasteFormats, operation:=xlNone, SkipBlanks:=False, Transpose:=False
         Application.CutCopyMode = False
     End With
 
@@ -62,7 +62,7 @@ Sub CopyFormatRange(rSourceRange As Range, rTargetRange As Range)
     rTargetRange.Select
     'Application.CutCopyMode = False
     
-    Selection.PasteSpecial Paste:=xlPasteFormats, Operation:=xlNone, SkipBlanks:=False, Transpose:=False
+    Selection.PasteSpecial Paste:=xlPasteFormats, operation:=xlNone, SkipBlanks:=False, Transpose:=False
             
 End Sub
 Sub SetBgColor(sSheetName As String, rTarget As Range, iRed As Integer, iGreen As Integer, iBlue As Integer)

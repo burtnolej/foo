@@ -197,7 +197,7 @@ Dim i As Integer, j As Integer, iScheduleCurrentRow As Integer, iScheduleCurrent
             iScheduleCurrentCol = iFormatWidth * (CInt(IndexArray(Split(clsQuadRuntime.DayEnum, COMMA), dValues("cdDay"))) + 1)
             Set rScheduleFormatTargetRange = .Range(.Cells(iScheduleCurrentRow, iScheduleCurrentCol), .Cells(iScheduleCurrentRow + iFormatHeight - 1, iScheduleCurrentCol + iFormatWidth - 1))
             rScheduleFormatTargetRange.Select
-            Selection.PasteSpecial Paste:=xlPasteAll, Operation:=xlNone, SkipBlanks:=False, Transpose:=False
+            Selection.PasteSpecial Paste:=xlPasteAll, operation:=xlNone, SkipBlanks:=False, Transpose:=False
             
             ' if this is the first period for a column, set the column widths
             If dValues.Item("idTimePeriod") = "1" Then

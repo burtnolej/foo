@@ -35,6 +35,11 @@ Public Sub FormatCreatedTime(wsTmp As Worksheet, rCell As Range)
 End Sub
 
 Public Function GetDBColumnRange(sTableName, sFieldName) As String
+Dim sLookUpTableName As String
+    If Left(sTableName, 1) = "&" Then
+        sTableName = Right(sTableName, Len(sTableName) - 5)
+    End If
+    
     GetDBColumnRange = "db" & sTableName & sFieldName
 End Function
 Public Function GetTableRecord(sTableName As String, iID As Integer) As Dictionary
@@ -224,13 +229,23 @@ Dim aDefaultFields() As String
 Dim i As Integer
 Dim sRangeName As String
 Dim sFuncName As String
+Dim clsQuadRuntime As New Quad_Runtime
 
 setup:
+    clsQuadRuntime.InitProperties bInitializeCache:=False
+    
     sFuncName = C_MODULE_NAME & "." & "CreateTable"
     
     Set wsTmp = CreateSheet(ActiveWorkbook, CStr(sTableName), bOverwrite:=True)
+    wsTmp.Visible = xlSheetHidden
     
     aDefaultFields = Split(C_DB_DEFAULT_FIELDS, ",")
+
+    If dDefinitions Is Nothing Then
+        ' when called from a callback and dDefinitons needs to be reconstituted
+        FuncLogIt sFuncName, "Definitions not loaded so reloading", C_MODULE_NAME, LogMsgType.INFO
+        DoLoadDefinitions clsQuadRuntime:=clsQuadRuntime
+    End If
     
     With wsTmp
         For Each sKey In dDefinitions.Keys()
@@ -238,7 +253,6 @@ setup:
                 Set dDefnDetail = dDefinitions.Item(sKey)
                 iCol = iCol + 1
                 CreateTableColumn wsTmp, iCol, sTableName, dDefinitions.Item(sKey).Item("db_field_name")
-                
             End If
         Next sKey
         iCol = iCol + 1

@@ -293,6 +293,7 @@ Dim rTarget As Range
 Dim nData As Name
 Dim sCacheSheetName As String
 Dim vColNames() As String
+Dim wsCurrentFocus As Worksheet
 
     sCacheSheetName = EnumQuadDataType(eQuadDataType) & "_" & EnumQuadSubDataType(eQuadSubDataType)
 

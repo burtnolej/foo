@@ -43,6 +43,8 @@ Private pQuadRuntimeCacheFile As Object
 Private pQuadRuntimeCacheFileName As String
 Private pQuadRuntimeCacheFileArray() As String
 
+Private pDefinitionSheetName As String
+
 Const cAppDir = "C:\\Users\\burtnolej\\Documents\\GitHub\\quadviewer\\"
 Const cExecPath = cAppDir & "app\\quad\\utils\\excel\\"
 Const cRuntimeDir = "C:\\Users\\burtnolej\\Documents\\runtime\\"
@@ -59,10 +61,12 @@ Const cTemplateBookName = "vba_source_new.xlsm"
 Const cTemplateSheetName = "FormStyles"
 Const cTemplateCellSheetName = "CellStyles"
 
+Const cDefinitionSheetName = "Definitions"
+
 Const cDatabasePath = cAppDir & "app\\quad\\utils\\excel\\test_misc\\QuadQA.db"
 Const cResultFileName = cRuntimeDir & "pyshell_results.txt"
 Const cFileName = cRuntimeDir & "uupyshell.args.txt"
-Const cQuadRuntimeEnum = "BookPath,BookName,CacheBookName,CacheBookPath,CacheRangeName,TemplateBookPath,TemplateBookName,TemplateSheetName,TemplateCellSheetName,DatabasePath,ResultFileName,ExecPath,RuntimeDir,FileName,DayEnum,CurrentSheetSource,CurrentSheetColumns,QuadRuntimeCacheFileName"
+Const cQuadRuntimeEnum = "BookPath,BookName,CacheBookName,CacheBookPath,CacheRangeName,TemplateBookPath,TemplateBookName,TemplateSheetName,TemplateCellSheetName,DatabasePath,ResultFileName,ExecPath,RuntimeDir,FileName,DayEnum,CurrentSheetSource,CurrentSheetColumns,QuadRuntimeCacheFileName,DefinitionSheetName"
 
 Const cDayEnum = "M,T,W,R,F"
 Const cQuadRuntimeCacheFileName = "C:\\Users\\burtnolej\\quad_runtime_cache.txt"
@@ -307,6 +311,20 @@ setup:
 main:
     pDayEnum = GetUpdatedValue(sFuncName, sConstValue, Value)
 End Property
+Public Property Get DefinitionSheetName() As String
+    DefinitionSheetName = pDefinitionSheetName
+End Property
+Public Property Let DefinitionSheetName(Value As String)
+Dim sCachedValue As String, sOrigValue As String, sConstValue As String
+Dim sFuncName As String
+
+setup:
+    sFuncName = "DefinitionSheetName"
+    sConstValue = cDefinitionSheetName
+    
+main:
+    pDefinitionSheetName = GetUpdatedValue(sFuncName, sConstValue, Value)
+End Property
 Public Property Get FileName() As String
     FileName = pFileName
 End Property
@@ -460,6 +478,9 @@ End Function
 
 Function GetAttrEnum(sAttrName As String) As Integer
     GetAttrEnum = IndexArray(Split(cQuadRuntimeEnum, COMMA), sAttrName)
+    If GetAttrEnum = -1 Then
+        err.Raise ErrorMsgType.BAD_ENUM, Description:="value [" & sAttrName & "] is not a member of enum [cQuadRuntimeEnum]"
+    End If
 End Function
 
 Public Property Get QuadRuntimeCacheFileArray() As String()
@@ -510,7 +531,7 @@ Dim vResults() As String
     If FileExists(cQuadRuntimeCacheFileName) = False Then
         Me.QuadRuntimeCacheFile = InitFileArray(cQuadRuntimeCacheFileName, 30)
     Else
-        Me.QuadRuntimeCacheFile = OpenFile(cQuadRuntimeCacheFileName, 8)
+        'Me.QuadRuntimeCacheFile = OpenFile(cQuadRuntimeCacheFileName, 8)
     End If
 
     vResults = ReadFile2Array(cQuadRuntimeCacheFileName, bSingleCol:=True)
@@ -536,6 +557,7 @@ Public Sub InitProperties( _
                  Optional sRuntimeDir As String = cRuntimeDir, _
                  Optional sFilename As String = cFileName, _
                  Optional sDayEnum As String = cDayEnum, _
+                 Optional sDefinitionSheetName As String = cDefinitionSheetName, _
                  Optional sQuadRuntimeCacheFileName As String = cQuadRuntimeCacheFileName, _
                  Optional bInitializeCache As Boolean = True, _
                  Optional bHydrateFromCache As Boolean = False)
@@ -560,6 +582,8 @@ Public Sub InitProperties( _
     Me.TemplateSheetName = sTemplateSheetName
     Me.TemplateCellSheetName = sTemplateCellSheetName
     
+    Me.DefinitionSheetName = sDefinitionSheetName
+    
     Me.DatabasePath = sDatabasePath
     Me.ResultFileName = sResultFileName
     Me.ExecPath = sExecPath
@@ -569,11 +593,13 @@ Public Sub InitProperties( _
 
 End Sub
 
-Public Sub Delete()
+Public Sub CloseRuntimeCacheFile()
 Dim oFile As Object
-
     Set oFile = Me.QuadRuntimeCacheFile
     oFile.Close
+End Sub
+Public Sub Delete()
+    Me.CloseRuntimeCacheFile
     DeleteFile Me.QuadRuntimeCacheFileName
 End Sub
 

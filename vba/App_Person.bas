@@ -43,6 +43,11 @@ main:
     IsValidPersonID = False
     
 End Function
+Public Function get_person_student(clsQuadRuntime As Quad_Runtime, _
+                      Optional bInTable As Boolean = True) As Worksheet
+    Set get_person_student = GetPersonData(clsQuadRuntime, QuadSubDataType.student, eQuadScope:=QuadScope.all, bInTable:=bInTable)
+End Function
+                     
 Public Function GetPersonData(clsQuadRuntime As Quad_Runtime, _
                               eQuadSubDataType As QuadSubDataType, _
                      Optional eQuadScope As QuadScope = QuadScope.specified, _

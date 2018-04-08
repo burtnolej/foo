@@ -4,6 +4,10 @@ Option Explicit
 'Function TestRowAsDict()
 
 Const CsModuleName = "Test_Quad_Utils"
+
+Sub test()
+    Test_CacheData_Table
+End Sub
 Public Function Test_CacheData_Table() As TestResult
 '"" cache data but wrap in a table
 '""

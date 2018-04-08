@@ -105,13 +105,22 @@ End Sub
 Public Sub FormatCellValid(sSheetName As String, rCell As Range)
     SetBgColor sSheetName, rCell, 0, 255, 0
 End Sub
-Public Sub DoLoadDefinitions()
+Public Sub DoLoadDefinitions(Optional clsQuadRuntime As Quad_Runtime)
 Dim rSource As Range
 Dim wsTmp As Worksheet
+Dim wbTmp As Workbook
 
-    Set wsTmp = ActiveWorkbook.ActiveSheet
+    If IsSet(clsQuadRuntime) = True Then
+        Set wbTmp = clsQuadRuntime.Book
+        Set wsTmp = wbTmp.Sheets(clsQuadRuntime.DefinitionSheetName)
+    Else
+        Set wbTmp = ActiveWorkbook
+        Set wsTmp = wbTmp.Sheets("Definitions")
+    End If
+    
     wsTmp.Activate
-    Set rSource = ActiveWorkbook.Sheets("Definitions").Range("Definitions")
+    Set rSource = wsTmp.Range("Definitions")
+    'Set rSource = wbTmp.Sheets("Definitions").Range("Definitions")
     Set Entry_Utils.dDefinitions = LoadDefinitions(wsTmp, rSource)
     
 End Sub
@@ -145,7 +154,7 @@ Dim iValue As Variant
  
 setup:
     sFuncName = C_MODULE_NAME & "." & "IsValidPrep"
-    iValue = args(0)
+    iValue = args(1)
 
 main:
     aPreps = Split(C_PREPS, ",")
@@ -162,23 +171,25 @@ err:
 
 End Function
 Public Function IsMember(ParamArray args()) As Boolean
-Dim sColumnRange As String
+Dim sColumnRange As String, sLookUpTableName As String, sLookUpColumnName As String, sValue As String
 Dim vValid2DValues() As Variant
 Dim vValidValues() As String
-Dim sLookUpTableName As String
-Dim sLookUpColumnName As String, sValue As String
+Dim clsQuadRuntime As New Quad_Runtime
+Dim wsCache As Worksheet
 
-    sValue = args(0)
+    'clsQuadRuntime.InitProperties
+    Set clsQuadRuntime = args(0)
+    sValue = args(1)
     sLookUpTableName = args(2)(0)
     sLookUpColumnName = args(2)(1)
 
     If Left(sLookUpTableName, 1) = "&" Then
-        'GetPersonData
+        Set wsCache = Application.Run(Right(sLookUpTableName, Len(sLookUpTableName) - 1), clsQuadRuntime)
     End If
     
     sColumnRange = GetDBColumnRange(sLookUpTableName, sLookUpColumnName)
     
-    vValidValues = ListFromRange(ActiveWorkbook.Sheets(sLookUpTableName), sColumnRange)
+    vValidValues = ListFromRange(wsCache, sColumnRange)
     If InArray(vValidValues, sValue) = False Then
         IsMember = False
         Exit Function
@@ -190,7 +201,7 @@ Public Function IsMemberOrig(ParamArray args()) As Boolean
 Dim sFuncName As String, sTableName As String, sColRange As String
 Dim aValues() As String
 Dim iValue As Variant
-
+Dim vParams As Variant
 setup:
             
     sFuncName = C_MODULE_NAME & "." & "IsMember"
@@ -203,8 +214,8 @@ setup:
     sTableName = args(1)
     If UBound(args) > 1 Then
         ' col needs to be passed to do lookup in a "Table"
-        sColName = args(2)
-        sColRange = GetDBColumnRange(sTableName, sColName)
+        vParams = args(2)
+        sColRange = GetDBColumnRange(vParams(0), vParams(1))
     Else
         ' this is the old pre-table range name
         sColRange = "l" & sTableName
@@ -212,7 +223,7 @@ setup:
     
 main:
 
-    aValues = ListFromRange(ActiveWorkbook.Sheets(sTableName), sColRange)
+    aValues = ListFromRange(ActiveWorkbook.Sheets(vParams(0)), sColRange)
     
     If InArray(aValues, iValue) = True Then
         IsMember = True
@@ -532,7 +543,11 @@ Dim vValidParams() As String
 Dim bValid As Boolean
 Dim eThisErrorType As ErrorType
 Dim mThisModule As VBComponent
+Dim clsQuadRuntime As New Quad_Runtime
 
+setup:
+    clsQuadRuntime.InitProperties bInitializeCache:=False
+    
     EventsToggle False
     On Error GoTo err_name
     If UBound(Split(rTarget.Name.Name, "!")) = 1 Then
@@ -545,11 +560,13 @@ Dim mThisModule As VBComponent
     sFuncName = C_MODULE_NAME & "." & "Validate"
     
     If dDefinitions Is Nothing Then
+        ' when called from a callback and dDefinitons needs to be reconstituted
         FuncLogIt sFuncName, "Definitions not loaded so reloading", C_MODULE_NAME, LogMsgType.INFO
-        DoLoadDefinitions
+        DoLoadDefinitions clsQuadRuntime:=clsQuadRuntime
     End If
     
     If dDefinitions.Exists(sDefnName) = False Then
+        ' usually called from tests, where dDefinitions is already set
         FuncLogIt sFuncName, "Loading definition for  in [" & sDefnName & "]", C_MODULE_NAME, _
             LogMsgType.Failure
     Else
@@ -564,7 +581,12 @@ Dim mThisModule As VBComponent
             LogMsgType.OK
         
         On Error GoTo err
-        Validate = Application.Run(sFuncName, rTarget.Value, dDefnDetail.Item("db_table_name"), vValidParams)
+        If IsSet(clsQuadRuntime) Then
+            'first passed arg now needs to be clsQuadRuntime if IsSet
+            Validate = Application.Run(sFuncName, clsQuadRuntime, rTarget.Value, vValidParams)
+        Else
+            Validate = Application.Run(sFuncName, rTarget.Value, dDefnDetail.Item("db_table_name"), vValidParams)
+        End If
         On Error GoTo 0
         
         If Validate = True Then

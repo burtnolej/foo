@@ -1,5 +1,22 @@
 Attribute VB_Name = "Test_Workbook_Utils"
 Const CsModuleName = "Test_Workbook_Utils"
+
+
+
+Function T_e_st_CreateHiddenSheet()
+Dim sFuncName As String
+Dim sSheetName As String
+Dim sResultStr As String
+Dim sExpectedResultStr As String
+Dim wsTmp As Worksheet
+Dim eTestResult As TestResult
+setup:
+    sFuncName = CsModuleName & "." & "CreateHiddenSheet"
+    sSheetName = "test"
+    Set wsTmp = CreateSheet(ActiveWorkbook, sSheetName, bOverwrite:=True)
+    wsTmp.Visible = xlSheetHidden
+    
+End Function
 Function Test_ShowSheet() As TestResult
 Dim sFuncName As String
 Dim sSheetName As String

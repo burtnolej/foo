@@ -180,7 +180,7 @@ Dim sIncModules As String
     sIncModules = sIncModules & ",Test_App_Schedule"
     sIncModules = sIncModules & ",Test_App_Person"
     sIncModules = sIncModules & ",Test_Array_Utils"
-    sIncModules = sIncModules & ",Test_DB_Utils"
+    'sIncModules = sIncModules & ",Test_DB_Utils"
     sIncModules = sIncModules & ",Test_Entry_Utils"
     sIncModules = sIncModules & ",Test_Dict_Utils,Test_File_Utils"
     sIncModules = sIncModules & ",Test_Filter_Utils,Test_Format_Utils"
