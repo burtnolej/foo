@@ -132,7 +132,7 @@ Dim iValue As Variant
 
 setup:
     sFuncName = C_MODULE_NAME & "." & "IsValidInteger"
-    iValue = args(0)
+    iValue = args(1)
 
 main:
     On Error GoTo err
@@ -155,10 +155,12 @@ Dim iValue As Variant
 setup:
     sFuncName = C_MODULE_NAME & "." & "IsValidPrep"
     iValue = args(1)
-
 main:
     aPreps = Split(C_PREPS, ",")
-    If IsValidInteger(iValue) = True Then
+    'If IsValidInteger(iValue) = True Then
+    If IsValidInteger(args(0), args(1)) = True Then
+    'If IsValidInteger(args(0), args(1), args(2)) = True Then
+    
         If InArray(aPreps, iValue) = True Then
             IsValidPrep = True
             FuncLogIt sFuncName, "Value [" & CStr(iValue) & "] is valid", C_MODULE_NAME, LogMsgType.OK
@@ -183,13 +185,19 @@ Dim wsCache As Worksheet
     sLookUpTableName = args(2)(0)
     sLookUpColumnName = args(2)(1)
 
-    If Left(sLookUpTableName, 1) = "&" Then
-        Set wsCache = Application.Run(Right(sLookUpTableName, Len(sLookUpTableName) - 1), clsQuadRuntime)
-    End If
-    
+
     sColumnRange = GetDBColumnRange(sLookUpTableName, sLookUpColumnName)
     
-    vValidValues = ListFromRange(wsCache, sColumnRange)
+    If Left(sLookUpTableName, 1) = "&" Then
+        Set wsCache = Application.Run(Right(sLookUpTableName, Len(sLookUpTableName) - 1), clsQuadRuntime)
+        vValidValues = ListFromRange(wsCache, sColumnRange)
+    Else
+        vValidValues = ListFromRange(ActiveWorkbook.Sheets(sLookUpTableName), sColumnRange)
+    End If
+    
+    'sColumnRange = GetDBColumnRange(sLookUpTableName, sLookUpColumnName)
+    
+    'vValidValues = ListFromRange(wsCache, sColumnRange)
     If InArray(vValidValues, sValue) = False Then
         IsMember = False
         Exit Function

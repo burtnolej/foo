@@ -34,7 +34,7 @@ Public Sub FormatCreatedTime(wsTmp As Worksheet, rCell As Range)
     MakeCellLongDate wsTmp, rCell
 End Sub
 
-Public Function GetDBColumnRange(sTableName, sFieldName) As String
+Public Function GetDBColumnRange(ByVal sTableName, sFieldName) As String
 Dim sLookUpTableName As String
     If Left(sTableName, 1) = "&" Then
         sTableName = Right(sTableName, Len(sTableName) - 5)

@@ -165,8 +165,11 @@ Dim rTarget As Range
 Dim dDefinitions As Dictionary
 Dim dDefnDetails As Dictionary
 Dim eTestResult As TestResult
+Dim clsQuadRuntime As New Quad_Runtime
+
 setup:
 
+    clsQuadRuntime.InitProperties bInitializeCache:=True
     sFuncName = CsModuleName & "." & "CreateTables"
     sSheetName = "test"
     Set wsTmp = CreateSheet(ActiveWorkbook, sSheetName, bOverwrite:=True)
@@ -212,9 +215,12 @@ err:
     
 teardown:
     TestCreateTables = eTestResult
+    clsQuadRuntime.Delete
     DeleteSheet ActiveWorkbook, sSheetName
     DeleteSheet ActiveWorkbook, "foo"
     DeleteSheet ActiveWorkbook, "bar"
+    CloseBook clsQuadRuntime.CacheBook
+    DeleteBook clsQuadRuntime.CacheBookName, clsQuadRuntime.CacheBookPath
 
 End Function
 

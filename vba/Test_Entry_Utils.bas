@@ -1,9 +1,6 @@
 Attribute VB_Name = "Test_Entry_Utils"
 Const CsModuleName = "Test_Entry_Utils"
 
-Sub test()
-    TestGenerateEntryFormsLoadRefDataFromDB
-End Sub
 Function TestGenerateEntryFormsLoadRefDataFromDB() As TestResult
 Dim sFuncName As String, sSheetName As String, sResultStr As String, sExpectedResultStr As String, sTargetSheetName As String
 Dim sDefn As String
@@ -60,23 +57,26 @@ main:
             GoTo teardown
         End If
         
-        'Set rTarget = .Range(.Cells(3, 2), .Cells(3, 2))
-        'rTarget = "Raskin"
-        'Validate clsQuadRuntime.Book, sTargetSheetName, rTarget
+        Set rTarget = .Range(.Cells(3, 2), .Cells(3, 2))
+        rTarget = "Raskin"
+        Validate clsQuadRuntime.Book, sTargetSheetName, rTarget
 
-        'If GetBgColor(sTargetSheetName, rTarget).AsString <> "0,255,0" Then
-        '    eTestResult = TestResult.Failure
-        '    GoTo teardown
-        'End If
+        If GetBgColor(sTargetSheetName, rTarget).AsString <> "0,255,0" Then
+            eTestResult = TestResult.Failure
+            GoTo teardown
+        End If
         
-        'Set rTarget = .Range(.Cells(3, 2), .Cells(3, 2))
-        'rTarget = "4"
-        'Validate clsQuadRuntime.Book, sTargetSheetName, rTarget
+        Set rTarget = .Range(.Cells(4, 2), .Cells(4, 2))
+        rTarget = "4"
+        Validate clsQuadRuntime.Book, sTargetSheetName, rTarget
 
-        'If GetBgColor(sTargetSheetName, rTarget).AsString <> "0,255,0" Then
-        '    eTestResult = TestResult.Failure
-        '    GoTo teardown
-        'End If
+        If GetBgColor(sTargetSheetName, rTarget).AsString <> "0,255,0" Then
+            eTestResult = TestResult.Failure
+            GoTo teardown
+        Else
+            eTestResult = TestResult.OK
+            GoTo teardown
+        End If
     End With
     
 err:
@@ -339,7 +339,7 @@ Dim dDefnDetails As Dictionary
 Dim eTestResult As TestResult
 
 setup:
-    On Error GoTo err:
+    'On Error GoTo err:
     sFuncName = CsModuleName & "." & "LoadDefinitions"
     sSheetName = "test"
     Set wsTmp = CreateSheet(ActiveWorkbook, sSheetName, bOverwrite:=True)
@@ -389,32 +389,37 @@ teardown:
     TestLoadDefinitions = eTestResult
     DeleteSheet ActiveWorkbook, sSheetName
 End Function
+
+
 Function TestIsValidInteger() As TestResult
 Dim sFuncName As String
 Dim eTestResult As TestResult
+Dim clsQuadRuntime As New Quad_Runtime
 
 setup:
+    ResetQuadRuntimeGlobal
+    clsQuadRuntime.InitProperties bInitializeCache:=True
     On Error GoTo err:
     sFuncName = CsModuleName & "." & "IsValidInteger"
 
 main:
-    If IsValidInteger(123) <> True Then
+    If IsValidInteger(clsQuadRuntime, 123) <> True Then
         eTestResult = TestResult.Failure
         GoTo teardown
     End If
     
-    If IsValidInteger("ABC") <> False Then
+    If IsValidInteger(clsQuadRuntime, "ABC") <> False Then
         eTestResult = TestResult.Failure
         GoTo teardown
     End If
     
-    If IsValidInteger(123) = True Then
+    If IsValidInteger(clsQuadRuntime, 123) = True Then
     Else
         eTestResult = TestResult.Failure
         GoTo teardown
     End If
  
-    If IsValidInteger("ABC") = False Then
+    If IsValidInteger(clsQuadRuntime, "ABC") = False Then
         eTestResult = TestResult.OK
     Else
         eTestResult = TestResult.Failure
@@ -427,23 +432,30 @@ err:
     
 teardown:
     TestIsValidInteger = eTestResult
+    clsQuadRuntime.Delete
+    CloseBook clsQuadRuntime.CacheBook
+    DeleteBook clsQuadRuntime.CacheBookName
     
 End Function
+
 Function TestIsValidPrep() As TestResult
 Dim sFuncName As String
 Dim eTestResult As TestResult
+Dim clsQuadRuntime As New Quad_Runtime
 
 setup:
+    ResetQuadRuntimeGlobal
+    clsQuadRuntime.InitProperties bInitializeCache:=True
     On Error GoTo err:
     sFuncName = CsModuleName & "." & "IsValidPrep"
 
 main:
-    If IsValidPrep(1) <> True Then
+    If IsValidPrep(clsQuadRuntime, 1) <> True Then
         eTestResult = TestResult.Failure
         GoTo teardown
     End If
     
-    If IsValidPrep(11) <> False Then
+    If IsValidPrep(clsQuadRuntime, 11) <> False Then
         eTestResult = TestResult.Failure
     Else
         eTestResult = TestResult.OK
@@ -456,6 +468,9 @@ err:
     
 teardown:
     TestIsValidPrep = eTestResult
+    clsQuadRuntime.Delete
+    CloseBook clsQuadRuntime.CacheBook
+    DeleteBook clsQuadRuntime.CacheBookName
     
 End Function
 Function TestValidations() As TestResult
@@ -542,7 +557,7 @@ setup:
     
 main:
    
-    If IsMember("Jon", "Foo", Array("Foo", "FooName")) <> True Then
+    If IsMember(clsQuadRuntime, "Jon", Array("Foo", "FooName")) <> True Then
         eTestResult = TestResult.Failure
     Else
         eTestResult = TestResult.OK
@@ -563,6 +578,9 @@ teardown:
     DeleteBook clsQuadRuntime.CacheBookName, clsQuadRuntime.CacheBookPath
     
 End Function
+Sub test()
+    TestIsMemberOfTableFailure
+End Sub
 Function TestIsMemberOfTableFailure() As TestResult
 Dim sFuncName As String, sSheetName As String, sTableName As String
 Dim eTestResult As TestResult
@@ -587,7 +605,7 @@ setup:
     AddTableRecordAuto ActiveWorkbook, "foo", vColNames, vRows
     
 main:
-    If IsMember("Nancy", "Foo", Array("Foo", "FooName")) <> False Then
+    If IsMember(clsQuadRuntime, "Nancy", Array("Foo", "FooName")) <> False Then
         eTestResult = TestResult.Failure
     Else
         eTestResult = TestResult.OK

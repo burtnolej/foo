@@ -225,6 +225,8 @@ Sub CloseBook(wbTmp As Workbook, Optional bSaveFlag As Boolean)
 End Sub
 Public Sub DeleteSheet(wb As Workbook, sSheetName As String)
 Dim sFuncName As String
+Dim wsTmp As Worksheet
+
 setup:
     sFuncName = C_MODULE_NAME & "." & "DeleteSheet"
     Application.DisplayAlerts = False
@@ -233,7 +235,17 @@ main:
     If wb.Sheets.Count = 1 Then
         FuncLogIt sFuncName, "Could not delete sheet as its the only 1 left in the workbook", C_MODULE_NAME, LogMsgType.Error
     Else
-        wb.Sheets(sSheetName).Delete
+        If SheetExists(wb, sSheetName) = True Then
+            For Each wsTmp In wb.Sheets
+                If wsTmp.Name = sSheetName Then
+                    wsTmp.Visible = True
+                    wsTmp.Delete
+                End If
+            Next wsTmp
+            'wb.Sheets(sSheetName).Delete
+        Else
+            FuncLogIt sFuncName, "Trying to delete a sheet that does not exist [" & sSheetName & "]", C_MODULE_NAME, LogMsgType.Failure
+        End If
     End If
 
 cleanup:
