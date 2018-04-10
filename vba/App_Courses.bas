@@ -20,7 +20,7 @@ Public Function get_misc_timeperiod(clsQuadRuntime As Quad_Runtime, _
                           Optional bInTable As Boolean = True) As Worksheet
     Set get_misc_timeperiod = GetPersonData(clsQuadRuntime, _
                                            QuadDataType.misc, _
-                                           QuadSubDataType.timeperiod, _
+                                           QuadSubDataType.TimePeriod, _
                                            eQuadScope:=QuadScope.all, _
                                            bInTable:=bInTable)
 End Function
@@ -28,7 +28,7 @@ Public Function get_misc_prep(clsQuadRuntime As Quad_Runtime, _
                           Optional bInTable As Boolean = True) As Worksheet
     Set get_misc_prep = GetPersonData(clsQuadRuntime, _
                                            QuadDataType.misc, _
-                                           QuadSubDataType.prep, _
+                                           QuadSubDataType.Prep, _
                                            eQuadScope:=QuadScope.all, _
                                            bInTable:=bInTable)
 End Function

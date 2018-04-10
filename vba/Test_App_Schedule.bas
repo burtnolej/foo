@@ -6,6 +6,7 @@ Option Explicit
 'Test_BuildSchedule_Student_Cached
 'Test_BuildSchedule_Student_NotCached
 'Test_BuildSchedule_Student_Multi
+Const C_MODULE_NAME = "Test_App_Schedule"
 
 Public Function Test_CacheQuadRuntimePtr() As TestResult
 Dim eTestResult As TestResult
@@ -46,9 +47,6 @@ teardown:
 
 End Function
 
-Sub test()
-    Test_BuildSchedule_Student_Multi
-End Sub
 Public Function Test_BuildSchedule_Student_Multi() As TestResult
 '"" get a full schedule for 1 student, parse and put into a backsheet
 '""
@@ -91,6 +89,74 @@ teardown:
 
     
 End Function
+Public Function Test_BuildScheduleCell() As TestResult
+Dim sSheetName As String, sFuncName As String, sTemplateRangeName As String
+Dim eTestResult As TestResult
+Dim aSchedule() As String, vKeys() As String, vValues As Variant
+Dim rResult As Range
+Dim wsSchedule As Worksheet
+Dim aColumnWidths() As Integer
+Dim iFormatWidth As Integer, iFormatHeight As Integer, iColWidthCount As Integer, iPersonID As Integer
+Dim clsQuadRuntime As New Quad_Runtime
+Dim dValues As New Dictionary
+
+setup:
+    sFuncName = C_MODULE_NAME & "." & "BuildScheduleCell"
+    sTemplateRangeName = "f" & "student" & "ScheduleCell"
+    
+    clsQuadRuntime.InitProperties
+    sSheetName = "view_student_70"
+    Set wsSchedule = CreateSheet(clsQuadRuntime.CacheBook, sSheetName)
+    
+    vKeys = Split("sSubjectLongDesc,sCourseNm,sClassFocusArea,sFacultyFirstNm,cdDay,idTimePeriod,idLocation,idSection,cdClassType,iFreq,idClassLecture", COMMA)
+    vValues = Split("Homeroom,Homeroom,None,Isaac,M,1,9,165,Seminar,5,993", COMMA)
+    Set dValues = InitDict(vKeys, vValues)
+    
+    ' copy the template format to the clipboard
+    GetScheduleCellFormat clsQuadRuntime, iFormatWidth, iFormatHeight, sTemplateRangeName
+    ' get the desired column widths from the template and return in an array
+    aColumnWidths = GetScheduleCellColWidths(clsQuadRuntime, sTemplateRangeName, iColWidthCount)
+        
+    BuildScheduleCellView clsQuadRuntime, wsSchedule, dValues, iFormatWidth, iFormatHeight, aColumnWidths
+                                  
+    With wsSchedule
+    
+        Set rResult = .Range("C4:E7")
+        
+        If rResult.Columns(3).Rows(1).Value <> "Homeroom" Then
+            eTestResult = TestResult.Failure
+            GoTo teardown
+        End If
+        
+        If rResult.Columns(3).Rows(2).Value <> "Isaac[Seminar]" Then
+            Debug.Print rResult.Columns(3).Rows(2).Value
+            eTestResult = TestResult.Failure
+            GoTo teardown
+        End If
+
+        If rResult.Columns(3).Rows(3).Value <> "Room:9" Then
+            eTestResult = TestResult.Failure
+            GoTo teardown
+        Else
+            eTestResult = TestResult.OK
+            GoTo teardown
+        End If
+    End With
+        
+err:
+    eTestResult = TestResult.Error
+    
+teardown:
+    Test_BuildScheduleCell = eTestResult
+    clsQuadRuntime.Delete
+    'DeleteSheet clsQuadRuntime.CacheBook, "schedule_" & EnumQuadSubDataType(QuadSubDataType.student) & "_" & CStr(iPersonID)
+    DeleteSheet clsQuadRuntime.CacheBook, sSheetName
+    CloseBook clsQuadRuntime.CacheBook
+    DeleteBook clsQuadRuntime.CacheBookName, clsQuadRuntime.CacheBookPath
+
+    
+End Function
+
 
 Public Function Test_BuildSchedule_Student_NotCached() As TestResult
 '"" get a full schedule for 1 student, parse and put into a backsheet
@@ -163,7 +229,7 @@ setup:
     
     GetScheduleDataFromDB clsQuadRuntime, iPersonID, QuadSubDataType.student
     aSchedule = ParseRawData(ReadFile(clsQuadRuntime.ResultFileName))
-    sCacheSheetName = CacheData(clsQuadRuntime, aSchedule, QuadDataType.schedule, QuadSubDataType.student, iPersonID)
+    sCacheSheetName = CacheData(clsQuadRuntime, aSchedule, QuadDataType.Schedule, QuadSubDataType.student, iPersonID)
     
 main:
     Set wsSchedule = BuildSchedule(clsQuadRuntime, QuadSubDataType.student, iPersonID)
@@ -221,7 +287,7 @@ setup:
     
     GetScheduleDataFromDB clsQuadRuntime, iPersonID, QuadSubDataType.student
     aSchedule = ParseRawData(ReadFile(clsQuadRuntime.ResultFileName))
-    sCacheSheetName = CacheData(clsQuadRuntime, aSchedule, QuadDataType.schedule, QuadSubDataType.student, iPersonID)
+    sCacheSheetName = CacheData(clsQuadRuntime, aSchedule, QuadDataType.Schedule, QuadSubDataType.student, iPersonID)
  
     With clsQuadRuntime.CacheBook.Sheets(sCacheSheetName)
         If .Range(.Cells(47, 11), .Cells(47, 11)).Value <> 1476 Then
@@ -259,7 +325,7 @@ setup:
     
     iPersonID = 70
     
-    GetScheduleDataFromDB clsQuadRuntime, iPersonID, QuadDataType.schedule
+    GetScheduleDataFromDB clsQuadRuntime, iPersonID, QuadDataType.Schedule
     aSchedule = ParseRawData(ReadFile(clsQuadRuntime.ResultFileName))
  
     If aSchedule(46, 10) <> 1476 Then

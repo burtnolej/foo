@@ -178,6 +178,7 @@ Dim sIncModules As String
     'ProjectTestRunner sIncModules
     'Exit Sub
     sIncModules = sIncModules & ",Test_App_Schedule"
+    sIncModules = sIncModules & ",Test_App_Schedule_Entry"
     sIncModules = sIncModules & ",Test_App_Person"
     sIncModules = sIncModules & ",Test_App_Courses"
     sIncModules = sIncModules & ",Test_Array_Utils"

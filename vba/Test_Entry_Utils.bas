@@ -151,12 +151,10 @@ main:
     clsQuadRuntime.CloseRuntimeCacheFile
     
     With ActiveWorkbook.Sheets(sTargetSheetName)
-    'With clsQuadRuntime.Book.Sheets(sTargetSheetName)
     
         Set rTarget = .Range(.Cells(2, 2), .Cells(2, 2))
         rTarget = "Bruno"
         Validate ActiveWorkbook, sTargetSheetName, rTarget
-        'Validate clsQuadRuntime.Book, sTargetSheetName, rTarget
     
         If GetBgColor(sTargetSheetName, rTarget).AsString <> "0,255,0" Then
             eTestResult = TestResult.Failure

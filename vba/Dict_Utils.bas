@@ -56,7 +56,7 @@ Dim vKey As Variant
     GetDictVals = aResult
 
 End Function
-Function InitDict(aKeys() As String, aValues() As Variant) As Dictionary
+Function InitDict(aKeys() As String, aValues As Variant) As Dictionary
 Dim dResult As New Dictionary
     
     For i = 0 To UBound(aKeys)

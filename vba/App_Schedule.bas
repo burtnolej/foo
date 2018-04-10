@@ -28,7 +28,7 @@ setup:
     FuncLogIt sFuncName, "Template range name not set so defaulting to  [" & sTemplateRangeName & "]", C_MODULE_NAME, LogMsgType.INFO
     
 main:
-    If IsDataCached(clsQuadRuntime, QuadDataType.schedule, eQuadSubDataType, iPersonID) = False Then
+    If IsDataCached(clsQuadRuntime, QuadDataType.Schedule, eQuadSubDataType, iPersonID) = False Then
         FuncLogIt sFuncName, "Data cache NOT found for [" & EnumQuadSubDataType(eQuadSubDataType) & "_" & CStr(iPersonID) & "]", C_MODULE_NAME, LogMsgType.INFO
 
         ' get the raw data from the database and return the filename that holds the results
@@ -37,11 +37,11 @@ main:
         ' parse the raw data in the result file and return an array of the data
         aSchedule = ParseRawData(ReadFile(clsQuadRuntime.ResultFileName))
         ' store the parsed raw data in a back sheet, return the sheet name
-        sCacheSheetName = CacheData(clsQuadRuntime, aSchedule, QuadDataType.schedule, _
+        sCacheSheetName = CacheData(clsQuadRuntime, aSchedule, QuadDataType.Schedule, _
                             eQuadSubDataType, iPersonID)
     Else
         FuncLogIt sFuncName, "Data cache found for [" & EnumQuadSubDataType(eQuadSubDataType) & "_" & CStr(iPersonID) & "]", C_MODULE_NAME, LogMsgType.INFO
-        sCacheSheetName = CacheData(clsQuadRuntime, aSchedule, QuadDataType.schedule, eQuadSubDataType, _
+        sCacheSheetName = CacheData(clsQuadRuntime, aSchedule, QuadDataType.Schedule, eQuadSubDataType, _
                             iPersonID, bCacheNameOnly:=True)
     End If
     ' copy the template format to the clipboard
@@ -162,59 +162,71 @@ Dim rCell As Range
     GetScheduleCellColWidths = aColumnWidths
 End Function
 
+Sub BuildScheduleCellView(clsQuadRuntime As Quad_Runtime, _
+                          wsSchedule As Worksheet, _
+                          dValues As Dictionary, _
+                          iFormatWidth As Integer, iFormatHeight As Integer, _
+                          aColumnWidths() As Integer)
+
+Dim iScheduleCurrentRow As Integer, iScheduleCurrentCol As Integer, iColWidthCount As Integer
+Dim rScheduleFormatTargetRange As Range, rCell As Range
+
+    'Set wsSchedule = clsQuadRuntime.Book.Sheets(sScheduleSheetName)
+
+    With wsSchedule
+        ' paste the formats into the corresponding cell on the "grid"
+        iScheduleCurrentRow = iFormatHeight * CInt(dValues("idTimePeriod"))
+        iScheduleCurrentCol = iFormatWidth * (CInt(IndexArray(Split(clsQuadRuntime.DayEnum, COMMA), dValues("cdDay"))) + 1)
+        
+        Set rScheduleFormatTargetRange = .Range(.Cells(iScheduleCurrentRow, iScheduleCurrentCol), .Cells(iScheduleCurrentRow + iFormatHeight - 1, iScheduleCurrentCol + iFormatWidth - 1))
+        Set rScheduleFormatTargetRange = wsSchedule.Range(.Cells(iScheduleCurrentRow, iScheduleCurrentCol), .Cells(iScheduleCurrentRow + iFormatHeight - 1, iScheduleCurrentCol + iFormatWidth - 1))
+        .Activate
+        rScheduleFormatTargetRange.Select
+        Selection.PasteSpecial Paste:=xlPasteAll, operation:=xlNone, SkipBlanks:=False, Transpose:=False
+        
+        ' if this is the first period for a column, set the column widths
+        If dValues.Item("idTimePeriod") = "1" Then
+            For iColWidthCount = 0 To UBound(aColumnWidths)
+                rScheduleFormatTargetRange.Columns(iColWidthCount + 1).EntireColumn.ColumnWidth = aColumnWidths(iColWidthCount)
+            Next iColWidthCount
+        End If
+        
+        ' evaluate the data functions to get the content
+        For Each rCell In rScheduleFormatTargetRange.Cells
+            If Left(rCell.Value, 1) = "&" Then
+                rCell.Value = Application.Run(Right(rCell.Value, Len(rCell.Value) - 1), dValues)
+            End If
+        Next rCell
+    End With
+End Sub
 Function BuildScheduleView(clsQuadRuntime As Quad_Runtime, _
                            aColumnWidths() As Integer, _
                            iFormatWidth As Integer, _
                            iFormatHeight As Integer, _
                            eQuadSubDataType As QuadSubDataType, _
                            iPersonID As Integer) As Worksheet
-Dim rScheduleFormatTargetRange As Range, rCell As Range
-Dim wsCache As Worksheet
-Dim wbCache As Workbook
+Dim wsSchedule As Worksheet
 Dim sScheduleSheetName As String
 Dim dValues As Dictionary
-Dim i As Integer, j As Integer, iScheduleCurrentRow As Integer, iScheduleCurrentCol As Integer, iColWidthCount As Integer
+Dim i As Integer, j As Integer
 
     DoEventsOff
     
     sScheduleSheetName = "view_" & EnumQuadSubDataType(eQuadSubDataType) & "_" & CStr(iPersonID)
     
-    Set wsCache = CreateSheet(clsQuadRuntime.Book, sScheduleSheetName, bOverwrite:=True)
+    Set wsSchedule = CreateSheet(clsQuadRuntime.Book, sScheduleSheetName, bOverwrite:=True)
 
-    With clsQuadRuntime.Book.Sheets(sScheduleSheetName)
-        .Activate
-        ' for each data row (1 row is 1 day / period pair)
-        For i = 1 To UBound(clsQuadRuntime.CurrentSheetSource)
-        
-            ' generate a dictionary of the details
-            Set dValues = New Dictionary
-            For j = 1 To UBound(clsQuadRuntime.CurrentSheetSource, 2)
-                dValues.Add clsQuadRuntime.CurrentSheetColumns(1, j), clsQuadRuntime.CurrentSheetSource(i, j)
-            Next j
-            
-            ' paste the formats into the corresponding cell on the "grid"
-            iScheduleCurrentRow = iFormatHeight * CInt(dValues("idTimePeriod"))
-            iScheduleCurrentCol = iFormatWidth * (CInt(IndexArray(Split(clsQuadRuntime.DayEnum, COMMA), dValues("cdDay"))) + 1)
-            Set rScheduleFormatTargetRange = .Range(.Cells(iScheduleCurrentRow, iScheduleCurrentCol), .Cells(iScheduleCurrentRow + iFormatHeight - 1, iScheduleCurrentCol + iFormatWidth - 1))
-            rScheduleFormatTargetRange.Select
-            Selection.PasteSpecial Paste:=xlPasteAll, operation:=xlNone, SkipBlanks:=False, Transpose:=False
-            
-            ' if this is the first period for a column, set the column widths
-            If dValues.Item("idTimePeriod") = "1" Then
-                For iColWidthCount = 0 To UBound(aColumnWidths)
-                    rScheduleFormatTargetRange.Columns(iColWidthCount + 1).EntireColumn.ColumnWidth = aColumnWidths(iColWidthCount)
-                Next iColWidthCount
-            End If
-            
-            ' evaluate the data functions to get the content
-            For Each rCell In rScheduleFormatTargetRange.Cells
-                If Left(rCell.Value, 1) = "&" Then
-                    rCell.Value = Application.Run(Right(rCell.Value, Len(rCell.Value) - 1), dValues)
-                End If
-            Next rCell
-        Next i
-    End With
+    For i = 1 To UBound(clsQuadRuntime.CurrentSheetSource)
     
-    Set BuildScheduleView = wsCache
+        ' generate a dictionary of the details
+        Set dValues = New Dictionary
+        For j = 1 To UBound(clsQuadRuntime.CurrentSheetSource, 2)
+            dValues.Add clsQuadRuntime.CurrentSheetColumns(1, j), clsQuadRuntime.CurrentSheetSource(i, j)
+        Next j
+        
+        BuildScheduleCellView clsQuadRuntime, wsSchedule, dValues, iFormatWidth, iFormatHeight, aColumnWidths
+    Next i
+    
+    Set BuildScheduleView = wsSchedule
 DoEventsOn
 End Function

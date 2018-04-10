@@ -9,7 +9,7 @@ Attribute VB_Name = "Quad_Utils"
 Const C_MODULE_NAME = "Quad_Utils"
 
 Enum QuadDataType
-    schedule = 1
+    Schedule = 1
     person = 2
     courses = 3
     misc = 4
@@ -22,9 +22,9 @@ Enum QuadSubDataType
     teacher = 2
     Course = 3
     subject = 4
-    timeperiod = 5
+    TimePeriod = 5
     day = 6
-    prep = 7
+    Prep = 7
 End Enum
 
 Const C_QUAD_SUB_DATA_TYPE = "student,teacher,course,subject,timeperiod,day,prep"
