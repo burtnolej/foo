@@ -557,7 +557,8 @@ setup:
     clsQuadRuntime.InitProperties bInitializeCache:=False
     
     EventsToggle False
-    On Error GoTo err_name
+    'On Error GoTo err_name
+
     If UBound(Split(rTarget.Name.Name, "!")) = 1 Then
         sDefnName = Split(rTarget.Name.Name, "!")(1)
     Else

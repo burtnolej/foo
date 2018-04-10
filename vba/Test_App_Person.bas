@@ -206,9 +206,9 @@ setup:
     clsQuadRuntime.InitProperties bInitializeCache:=True
 
 main:
-    GetPersonData clsQuadRuntime, QuadSubDataType.student, eQuadScope:=QuadScope.all
+    GetPersonData clsQuadRuntime, QuadDataType.person, QuadSubDataType.student, eQuadScope:=QuadScope.all
 
-    Set wsCache = GetPersonData(clsQuadRuntime, QuadSubDataType.student, eQuadScope:=QuadScope.all)
+    Set wsCache = GetPersonData(clsQuadRuntime, QuadDataType.person, QuadSubDataType.student, eQuadScope:=QuadScope.all)
     With wsCache
         If .Range(.Cells(83, 5), .Cells(83, 5)).Value <> "Photon" Then
             eTestResult = TestResult.Failure
@@ -245,7 +245,7 @@ setup:
     clsQuadRuntime.InitProperties bInitializeCache:=True
 
 main:
-    Set wsCache = GetPersonData(clsQuadRuntime, QuadSubDataType.student, eQuadScope:=QuadScope.all)
+    Set wsCache = GetPersonData(clsQuadRuntime, QuadDataType.person, QuadSubDataType.student, eQuadScope:=QuadScope.all)
     With wsCache
         If .Range(.Cells(83, 5), .Cells(83, 5)).Value <> "Photon" Then
             eTestResult = TestResult.Failure

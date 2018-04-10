@@ -25,9 +25,9 @@ Dim wsPersonDataCache As Worksheet
 
 setup:
     sFuncName = C_MODULE_NAME & "." & "IsValidPersonID"
-    
+
 main:
-    Set wsPersonDataCache = GetPersonData(clsQuadRuntime, eQuadSubDataType, eQuadScope:=QuadScope.all)
+    Set wsPersonDataCache = GetPersonData(clsQuadRuntime, QuadDataType.person, eQuadSubDataType, eQuadScope:=QuadScope.all)
 
     If eQuadSubDataType = QuadSubDataType.teacher Then
         sLookUpCol = cTeacherLookUpCol
@@ -45,13 +45,23 @@ main:
 End Function
 Public Function get_person_student(clsQuadRuntime As Quad_Runtime, _
                       Optional bInTable As Boolean = True) As Worksheet
-    Set get_person_student = GetPersonData(clsQuadRuntime, QuadSubDataType.student, eQuadScope:=QuadScope.all, bInTable:=bInTable)
+    Set get_person_student = GetPersonData(clsQuadRuntime, QuadDataType.person, QuadSubDataType.student, eQuadScope:=QuadScope.all, bInTable:=bInTable)
+End Function
+Public Function get_person_teacher(clsQuadRuntime As Quad_Runtime, _
+                      Optional bInTable As Boolean = True) As Worksheet
+    Set get_person_teacher = GetPersonData(clsQuadRuntime, QuadDataType.person, QuadSubDataType.teacher, eQuadScope:=QuadScope.all, bInTable:=bInTable)
 End Function
                      
+'Public Function GetPersonData(clsQuadRuntime As Quad_Runtime, _
+'                              eQuadSubDataType As QuadSubDataType, _
+'                     Optional eQuadScope As QuadScope = QuadScope.specified, _
+'                     Optional bInTable As Boolean = False) As Worksheet
 Public Function GetPersonData(clsQuadRuntime As Quad_Runtime, _
+                              eQuadDataType As QuadDataType, _
                               eQuadSubDataType As QuadSubDataType, _
                      Optional eQuadScope As QuadScope = QuadScope.specified, _
                      Optional bInTable As Boolean = False) As Worksheet
+
 '<<<
 ' purpose: returns a worksheet containing the person data set, uses cached data if already there
 ' param  : clsQuadRuntime, Quad_Runtime; all config controlling names of books, sheets, ranges for
@@ -60,10 +70,11 @@ Public Function GetPersonData(clsQuadRuntime As Quad_Runtime, _
 ' param  : eQuadScope, QuadScope; all persons or a specific individual
 ' returns: Worksheet; containing the data
 '>>>
-Dim eQuadDataType As QuadDataType, sCacheSheetName As String
+'Dim eQuadDataType As QuadDataType
+Dim sCacheSheetName As String
 Dim aSchedule() As String
 
-    eQuadDataType = QuadDataType.person
+    'eQuadDataType = QuadDataType.person
     
     If IsDataCached(clsQuadRuntime, eQuadDataType, eQuadSubDataType) = False Then
         GetPersonDataFromDB clsQuadRuntime, eQuadSubDataType, eQuadScope:=eQuadScope

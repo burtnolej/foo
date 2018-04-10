@@ -11,15 +11,23 @@ Const C_MODULE_NAME = "Quad_Utils"
 Enum QuadDataType
     schedule = 1
     person = 2
+    courses = 3
+    misc = 4
 End Enum
 
-Const C_QUAD_DATA_TYPE = "schedule,person"
+Const C_QUAD_DATA_TYPE = "schedule,person,courses,misc"
 
 Enum QuadSubDataType
     student = 1
     teacher = 2
+    Course = 3
+    subject = 4
+    timeperiod = 5
+    day = 6
+    prep = 7
 End Enum
-Const C_QUAD_SUB_DATA_TYPE = "student,teacher"
+
+Const C_QUAD_SUB_DATA_TYPE = "student,teacher,course,subject,timeperiod,day,prep"
 
 Enum QuadScope
     all = 1

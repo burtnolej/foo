@@ -16,7 +16,7 @@ Dim clsQuadRuntime As Quad_Runtime
     sDataSubType = "student"
     sScope = "all"
             
-    Set wsPersonDataCache = GetPersonData(clsQuadRuntime, sDataSubType, sScope:=sScope)
+    Set wsPersonDataCache = GetPersonData(clsQuadRuntime, QuadDataType.schedule, sDataSubType, sScope:=sScope)
 
     With wsPersonDataCache
         Set rColumns = .Range("data").Resize(1)

@@ -114,7 +114,7 @@ setup:
 
 main:
 
-    If NumColumns(aTmp, bAssert:=False) <> -1 Then
+    If NumColumns(aTmp, bAssert:=False) <> 1 Then
         eTestResult = TestResult.Failure
     Else
         eTestResult = TestResult.OK
@@ -251,7 +251,7 @@ setup:
     sFuncName = CsModuleName & "." & "ArrayNDtoString"
     
 main:
-    a2dTmp = Init2DStringArray([{"a","b";"c","d"}])
+    a2dTmp = Init2DStringArray([{"A","B";"C","D"}])
     aNdTmp = Init2DStringArray([{"A","B","C";"D","E","F";"G","H","I"}])
     aTmp = InitStringArray(Array("A", "B"))
 
@@ -260,7 +260,7 @@ main:
         GoTo teardown
     End If
     
-    If ArrayNDtoString(a2dTmp, bUUEncode:=True) <> "QQ==^Qg==$$Qw==^RA==" Then
+    If ArrayNDtoString(a2dTmp, bUUEncode:=True) <> "A^B$$C^D" Then
         eTestResult = TestResult.Failure
         GoTo teardown
     End If
@@ -270,7 +270,7 @@ main:
         GoTo teardown
     End If
     
-    If ArrayNDtoString(aTmp, bUUEncode:=True) <> "QQ==$$Qg==" Then
+    If ArrayNDtoString(aTmp, bUUEncode:=True) <> "A$$B" Then
         eTestResult = TestResult.Failure
         GoTo teardown
     End If
@@ -311,7 +311,7 @@ setup:
     sFuncName = CsModuleName & "." & "Is2DArray"
     
 main:
-    a2dTmp = Init2DStringArray([{"a","b";"c","d"}])
+    a2dTmp = Init2DStringArray([{"A","B";"C","D"}])
     aTmp = InitStringArray(Array("A", "B"))
 
     If Is2DArray(a2dTmp) = False Then
@@ -361,7 +361,7 @@ setup:
     sFuncName = CsModuleName & "." & "HasNDimensions"
     
 main:
-    vSource = Init2DStringArray([{"a","b";"c","d"}])
+    vSource = Init2DStringArray([{"A","B";"C","D"}])
     
     If HasNDimensions(vSource, 2) = False Then
         eTestResult = TestResult.Failure
