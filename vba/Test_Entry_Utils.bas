@@ -921,7 +921,7 @@ teardown:
 End Function
 
 Sub test()
-    TestGenerateEntryForms
+    TestFormatEntryForms
 End Sub
 Function TestFormatEntryForms() As TestResult
 ' 1 entry form
@@ -947,7 +947,9 @@ setup:
     Set wsFormat = CreateSheet(wbTmp, "FormStyles", bOverwrite:=True)
     Set wsCellFormat = CreateSheet(wbTmp, "CellStyles", bOverwrite:=True)
     CreateNamedRange wbTmp, "A1:A1", "CellStyles", "fButtonInValid", "True"
-    CreateNamedRange wbTmp, "A1:A1", "CellStyles", "fButtonValid", "True"
+    CreateNamedRange wbTmp, "A2:A2", "CellStyles", "fButtonValid", "True"
+    CreateNamedRange wbTmp, "A3:A3", "CellStyles", "fEntryValid", "True"
+    CreateNamedRange wbTmp, "A4:A4", "CellStyles", "fEntryInValid", "True"
     
     clsQuadRuntime.InitProperties bInitializeCache:=False, _
                     sTemplateBookPath:="C:\\Users\\burtnolej\\Documents\\runtime", _

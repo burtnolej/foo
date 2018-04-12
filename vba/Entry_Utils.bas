@@ -307,7 +307,11 @@ Dim rEntry As Range
     
 End Function
 
-Public Function GenerateEntry(sSheetName As String, sKey As Variant, sAction As Variant, iRow As Integer, Optional iCol As Integer = 1) As Range
+Public Function GenerateEntry(sSheetName As String, _
+                              sKey As Variant, _
+                              sAction As Variant, _
+                              iRow As Integer, _
+                              Optional iCol As Integer = 1) As Range
 Dim sFuncName As String
 
     sFuncName = C_MODULE_NAME & "." & "GenerateEntry"
@@ -321,7 +325,7 @@ Dim sFuncName As String
     End With
     
     Set GenerateEntry = rCell.Offset(, 1)
-    
+
     FuncLogIt sFuncName, "Generated for field [" & sFieldName & "] in cell [" & GenerateEntry.Address & "]", C_MODULE_NAME, LogMsgType.OK
      
 End Function
@@ -511,6 +515,8 @@ setup:
         ' MOVED  THIS LINE DOWN
         'AddCode2Module clsQuadRuntime.Book, wsTmp.CodeName, sCode
 
+        FormatEntryForm clsQuadRuntime, CStr(sAction)
+        
         ' for each entry in the definition generate a input field
         With wsTmp
             .Range(.Cells(iRow, 1), .Cells(iRow, 1)).value = UCase(sAction)
@@ -518,7 +524,14 @@ setup:
         
             For Each sKey In dDefinitions.Keys()
                 If Split(sKey, "_")(0) = "e" & sAction Then
-                    dDefinitions.Item(sKey).Add "address", GenerateEntry(CStr(sAction), sKey, sAction, iRow).Address
+                    Set rCell = GenerateEntry(CStr(sAction), sKey, sAction, iRow)
+                    dDefinitions.Item(sKey).Add "address", rCell.Address
+                    
+                    ' copy across any formatting that exists
+                    FormatCell clsQuadRuntime.TemplateBook, clsQuadRuntime.Book, CStr(sAction), rCell, CellState.Invalid, _
+                                sSourceSheetName:=clsQuadRuntime.TemplateCellSheetName, eCellType:=CellType.Entry
+            
+            
                     iRow = iRow + 1
                 End If
             Next sKey
@@ -548,7 +561,7 @@ setup:
             CreateModule clsQuadRuntime.Book, "change_event_invoker", sCode
         End If
 
-        FormatEntryForm clsQuadRuntime, CStr(sAction)
+        'FormatEntryForm clsQuadRuntime, CStr(sAction)
         
         HideEntryForm CStr(sAction)
         FuncLogIt sFuncName, "Generated Form for action [" & sAction & "]", C_MODULE_NAME, LogMsgType.INFO
