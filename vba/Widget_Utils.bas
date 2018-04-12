@@ -10,18 +10,31 @@ End Enum
 
 Const C_WIDGET_REF_CELL_NAMES = "fButtonInvalid,fButtonValid,fButtonPressed"
 
-Enum ButtonState
+Enum CellState
     Invalid = 1
     Pressed = 2
     Valid = 3
 End Enum
 
-Const C_BUTTON_STATE = "Invalid,Pressed,Valid"
+Const C_CELL_STATE = "Invalid,Pressed,Valid"
 
-Public Sub FormatButton(wbSourceBook As Workbook, wbTargetbook As Workbook, _
-                        sTargetSheetName As String, rButton As Range, eButtonState As ButtonState, _
-                        sSourceSheetName As String)
+Enum CellType
+    Button = 1
+    Entry = 2
+End Enum
+
+Const C_CELL_TYPE_STATE = "Button,Entry"
+
+Public Sub FormatCell(wbSourceBook As Workbook, _
+                        wbTargetbook As Workbook, _
+                        sTargetSheetName As String, _
+                        rCell As Range, _
+                        eCellState As CellState, _
+                        sSourceSheetName As String, _
+               Optional eCellType As CellType = CellType.Button)
 Dim eWRefCName As String
-    eWRefCName = "fButton" & Split(C_BUTTON_STATE, ",")(eButtonState - 1)
-    CopyFormat wbSourceBook, wbTargetbook, sSourceSheetName, sTargetSheetName, eWRefCName, rButton.Address
+    eWRefCName = "f" & Split(C_CELL_TYPE_STATE, COMMA)(eCellType - 1) & Split(C_CELL_STATE, COMMA)(eCellState - 1)
+    CopyFormat wbSourceBook, wbTargetbook, sSourceSheetName, sTargetSheetName, eWRefCName, rCell.Address
 End Sub
+
+'add format EntryCell here to copy formats for entry cells

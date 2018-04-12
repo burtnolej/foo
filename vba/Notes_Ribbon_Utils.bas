@@ -54,15 +54,15 @@ Dim rRibValues As Range
     iIndex = Application.Run("VBASource.xlsm!IndexArray", vControls, control.ID)
     
     If control.ID = "SetStartDate" Then
-        rRibValues.Rows(iIndex + 1).Value = Application.Run("VBASource.xlsm!GetSecsFromOrigin", text, dReturnVal)
+        rRibValues.Rows(iIndex + 1).value = Application.Run("VBASource.xlsm!GetSecsFromOrigin", text, dReturnVal)
     ElseIf text = " False" Then
-            rRibValues.Rows(iIndex + 1).Value = "False"
+            rRibValues.Rows(iIndex + 1).value = "False"
     ElseIf text = "True" Then
-            rRibValues.Rows(iIndex + 1).Value = "True"
+            rRibValues.Rows(iIndex + 1).value = "True"
     ElseIf text = "False" Then
-            rRibValues.Rows(iIndex + 1).Value = "True"
+            rRibValues.Rows(iIndex + 1).value = "True"
     Else
-            rRibValues.Rows(iIndex + 1).Value = text
+            rRibValues.Rows(iIndex + 1).value = text
     End If
 End Sub
 
@@ -82,14 +82,14 @@ Dim iControlCount As Integer
     End With
 
     For Each rCell In rRibLabels.Cells
-        vControls(iControlCount) = rCell.Value
+        vControls(iControlCount) = rCell.value
         iControlCount = iControlCount + 1
     Next rCell
     
     ReDim Preserve vControls(0 To iControlCount - 1)
     
     For i = 0 To UBound(vControls)
-        dControlValues.Add vControls(i), rRibValues.Rows(i + 1).Value
+        dControlValues.Add vControls(i), rRibValues.Rows(i + 1).value
     Next i
     
     Set GetControlValues = dControlValues
@@ -175,7 +175,7 @@ End Sub
 ''Excel calls this sub 10 times with an increased "index" argument each time.
 ''We use "index" to know which item to return to Excel.
 Sub xxxDDListItem(control As IRibbonControl, index As Integer, ByRef returnedVal)
-    returnedVal = ListItemsRg.Cells(index + 1).Value ''index is 0-based, our list is 1-based so we add 1.
+    returnedVal = ListItemsRg.Cells(index + 1).value ''index is 0-based, our list is 1-based so we add 1.
 End Sub
 
 ''Drop down change handler.
@@ -220,7 +220,7 @@ End Function
 Public Sub RefreshRibbon()
 
     If rib Is Nothing Then
-        Set rib = GetRibbon(ActiveWorkbook.Sheets("config").Cells(10, 1).Value)
+        Set rib = GetRibbon(ActiveWorkbook.Sheets("config").Cells(10, 1).value)
     ' Else: Do nothing!
     End If
 

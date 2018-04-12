@@ -27,14 +27,14 @@ Dim clsQuadRuntime As Quad_Runtime
         aXMLRootElementAttr = Init2DStringArray([{"xmlns","http://schemas.microsoft.com/office/2009/07/customui";"",""}])
                                  
         For Each rRow In .Range("data").Offset(1).Resize(.Range("data").Rows.Count - 1).Rows
-            If rRow.Columns(5).Value = "Photon" Then
+            If rRow.Columns(5).value = "Photon" Then
                 aXMLElement(iNumNodes, 0) = "button"
                 aXMLElementAttr(iNumNodes, 0) = "id"
                 aXMLElementAttr(iNumNodes, 1) = "SchedBut_" & sDataSubType & "_" & CStr(rRow.Columns(3))
                 aXMLElementAttr(iNumNodes, 2) = "imageMso"
                 aXMLElementAttr(iNumNodes, 3) = "Help"
                 aXMLElementAttr(iNumNodes, 4) = "label"
-                aXMLElementAttr(iNumNodes, 5) = rRow.Columns(1).Value & " " & rRow.Columns(2).Value
+                aXMLElementAttr(iNumNodes, 5) = rRow.Columns(1).value & " " & rRow.Columns(2).value
                 aXMLElementAttr(iNumNodes, 6) = "onAction"
                 aXMLElementAttr(iNumNodes, 7) = "onAction"
                 iNumNodes = iNumNodes + 1

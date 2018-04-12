@@ -123,18 +123,18 @@ setup:
     
         Set rResult = .Range("C4:E7")
         
-        If rResult.Columns(3).Rows(1).Value <> "Homeroom" Then
+        If rResult.Columns(3).Rows(1).value <> "Homeroom" Then
             eTestResult = TestResult.Failure
             GoTo teardown
         End If
         
-        If rResult.Columns(3).Rows(2).Value <> "Isaac[Seminar]" Then
-            Debug.Print rResult.Columns(3).Rows(2).Value
+        If rResult.Columns(3).Rows(2).value <> "Isaac[Seminar]" Then
+            Debug.Print rResult.Columns(3).Rows(2).value
             eTestResult = TestResult.Failure
             GoTo teardown
         End If
 
-        If rResult.Columns(3).Rows(3).Value <> "Room:9" Then
+        If rResult.Columns(3).Rows(3).value <> "Room:9" Then
             eTestResult = TestResult.Failure
             GoTo teardown
         Else
@@ -178,18 +178,18 @@ Dim clsQuadRuntime As New Quad_Runtime
     With wsSchedule
         Set rResult = .Range("O20:Q23")
         
-        If rResult.Columns(3).Rows(1).Value <> "Art" Then
+        If rResult.Columns(3).Rows(1).value <> "Art" Then
             eTestResult = TestResult.Failure
             GoTo teardown
         End If
         
-        If rResult.Columns(3).Rows(2).Value <> "David[Seminar]" Then
-            Debug.Print rResult.Columns(3).Rows(2).Value
+        If rResult.Columns(3).Rows(2).value <> "David[Seminar]" Then
+            Debug.Print rResult.Columns(3).Rows(2).value
             eTestResult = TestResult.Failure
             GoTo teardown
         End If
 
-        If rResult.Columns(3).Rows(3).Value <> "Room:14" Then
+        If rResult.Columns(3).Rows(3).value <> "Room:14" Then
             eTestResult = TestResult.Failure
             GoTo teardown
         Else
@@ -237,18 +237,18 @@ main:
     With wsSchedule
         Set rResult = .Range("O20:Q23")
         
-        If rResult.Columns(3).Rows(1).Value <> "Art" Then
+        If rResult.Columns(3).Rows(1).value <> "Art" Then
             eTestResult = TestResult.Failure
             GoTo teardown
         End If
         
-        If rResult.Columns(3).Rows(2).Value <> "David[Seminar]" Then
-            Debug.Print rResult.Columns(3).Rows(2).Value
+        If rResult.Columns(3).Rows(2).value <> "David[Seminar]" Then
+            Debug.Print rResult.Columns(3).Rows(2).value
             eTestResult = TestResult.Failure
             GoTo teardown
         End If
 
-        If rResult.Columns(3).Rows(3).Value <> "Room:14" Then
+        If rResult.Columns(3).Rows(3).value <> "Room:14" Then
             eTestResult = TestResult.Failure
             GoTo teardown
         Else
@@ -290,7 +290,7 @@ setup:
     sCacheSheetName = CacheData(clsQuadRuntime, aSchedule, QuadDataType.Schedule, QuadSubDataType.student, iPersonID)
  
     With clsQuadRuntime.CacheBook.Sheets(sCacheSheetName)
-        If .Range(.Cells(47, 11), .Cells(47, 11)).Value <> 1476 Then
+        If .Range(.Cells(47, 11), .Cells(47, 11)).value <> 1476 Then
             eTestResult = TestResult.Failure
             GoTo teardown
         Else

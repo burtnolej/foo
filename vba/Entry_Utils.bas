@@ -61,10 +61,34 @@ setup:
     
     Set dDefnDetails = dDefinitions.Item(sEntryKey)
     With ActiveWorkbook.Sheets(sAction)
-        .Range(dDefnDetails("address")).Value = vValue
+        .Range(dDefnDetails("address")).value = vValue
     End With
     
     SetEntryValue = 0
+End Function
+Public Function GetRecordValuesAsDict(wbSourceBook As Workbook, wbTargetbook As Workbook, _
+                sSheetName As String) As Dictionary
+Dim rEntryCell As Range
+Dim sFuncName As String, sActionName As String, sFieldName As String
+Dim dValues As New Dictionary
+
+setup:
+    sFuncName = C_MODULE_NAME & "." & "GetRecordValuesAsDict"
+
+main:
+
+    aNames = GetSheetNamedRanges(wbTargetbook, sSheetName)
+    For Each name_ In aNames
+        sActionName = Split(name_, "_")(0)
+        If sActionName = "e" & sSheetName Then
+            sFieldName = Split(name_, "_")(1)
+            Set rEntryCell = ActiveWorkbook.Sheets(sSheetName).Range(name_)
+            dValues.Add sFieldName, rEntryCell.value
+            Debug.Print sFieldName, rEntryCell.value
+            End If
+    Next name_
+    
+    Set GetRecordValuesAsDict = dValues
 End Function
 Public Function IsRecordValid(wbSourceBook As Workbook, wbTargetbook As Workbook, _
                 sSheetName As String, sSourceSheetName As String) As Boolean
@@ -86,7 +110,7 @@ main:
                 IsRecordValid = False
                 FuncLogIt sFuncName, "Cell named [" & name_ & "] not valid", C_MODULE_NAME, LogMsgType.INFO
 
-                ChangeButton wbSourceBook, wbTargetbook, sSheetName, C_GOBUTTON_ROW, C_GOBUTTON_COL, ButtonState.Invalid, sSourceSheetName, bTakeFocus:=False
+                ChangeButton wbSourceBook, wbTargetbook, sSheetName, C_GOBUTTON_ROW, C_GOBUTTON_COL, CellState.Invalid, sSourceSheetName, bTakeFocus:=False
 
                 Exit Function
             End If
@@ -96,7 +120,7 @@ main:
     FuncLogIt sFuncName, "Entry Form  [" & sSheetName & "] is valid", C_MODULE_NAME, LogMsgType.INFO
 
     ChangeButton wbSourceBook, wbTargetbook, sSheetName, C_GOBUTTON_ROW, C_GOBUTTON_COL, _
-        ButtonState.Valid, sSourceSheetName, bTakeFocus:=True
+        CellState.Valid, sSourceSheetName, bTakeFocus:=True
 
 End Function
 Public Sub FormatCellInvalid(sSheetName As String, rCell As Range)
@@ -292,7 +316,7 @@ Dim sFuncName As String
         sFieldName = Split(sKey, "_")(1)
         Set rCell = .Range(.Cells(iRow, iCol), .Cells(iRow, iCol))
     
-        rCell.Value = sFieldName
+        rCell.value = sFieldName
         CreateNamedRange ActiveWorkbook, rCell.Offset(, 1).Address, CStr(sAction), CStr(sKey), "True"
     End With
     
@@ -315,7 +339,7 @@ End Sub
 
 Public Function GenerateButton(wbSourceBook As Workbook, wbTargetbook As Workbook, _
                                sSheetName As String, iRow As Integer, iCol As Integer, _
-                               eButtonState As ButtonState, sButtonFormatSheetName As String) As Range
+                               eButtonState As CellState, sButtonFormatSheetName As String) As Range
 Dim sButtonRangeName As String
 
    With ActiveWorkbook.Sheets(sSheetName)
@@ -326,13 +350,13 @@ Dim sButtonRangeName As String
     
     Set GenerateButton = rCell
     
-    FormatButton wbSourceBook, wbTargetbook, sSheetName, GenerateButton, eButtonState, sButtonFormatSheetName
+    FormatCell wbSourceBook, wbTargetbook, sSheetName, GenerateButton, eButtonState, sButtonFormatSheetName
     
 End Function
 
 Public Sub ChangeButton(wbSourceBook As Workbook, wbTargetbook As Workbook, _
                         sSheetName As String, iRow As Integer, iCol As Integer, _
-                        eButtonState As ButtonState, sButtonFormatSheetName As String, _
+                        eCellState As CellState, sButtonFormatSheetName As String, _
                         Optional bTakeFocus As Boolean = False)
 Dim sButtonRangeName As String
 Dim rCurrentFocus As Range
@@ -344,7 +368,7 @@ Dim rCell As Range
         Set rCell = .Range(.Cells(iRow, iCol), .Cells(iRow, iCol))
     End With
 
-    FormatButton wbSourceBook, wbTargetbook, sSheetName, rCell, eButtonState, sButtonFormatSheetName
+    FormatCell wbSourceBook, wbTargetbook, sSheetName, rCell, eCellState, sButtonFormatSheetName
     
     If bTakeFocus = False Then
         rCurrentFocus.Select
@@ -401,7 +425,43 @@ Dim sKey As Variant
     Next sAction
     
 End Sub
-Public Sub GenerateEntryForms(clsQuadRuntime As Quad_Runtime, Optional bLoadRefData As Boolean = False)
+
+Public Sub FormatEntryForm(clsQuadRuntime As Quad_Runtime, _
+                           sTargetSheetName As String, _
+                  Optional sFormType As String = "New", _
+                           Optional iFirstCol As Integer = 1, _
+                           Optional iFirstRow As Integer = 1)
+Dim sFormFormatRangeName As String
+Dim rFormFormatRange As Range, rFormFormatTargetRange As Range
+Dim iFormatWidth As Integer, iFormatHeight As Integer
+Dim wsForm As Worksheet
+
+    sFormFormatRangeName = "f" & sFormType
+    
+    Set wsForm = clsQuadRuntime.Book.Sheets(sTargetSheetName)
+    
+    With clsQuadRuntime.TemplateSheet
+        .Activate
+        Set rFormFormatRange = .Range(sFormFormatRangeName)
+        rFormFormatRange.Select
+        Selection.Copy
+    End With
+        
+    iFormatWidth = rFormFormatRange.Columns.Count
+    iFormatHeight = rFormFormatRange.Rows.Count
+    
+    wsForm.Visible = True
+    With wsForm
+        .Activate
+        Set rFormFormatTargetRange = wsForm.Range(.Cells(iFirstRow, iFirstCol), .Cells(iFirstRow + iFormatHeight - 1, iFirstCol + iFormatWidth - 1))
+        rFormFormatTargetRange.Select
+        Selection.PasteSpecial Paste:=xlPasteFormats, operation:=xlNone, SkipBlanks:=False, Transpose:=False
+    End With
+End Sub
+
+Public Sub GenerateEntryForms(clsQuadRuntime As Quad_Runtime, _
+                     Optional bLoadRefData As Boolean = False, _
+                     Optional sOverideButtonCallback As String)
 '<<<
 'purpose: based on Definitions, create a set of sheets that serve as entry screens;
 '       : add callback code to the sheets so that user entries are processed immediately
@@ -414,7 +474,7 @@ Public Sub GenerateEntryForms(clsQuadRuntime As Quad_Runtime, Optional bLoadRefD
 '>>>
 Dim dActions As Dictionary
 Dim sAction As Variant, sKey As Variant
-Dim sCode As String, sFieldName As String, sFuncName As String
+Dim sCode As String, sFieldName As String, sFuncName As String, sCallbackFunc As String
 Dim iRow As Integer
 Dim rCell As Range, rButton As Range
 
@@ -428,6 +488,12 @@ setup:
     Set dActions = dDefinitions.Item("actions")
     For Each sAction In dActions.Keys()
     
+        If sOverideButtonCallback <> "" Then
+            sCallbackFunc = sOverideButtonCallback
+        Else
+            sCallbackFunc = "New" & sAction
+        End If
+        
         iRow = 1
         
         ' create the entry sheet and add call back code
@@ -442,11 +508,12 @@ setup:
                 "Application.Run " & DOUBLEQUOTE & clsQuadRuntime.TemplateBook.Name & "!IsRecordValid" & DOUBLEQUOTE & ",wbSource,wbTarget,Application.ActiveSheet.Name," & "sSourceSheetName" & vbNewLine & _
                 "End Sub"
 
-        AddCode2Module clsQuadRuntime.Book, wsTmp.CodeName, sCode
-        
+        ' MOVED  THIS LINE DOWN
+        'AddCode2Module clsQuadRuntime.Book, wsTmp.CodeName, sCode
+
         ' for each entry in the definition generate a input field
         With wsTmp
-            .Range(.Cells(iRow, 1), .Cells(iRow, 1)).Value = UCase(sAction)
+            .Range(.Cells(iRow, 1), .Cells(iRow, 1)).value = UCase(sAction)
             iRow = iRow + 1
         
             For Each sKey In dDefinitions.Keys()
@@ -458,7 +525,30 @@ setup:
         End With
         
         ' generate the commit record button
-        GenerateButton clsQuadRuntime.TemplateBook, clsQuadRuntime.Book, CStr(sAction), C_GOBUTTON_ROW, C_GOBUTTON_COL, ButtonState.Invalid, clsQuadRuntime.TemplateCellSheetName
+        GenerateButton clsQuadRuntime.TemplateBook, clsQuadRuntime.Book, CStr(sAction), C_GOBUTTON_ROW, C_GOBUTTON_COL, CellState.Invalid, clsQuadRuntime.TemplateCellSheetName
+        
+        sCode = sCode & vbNewLine & _
+                        "Public Sub Worksheet_SelectionChange(ByVal Target As Range)" & vbNewLine & _
+                        "If Target.Column = " & CStr(C_GOBUTTON_COL) & " And Target.Row = " & CStr(C_GOBUTTON_ROW) & " Then" & vbNewLine & _
+                        "Application.Run " & DOUBLEQUOTE & clsQuadRuntime.TemplateBook.Name & "!" & sCallbackFunc & DOUBLEQUOTE & vbNewLine & _
+                        "End If" & vbNewLine & _
+                        "End Sub"
+
+        AddCode2Module clsQuadRuntime.Book, wsTmp.CodeName, sCode
+        
+        ' add a caller module so can simulate change events more reliably
+        sCode = "Public Sub Invoke_Worksheet_SelectionChange(sSheetName As String, rTarget As Range)" & vbNewLine & _
+        "Dim ws As Worksheet" & vbNewLine & _
+        "set ws = Sheets(sSheetName)" & vbNewLine & _
+        "Application.Run ws.CodeName & " & DOUBLEQUOTE & ".Worksheet_SelectionChange" & DOUBLEQUOTE & ", rTarget" & vbNewLine & _
+        "End Sub"
+        
+        ' will already exist if more than 1 entry
+        If ModuleExists(clsQuadRuntime.Book, "change_event_invoker") = False Then
+            CreateModule clsQuadRuntime.Book, "change_event_invoker", sCode
+        End If
+
+        FormatEntryForm clsQuadRuntime, CStr(sAction)
         
         HideEntryForm CStr(sAction)
         FuncLogIt sFuncName, "Generated Form for action [" & sAction & "]", C_MODULE_NAME, LogMsgType.INFO
@@ -500,8 +590,8 @@ main:
             dDefnDetail.Add "db_field_name", sFieldName
             
             For iCol = 6 To 9
-                If rRow.Columns(iCol).Value <> "" Then
-                    vValidationParams(iValidationParamCount) = rRow.Columns(iCol).Value
+                If rRow.Columns(iCol).value <> "" Then
+                    vValidationParams(iValidationParamCount) = rRow.Columns(iCol).value
                     iValidationParamCount = iValidationParamCount + 1
                 End If
             Next iCol
@@ -592,9 +682,9 @@ setup:
         On Error GoTo err
         If IsSet(clsQuadRuntime) Then
             'first passed arg now needs to be clsQuadRuntime if IsSet
-            Validate = Application.Run(sFuncName, clsQuadRuntime, rTarget.Value, vValidParams)
+            Validate = Application.Run(sFuncName, clsQuadRuntime, rTarget.value, vValidParams)
         Else
-            Validate = Application.Run(sFuncName, rTarget.Value, dDefnDetail.Item("db_table_name"), vValidParams)
+            Validate = Application.Run(sFuncName, rTarget.value, dDefnDetail.Item("db_table_name"), vValidParams)
         End If
         On Error GoTo 0
         

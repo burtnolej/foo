@@ -51,7 +51,7 @@ setup:
     sCacheSheetName = CacheData(clsQuadRuntime, aPersonData, QuadDataType.person, QuadSubDataType.student, bInTable:=True)
         
     With clsQuadRuntime.CacheBook.Sheets(sCacheSheetName)
-        If .Range(.Cells(83, 2), .Cells(83, 2)).Value <> "Tzvi" Then
+        If .Range(.Cells(83, 2), .Cells(83, 2)).value <> "Tzvi" Then
             eTestResult = TestResult.Failure
             GoTo teardown
         Else

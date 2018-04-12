@@ -22,7 +22,7 @@ Public Function CalcLastUpdatedTime(sTableName As String) As Date
     CalcLastUpdatedTime = Now()
 End Function
 Public Function CalcID(sTableName As String) As Integer
-    CalcID = ActiveWorkbook.Sheets(sTableName).Range("i" & sTableName & "NextFree").Value
+    CalcID = ActiveWorkbook.Sheets(sTableName).Range("i" & sTableName & "NextFree").value
 End Function
 Public Sub FormatID(wsTmp As Worksheet, rCell As Range)
     MakeCellInteger wsTmp, rCell
@@ -120,7 +120,7 @@ setup:
 main:
 
     If bBulkLoad = False Then
-        iNextFree = wsTable.Range("i" & sTableName & "NextFree").Value + 1
+        iNextFree = wsTable.Range("i" & sTableName & "NextFree").value + 1
             
         For iRowCount = 0 To UBound(vRows)
             For iColCount = 0 To UBound(vRows, 2)
@@ -132,7 +132,7 @@ main:
                 sColRange = GetDBColumnRange(sTableName, aDefaultFields(iDefaultFieldCount))
                 wsTable.Range(sColRange).Rows(iNextFree) = Application.Run("Calc" & aDefaultFields(iDefaultFieldCount), sTableName)
             Next iDefaultFieldCount
-            wsTable.Range("i" & sTableName & "NextFree").Value = iNextFree
+            wsTable.Range("i" & sTableName & "NextFree").value = iNextFree
             iNextFree = iNextFree + 1
             
         Next iRowCount
@@ -169,7 +169,7 @@ setup:
     
 main:
     With wsTmp
-        iNextFree = wsTable.Range("i" & sTableName & "NextFree").Value + 1
+        iNextFree = wsTable.Range("i" & sTableName & "NextFree").value + 1
         
         For Each sKey In dDefinitions.Keys()
             If dDefinitions.Item(sKey).Exists("db_table_name") = False Then
@@ -187,7 +187,7 @@ main:
                     Exit Function
                 End If
                 
-                wsTable.Range(sColRange).Rows(iNextFree) = .Range(dDefnDetails.Item("address")).Value
+                wsTable.Range(sColRange).Rows(iNextFree) = .Range(dDefnDetails.Item("address")).value
             End If
         Next sKey
         
@@ -201,7 +201,7 @@ main:
     
     FuncLogIt sFuncName, "record id [" & CStr(iNextFree + 1) & "] added to table [" & sTableName & "]", C_MODULE_NAME, LogMsgType.OK
     
-    wsTable.Range("i" & sTableName & "NextFree").Value = iNextFree
+    wsTable.Range("i" & sTableName & "NextFree").value = iNextFree
     
 err:
     
@@ -211,7 +211,7 @@ Dim rColumn As Range
 Dim sRangeName As String
 
     With wsTmp
-        .Range(.Cells(1, iCol), .Cells(1, iCol)).Value = sFieldName
+        .Range(.Cells(1, iCol), .Cells(1, iCol)).value = sFieldName
         Set rColumn = .Range(.Cells(1, iCol), .Cells(10000, iCol))
     End With
     
@@ -261,7 +261,7 @@ setup:
         Next i
 
         Set rTarget = .Range(.Cells(1, i + 1), .Cells(1, i + 1))
-        rTarget.Value = 1
+        rTarget.value = 1
         sRangeName = "i" & sTableName & "NextFree"
         CreateNamedRange ActiveWorkbook, rTarget.Address, wsTmp.Name, sRangeName, "True"
         

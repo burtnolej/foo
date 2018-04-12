@@ -66,14 +66,14 @@ Dim iControlCount As Integer
     End With
 
     For Each rCell In rRibLabels.Cells
-        vControls(iControlCount) = rCell.Value
+        vControls(iControlCount) = rCell.value
         iControlCount = iControlCount + 1
     Next rCell
     
     ReDim Preserve vControls(0 To iControlCount - 1)
     
     For i = 0 To UBound(vControls)
-        dControlValues.Add vControls(i), rRibValues.Rows(i + 1).Value
+        dControlValues.Add vControls(i), rRibValues.Rows(i + 1).value
     Next i
     
     Set GetControlValues = dControlValues
@@ -99,13 +99,13 @@ Dim rRibValues As Range
     iIndex = IndexArray(vControls, sControlID)
     
     If text = " False" Then
-            rRibValues.Rows(iIndex + 1).Value = "False"
+            rRibValues.Rows(iIndex + 1).value = "False"
     ElseIf text = " True" Then
-            rRibValues.Rows(iIndex + 1).Value = "True"
+            rRibValues.Rows(iIndex + 1).value = "True"
     ElseIf text = "False" Then
-            rRibValues.Rows(iIndex + 1).Value = "True"
+            rRibValues.Rows(iIndex + 1).value = "True"
     Else
-            rRibValues.Rows(iIndex + 1).Value = text
+            rRibValues.Rows(iIndex + 1).value = text
     End If
 End Sub
 
@@ -247,12 +247,12 @@ Function GetRibbon(ByVal lRibbonPointer As Long) As Object
 End Function
 Sub ribbonLoaded(ribbon As IRibbonUI)
     Set rib = ribbon ''We capture the ribbon variable for later use, specifically to invalidate it.  When you invalidate the ribbon Excel recreates it.
-    ActiveWorkbook.Sheets("config").Cells(1, 10).Value = ObjPtr(rib)
+    ActiveWorkbook.Sheets("config").Cells(1, 10).value = ObjPtr(rib)
 End Sub
 Public Sub RefreshRibbon()
 
     If rib Is Nothing Then
-        Set rib = GetRibbon(ActiveWorkbook.Sheets("config").Cells(1, 10).Value)
+        Set rib = GetRibbon(ActiveWorkbook.Sheets("config").Cells(1, 10).value)
     ' Else: Do nothing!
     End If
 

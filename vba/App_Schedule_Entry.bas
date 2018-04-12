@@ -2,13 +2,25 @@ Attribute VB_Name = "App_Schedule_Entry"
 Option Explicit
 Const CsModuleName = "App_Schedule_Entry"
 
-Function AddNewLesson()
-' add new record to table draw on schedule
-' takes a dict with following fields
-'vKeys = Split("sSubjectLongDesc,sCourseNm,sClassFocusArea,sFacultyFirstNm,cdDay,idTimePeriod,idLocation,idSection,cdClassType,iFreq,idClassLecture", COMMA)
-'vValues = Split("Homeroom,Homeroom,None,Isaac,M,1,9,165,Seminar,5,993", COMMA)
+
+
+Function AddNewLesson(clsQuadRuntime As Quad_Runtime, dValues As Dictionary, sTemplateRangeName As String, _
+                iStudentID As Integer, _
+                Optional eQuadDataSubType As QuadSubDataType = QuadSubDataType.student) As Range
+Dim iFormatWidth As Integer, iFormatHeight As Integer, iColWidthCount As Integer
+Dim aColumnWidths() As Integer
+Dim sSheetName As String
+Dim wsSchedule As Worksheet
+
+    sSheetName = "view_" & EnumQuadSubDataType(eQuadDataSubType) & "_" & CStr(iStudentID)
+    Set wsSchedule = CreateSheet(clsQuadRuntime.CacheBook, sSheetName)
     
-    BuildScheduleCellView clsQuadRuntime, wsSchedule, dValues, iFormatWidth, iFormatHeight, aColumnWidths
+    ' copy the template format to the clipboard
+    GetScheduleCellFormat clsQuadRuntime, iFormatWidth, iFormatHeight, sTemplateRangeName
+    ' get the desired column widths from the template and return in an array
+    aColumnWidths = GetScheduleCellColWidths(clsQuadRuntime, sTemplateRangeName, iColWidthCount)
+        
+    Set AddNewLesson = BuildScheduleCellView(clsQuadRuntime, wsSchedule, dValues, iFormatWidth, iFormatHeight, aColumnWidths)
 
 End Function
 Public Sub GenerateScheduleEntry(clsQuadRuntime As Quad_Runtime)
@@ -28,20 +40,31 @@ setup:
     'clsQuadRuntime.InitProperties bInitializeCache:=True, sDefinitionSheetName:=sSheetName
     Set wsTmp = CreateSheet(clsQuadRuntime.Book, sSheetName, bOverwrite:=True)
 
+    ''sDefn = "NewLesson^Lesson^SFirstName^String^IsMember^&get_person_student^sStudentFirstNm" & DOUBLEDOLLAR
+    ''sDefn = sDefn & "NewLesson^Lesson^SLastName^String^IsMember^&get_person_student^sStudentLastNm" & DOUBLEDOLLAR
+    ''sDefn = sDefn & "NewLesson^Lesson^TFirstName^String^IsMember^&get_person_teacher^sFacultyFirstNm" & DOUBLEDOLLAR
+    ''sDefn = sDefn & "NewLesson^Lesson^TLastName^String^IsMember^&get_person_teacher^sFacultyLastNm" & DOUBLEDOLLAR
+    ''sDefn = sDefn & "NewLesson^Lesson^CourseName^String^IsMember^&get_courses_course^sCourseNm" & DOUBLEDOLLAR
+    ''sDefn = sDefn & "NewLesson^Lesson^SubjectName^String^IsMember^&get_courses_subject^sSubjectLongDesc" & DOUBLEDOLLAR
+    ''sDefn = sDefn & "NewLesson^Lesson^sPrepNm^String^IsMember^&get_misc_prep^sPrepNm" & DOUBLEDOLLAR
+    ''sDefn = sDefn & "NewLesson^Lesson^idTimePeriod^Integer^IsMember^&get_misc_timeperiod^idTimePeriod" & DOUBLEDOLLAR
+    ''sDefn = sDefn & "NewLesson^Lesson^cdDay^String^IsMember^&get_misc_day^cdDay" & DOUBLEDOLLAR
+    
+    
     ' table: new lesson
     ' --------------------------------------------------------------------------------
     ' attr : student name
     sDefn = "NewLesson^Lesson^SFirstName^String^IsMember^&get_person_student^sStudentFirstNm" & DOUBLEDOLLAR
-    sDefn = sDefn & "NewLesson^Lesson^SLastName^String^IsMember^&get_person_student^sStudentLastNm" & DOUBLEDOLLAR
+    sDefn = sDefn & "NewLesson^Lesson^sStudentLastNm^String^IsMember^&get_person_student^sStudentLastNm" & DOUBLEDOLLAR
     ' attr : teacher_name
-    sDefn = sDefn & "NewLesson^Lesson^TFirstName^String^IsMember^&get_person_teacher^sFacultyFirstNm" & DOUBLEDOLLAR
-    sDefn = sDefn & "NewLesson^Lesson^TLastName^String^IsMember^&get_person_teacher^sFacultyLastNm" & DOUBLEDOLLAR
+    sDefn = sDefn & "NewLesson^Lesson^sFacultyFirstNm^String^IsMember^&get_person_teacher^sFacultyFirstNm" & DOUBLEDOLLAR
+    sDefn = sDefn & "NewLesson^Lesson^sFacultyLastNm^String^IsMember^&get_person_teacher^sFacultyLastNm" & DOUBLEDOLLAR
     ' attr : ref data
-    sDefn = sDefn & "NewLesson^Lesson^CourseName^Integer^IsMember^&get_courses_course^sCourseNm" & DOUBLEDOLLAR
-    sDefn = sDefn & "NewLesson^Lesson^SubjectName^Integer^IsMember^&get_courses_subject^sSubjectLongDesc" & DOUBLEDOLLAR
-    sDefn = sDefn & "NewLesson^Lesson^Prep^Integer^IsMember^&get_misc_prep^sPrepNm" & DOUBLEDOLLAR
-    sDefn = sDefn & "NewLesson^Lesson^TimePeriod^Integer^IsMember^&get_misc_timeperiod^idTimePeriod" & DOUBLEDOLLAR
-    sDefn = sDefn & "NewLesson^Lesson^Day^Integer^IsMember^&get_misc_day^cdDay" & DOUBLEDOLLAR
+    sDefn = sDefn & "NewLesson^Lesson^sCourseNm^Integer^IsMember^&get_courses_course^sCourseNm" & DOUBLEDOLLAR
+    sDefn = sDefn & "NewLesson^Lesson^sSubjectLongDesc^Integer^IsMember^&get_courses_subject^sSubjectLongDesc" & DOUBLEDOLLAR
+    sDefn = sDefn & "NewLesson^Lesson^idPrep^Integer^IsMember^&get_misc_prep^sPrepNm" & DOUBLEDOLLAR
+    sDefn = sDefn & "NewLesson^Lesson^idTimePeriod^Integer^IsMember^&get_misc_timeperiod^idTimePeriod" & DOUBLEDOLLAR
+    sDefn = sDefn & "NewLesson^Lesson^cdDay^Integer^IsMember^&get_misc_day^cdDay" & DOUBLEDOLLAR
     
     ' new student
     sDefn = sDefn & "NewStudent^person_student^sStudentFirstNm^String^^^" & DOUBLEDOLLAR

@@ -11,10 +11,10 @@ init:
 main:
     With wbTmp.Sheets(sSheetName)
         ' check to see if the index has already been set
-        If .Cells(iLength, iCol).Value <> iLength Then
+        If .Cells(iLength, iCol).value <> iLength Then
             Set rSource = .Range(.Cells(1, iCol), .Cells(2, iCol))
-            rSource.Rows(1).Value = "1"
-            rSource.Rows(2).Value = "2"
+            rSource.Rows(1).value = "1"
+            rSource.Rows(2).value = "2"
             Set rTarget = .Range(.Cells(1, iCol), .Cells(iLength, iCol))
             
             FillDown rSource, rTarget
@@ -40,7 +40,7 @@ Dim sText As String, sRangeName As String, sFilterCountName As String
     Call AddCode2Module(Application.ActiveWorkbook, wsTmp.CodeName, sText)
     
     With wsTmp
-        .Range(sFilterCountName).Value = iFilterCount
+        .Range(sFilterCountName).value = iFilterCount
     End With
 End Sub
 Public Sub DoFilter(wbTmp As Workbook, sSheetName As String, Target As Range)
@@ -59,11 +59,11 @@ Public Sub DoFilter(wbTmp As Workbook, sSheetName As String, Target As Range)
     With wbTmp.Sheets(sSheetName)
         .Activate
 
-        VZFilter wbTmp, sSheetName, Target.Value, Target.Column, _
-                    .Range(sSheetName & "_" & "VZFilterCount").Value ' the height of the search grid
+        VZFilter wbTmp, sSheetName, Target.value, Target.Column, _
+                    .Range(sSheetName & "_" & "VZFilterCount").value ' the height of the search grid
 
         ' now clear out any filter keys
-        If Target.Value = "reset" Then
+        If Target.value = "reset" Then
             .Range(sSheetName & "_" & "VZFilter").ClearContents
         End If
         
@@ -162,7 +162,7 @@ Dim iRowNum As Integer
                 Next i
             Next j
         
-            rFilterHist.Value = vFilterHist
+            rFilterHist.value = vFilterHist
             
             If rVisible Is Nothing Then
             Else
@@ -183,9 +183,9 @@ Dim iRowNum As Integer
             If rSearchFilteredCol.Rows.Count = 1 And rSearchFilteredCol.Columns.Count = 1 Then
                 'special case where area is 1 cell
                 ReDim vSearchFilteredCol(1 To 1, 1 To 1)
-                vSearchFilteredCol(1, 1) = rSearchFilteredCol.Value
+                vSearchFilteredCol(1, 1) = rSearchFilteredCol.value
                 ReDim vSearchIndex(1 To 1, 1 To 1)
-                vSearchIndex(1, 1) = rSearchIndex.Value
+                vSearchIndex(1, 1) = rSearchIndex.value
             Else
                 vSearchFilteredCol = rSearchFilteredCol
                 vSearchIndex = rSearchIndex
@@ -223,7 +223,7 @@ Dim iRowNum As Integer
             Next i
         Next j
 
-        rFilterHist.Value = vFilterHist
+        rFilterHist.value = vFilterHist
         
         If rVisible Is Nothing Then
             'no hits found
@@ -296,8 +296,8 @@ Dim iRowNum As Integer
                                 If AddToVisibleRange(rVisible, iRowNum, CStr(vFilterHist(i, 1)), wbTmp.Sheets(sSheetName)) Then
                                 Else
                                     sNextFilterColumn = Int(Right(vFilterHist(i, 1), 1))
-                                    sNextFilterValue = .Range(sSheetName & "_VZFilter").Columns(sNextFilterColumn).Value
-                                    sNextValue = .Range(.Cells(iRowNum, sNextFilterColumn), .Cells(iRowNum, sNextFilterColumn)).Value
+                                    sNextFilterValue = .Range(sSheetName & "_VZFilter").Columns(sNextFilterColumn).value
+                                    sNextValue = .Range(.Cells(iRowNum, sNextFilterColumn), .Cells(iRowNum, sNextFilterColumn)).value
                                     
                                     If InStr(sNextValue, sNextFilterValue) <> 0 Then
                                         ' take out of filter
@@ -311,7 +311,7 @@ Dim iRowNum As Integer
                 Next i
             Next j
         
-            rFilterHist.Value = vFilterHist
+            rFilterHist.value = vFilterHist
             
             If rVisible Is Nothing Then
             Else
@@ -332,9 +332,9 @@ Dim iRowNum As Integer
             If rSearchFilteredCol.Rows.Count = 1 And rSearchFilteredCol.Columns.Count = 1 Then
                 'special case where area is 1 cell
                 ReDim vSearchFilteredCol(1 To 1, 1 To 1)
-                vSearchFilteredCol(1, 1) = rSearchFilteredCol.Value
+                vSearchFilteredCol(1, 1) = rSearchFilteredCol.value
                 ReDim vSearchIndex(1 To 1, 1 To 1)
-                vSearchIndex(1, 1) = rSearchIndex.Value
+                vSearchIndex(1, 1) = rSearchIndex.value
             Else
                 vSearchFilteredCol = rSearchFilteredCol
                 vSearchIndex = rSearchIndex
@@ -372,7 +372,7 @@ Dim iRowNum As Integer
             Next i
         Next j
 
-        rFilterHist.Value = vFilterHist
+        rFilterHist.value = vFilterHist
         
         If rVisible Is Nothing Then
             'no hits found

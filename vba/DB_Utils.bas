@@ -10,10 +10,10 @@ Dim sFuncName As String
     sFuncName = "GetQueryFromRange"
     
     iType = vbYesNoCancel + vbQuestion + vbDefaultButton2
-    iReturnCode = PopUpWindow("Query:" & rSource.Value, "Verify Query", iType)
+    iReturnCode = PopUpWindow("Query:" & rSource.value, "Verify Query", iType)
     
     If iReturnCode = 6 Then
-        GetQueryFromRange = rSource.Value
+        GetQueryFromRange = rSource.value
     Else
         GetQueryFromRange = "-1"
     End If

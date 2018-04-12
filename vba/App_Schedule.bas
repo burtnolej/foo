@@ -119,6 +119,8 @@ Dim iScheduleWidth As Integer, iScheduleHeight As Integer
     End With
 
 End Function
+
+
 Public Sub GetScheduleCellFormat(clsQuadRuntime As Quad_Runtime, ByRef iFormatWidth As Integer, _
                                  ByRef iFormatHeight As Integer, sScheduleFormatRangeName As String)
 'gets the template for the cell and puts it into the clipboard
@@ -142,6 +144,10 @@ Dim rScheduleFormatRange As Range
     
 End Sub
         
+
+
+'generalize this so it can get col and row widths for form formats too
+
 Public Function GetScheduleCellColWidths(clsQuadRuntime As Quad_Runtime, sScheduleFormatRangeName As String, _
                                          iColWidthCount As Integer) As Integer()
 ' get the column widths from the template and return in an integer array
@@ -162,11 +168,11 @@ Dim rCell As Range
     GetScheduleCellColWidths = aColumnWidths
 End Function
 
-Sub BuildScheduleCellView(clsQuadRuntime As Quad_Runtime, _
+Function BuildScheduleCellView(clsQuadRuntime As Quad_Runtime, _
                           wsSchedule As Worksheet, _
                           dValues As Dictionary, _
                           iFormatWidth As Integer, iFormatHeight As Integer, _
-                          aColumnWidths() As Integer)
+                          aColumnWidths() As Integer) As Range
 
 Dim iScheduleCurrentRow As Integer, iScheduleCurrentCol As Integer, iColWidthCount As Integer
 Dim rScheduleFormatTargetRange As Range, rCell As Range
@@ -193,12 +199,14 @@ Dim rScheduleFormatTargetRange As Range, rCell As Range
         
         ' evaluate the data functions to get the content
         For Each rCell In rScheduleFormatTargetRange.Cells
-            If Left(rCell.Value, 1) = "&" Then
-                rCell.Value = Application.Run(Right(rCell.Value, Len(rCell.Value) - 1), dValues)
+            If Left(rCell.value, 1) = "&" Then
+                rCell.value = Application.Run(Right(rCell.value, Len(rCell.value) - 1), dValues)
             End If
         Next rCell
     End With
-End Sub
+    
+    Set BuildScheduleCellView = rScheduleFormatTargetRange
+End Function
 Function BuildScheduleView(clsQuadRuntime As Quad_Runtime, _
                            aColumnWidths() As Integer, _
                            iFormatWidth As Integer, _

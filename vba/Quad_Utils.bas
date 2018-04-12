@@ -33,7 +33,9 @@ Enum QuadScope
     all = 1
     specified = 2
 End Enum
+
 Const C_QUAD_SCOPE = "all,specified"
+
 
 Private clsQuadRuntimeGlobal As Quad_Runtime
 
@@ -335,7 +337,7 @@ Dim wsCurrentFocus As Worksheet
         With wsCache
             .Activate
             Set rTarget = .Range(.Cells(1, 1), .Cells(iNumRows + 1, iNumCols + 1))
-            rTarget.Value = aData
+            rTarget.value = aData
             
             CreateNamedRange ActiveWorkbook, rTarget.Address, sCacheSheetName, clsQuadRuntime.CacheRangeName, sLocalScope:="True"
         End With

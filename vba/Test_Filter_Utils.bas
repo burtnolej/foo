@@ -43,7 +43,7 @@ main:
         
         ' filter by the letter a
         Set rCell = .Range(.Cells(1, 2), .Cells(1, 2))
-        rCell.Value = "a"
+        rCell.value = "a"
         DoFilter ActiveWorkbook, sSheetName, rCell
         
         ' row 3 and 6 should be visible
@@ -67,19 +67,19 @@ main:
         End If
 
         ' then checking the filter history
-        If .Range(.Cells(3, 25), .Cells(3, 25)).Value <> BLANK Then
+        If .Range(.Cells(3, 25), .Cells(3, 25)).value <> BLANK Then
             eTestResult = TestResult.Failure
             GoTo teardown
         End If
-        If .Range(.Cells(4, 25), .Cells(4, 25)).Value <> "^2" Then
+        If .Range(.Cells(4, 25), .Cells(4, 25)).value <> "^2" Then
             eTestResult = TestResult.Failure
             GoTo teardown
         End If
-        If .Range(.Cells(5, 25), .Cells(5, 25)).Value <> "^2" Then
+        If .Range(.Cells(5, 25), .Cells(5, 25)).value <> "^2" Then
             eTestResult = TestResult.Failure
             GoTo teardown
         End If
-        If .Range(.Cells(6, 25), .Cells(6, 25)).Value <> BLANK Then
+        If .Range(.Cells(6, 25), .Cells(6, 25)).value <> BLANK Then
             eTestResult = TestResult.Failure
         Else
             eTestResult = TestResult.OK
@@ -133,7 +133,7 @@ main:
         
         ' filter by the letter a
         Set rCell = .Range(.Cells(1, 2), .Cells(1, 2))
-        rCell.Value = "!a"
+        rCell.value = "!a"
         DoFilter ActiveWorkbook, sSheetName, rCell
         
         ' row 3 and 6 should be visible
@@ -159,19 +159,19 @@ main:
 
         
         ' then checking the filter history
-        If .Range(.Cells(3, 25), .Cells(3, 25)).Value <> "^2" Then
+        If .Range(.Cells(3, 25), .Cells(3, 25)).value <> "^2" Then
             eTestResult = TestResult.Failure
             GoTo teardown
         End If
-        If .Range(.Cells(4, 25), .Cells(4, 25)).Value <> BLANK Then
+        If .Range(.Cells(4, 25), .Cells(4, 25)).value <> BLANK Then
             eTestResult = TestResult.Failure
             GoTo teardown
         End If
-        If .Range(.Cells(5, 25), .Cells(5, 25)).Value <> BLANK Then
+        If .Range(.Cells(5, 25), .Cells(5, 25)).value <> BLANK Then
             eTestResult = TestResult.Failure
             GoTo teardown
         End If
-        If .Range(.Cells(6, 25), .Cells(6, 25)).Value <> "^2" Then
+        If .Range(.Cells(6, 25), .Cells(6, 25)).value <> "^2" Then
             eTestResult = TestResult.Failure
         Else
             eTestResult = TestResult.OK
@@ -230,18 +230,18 @@ main:
         
         ' filter by the letter a
         Set rCell = .Range(.Cells(1, 3), .Cells(1, 3))
-        rCell.Value = "y"
+        rCell.value = "y"
         DoFilter ActiveWorkbook, sSheetName, rCell
         
 
         ' filter by the letter z
         Set rCell = .Range(.Cells(1, 4), .Cells(1, 4))
-        rCell.Value = "z"
+        rCell.value = "z"
         DoFilter ActiveWorkbook, sSheetName, rCell
 
         ' filter by the letter a
         Set rCell = .Range(.Cells(1, 4), .Cells(1, 4))
-        rCell.Value = "x"
+        rCell.value = "x"
         DoFilter ActiveWorkbook, sSheetName, rCell
         
         If .Rows(3).EntireRow.Hidden <> True Then
@@ -266,19 +266,19 @@ main:
     
         
         ' then checking the filter history
-        If .Range(.Cells(3, 25), .Cells(3, 25)).Value <> "^3" Then
+        If .Range(.Cells(3, 25), .Cells(3, 25)).value <> "^3" Then
             eTestResult = TestResult.Failure
             GoTo teardown
         End If
-        If .Range(.Cells(4, 25), .Cells(4, 25)).Value <> BLANK Then
+        If .Range(.Cells(4, 25), .Cells(4, 25)).value <> BLANK Then
             eTestResult = TestResult.Failure
             GoTo teardown
         End If
-        If .Range(.Cells(5, 25), .Cells(5, 25)).Value <> BLANK Then
+        If .Range(.Cells(5, 25), .Cells(5, 25)).value <> BLANK Then
             eTestResult = TestResult.Failure
             GoTo teardown
         End If
-        If .Range(.Cells(6, 25), .Cells(6, 25)).Value <> "^3" Then
+        If .Range(.Cells(6, 25), .Cells(6, 25)).value <> "^3" Then
             eTestResult = TestResult.Failure
         Else
             eTestResult = TestResult.OK
@@ -338,19 +338,19 @@ main:
         
         ' filter by the letter a
         Set rCell = .Range(.Cells(1, 3), .Cells(1, 3))
-        rCell.Value = "y"
+        rCell.value = "y"
         DoFilter ActiveWorkbook, sSheetName, rCell
         
         ' filter by the letter z
         Set rCell = .Range(.Cells(1, 4), .Cells(1, 4))
-        rCell.Value = "z"
+        rCell.value = "z"
         DoFilter ActiveWorkbook, sSheetName, rCell
 
         'Exit Sub
         
         ' filter by the letter a
         Set rCell = .Range(.Cells(1, 3), .Cells(1, 3))
-        rCell.Value = "x"
+        rCell.value = "x"
         DoFilter ActiveWorkbook, sSheetName, rCell
 
         If .Rows(3).EntireRow.Hidden <> True Then
@@ -374,19 +374,19 @@ main:
         End If
     
         ' then checking the filter history
-        If .Range(.Cells(3, 25), .Cells(3, 25)).Value <> "^4" Then
+        If .Range(.Cells(3, 25), .Cells(3, 25)).value <> "^4" Then
             eTestResult = TestResult.Failure
             GoTo teardown
         End If
-        If .Range(.Cells(4, 25), .Cells(4, 25)).Value <> BLANK Then
+        If .Range(.Cells(4, 25), .Cells(4, 25)).value <> BLANK Then
             eTestResult = TestResult.Failure
             GoTo teardown
         End If
-        If .Range(.Cells(5, 25), .Cells(5, 25)).Value <> "^4" Then
+        If .Range(.Cells(5, 25), .Cells(5, 25)).value <> "^4" Then
             eTestResult = TestResult.Failure
             GoTo teardown
         End If
-        If .Range(.Cells(6, 25), .Cells(6, 25)).Value <> BLANK Then
+        If .Range(.Cells(6, 25), .Cells(6, 25)).value <> BLANK Then
             eTestResult = TestResult.Failure
         Else
             eTestResult = TestResult.OK
@@ -447,25 +447,25 @@ main:
         
         ' filter by the letter y
         Set rCell = .Range(.Cells(1, 3), .Cells(1, 3))
-        rCell.Value = "y"
+        rCell.value = "y"
         DoFilter ActiveWorkbook, sSheetName, rCell
         
 
         ' filter by the letter z
         Set rCell = .Range(.Cells(1, 4), .Cells(1, 4))
-        rCell.Value = "z"
+        rCell.value = "z"
         DoFilter ActiveWorkbook, sSheetName, rCell
 
 
         ' filter by the letter x
         Set rCell = .Range(.Cells(1, 4), .Cells(1, 4))
-        rCell.Value = "x"
+        rCell.value = "x"
         DoFilter ActiveWorkbook, sSheetName, rCell
         
 
         ' filter by the letter a
         Set rCell = .Range(.Cells(1, 4), .Cells(1, 4))
-        rCell.Value = "a"
+        rCell.value = "a"
         DoFilter ActiveWorkbook, sSheetName, rCell
         
         
@@ -490,19 +490,19 @@ main:
         End If
 
         ' then checking the filter history
-        If .Range(.Cells(3, 25), .Cells(3, 25)).Value <> "^3^4" Then
+        If .Range(.Cells(3, 25), .Cells(3, 25)).value <> "^3^4" Then
             eTestResult = TestResult.Failure
             GoTo teardown
         End If
-        If .Range(.Cells(4, 25), .Cells(4, 25)).Value <> "^4" Then
+        If .Range(.Cells(4, 25), .Cells(4, 25)).value <> "^4" Then
             eTestResult = TestResult.Failure
             GoTo teardown
         End If
-        If .Range(.Cells(5, 25), .Cells(5, 25)).Value <> BLANK Then
+        If .Range(.Cells(5, 25), .Cells(5, 25)).value <> BLANK Then
             eTestResult = TestResult.Failure
             GoTo teardown
         End If
-        If .Range(.Cells(6, 25), .Cells(6, 25)).Value <> "^3^4" Then
+        If .Range(.Cells(6, 25), .Cells(6, 25)).value <> "^3^4" Then
             eTestResult = TestResult.Failure
         Else
             eTestResult = TestResult.OK
@@ -561,12 +561,12 @@ main:
         
         ' filter by the letter a
         Set rCell = .Range(.Cells(1, 2), .Cells(1, 2))
-        rCell.Value = "a"
+        rCell.value = "a"
         DoFilter ActiveWorkbook, sSheetName, rCell
         
         ' filter by the letter z
         Set rCell = .Range(.Cells(1, 4), .Cells(1, 4))
-        rCell.Value = "^z"
+        rCell.value = "^z"
         DoFilter ActiveWorkbook, sSheetName, rCell
 
         ' row 4,5 and 6 should be visible
@@ -591,19 +591,19 @@ main:
         End If
 
         ' then checking the filter history
-        If .Range(.Cells(3, 25), .Cells(3, 25)).Value <> "^4" Then
+        If .Range(.Cells(3, 25), .Cells(3, 25)).value <> "^4" Then
             eTestResult = TestResult.Failure
             GoTo teardown
         End If
-        If .Range(.Cells(4, 25), .Cells(4, 25)).Value <> "^2" Then
+        If .Range(.Cells(4, 25), .Cells(4, 25)).value <> "^2" Then
             eTestResult = TestResult.Failure
             GoTo teardown
         End If
-        If .Range(.Cells(5, 25), .Cells(5, 25)).Value <> "^2^4" Then
+        If .Range(.Cells(5, 25), .Cells(5, 25)).value <> "^2^4" Then
             eTestResult = TestResult.Failure
             GoTo teardown
         End If
-        If .Range(.Cells(6, 25), .Cells(6, 25)).Value <> BLANK Then
+        If .Range(.Cells(6, 25), .Cells(6, 25)).value <> BLANK Then
         eTestResult = TestResult.Failure
         Else
             eTestResult = TestResult.OK
@@ -662,11 +662,11 @@ main:
         DoEventsOn
         
         Set rCell = .Range(.Cells(1, 3), .Cells(1, 3))
-        rCell.Value = "y"
+        rCell.value = "y"
         DoFilter ActiveWorkbook, sSheetName, rCell
 
         Set rCell = .Range(.Cells(1, 4), .Cells(1, 4))
-        rCell.Value = "z"
+        rCell.value = "z"
         DoFilter ActiveWorkbook, sSheetName, rCell
         
         If .Rows(4).EntireRow.Hidden = True Then
@@ -674,19 +674,19 @@ main:
             GoTo teardown
         End If
         
-        If .Range(.Cells(3, 25), .Cells(3, 25)).Value <> "^3^4" Then
+        If .Range(.Cells(3, 25), .Cells(3, 25)).value <> "^3^4" Then
             eTestResult = TestResult.Failure
             GoTo teardown
         End If
-        If .Range(.Cells(4, 25), .Cells(4, 25)).Value <> BLANK Then
+        If .Range(.Cells(4, 25), .Cells(4, 25)).value <> BLANK Then
             eTestResult = TestResult.Failure
             GoTo teardown
         End If
-        If .Range(.Cells(5, 25), .Cells(5, 25)).Value <> "^4" Then
+        If .Range(.Cells(5, 25), .Cells(5, 25)).value <> "^4" Then
             eTestResult = TestResult.Failure
             GoTo teardown
         End If
-        If .Range(.Cells(6, 25), .Cells(6, 25)).Value <> "^3" Then
+        If .Range(.Cells(6, 25), .Cells(6, 25)).value <> "^3" Then
             eTestResult = TestResult.Failure
         Else
             eTestResult = TestResult.OK
@@ -744,19 +744,19 @@ main:
         DoEventsOn
           
         Set rCell = .Range(.Cells(1, 1), .Cells(1, 1))
-        rCell.Value = "Boris"
+        rCell.value = "Boris"
         DoFilter ActiveWorkbook, sSheetName, rCell
     
         Set rCell = .Range(.Cells(1, 2), .Cells(1, 2))
-        rCell.Value = "Latvia"
+        rCell.value = "Latvia"
         DoFilter ActiveWorkbook, sSheetName, rCell
         
         Set rCell = .Range(.Cells(1, 3), .Cells(1, 3))
-        rCell.Value = "Right"
+        rCell.value = "Right"
         DoFilter ActiveWorkbook, sSheetName, rCell
         
         Set rCell = .Range(.Cells(1, 2), .Cells(1, 2))
-        rCell.Value = "x"
+        rCell.value = "x"
         DoFilter ActiveWorkbook, sSheetName, rCell
     
         If .Rows(8).EntireRow.Hidden = True Then
@@ -836,19 +836,19 @@ main:
         DoEventsOn
           
         Set rCell = .Range(.Cells(1, 1), .Cells(1, 1))
-        rCell.Value = "Boris"
+        rCell.value = "Boris"
         DoFilter ActiveWorkbook, sSheetName, rCell
     
         Set rCell = .Range(.Cells(1, 2), .Cells(1, 2))
-        rCell.Value = "Latvia"
+        rCell.value = "Latvia"
         DoFilter ActiveWorkbook, sSheetName, rCell
         
         Set rCell = .Range(.Cells(1, 3), .Cells(1, 3))
-        rCell.Value = "Right"
+        rCell.value = "Right"
         DoFilter ActiveWorkbook, sSheetName, rCell
         
         Set rCell = .Range(.Cells(1, 1), .Cells(1, 1))
-        rCell.Value = "x"
+        rCell.value = "x"
         DoFilter ActiveWorkbook, sSheetName, rCell
     
         If .Rows(8).EntireRow.Hidden = True Then

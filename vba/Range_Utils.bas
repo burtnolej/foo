@@ -54,7 +54,7 @@ Public Function IsBlankCell(rCell As Range) As Boolean
     
     If IsCell(rCell) = False Then
         IsBlankCell = False
-    ElseIf rCell.Value <> BLANK Then
+    ElseIf rCell.value <> BLANK Then
         IsBlankCell = False
     End If
 End Function
@@ -74,7 +74,7 @@ Public Function IsNonBlankCell(rCell As Range) As Boolean
     
     If IsCell(rCell) = False Then
         IsNonBlankCell = False
-    ElseIf rCell.Value = BLANK Then
+    ElseIf rCell.value = BLANK Then
         IsNonBlankCell = False
     End If
 End Function

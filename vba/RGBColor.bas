@@ -15,24 +15,24 @@ Public Property Get Red() As Integer
     Red = pRed
 End Property
 
-Public Property Let Red(Value As Integer)
-    pRed = Value
+Public Property Let Red(value As Integer)
+    pRed = value
 End Property
 
 Public Property Get Green() As Integer
     Green = pGreen
 End Property
 
-Public Property Let Green(Value As Integer)
-    pGreen = Value
+Public Property Let Green(value As Integer)
+    pGreen = value
 End Property
 
 Public Property Get Blue() As Integer
     Blue = pBlue
 End Property
 
-Public Property Let Blue(Value As Integer)
-    pBlue = Value
+Public Property Let Blue(value As Integer)
+    pBlue = value
 End Property
 
 Public Sub InitProperties(iRed As Integer, iGreen As Integer, iBlue As Integer)

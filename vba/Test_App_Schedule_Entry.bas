@@ -2,15 +2,16 @@ Attribute VB_Name = "Test_App_Schedule_Entry"
 Option Explicit
 Const CsModuleName = "App_Schedule_Entry"
 
-Function Test_GenerateScheduleEntry() As TestResult
+Function Test_AddNewScheduleEntry() As TestResult
 Dim eTestResult As TestResult
 Dim clsQuadRuntime As New Quad_Runtime
 Dim sFuncName As String, sSheetName As String, sTargetSheetName As String
-Dim rTarget As Range
+Dim rTarget As Range, rCell As Range
+Dim dEntryValues As Dictionary
 
 setup:
     ResetQuadRuntimeGlobal
-    sFuncName = CsModuleName & "." & "DoGenerateScheduleEntry"
+    sFuncName = CsModuleName & "." & "Test_AddNewScheduleEntry"
     sSheetName = "test"
     clsQuadRuntime.InitProperties bInitializeCache:=True, sDefinitionSheetName:=sSheetName
     sTargetSheetName = "NewLesson"
@@ -112,17 +113,33 @@ main:
         If GetBgColor(sTargetSheetName, rTarget).AsString <> "0,255,0" Then
             eTestResult = TestResult.Failure
             GoTo teardown
-        Else
-            eTestResult = TestResult.OK
+        End If
+        
+        IsRecordValid clsQuadRuntime.TemplateBook, clsQuadRuntime.CacheBook, "NewLesson", clsQuadRuntime.TemplateCellSheetName
+
+        Set dEntryValues = GetRecordValuesAsDict(clsQuadRuntime.TemplateBook, clsQuadRuntime.CacheBook, "NewLesson")
+                    
+        Set rCell = AddNewLesson(clsQuadRuntime, dEntryValues, "f" & "student" & "ScheduleCell", 70)
+        
+        If rCell.Address <> "$C$16:$E$19" Then
+            eTestResult = TestResult.Failure
             GoTo teardown
         End If
+        
+        If rCell.Columns(3).Rows(1).value <> "Art" Then
+            eTestResult = TestResult.Failure
+            GoTo teardown
+        Else
+            eTestResult = TestResult.OK
+        End If
+        GoTo teardown
     End With
-    
+
 err:
     eTestResult = TestResult.Error
     
 teardown:
-    Test_GenerateScheduleEntry = eTestResult
+    Test_AddNewScheduleEntry = eTestResult
     clsQuadRuntime.Delete
     DeleteEntryForms
     DeleteSheet clsQuadRuntime.Book, sSheetName

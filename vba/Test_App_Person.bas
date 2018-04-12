@@ -210,7 +210,7 @@ main:
 
     Set wsCache = GetPersonData(clsQuadRuntime, QuadDataType.person, QuadSubDataType.student, eQuadScope:=QuadScope.all)
     With wsCache
-        If .Range(.Cells(83, 5), .Cells(83, 5)).Value <> "Photon" Then
+        If .Range(.Cells(83, 5), .Cells(83, 5)).value <> "Photon" Then
             eTestResult = TestResult.Failure
             GoTo teardown
         Else
@@ -247,7 +247,7 @@ setup:
 main:
     Set wsCache = GetPersonData(clsQuadRuntime, QuadDataType.person, QuadSubDataType.student, eQuadScope:=QuadScope.all)
     With wsCache
-        If .Range(.Cells(83, 5), .Cells(83, 5)).Value <> "Photon" Then
+        If .Range(.Cells(83, 5), .Cells(83, 5)).value <> "Photon" Then
             eTestResult = TestResult.Failure
             GoTo teardown
         Else

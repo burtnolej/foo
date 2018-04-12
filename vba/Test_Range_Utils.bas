@@ -99,7 +99,7 @@ main:
         GoTo teardown
     End If
     
-    rTarget.Value = 123
+    rTarget.value = 123
     
     If IsBlankCell(rTarget) = True Then
         eTestResult = TestResult.Failure
@@ -179,7 +179,7 @@ main:
     rTarget.Select
     Set rTarget = rTarget.Resize(1)
     rTarget.Select
-    vResult = rTarget.Value
+    vResult = rTarget.value
     'If Array2String(vResult) <> "ACE" Then
     '    eTestResult = TestResult.Failure
     'Else

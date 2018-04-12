@@ -68,7 +68,7 @@ Dim rSource As Range
             
             Set rSource = RangeFromStrArray(vFile, wsTmp, iRowNum, 0)
             Set rSource = rSource.Resize(, 1).Offset(, 3)
-            rSource.Value = sFilename
+            rSource.value = sFilename
             
             iRowNum = iRowNum + UBound(vFile) + 1
         End If
@@ -230,11 +230,11 @@ Dim sDirectory As String, sTmpDirectory As String, sFuncName As String
     End If
     
     For Each rCell In rSource.Cells
-        If FileExists(rCell.Value) = False Then
+        If FileExists(rCell.value) = False Then
             iType = vbDefaultButton2
-            PopUpWindow "File [" & rCell.Value & "] cannot be found", "Error", iType
+            PopUpWindow "File [" & rCell.value & "] cannot be found", "Error", iType
         Else
-            aFiles(iFileCount) = rCell.Value
+            aFiles(iFileCount) = rCell.value
             iFileCount = iFileCount + 1
         End If
     Next rCell
