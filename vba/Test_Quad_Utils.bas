@@ -4,10 +4,51 @@ Option Explicit
 'Function TestRowAsDict()
 
 Const CsModuleName = "Test_Quad_Utils"
+Public Function Test_CrossRefQuadData() As TestResult
+Dim clsQuadRuntime As New Quad_Runtime
+Dim vSource() As String
+Dim sDefn As String, sDefnSheetName As String
+Dim rTarget As Range
+Dim wsTmp As Worksheet
+Dim eTestResult As TestResult
 
-Sub test()
-    Test_CacheData_Table
-End Sub
+setup:
+    clsQuadRuntime.InitProperties bInitializeCache:=True
+
+    sDefnSheetName = "test_definition"
+    Set wsTmp = CreateSheet(clsQuadRuntime.Book, sDefnSheetName, bOverwrite:=True)
+        
+    sDefn = "new_person_student^person_student^sStudentFirstNm^AlphaNumeric^IsMember^Student" & DOUBLEDOLLAR
+    sDefn = sDefn & "new_person_student^person_student^sStudentLastNm^AlphaNumeric^IsMember^Student" & DOUBLEDOLLAR
+    sDefn = sDefn & "new_person_student^person_student^idStudent^AlphaNumeric^IsMember^Student" & DOUBLEDOLLAR
+    sDefn = sDefn & "new_person_student^person_student^idPrep^AlphaNumeric^IsMember^StudentLevel" & DOUBLEDOLLAR
+    sDefn = sDefn & "new_person_student^person_student^sPrepNm^AlphaNumeric^IsMember^PrepCode"
+           
+    vSource = Init2DStringArrayFromString(sDefn)
+    Set rTarget = RangeFromStrArray(vSource, wsTmp, 0, 1)
+    Set Entry_Utils.dDefinitions = LoadDefinitions(wsTmp, rSource:=rTarget)
+    
+    If CrossRefQuadData(clsQuadRuntime, QuadDataType.person, _
+                    QuadSubDataType.student, "idStudent", 1, "sStudentLastNm") <> "Gromek" Then
+        eTestResult = TestResult.Failure
+        GoTo teardown
+    End If
+        
+    eTestResult = TestResult.OK
+    GoTo teardown
+
+                                 
+err:
+    eTestResult = TestResult.Error
+    
+teardown:
+    Test_CrossRefQuadData = eTestResult
+    clsQuadRuntime.Delete
+    'DeleteSheet clsQuadRuntime.CacheBook, sCacheSheetName
+    CloseBook clsQuadRuntime.CacheBook
+    DeleteBook clsQuadRuntime.CacheBookName, clsQuadRuntime.CacheBookPath
+    
+End Function
 Public Function Test_CacheData_Table() As TestResult
 '"" cache data but wrap in a table
 '""

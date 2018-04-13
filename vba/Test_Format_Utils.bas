@@ -31,6 +31,7 @@ setup:
     SetBgColor sSheetName, rSource, 255, 255, 0
     CopyFormat clsQuadRuntime.Book, clsQuadRuntime.Book, _
             sSheetName, sSheetName, "source", "target"
+            
 main:
 
     Set cRGB = GetBgColor(sSheetName, rTarget)

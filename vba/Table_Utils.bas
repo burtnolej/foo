@@ -151,6 +151,28 @@ main:
     
 End Function
 
+Public Function AddTableRecordFromDict(wsTable As Worksheet, _
+                                       sTableName As String, _
+                                       dValues As Dictionary) As Integer
+Dim sKey As Variant
+Dim iNextFree As Integer
+Dim sFuncName As String, sColRange As String
+
+setup:
+    sFuncName = C_MODULE_NAME & "." & "AddTableRecordFromDict"
+
+main:
+    iNextFree = wsTable.Range("i" & sTableName & "NextFree").value + 1
+    
+    For Each sKey In dValues
+        sColRange = GetDBColumnRange(sTableName, sKey)
+        wsTable.Range(sColRange).Rows(iNextFree) = dValues.Item(sKey)
+    Next sKey
+    
+    wsTable.Range("i" & sTableName & "NextFree").value = iNextFree
+
+    AddTableRecordFromDict = iNextFree
+End Function
 Public Function AddTableRecord(sTableName As String) As Integer
 Dim sKey As Variant
 Dim dDefnDetails As Dictionary

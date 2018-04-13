@@ -224,7 +224,64 @@ teardown:
 
 End Function
 
+Function Test_AddTableRecordFromDict() As TestResult
+    'AddTableRecordFromDict
+Dim aSchedule() As String, vKeys() As String, vValues As Variant, vSource() As String
+Dim dValues As New Dictionary
+Dim sFuncName As String, sSheetName As String, sTableName As String, sDefn As String
+Dim clsQuadRuntime As New Quad_Runtime
+Dim wsTmp As Worksheet, wsTable As Worksheet
+Dim rTarget As Range
+Dim dRecordValues As Dictionary
+Dim eTestResult As TestResult
 
+    clsQuadRuntime.InitProperties bInitializeCache:=True
+    sFuncName = CsModuleName & "." & "TestAddTableMultipleRecordManual"
+    sSheetName = "test"
+    Set wsTmp = CreateSheet(ActiveWorkbook, sSheetName, bOverwrite:=True)
+    
+    vKeys = Split("sStudentFirstNm,sStudentLastNm,idStudent,idPrep,sPrepNm", COMMA)
+    vValues = Split("Jon,Butler,1,5,Luna", COMMA)
+    Set dValues = InitDict(vKeys, vValues)
+
+    sTableName = "person_student"
+   ' new student
+    sDefn = sDefn & "NewStudent^person_student^sStudentFirstNm^String^^^" & DOUBLEDOLLAR
+    sDefn = sDefn & "NewStudent^person_student^sStudentLastNm^String^^^" & DOUBLEDOLLAR
+    sDefn = sDefn & "NewStudent^person_student^idStudent^Integer^^^" & DOUBLEDOLLAR
+    sDefn = sDefn & "NewStudent^person_student^idPrep^Integer^IsValidPrep^^" & DOUBLEDOLLAR
+    sDefn = sDefn & "NewStudent^person_student^sPrepNm^String^^^"
+    vSource = Init2DStringArrayFromString(sDefn)
+    
+    Set rTarget = RangeFromStrArray(vSource, wsTmp, 0, 1)
+
+    Set Entry_Utils.dDefinitions = LoadDefinitions(wsTmp, rSource:=rTarget)
+    Set wsTable = CreateTable(sTableName)
+    
+main:
+    
+    AddTableRecordFromDict wsTable, sTableName, dValues
+    
+    
+    Set dRecordValues = GetTableRecord(sTableName, 1)
+    
+    If dRecordValues.Item("sPrepNm") <> "Luna" Then
+        eTestResult = TestResult.Failure
+    Else
+        eTestResult = TestResult.OK
+    End If
+    On Error GoTo 0
+    GoTo teardown
+    
+err:
+    eTestResult = TestResult.Error
+    
+teardown:
+    Test_AddTableRecordFromDict = eTestResult
+    clsQuadRuntime.Delete
+    CloseBook clsQuadRuntime.CacheBook
+    DeleteBook clsQuadRuntime.CacheBookName, clsQuadRuntime.CacheBookPath
+End Function
 Function TestAddTableMultipleRecordManual() As TestResult
 ' From a definition, create entry forms, fill out values for a record, manually call function
 ' to add the single record (dont validate and use button) and then retreive the record

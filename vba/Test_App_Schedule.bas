@@ -157,7 +157,9 @@ teardown:
     
 End Function
 
-
+Sub test()
+    Test_BuildSchedule_Student_NotCached
+End Sub
 Public Function Test_BuildSchedule_Student_NotCached() As TestResult
 '"" get a full schedule for 1 student, parse and put into a backsheet
 '""
@@ -196,6 +198,7 @@ Dim clsQuadRuntime As New Quad_Runtime
             eTestResult = TestResult.OK
             GoTo teardown
         End If
+        
     End With
         
 err:

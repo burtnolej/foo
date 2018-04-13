@@ -461,6 +461,9 @@ Dim wsForm As Worksheet
         rFormFormatTargetRange.Select
         Selection.PasteSpecial Paste:=xlPasteFormats, operation:=xlNone, SkipBlanks:=False, Transpose:=False
     End With
+
+    FormatColRowSize clsQuadRuntime.TemplateBook, clsQuadRuntime.Book, _
+            wsForm.Name, clsQuadRuntime.TemplateSheetName, sFormFormatRangeName
 End Sub
 
 Public Sub GenerateEntryForms(clsQuadRuntime As Quad_Runtime, _

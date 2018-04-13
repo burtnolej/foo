@@ -1,7 +1,9 @@
 Attribute VB_Name = "Test_App_Schedule_Entry"
 Option Explicit
 Const CsModuleName = "App_Schedule_Entry"
-
+Sub test()
+    Test_AddNewScheduleEntry
+End Sub
 Function Test_AddNewScheduleEntry() As TestResult
 Dim eTestResult As TestResult
 Dim clsQuadRuntime As New Quad_Runtime
@@ -22,6 +24,8 @@ main:
     EventsToggle True
     Set Entry_Utils.dDefinitions = Nothing
     clsQuadRuntime.CloseRuntimeCacheFile
+    
+    'need to test that the extra row has been added
     
     With ActiveWorkbook.Sheets(sTargetSheetName)
     

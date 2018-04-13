@@ -964,19 +964,36 @@ setup:
     With wsFormat
         Set rFormat = .Range("$A$1:$I$50")
         SetBgColor "FormStyles", rFormat, 123, 34, 200
+        rFormat.Rows(25).EntireRow.RowHeight = 3
+        rFormat.Columns(5).EntireColumn.ColumnWidth = 3
     End With
     
     CreateNamedRange clsQuadRuntime.Book, rFormat.Address, "FormStyles", "fNew", "True"
-    GenerateEntryForms clsQuadRuntime
+
     
 main:
 
+    GenerateEntryForms clsQuadRuntime
+    
     With clsQuadRuntime.Book.Sheets("NewStudent")
         Set rFormat = .Range("$I$50:$I$50")
         If GetBgColor("NewStudent", rFormat).AsString <> "123,34,200" Then
             eTestResult = TestResult.Failure
             GoTo teardown
         End If
+        
+        Set rFormat = .Range("$A$1:$I$50")
+        
+        If rFormat.Rows(25).EntireRow.RowHeight <> 3 Then
+            eTestResult = TestResult.Failure
+            GoTo teardown
+        End If
+        
+        If rFormat.Columns(5).EntireColumn.ColumnWidth <> 3 Then
+            eTestResult = TestResult.Failure
+            GoTo teardown
+        End If
+        
     End With
     
     eTestResult = TestResult.OK

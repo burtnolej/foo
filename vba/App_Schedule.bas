@@ -44,10 +44,8 @@ main:
         sCacheSheetName = CacheData(clsQuadRuntime, aSchedule, QuadDataType.Schedule, eQuadSubDataType, _
                             iPersonID, bCacheNameOnly:=True)
     End If
-    ' copy the template format to the clipboard
+    ' get the template widths and heights
     GetScheduleCellFormat clsQuadRuntime, iFormatWidth, iFormatHeight, sTemplateRangeName
-    ' get the desired column widths from the template and return in an array
-    aColumnWidths = GetScheduleCellColWidths(clsQuadRuntime, sTemplateRangeName, iColWidthCount)
     ' store the data needed to build the schedules as a module member variable for easy access
     GetScheduleDataHelpers clsQuadRuntime, sCacheSheetName
     ' draw the schedule
@@ -145,7 +143,6 @@ Dim rScheduleFormatRange As Range
 End Sub
         
 
-
 'generalize this so it can get col and row widths for form formats too
 
 Public Function GetScheduleCellColWidths(clsQuadRuntime As Quad_Runtime, sScheduleFormatRangeName As String, _
@@ -172,13 +169,14 @@ Function BuildScheduleCellView(clsQuadRuntime As Quad_Runtime, _
                           wsSchedule As Worksheet, _
                           dValues As Dictionary, _
                           iFormatWidth As Integer, iFormatHeight As Integer, _
-                          aColumnWidths() As Integer) As Range
+                          aColumnWidths() As Integer, _
+                Optional eQuadSubDataType As QuadSubDataType = QuadSubDataType.student) As Range
 
 Dim iScheduleCurrentRow As Integer, iScheduleCurrentCol As Integer, iColWidthCount As Integer
 Dim rScheduleFormatTargetRange As Range, rCell As Range
+Dim sFormatTemplateRange As String
 
-    'Set wsSchedule = clsQuadRuntime.Book.Sheets(sScheduleSheetName)
-
+    sFormatTemplateRange = "f" & EnumQuadSubDataType(eQuadSubDataType) & "ScheduleCell"
     With wsSchedule
         ' paste the formats into the corresponding cell on the "grid"
         iScheduleCurrentRow = iFormatHeight * CInt(dValues("idTimePeriod"))
@@ -190,11 +188,10 @@ Dim rScheduleFormatTargetRange As Range, rCell As Range
         rScheduleFormatTargetRange.Select
         Selection.PasteSpecial Paste:=xlPasteAll, operation:=xlNone, SkipBlanks:=False, Transpose:=False
         
-        ' if this is the first period for a column, set the column widths
-        If dValues.Item("idTimePeriod") = "1" Then
-            For iColWidthCount = 0 To UBound(aColumnWidths)
-                rScheduleFormatTargetRange.Columns(iColWidthCount + 1).EntireColumn.ColumnWidth = aColumnWidths(iColWidthCount)
-            Next iColWidthCount
+        If dValues.Item("idTimePeriod") = "1" Or CInt(IndexArray(Split(clsQuadRuntime.DayEnum, COMMA), dValues("cdDay"))) + 1 = 1 Then
+            FormatColRowSize clsQuadRuntime.TemplateBook, clsQuadRuntime.Book, _
+                    wsSchedule.Name, clsQuadRuntime.TemplateSheetName, sFormatTemplateRange, _
+                    iTargetFirstRow:=iScheduleCurrentRow, iTargetFirstCol:=iScheduleCurrentCol
         End If
         
         ' evaluate the data functions to get the content

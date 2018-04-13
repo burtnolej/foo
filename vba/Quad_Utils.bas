@@ -103,7 +103,7 @@ Dim sFuncName As String
     End If
 End Function
 Public Function SheetTableLookup(wsDataSheet As Worksheet, sRangeName As String, _
-                            sLookupColName As String, vLookUpVal As Variant) As Integer
+                            sLookUpColName As String, vLookUpVal As Variant) As Integer
 ' assumes row 1 contains the column names
 ':param:sLookupColName, string, column name that will be used as AboveAverage unique index to lookup by
 Dim vColumnNames As Variant, vColumnNamesTransposed As Variant
@@ -115,7 +115,7 @@ Dim iColumnIdx As Integer
         Set rColumns = rData.Resize(1)
         vColumnNames = rColumns
         vColumnNamesTransposed = ConvertArrayFromRangeto1D(vColumnNames, bHz:=True)
-        iColumnIdx = IndexArray(vColumnNamesTransposed, sLookupColName) + 1
+        iColumnIdx = IndexArray(vColumnNamesTransposed, sLookUpColName) + 1
         On Error GoTo notfound
         SheetTableLookup = Application.Match(CStr(vLookUpVal), rData.Columns(iColumnIdx), 0)
         Exit Function
@@ -232,7 +232,31 @@ Dim PYTHONPATH As String, xSpArgs As String, sTmp As String
     End If
     
 End Sub
-                           
+                                       
+Public Function CrossRefQuadData(clsQuadRuntime As Quad_Runtime, _
+                                 eQuadDataType As QuadDataType, _
+                                 eQuadSubDataType As QuadSubDataType, _
+                                 sLookUpByColName As String, _
+                                 sLookUpByValue As Variant, _
+                                 sLookUpColName As String)
+Dim wsCache As Worksheet
+Dim sLookUpByRangeName As String, sLookUpRangeName As String
+Dim vLookUpByValues() As String, vLookUpValues() As String
+
+    Set wsCache = GetPersonData(clsQuadRuntime, eQuadDataType, eQuadSubDataType, QuadScope.all, _
+                                    bInTable:=True)
+            
+    sLookUpByRangeName = GetDBColumnRange(wsCache.Name, sLookUpByColName)
+    sLookUpRangeName = GetDBColumnRange(wsCache.Name, sLookUpColName)
+    
+    vLookUpByValues = ListFromRange(wsCache, sLookUpByRangeName)
+    vLookUpValues = ListFromRange(wsCache, sLookUpRangeName)
+
+    CrossRefQuadData = vLookUpValues(IndexArray(vLookUpByValues, CStr(sLookUpByValue)))
+
+    
+End Function
+
 Public Sub GetQuadDataFromDB(clsQuadRuntime As Quad_Runtime, sSpName As String, _
                         Optional dSpArgs As Dictionary, _
                         Optional bHeaderFlag As Boolean = False)
