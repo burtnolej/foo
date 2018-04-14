@@ -6,6 +6,7 @@ from utils.git.git_utils import GitBase, GitRepoHelper, GitCommitHelper
 from utils.misc_basic.misc_utils import write_text_to_file, uuencode, uudecode, append_text_to_file, \
      b64decode
 from time import sleep
+from os import environ
     
 class Test_GitLogin(unittest.TestCase):
     
@@ -54,7 +55,7 @@ class Test_GitGetRepo(Test_GitBase):
 class Test_GitCCreateInputTree(Test_GitBase):
     def setUp(self):
         super(Test_GitCCreateInputTree,self).setUp()
-        self.filename = "C:\\Users\\burtnolej\\testpygithub\\git_test.txt"
+        self.filename = environ["MYHOME"] + "\\testpygithub\\git_test.txt"
         write_text_to_file(self.filename,"this is a test")
         
     def test_(self):
@@ -64,9 +65,9 @@ class Test_GitCCreateInputTree(Test_GitBase):
 class Test_GitCCreateInputTreeMultipleFiles(Test_GitBase):
     def setUp(self):
         super(Test_GitCCreateInputTreeMultipleFiles,self).setUp()
-        self.filenames = ["C:\\Users\\burtnolej\\testpygithub\\git_test.txt",
-                          "C:\\Users\\burtnolej\\testpygithub\\git_test2.txt",
-                          "C:\\Users\\burtnolej\\testpygithub\\git_test3.txt"]
+        self.filenames = [environ["MYHOME"] + "\\testpygithub\\git_test.txt",
+                          environ["MYHOME"] + "\\testpygithub\\git_test2.txt",
+                          environ["MYHOME"] + "\\testpygithub\\git_test3.txt"]
         
     def test_(self):
         tree =  GitCommitHelper._create_input_tree_multi(self.filenames,self.repo)
@@ -80,7 +81,7 @@ class Test_GitGetCommit(Test_GitBase):
 class Test_GitCCreateCommit(Test_GitBase):
     def setUp(self):
         super(Test_GitCCreateCommit,self).setUp()
-        self.filename = "C:\\Users\\burtnolej\\testpygithub\\git_test.txt"
+        self.filename = environ["MYHOME"] + "\\testpygithub\\git_test.txt"
         write_text_to_file(self.filename,"this is a test")
         self.tree =  GitCommitHelper._create_input_tree(self.filename,self.repo)
         self.parents = [GitCommitHelper._get_last_commit(self.repo)]
@@ -100,7 +101,7 @@ class Test_GitGetRef(Test_GitBase):
 class Test_GitUpdateRefs(Test_GitBase):
     def setUp(self):
         super(Test_GitUpdateRefs,self).setUp()
-        self.filename = "C:\\Users\\burtnolej\\testpygithub\\git_test.txt"
+        self.filename = environ["MYHOME"] + "\\testpygithub\\git_test.txt"
         write_text_to_file(self.filename,"this is a test")
         self.parents = [GitCommitHelper._get_last_commit(self.repo)]
         
@@ -119,7 +120,7 @@ class Test_GitUpdateRefs(Test_GitBase):
         
         gitrepo = GitRepoHelper.history(self.token,self.reponame)
         
-        self.assertEquals(gitrepo.commit_history[0][0]['path'],'C:\\Users\\burtnolej\\testpygithub\\git_test.txt')
+        self.assertEquals(gitrepo.commit_history[0][0]['path'],environ["MYHOME"] + '\\testpygithub\\git_test.txt')
         self.assertEquals(gitrepo.commit_history[0][1]['path'],'README.md')
         self.assertEquals(gitrepo.commit_history[1][0]['path'],'README.md')
     
@@ -129,7 +130,7 @@ class Test_GitMultiUpdateRefs(Test_GitBase):
     
     def setUp(self):
         super(Test_GitMultiUpdateRefs,self).setUp()
-        self.filename = "C:\\Users\\burtnolej\\testpygithub\\git_test.txt"
+        self.filename = environ["MYHOME"] + "\\testpygithub\\git_test.txt"
         write_text_to_file(self.filename,"this is a test")
         self.parents = [GitCommitHelper._get_last_commit(self.repo)]
         self.base_tree = self.parents[0]._tree.value 
@@ -150,9 +151,9 @@ class Test_GitMultiUpdateRefs(Test_GitBase):
         
         gitrepo = GitRepoHelper.history(self.token,self.reponame)
         
-        self.assertEquals(gitrepo.commit_history[0][0]['path'],'C:\\Users\\burtnolej\\testpygithub\\git_test.txt')
+        self.assertEquals(gitrepo.commit_history[0][0]['path'],environ["MYHOME"] + '\\testpygithub\\git_test.txt')
         self.assertEquals(gitrepo.commit_history[0][0]['content'],"this is a testamendment")
-        self.assertEquals(gitrepo.commit_history[1][0]['path'],'C:\\Users\\burtnolej\\testpygithub\\git_test.txt')
+        self.assertEquals(gitrepo.commit_history[1][0]['path'],environ["MYHOME"] + '\\testpygithub\\git_test.txt')
         self.assertEquals(gitrepo.commit_history[1][0]['content'],"this is a test")
 
         self.assertEquals(gitrepo.commit_history[2][0]['path'],'README.md')
@@ -164,9 +165,9 @@ class Test_GitMultiUpdateRefs(Test_GitBase):
 class Test_GitMultiFileCommit(Test_GitBase):
     def setUp(self):
         super(Test_GitMultiFileCommit,self).setUp()
-        self.filenames = ["C:\\Users\\burtnolej\\testpygithub\\git_test.txt",
-                              "C:\\Users\\burtnolej\\testpygithub\\git_test2.txt",
-                              "C:\\Users\\burtnolej\\testpygithub\\git_test3.txt"]
+        self.filenames = [environ["MYHOME"] + "\\testpygithub\\git_test.txt",
+                              environ["MYHOME"] + "\\testpygithub\\git_test2.txt",
+                              environ["MYHOME"] + "\\testpygithub\\git_test3.txt"]
         self.tree =  GitCommitHelper._create_input_tree_multi(self.filenames,self.repo)
         self.parents = [GitCommitHelper._get_last_commit(self.repo)]
         self.git_commit = GitCommitHelper._create_commit(self.repo,
@@ -192,9 +193,9 @@ class Test_GitCommitBase(unittest.TestCase):
         self.user =  GitBase._get_user(self.github)
         self.repo = GitRepoHelper._create_repo(self.user,self.reponame,auto_init=True)
         
-        self.filenames = ["C:\\Users\\burtnolej\\testpygithub\\git_test.txt",
-                              "C:\\Users\\burtnolej\\testpygithub\\git_test2.txt",
-                                  "C:\\Users\\burtnolej\\testpygithub\\git_test3.txt"]
+        self.filenames = [environ["MYHOME"] + "\\testpygithub\\git_test.txt",
+                              environ["MYHOME"] + "\\testpygithub\\git_test2.txt",
+                                  environ["MYHOME"] + "\\testpygithub\\git_test3.txt"]
         self.tree =  GitCommitHelper._create_input_tree_multi(self.filenames,self.repo)
         self.parents = [GitCommitHelper._get_last_commit(self.repo)]
         self.new_commit = GitCommitHelper._create_commit(self.repo,"commit via pyyhon api",self.tree,self.parents)
@@ -278,9 +279,9 @@ class Test_GitCommitHelperPublic_Commit(Test_GitBase):
     def setUp(self):
         super(Test_GitCommitHelperPublic_Commit,self).setUp()
         self.reponame = "testpygithub"
-        self.filenames = ["C:\\Users\\burtnolej\\testpygithub\\git_test.txt",
-                          "C:\\Users\\burtnolej\\testpygithub\\git_test2.txt",
-                          "C:\\Users\\burtnolej\\testpygithub\\git_test3.txt"]
+        self.filenames = [environ["MYHOME"] + "\\testpygithub\\git_test.txt",
+                          environ["MYHOME"] + "\\testpygithub\\git_test2.txt",
+                          environ["MYHOME"] + "\\testpygithub\\git_test3.txt"]
         self.message = "test commit"
         
     def test_(self):
@@ -295,9 +296,9 @@ class Test_GitCommitHelperPublic_MultiCommit(Test_GitBase):
     def setUp(self):
         super(Test_GitCommitHelperPublic_MultiCommit,self).setUp()
         self.reponame = "testpygithub"
-        self.filenames = ["C:\\Users\\burtnolej\\testpygithub\\git_test.txt",
-                          "C:\\Users\\burtnolej\\testpygithub\\git_test2.txt",
-                          "C:\\Users\\burtnolej\\testpygithub\\git_test3.txt"]
+        self.filenames = [environ["MYHOME"] + "\\testpygithub\\git_test.txt",
+                          environ["MYHOME"] + "\\testpygithub\\git_test2.txt",
+                          environ["MYHOME"] + "\\testpygithub\\git_test3.txt"]
         self.message = "test commit1"
         
         
@@ -307,16 +308,16 @@ class Test_GitCommitHelperPublic_MultiCommit(Test_GitBase):
         gitcommit = GitCommitHelper.commit(self.token,self.reponame,self.filenames,self.message)
     
         # commit 2
-        append_text_to_file("C:\\Users\\burtnolej\\testpygithub\\git_test.txt","foo")
-        append_text_to_file("C:\\Users\\burtnolej\\testpygithub\\git_test2.txt","bar")
+        append_text_to_file(environ["MYHOME"] + "\\testpygithub\\git_test.txt","foo")
+        append_text_to_file(environ["MYHOME"] + "\\testpygithub\\git_test2.txt","bar")
         gitcommit = GitCommitHelper.commit(self.token,self.reponame,self.filenames,self.message)
 
         # commit 3        
-        self.filenames = ["C:\\Users\\burtnolej\\testpygithub\\git_test4.txt"]
+        self.filenames = [environ["MYHOME"] + "\\testpygithub\\git_test4.txt"]
         gitcommit = GitCommitHelper.commit(self.token,self.reponame,self.filenames,self.message)
                
         files = GitRepoHelper._get_files(self.repo)
-        self.assertEqual(files,[u'C:\\Users\\burtnolej\\testpygithub\\git_test.txt', u'C:\\Users\\burtnolej\\testpygithub\\git_test2.txt', u'C:\\Users\\burtnolej\\testpygithub\\git_test3.txt', u'C:\\Users\\burtnolej\\testpygithub\\git_test4.txt', u'README.md'])
+        self.assertEqual(files,[environ["MYHOME"] + '\\testpygithub\\git_test.txt', environ["MYHOME"] + '\\testpygithub\\git_test2.txt', environ["MYHOME"] + '\\testpygithub\\git_test3.txt', environ["MYHOME"] + '\\testpygithub\\git_test4.txt', u'README.md'])
        
         gitrepo = GitRepoHelper.history(self.token,self.reponame)
         self.assertEquals(gitrepo.commit_history[0][0]['content'],'this is a testfoo')
@@ -327,8 +328,8 @@ class Test_GitCommitHelperPublic_MultiCommit(Test_GitBase):
 
     def tearDown(self):
         
-        write_text_to_file("C:\\Users\\burtnolej\\testpygithub\\git_test.txt","this is a test")
-        write_text_to_file("C:\\Users\\burtnolej\\testpygithub\\git_test2.txt","this is a test2")
+        write_text_to_file(environ["MYHOME"] + "\\testpygithub\\git_test.txt","this is a test")
+        write_text_to_file(environ["MYHOME"] + "\\testpygithub\\git_test2.txt","this is a test2")
         super(Test_GitCommitHelperPublic_MultiCommit,self).tearDown()
         
 if __name__ == "__main__":

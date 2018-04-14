@@ -1,5 +1,5 @@
 import unittest
-from os import path
+from os import path, environ
 from app.quad.utils.data_utils import *
 from app.quad.utils.excel.excel_data_utils import *
 from utils.misc_basic.misc_utils import os_dir_exists, write_text_to_file, append_text_to_file, encode, os_file_delete, os_file_to_string, os_file_exists
@@ -39,7 +39,7 @@ class Test_DataStoredProc_validate_sp_args(unittest.TestCase):
 class Test_DataStoredProc_StudentSchedule(unittest.TestCase):
     def setUp(self):
         self.filename = "uupyshell.txt"
-        self.result_filename = "C:\\Users\\burtnolej\\pyshell_result.txt"
+        self.result_filename = environ["MYHOME"] + "\\pyshell_result.txt"
         self.datasp = DataStoredProc(path.join(TESTDIR,TESTDBNAME)) 
         self.encoding = "uu"
             
@@ -62,7 +62,7 @@ class Test_DataStoredProc_StudentSchedule(unittest.TestCase):
 class Test_DataStoredProc_StudentSchedule_MultiVals(unittest.TestCase):
     def setUp(self):
         self.filename = "uupyshell.txt"
-        self.result_filename = "C:\\Users\\burtnolej\\pyshell_result.txt"
+        self.result_filename = environ["MYHOME"] + "\\pyshell_result.txt"
         self.datasp = DataStoredProc(path.join(TESTDIR,TESTDBNAME)) 
         self.encoding = "uu"
             
@@ -96,7 +96,7 @@ class Test_DataStoredProc_StudentSchedule_MultiVals(unittest.TestCase):
 class Test_DataStoredProc_StudentScheduleWithHeaders(unittest.TestCase):
     def setUp(self):
         self.filename = "uupyshell.txt"
-        self.result_filename = "C:\\Users\\burtnolej\\pyshell_result.txt"
+        self.result_filename = environ["MYHOME"] + "\\pyshell_result.txt"
         self.datasp = DataStoredProc(path.join(TESTDIR,TESTDBNAME)) 
         self.encoding = "uu"
             

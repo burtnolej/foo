@@ -3,8 +3,9 @@ from github import Github, Commit, AuthenticatedUser, Repository, \
 from utils.misc_basic.misc_utils import encode,decode, b64decode
 from utils.misc_basic.misc_utils import os_file_to_string
 from types import StringType, ListType
+from os import environ
 
-GIT_TOKEN_FILE = "C:\\Users\\burtnolej\\.gittoken"
+GIT_TOKEN_FILE = environ["MYHOME"] + "\.gittoken"
 
 class GitBase(object):
     def __init__(self,token):
