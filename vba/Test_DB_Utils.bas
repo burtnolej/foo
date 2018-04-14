@@ -2,6 +2,7 @@ Attribute VB_Name = "Test_DB_Utils"
 Option Explicit
 Const CsModuleName = "Test_DB_Utils"
 
+
 Function Test_PySqliteDBInsert() As TestResult
 Dim sFuncName As String, sResults As String, sExecPath As String, sDatabaseName As String, _
     sTableName As String, sFilename As String
@@ -11,7 +12,7 @@ Dim aColumnDefns() As Variant, aRows() As Variant
 Dim aColumns() As String, aArgs() As String
 
 setup:
-    On Error GoTo err:
+    'On Error GoTo err:
     sFuncName = CsModuleName & "." & "PySqliteDBInsert"
     sDatabaseName = "foobar"
     sTableName = "foobar"
@@ -20,8 +21,8 @@ setup:
     aColumnDefns = Init2DVariantArray([{"colA","Test";"colB","Text";"colC","Text"}])
     aColumns = InitStringArray(Array("colA", "colB", "colC"))
     aRows = Init2DVariantArray([{"valA","valB","valC";"valA1","valB2","valC2";"valA3","valB3","valC3"}])
-    sFilename = "C:\\Users\\burtnolej\\unifoo.txt"
-    sExecPath = "C:\Users\burtnolej\Documents\GitHub\quadviewer\utils\excel\"
+    sFilename = Environ("MYHOME") & "\\unifoo.txt"
+    sExecPath = Environ("MYHOME") & "\Documents\GitHub\quadviewer\utils\excel\"
 main:
     
     CreatePySqliteArgsFile sDatabaseName, _
@@ -93,15 +94,13 @@ setup:
     sTableName = "foobar"
     bDeleteFlag = False
     bDecodeFlag = False
-    'sDataPath = "C:\Users\burtnolej\Documents\GitHub\quadviewer\utils\testdata.csv" 'takes about 2mins
-     sDataPath = "C:\Users\burtnolej\Documents\GitHub\quadviewer\utils\excel\test_misc\testdata_100rows.csv"
-    'sDataPath = "C:\Users\burtnolej\Documents\GitHub\quadviewer\utils\testdata_2rows.csv"
+    sDataPath = Environ("MYHOME") & "\Documents\GitHub\quadviewer\utils\excel\test_misc\testdata_100rows.csv"
 
     aColumnDefns = Init2DVariantArray([{"FirstName","Text";"LastName","Text";"Country","Text";"Description","Text";"Age","Integer"}])
     aColumns = InitStringArray(Array("FirstName", "LastName", "Country", "Description", "Age"))
     aRows = ReadFile2Array(sDataPath)
-    sFilename = "C:\\Users\\burtnolej\\unifoo.txt"
-    sExecPath = "C:\Users\burtnolej\Documents\GitHub\quadviewer\utils\excel\"
+    sFilename = Environ("MYHOME") & "\\unifoo.txt"
+    sExecPath = Environ("MYHOME") & "\Documents\GitHub\quadviewer\utils\excel\"
     
 main:
 
@@ -183,8 +182,8 @@ setup:
     sTableName = "foobar"
     bDeleteFlag = False
     aColumnDefns = Init2DVariantArray([{"colA","Test";"colB","Text";"colC","Text"}])
-    sFilename = "C:\\Users\\burtnolej\\foo.txt"
-    sExecPath = "C:\Users\burtnolej\Documents\GitHub\quadviewer\utils\excel\"
+    sFilename = Environ("MYHOME") & "\\foo.txt"
+    sExecPath = Environ("MYHOME") & "\Documents\GitHub\quadviewer\utils\excel\"
 main:
     
     CreatePySqliteArgsFile sDatabaseName, _
@@ -252,8 +251,8 @@ setup:
     sTableName = "foobar"
     bDeleteFlag = False
     aColumnDefns = Init2DVariantArray([{"colA","Test";"colB","Text";"colC","Text"}])
-    sFilename = "C:\\Users\\burtnolej\\unifoo.txt"
-    sExecPath = "C:\Users\burtnolej\Documents\GitHub\quadviewer\utils\excel\"
+    sFilename = Environ("MYHOME") & "\\unifoo.txt"
+    sExecPath = Environ("MYHOME") & "\Documents\GitHub\quadviewer\utils\excel\"
 main:
     
     CreatePySqliteArgsFile sDatabaseName, _
@@ -332,7 +331,7 @@ setup:
     aColumns = InitStringArray(Array("colA", "colB", "colC"))
     aColumnDefns = Init2DVariantArray([{"colA","Test";"colB","Text";"colC","Text"}])
     aRows = Init2DVariantArray([{"valA","valB","valC";"valA1","valB2","valC2";"valA3","valB3","valC3"}])
-    sFilename = "C:\\Users\\burtnolej\\foo.txt"
+    sFilename = Environ("MYHOME") & "\\foo.txt"
 main:
     
     CreatePySqliteArgsFile sDatabaseName, _
@@ -426,15 +425,12 @@ setup:
     sTableName = "foobar"
     bDeleteFlag = False
     bDecodeFlag = False
-    sDataPath = "C:\Users\burtnolej\Documents\GitHub\quadviewer\utils\excel\test_misc\testdata.csv" 'takes about 2mins
-    'sDataPath = "C:\Users\burtnolej\Documents\GitHub\quadviewer\utils\excel\test_misc\testdata_100rows.csv"
-    'sDataPath = "C:\Users\burtnolej\Documents\GitHub\quadviewer\utils\testdata_2rows.csv"
-
+    sDataPath = Environ("MYHOME") & "\Documents\GitHub\quadviewer\utils\excel\test_misc\testdata.csv" 'takes about 2mins
     aColumnDefns = Init2DVariantArray([{"FirstName","Text";"LastName","Text";"Country","Text";"Description","Text";"Age","Integer"}])
     aColumns = InitStringArray(Array("FirstName", "LastName", "Country", "Description", "Age"))
     aRows = ReadFile2Array(sDataPath)
-    sFilename = "C:\\Users\\burtnolej\\unifoo.txt"
-    sExecPath = "C:\Users\burtnolej\Documents\GitHub\quadviewer\utils\excel\"
+    sFilename = Environ("MYHOME") & "\\unifoo.txt"
+    sExecPath = Environ("MYHOME") & "\Documents\GitHub\quadviewer\utils\excel\"
     
 main:
 
@@ -515,9 +511,9 @@ setup:
     aColumnDefns = Init2DVariantArray([{"colA","Test";"colB","Text";"colC","Text"}])
     aColumns = InitStringArray(Array("colA", "colB", "colC"))
     aRows = Init2DVariantArray([{"valA","valB","valC";"valA1","valB2","valC2";"valA3","valB3","valC3"}])
-    sFilename = "C:\\Users\\burtnolej\\uufoo.txt"
-    sResultFileName = "C:\\Users\\burtnolej\\uufoo.txt_result"
-    sExecPath = "C:\Users\burtnolej\Documents\GitHub\quadviewer\utils\excel\"
+    sFilename = Environ("MYHOME") & "\\uufoo.txt"
+    sResultFileName = Environ("MYHOME") & "\\uufoo.txt_result"
+    sExecPath = Environ("MYHOME") & "\Documents\GitHub\quadviewer\utils\excel\"
 main:
     
     CreatePySqliteArgsFile sDatabaseName, _
@@ -606,11 +602,11 @@ setup:
     bDecodeFlag = True
     aColumnDefns = Init2DVariantArray([{"FirstName","Text";"LastName","Text";"Country","Text";"Description","Text";"Age","Integer"}])
     aColumns = InitStringArray(Array("FirstName", "LastName", "Country", "Description", "Age"))
-    sDataPath = "C:\Users\burtnolej\Documents\GitHub\quadviewer\utils\excel\test_misc\testdata.csv" 'takes about 2mins
+    sDataPath = Environ("MYHOME") & "\Documents\GitHub\quadviewer\utils\excel\test_misc\testdata.csv" 'takes about 2mins
     aRows = ReadFile2Array(sDataPath)
-    sFilename = "C:\\Users\\burtnolej\\uufoo.txt"
-    sResultFileName = "C:\\Users\\burtnolej\\uufoo.txt_result"
-    sExecPath = "C:\Users\burtnolej\Documents\GitHub\quadviewer\utils\excel\"
+    sFilename = Environ("MYHOME") & "\\uufoo.txt"
+    sResultFileName = Environ("MYHOME") & "\\uufoo.txt_result"
+    sExecPath = Environ("MYHOME") & "\Documents\GitHub\quadviewer\utils\excel\"
  
 main:
     

@@ -129,7 +129,6 @@ setup:
         End If
         
         If rResult.Columns(3).Rows(2).value <> "Isaac[Seminar]" Then
-            Debug.Print rResult.Columns(3).Rows(2).value
             eTestResult = TestResult.Failure
             GoTo teardown
         End If
@@ -186,7 +185,6 @@ Dim clsQuadRuntime As New Quad_Runtime
         End If
         
         If rResult.Columns(3).Rows(2).value <> "David[Seminar]" Then
-            Debug.Print rResult.Columns(3).Rows(2).value
             eTestResult = TestResult.Failure
             GoTo teardown
         End If
@@ -246,7 +244,6 @@ main:
         End If
         
         If rResult.Columns(3).Rows(2).value <> "David[Seminar]" Then
-            Debug.Print rResult.Columns(3).Rows(2).value
             eTestResult = TestResult.Failure
             GoTo teardown
         End If

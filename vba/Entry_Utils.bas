@@ -84,7 +84,6 @@ main:
             sFieldName = Split(name_, "_")(1)
             Set rEntryCell = ActiveWorkbook.Sheets(sSheetName).Range(name_)
             dValues.Add sFieldName, rEntryCell.value
-            Debug.Print sFieldName, rEntryCell.value
             End If
     Next name_
     
@@ -498,7 +497,8 @@ setup:
         If sOverideButtonCallback <> "" Then
             sCallbackFunc = sOverideButtonCallback
         Else
-            sCallbackFunc = "New" & sAction
+            'sCallbackFunc = "New" & sAction
+            sCallbackFunc = sAction
         End If
         
         iRow = 1

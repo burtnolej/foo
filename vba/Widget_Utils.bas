@@ -66,7 +66,6 @@ Dim wsTemplateSheet As Worksheet, wsTargetSheet As Worksheet
     
     With wsTemplateSheet
         '.Activate
-        Debug.Print wsTemplateSheet.Name
         Set rSourceRange = .Range(sSourceRangeName)
         
         For Each rCell In rSourceRange.Rows(1).Cells

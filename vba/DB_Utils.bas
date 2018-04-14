@@ -49,15 +49,25 @@ Public Sub CreatePySqliteArgsFile( _
     Optional sEncoding As String = "uni", _
     Optional aRows As Variant, _
     Optional sQryStr As String = "", _
-    Optional sFilename As String = "C:\Users\burtnolej\Development\pyshell.args.txt", _
-    Optional sRuntimeDir As String = "C:\Users\burtnolej\Documents\runtime", _
+    Optional sFilename As String, _
+    Optional sRuntimeDir As String, _
     Optional sResultFileName As String)
     
-Dim PYTHONPATH As String
+Dim PYTHONPATH As String, MYHOME As String
 Dim sTmp As String
 
     PYTHONPATH = LCase(Environ("PYTHONPATH"))
-
+    MYHOME = Environ("MYHOME")
+    
+    ' these are here because you cannot have a const as a default value form optional arguments
+    If sFilename = "" Then
+        sFilename = MYHOME & "\Development\pyshell.args.txt"
+    End If
+    
+    If sRuntimeDir = "" Then
+        sRuntimeDir = MYHOME & "\runtime"
+    End If
+    
     'create a file of the following format
     'values with square brackets need to be uuencoded
     
@@ -177,13 +187,18 @@ Public Function DBInsert(sDatabaseName As String, _
                     aColumns() As String, _
                     aColumnsDefns() As String, _
                     aRows As Variant, _
-                    Optional sFilename As String = "C:\Users\burtnolej\args.txt")
+                    Optional sFilename As String)
        
 Dim sExecPath As String
 Dim iCurrentNumRows As Integer, iNumRows As Integer
 
-    sExecPath = "C:\Users\burtnolej\Documents\GitHub\quadviewer\utils\"
-    sRuntimePath = "C:\Users\burtnolej\Documents\runtime\"
+    ' these are here because you cannot have a const as a default value form optional arguments
+    If sFilename = "" Then
+        sFilename = MYHOME & "\args.txt"
+    End If
+    
+    sExecPath = Environ("MYHOME") & "\GitHub\quadviewer\utils\"
+    sRuntimePath = Environ("MYHOME") & "\runtime\"
     CreatePySqliteArgsFile sDatabaseName, _
                             sTableName, _
                             bDecodeFlag:=bDecodeFlag, _
@@ -242,8 +257,8 @@ Public Function DBQuery(sDatabaseName As String, _
 Dim aArgs() As String
 Dim sExecPath As String
 
-    sRuntimePath = "C:\Users\burtnolej\Documents\runtime\"
-    sExecPath = "C:\Users\burtnolej\Documents\GitHub\quadviewer\utils\excel\"
+    sRuntimePath = Environ("MYHOME") & "\runtime\"
+    sExecPath = Environ("MYHOME") & "\GitHub\quadviewer\utils\excel\"
                         
     CreatePySqliteArgsFile sDatabaseName, _
                             sTableName, _

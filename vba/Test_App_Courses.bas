@@ -51,7 +51,6 @@ teardown:
 
 End Function
 
-
 Public Function Test_GetCoursesCourse() As TestResult
 Dim eTestResult As TestResult
 Dim clsQuadRuntime As New Quad_Runtime

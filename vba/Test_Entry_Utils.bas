@@ -943,7 +943,7 @@ setup:
     ResetQuadRuntimeGlobal
 
     ' create cache so can add new template sheet to it
-    Set wbTmp = CreateBook("cache.xlsm", "C:\\Users\\burtnolej\\Documents\\runtime")
+    Set wbTmp = CreateBook("cache.xlsm", Environ("MYHOME") & "\\runtime")
     Set wsFormat = CreateSheet(wbTmp, "FormStyles", bOverwrite:=True)
     Set wsCellFormat = CreateSheet(wbTmp, "CellStyles", bOverwrite:=True)
     CreateNamedRange wbTmp, "A1:A1", "CellStyles", "fButtonInValid", "True"
@@ -952,7 +952,7 @@ setup:
     CreateNamedRange wbTmp, "A4:A4", "CellStyles", "fEntryInValid", "True"
     
     clsQuadRuntime.InitProperties bInitializeCache:=False, _
-                    sTemplateBookPath:="C:\\Users\\burtnolej\\Documents\\runtime", _
+                    sTemplateBookPath:=Environ("MYHOME") & "\\runtime", _
                     sTemplateBookName:="cache.xlsm"
     sSheetName = "test"
     Set wsTmp = CreateSheet(clsQuadRuntime.Book, sSheetName, bOverwrite:=True)

@@ -2,6 +2,20 @@ Attribute VB_Name = "App_Schedule_Entry"
 Option Explicit
 Const CsModuleName = "App_Schedule_Entry"
 
+Public Function NewLesson() As Range
+Dim dEntryValues As Dictionary
+Dim sFormatRangeName As String
+Dim clsQuadRuntime As New Quad_Runtime
+Dim iPersonID As Integer
+
+    clsQuadRuntime.InitProperties bInitializeCache:=False
+    sFormatRangeName = "f" & "student" & "ScheduleCell"
+    Set dEntryValues = GetRecordValuesAsDict(clsQuadRuntime.TemplateBook, clsQuadRuntime.CacheBook, "NewLesson")
+    iPersonID = CrossRefQuadData(clsQuadRuntime, QuadDataType.person, QuadSubDataType.student, "sStudentFirstNm", dEntryValues.Item("sStudentFirstNm"), "idStudent")
+    Set NewLesson = AddNewLesson(clsQuadRuntime, dEntryValues, sFormatRangeName, iPersonID)
+    
+End Function
+        
 Function AddNewLesson(clsQuadRuntime As Quad_Runtime, dValues As Dictionary, sTemplateRangeName As String, _
                 iStudentID As Integer, _
                 Optional eQuadDataSubType As QuadSubDataType = QuadSubDataType.student) As Range
@@ -11,12 +25,20 @@ Dim sSheetName As String, sTableName As String
 Dim wsSchedule As Worksheet, wsTable As Worksheet
 
     sSheetName = "view_" & EnumQuadSubDataType(eQuadDataSubType) & "_" & CStr(iStudentID)
-    Set wsSchedule = CreateSheet(clsQuadRuntime.CacheBook, sSheetName)
-
+    If SheetExists(clsQuadRuntime.CacheBook, sSheetName) = False Then
+        Set wsSchedule = CreateSheet(clsQuadRuntime.CacheBook, sSheetName)
+    Else
+        Set wsSchedule = GetSheet(clsQuadRuntime.CacheBook, sSheetName)
+    End If
+    
     sTableName = "schedule_" & EnumQuadSubDataType(eQuadDataSubType)
     
     ' if Table does not exist
-    Set wsTable = CreateTable(sTableName)
+    If SheetExists(clsQuadRuntime.CacheBook, sTableName) = False Then
+        Set wsTable = CreateTable(sTableName)
+    Else
+        Set wsTable = GetSheet(clsQuadRuntime.CacheBook, sTableName)
+    End If
     'Set wsTable = clsQuadRuntime.CacheBook.Sheets(sTableName)
     
     ' copy the template format to the clipboard
@@ -59,7 +81,7 @@ setup:
     ' table: new lesson
     ' --------------------------------------------------------------------------------
     ' attr : student name
-    sDefn = "NewLesson^schedule_student^SFirstName^String^IsMember^&get_person_student^sStudentFirstNm" & DOUBLEDOLLAR
+    sDefn = "NewLesson^schedule_student^sStudentFirstNm^String^IsMember^&get_person_student^sStudentFirstNm" & DOUBLEDOLLAR
     sDefn = sDefn & "NewLesson^schedule_student^sStudentLastNm^String^IsMember^&get_person_student^sStudentLastNm" & DOUBLEDOLLAR
     ' attr : teacher_name
     sDefn = sDefn & "NewLesson^schedule_student^sFacultyFirstNm^String^IsMember^&get_person_teacher^sFacultyFirstNm" & DOUBLEDOLLAR

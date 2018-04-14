@@ -10,7 +10,7 @@ Dim eTestResult As TestResult
 
 setup:
     On Error GoTo err
-    sFilePath = "C:\\Users\\burtnolej\\foo.txt"
+    sFilePath = Environ("MYHOME") & "\\foo.txt"
     
 main:
     InitFileArray sFilePath, 30
@@ -42,7 +42,7 @@ Dim eTestResult As TestResult
 
 setup:
     On Error GoTo err
-    sFilePath = "C:\\Users\\burtnolej\\foo.txt"
+    sFilePath = Environ("MYHOME") & "\\foo.txt"
     Set oFile = CreateFile(sFilePath)
     ReDim vArray(0 To 29)
     
@@ -81,7 +81,7 @@ setup:
     On Error GoTo err:
     sFuncName = CsModuleName & "." & "ReadFile2Array"
     sText = "valA^valB^valC" & vbCrLf & "valA1^valB2^valC2" & vbCrLf & "valA3^valB3^valC3"
-    sFilePath = "C:\Users\burtnolej\tmp.txt"
+    sFilePath = Environ("MYHOME") & "\tmp.txt"
     Set oFile = CreateFile(sFilePath)
     Set oFile = Nothing
     Call WriteFile(sFilePath, sText)
@@ -116,7 +116,7 @@ Dim sFile1Name As String, sFile2Name As String, sFile3Name As String
 setup:
     On Error GoTo err:
     sFuncName = CsModuleName & "." & "FilesAreSame"
-    sPath = "C:\Users\burtnolej\"
+    sPath = Environ("MYHOME") & "\"
     
     sFile1Name = sPath & "file1"
     CreateFile sFile1Name
@@ -166,7 +166,7 @@ setup:
     'On Error GoTo err:
     vExtensions = InitStringArray(Array("jpg", "png"))
     sFuncName = CsModuleName & "." & "GetFolderFiles"
-    sPath = "C:\Users\burtnolej\icon"
+    sPath = Environ("MYHOME") & "\icon"
     CreateDir sPath
     
     sFile1Name = sPath & "\file1.jpg"

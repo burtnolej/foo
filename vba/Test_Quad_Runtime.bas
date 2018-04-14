@@ -13,12 +13,12 @@ Dim vResultArray() As String
 
 setup:
     sFuncName = CsModuleName & "." & "Init_Quad_Runtime"
-    sTmpBookPath = "C:\Users\burtnolej"
+    sTmpBookPath = Environ("MYHOME") & ""
     sTmpBookName = "tmp.xls"
     Set wbTmp = CreateBook(sTmpBookName, sBookPath:=sTmpBookPath)
     sFuncName = CsModuleName & "." & "Init_Quad_Runtime"
     Set clsQuadRuntime = New Quad_Runtime
-    sFilePath = "C:\\Users\\burtnolej\\quad_runtime_cache.txt"
+    sFilePath = Environ("MYHOME") & "\quad_runtime_cache.txt"
 main:
     clsQuadRuntime.InitProperties sBookPath:=sTmpBookPath, sBookName:=sTmpBookName, sDayEnum:="foobar"
     clsQuadRuntime.DayEnum = "barfoo"
@@ -62,10 +62,10 @@ Dim eTestResult As TestResult
 
 setup:
     On Error GoTo err
-    sTmpBookPath = "C:\Users\burtnolej"
+    sTmpBookPath = Environ("MYHOME")
     sTmpBookName = "tmp.xls"
     Set wbTmp = CreateBook(sTmpBookName, sBookPath:=sTmpBookPath)
-    sCacheFilePath = "C:\\Users\\burtnolej\\quad_runtime_cache.txt"
+    sCacheFilePath = Environ("MYHOME") & "\\quad_runtime_cache.txt"
     Set oFile = CreateFile(sCacheFilePath)
     oFile.Close
 
@@ -118,12 +118,12 @@ Dim vResultArray() As String
 
 setup:
     sFuncName = CsModuleName & "." & "Init_Quad_Runtime"
-    sTmpBookPath = "C:\Users\burtnolej"
+    sTmpBookPath = Environ("MYHOME")
     sTmpBookName = "tmp.xls"
     Set wbTmp = CreateBook(sTmpBookName, sBookPath:=sTmpBookPath)
     sFuncName = CsModuleName & "." & "Init_Quad_Runtime"
     Set clsQuadRuntime = New Quad_Runtime
-    sFilePath = "C:\\Users\\burtnolej\\quad_runtime_cache.txt"
+    sFilePath = Environ("MYHOME") & "\\quad_runtime_cache.txt"
 main:
     clsQuadRuntime.InitProperties sBookPath:=sTmpBookPath, sBookName:=sTmpBookName
 
@@ -150,6 +150,7 @@ teardown:
     DeleteBook clsQuadRuntime.CacheBookName, clsQuadRuntime.CacheBookPath
     
 End Function
+
 Function Test_Init_Quad_Runtime_Default() As TestResult
 Dim sFuncName As String, sFilePath As String
 Dim eTestResult As TestResult
@@ -158,11 +159,11 @@ Dim clsQuadRuntime As Quad_Runtime
 setup:
     sFuncName = CsModuleName & "." & "Init_Quad_Runtime"
     Set clsQuadRuntime = New Quad_Runtime
-    sFilePath = "C:\\Users\\burtnolej\\quad_runtime_cache.txt"
+    sFilePath = Environ("MYHOME") & "\\quad_runtime_cache.txt"
     
 main:
     clsQuadRuntime.InitProperties
-    If clsQuadRuntime.BookPath <> "C:\\Users\\burtnolej\\Documents\\runtime\\" Then
+    If clsQuadRuntime.BookPath <> Environ("MYHOME") & "\runtime\" Then
         eTestResult = TestResult.Failure
     Else
         eTestResult = TestResult.OK
@@ -175,7 +176,7 @@ err:
     
 teardown:
     Test_Init_Quad_Runtime_Default = eTestResult
-     clsQuadRuntime.Delete
+    clsQuadRuntime.Delete
      
     CloseBook clsQuadRuntime.CacheBook
     DeleteBook clsQuadRuntime.CacheBookName, clsQuadRuntime.CacheBookPath
@@ -189,12 +190,12 @@ Dim eTestResult As TestResult
 Dim clsQuadRuntime As Quad_Runtime
 Dim wbTmp As Workbook
 setup:
-    sTmpBookPath = "C:\Users\burtnolej"
+    sTmpBookPath = Environ("MYHOME")
     sTmpBookName = "tmp.xls"
     Set wbTmp = CreateBook(sTmpBookName, sBookPath:=sTmpBookPath)
     sFuncName = CsModuleName & "." & "Init_Quad_Runtime"
     Set clsQuadRuntime = New Quad_Runtime
-    sFilePath = "C:\\Users\\burtnolej\\quad_runtime_cache.txt"
+    sFilePath = Environ("MYHOME") & "\\quad_runtime_cache.txt"
     
 main:
     clsQuadRuntime.InitProperties sBookPath:=sTmpBookPath, sBookName:=wbTmp.Name
@@ -227,11 +228,11 @@ Dim clsQuadRuntime As Quad_Runtime
 setup:
     sFuncName = CsModuleName & "." & "Init_Quad_Runtime"
     Set clsQuadRuntime = New Quad_Runtime
-    sFilePath = "C:\\Users\\burtnolej\\quad_runtime_cache.txt"
+    sFilePath = Environ("MYHOME") & "\\quad_runtime_cache.txt"
     
 main:
     On Error GoTo err
-    clsQuadRuntime.InitProperties sBookPath:="C:\\Users\\burtnolej", bInitializeCache:=False
+    clsQuadRuntime.InitProperties sBookPath:=Environ("MYHOME"), bInitializeCache:=False
     eTestResult = TestResult.Failure
     GoTo teardown
     On Error GoTo 0
@@ -259,12 +260,12 @@ Dim clsQuadRuntime As Quad_Runtime
 setup:
     sFuncName = CsModuleName & "." & "Init_Quad_Runtime"
     Set clsQuadRuntime = New Quad_Runtime
-    sBookPath = "C:\\Users\\burtnolej"
+    sBookPath = Environ("MYHOME")
     sBookName = "tmp2.xls"
     'ChDir sBookPath
     CreateBook sBookName, sBookPath:=sBookPath
     CloseBook Workbooks(sBookName)
-    sFilePath = "C:\\Users\\burtnolej\\quad_runtime_cache.txt"
+    sFilePath = Environ("MYHOME") & "\\quad_runtime_cache.txt"
     
 main:
     clsQuadRuntime.InitProperties sBookPath:=sBookPath, sBookName:=sBookName
@@ -297,7 +298,7 @@ Dim clsQuadRuntime As Quad_Runtime
 setup:
     sFuncName = CsModuleName & "." & "Init_Quad_Runtime"
     Set clsQuadRuntime = New Quad_Runtime
-    sFilePath = "C:\\Users\\burtnolej\\quad_runtime_cache.txt"
+    sFilePath = Environ("MYHOME") & "\\quad_runtime_cache.txt"
     
 main:
     clsQuadRuntime.InitProperties sCacheRangeName:="foo"
@@ -330,7 +331,7 @@ Dim wbTmp As Workbook
 setup:
     sFuncName = CsModuleName & "." & "Init_Quad_Runtime"
     Set clsQuadRuntime = New Quad_Runtime
-    sTemplatePath = "c:\\users\\burtnolej\\"
+    sTemplatePath = Environ("MYHOME") & "\\"
     
     sTemplateName = "tmp2.xlsx"
     sTemplateSheetName = "foo"
@@ -339,7 +340,7 @@ setup:
     CreateSheet wbTmp, sTemplateSheetName
     CreateSheet wbTmp, sTemplateCellSheetName
     CloseBook wbTmp, bSaveFlag:=True
-    sFilePath = "C:\\Users\\burtnolej\\quad_runtime_cache.txt"
+    sFilePath = Environ("MYHOME") & "\\quad_runtime_cache.txt"
     
 main:
     clsQuadRuntime.InitProperties sTemplateBookPath:=sTemplatePath, _
@@ -383,9 +384,9 @@ Dim clsQuadRuntime As Quad_Runtime
 setup:
     sFuncName = CsModuleName & "." & "Init_Quad_Runtime"
     Set clsQuadRuntime = New Quad_Runtime
-    sDatabasePath = "C:\\Users\\burtnolej\\foo.db"
+    sDatabasePath = Environ("MYHOME") & "\\foo.db"
     CreateFile sDatabasePath & ".sqlite"
-    sFilePath = "C:\\Users\\burtnolej\\quad_runtime_cache.txt"
+    sFilePath = Environ("MYHOME") & "\\quad_runtime_cache.txt"
     
 main:
     clsQuadRuntime.InitProperties sDatabasePath:=sDatabasePath

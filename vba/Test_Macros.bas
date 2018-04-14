@@ -17,13 +17,13 @@ setup:
     sTableName = "foobar"
     bDeleteFlag = False
     bDecodeFlag = False
-    sDataPath = "C:\Users\burtnolej\Documents\GitHub\quadviewer\utils\excel\test_misc\testdata_100rows.csv"
+    sDataPath = Environ("MYHOME") & "\GitHub\quadviewer\utils\excel\test_misc\testdata_100rows.csv"
     Set wb = Workbooks("vba_source_new.xlsm")
     aColumnDefns = Init2DVariantArray([{"FirstName","Text";"LastName","Text";"Country","Text";"Description","Text";"Age","Integer"}])
     aColumns = InitStringArray(Array("FirstName", "LastName", "Country", "Description", "Age"))
     aRows = ReadFile2Array(sDataPath)
-    sFilename = "C:\\Users\\burtnolej\\unifoo.txt"
-    sExecPath = "C:\Users\burtnolej\Documents\GitHub\quadviewer\utils\excel\"
+    sFilename = Environ("MYHOME") & "\\unifoo.txt"
+    sExecPath = Environ("MYHOME") & "\GitHub\quadviewer\utils\excel\"
 
     CreatePySqliteArgsFile sDatabaseName, sTableName, bDeleteFlag:=bDeleteFlag, _
                             aColumns:=aColumns, aColumnDefns:=aColumnDefns, _
@@ -83,13 +83,13 @@ setup:
     sTableName = "foobar"
     bDeleteFlag = False
 
-    sDataPath = "C:\Users\burtnolej\Documents\GitHub\quadviewer\utils\excel\test_misc\testdata_100rows.csv"
+    sDataPath = Environ("MYHOME") & "\GitHub\quadviewer\utils\excel\test_misc\testdata_100rows.csv"
     Set wb = Workbooks("vba_source_new.xlsm")
     aColumnDefns = Init2DVariantArray([{"FirstName","Text";"LastName","Text";"Country","Text";"Description","Text";"Age","Integer"}])
     aColumns = InitStringArray(Array("FirstName", "LastName", "Country", "Description", "Age"))
     aRows = ReadFile2Array(sDataPath)
-    sFilename = "C:\\Users\\burtnolej\\uufoo.txt"
-    sExecPath = "C:\Users\burtnolej\Documents\GitHub\quadviewer\utils\excel\"
+    sFilename = Environ("MYHOME") & "\\uufoo.txt"
+    sExecPath = Environ("MYHOME") & "\GitHub\quadviewer\utils\excel\"
     sEncoding = "uu"
 
     CreatePySqliteArgsFile sDatabaseName, sTableName, bDeleteFlag:=bDeleteFlag, _
@@ -155,13 +155,13 @@ setup:
     sTableName = "foobar"
     bDeleteFlag = False
 
-    sDataPath = "C:\Users\burtnolej\Documents\GitHub\quadviewer\utils\excel\test_misc\testdata.csv"
+    sDataPath = Environ("MYHOME") & "\GitHub\quadviewer\utils\excel\test_misc\testdata.csv"
     Set wb = Workbooks("vba_source_new.xlsm")
     aColumnDefns = Init2DVariantArray([{"FirstName","Text";"LastName","Text";"Country","Text";"Description","Text";"Age","Integer"}])
     aColumns = InitStringArray(Array("FirstName", "LastName", "Country", "Description", "Age"))
     aRows = ReadFile2Array(sDataPath)
-    sFilename = "C:\\Users\\burtnolej\\uufoo.txt"
-    sExecPath = "C:\Users\burtnolej\Documents\GitHub\quadviewer\utils\excel\"
+    sFilename = Environ("MYHOME") & "\\uufoo.txt"
+    sExecPath = Environ("MYHOME") & "\GitHub\quadviewer\utils\excel\"
     sEncoding = "uu"
 
     CreatePySqliteArgsFile sDatabaseName, sTableName, bDeleteFlag:=bDeleteFlag, _

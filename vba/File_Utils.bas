@@ -80,6 +80,7 @@ Dim sFuncName As String
 err:
     FuncLogIt sFuncName, "Failed to create Dir [" & sPath & "] with err [" & err.Description & "]", C_MODULE_NAME, LogMsgType.Failure
     
+
 End Function
 Public Sub RemoveDir(sPath As String)
 Dim objFSO As Object

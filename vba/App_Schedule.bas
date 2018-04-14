@@ -182,17 +182,17 @@ Dim sFormatTemplateRange As String
         iScheduleCurrentRow = iFormatHeight * CInt(dValues("idTimePeriod"))
         iScheduleCurrentCol = iFormatWidth * (CInt(IndexArray(Split(clsQuadRuntime.DayEnum, COMMA), dValues("cdDay"))) + 1)
         
-        Set rScheduleFormatTargetRange = .Range(.Cells(iScheduleCurrentRow, iScheduleCurrentCol), .Cells(iScheduleCurrentRow + iFormatHeight - 1, iScheduleCurrentCol + iFormatWidth - 1))
+        'Set rScheduleFormatTargetRange = .Range(.Cells(iScheduleCurrentRow, iScheduleCurrentCol), .Cells(iScheduleCurrentRow + iFormatHeight - 1, iScheduleCurrentCol + iFormatWidth - 1))
         Set rScheduleFormatTargetRange = wsSchedule.Range(.Cells(iScheduleCurrentRow, iScheduleCurrentCol), .Cells(iScheduleCurrentRow + iFormatHeight - 1, iScheduleCurrentCol + iFormatWidth - 1))
         .Activate
         rScheduleFormatTargetRange.Select
         Selection.PasteSpecial Paste:=xlPasteAll, operation:=xlNone, SkipBlanks:=False, Transpose:=False
         
-        If dValues.Item("idTimePeriod") = "1" Or CInt(IndexArray(Split(clsQuadRuntime.DayEnum, COMMA), dValues("cdDay"))) + 1 = 1 Then
-            FormatColRowSize clsQuadRuntime.TemplateBook, clsQuadRuntime.Book, _
-                    wsSchedule.Name, clsQuadRuntime.TemplateSheetName, sFormatTemplateRange, _
-                    iTargetFirstRow:=iScheduleCurrentRow, iTargetFirstCol:=iScheduleCurrentCol
-        End If
+        'If dValues.Item("idTimePeriod") = "1" Or CInt(IndexArray(Split(clsQuadRuntime.DayEnum, COMMA), dValues("cdDay"))) + 1 = 1 Then
+        FormatColRowSize clsQuadRuntime.TemplateBook, clsQuadRuntime.Book, _
+                wsSchedule.Name, clsQuadRuntime.TemplateSheetName, sFormatTemplateRange, _
+                iTargetFirstRow:=iScheduleCurrentRow, iTargetFirstCol:=iScheduleCurrentCol
+        'End If
         
         ' evaluate the data functions to get the content
         For Each rCell In rScheduleFormatTargetRange.Cells

@@ -20,7 +20,7 @@ Dim bTestPassed As Boolean
 setup:
     sFuncName = CsModuleName & "." & "." & "WriteToLog"
     vArray = Array("a", "b")
-    sLogFileName = "C:\Users\burtnolej\test_log.txt"
+    sLogFileName = Environ("MYHOME") & "\test_log.txt"
     aVals = InitStringArray(Array("foo", "bar"))
     aWidths = InitIntArray(Array(10, 10))
     sExpectedResultStr = "foo       |bar       "

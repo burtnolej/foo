@@ -268,8 +268,6 @@ Dim xml As String
 Dim rSelection As Range
 
     Set rSelection = Selection
-    Debug.Print rSelection.Worksheet.Name
-    Debug.Print rSelection.Address
     
     xml = "<menu xmlns=""http://schemas.microsoft.com/office/2009/07/customui"">" & _
           "<button id=""but1"" imageMso=""Help"" label=""Help"" onAction=""HelpMacro""/>" & _
@@ -321,7 +319,7 @@ Dim vExtensions() As String
     End If
     
     vExtensions = InitStringArray(Array("png", "jpg"))
-    sImagePath = "C:\Users\burtnolej\Pictures\icons\"
+    sImagePath = Environ("MYHOME") & "\Pictures\icons\"
     vFiles = GetFolderFiles(sImagePath, vExtensions:=vExtensions)
     Set returnedVal = LoadPictureGDI(sImagePath & vFiles(index))
         
@@ -333,7 +331,7 @@ Dim vFiles() As String
 Dim vExtensions() As String
     
     vExtensions = InitStringArray(Array("png", "jpg"))
-    sImagePath = "C:\Users\burtnolej\Pictures\icons\"
+    sImagePath = Environ("MYHOME") & "\Pictures\icons\"
     vFiles = GetFolderFiles(sImagePath, vExtensions:=vExtensions)
     Set returnedVal = LoadPictureGDI(sImagePath & vFiles(1))
 

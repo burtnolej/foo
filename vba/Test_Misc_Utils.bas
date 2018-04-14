@@ -413,7 +413,7 @@ Dim eTestResult As TestResult
 
 setup:
     sFuncName = CsModuleName & "." & "UUEncode"
-    sTmp = "C:\\Users\\burtnolej''''"
+    sTmp = Environ("MYHOME") & "''''"
 main:
 
     If UUDecode(UUEncode(sTmp)) <> sTmp Then

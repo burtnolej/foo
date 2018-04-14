@@ -29,6 +29,20 @@ Public Sub RunTests()
     Call CloseLogFile
 End Sub
 
+Public Sub DoAddNewScheduleEntry()
+Dim clsQuadRuntime As New Quad_Runtime
+Dim sSheetName As String
+
+setup:
+    ResetQuadRuntimeGlobal
+    sFuncName = CsModuleName & "." & "Test_AddNewScheduleEntry"
+    sSheetName = "test"
+    clsQuadRuntime.InitProperties bInitializeCache:=True, sDefinitionSheetName:=sSheetName
+    
+main:
+    GenerateScheduleEntry clsQuadRuntime
+End Sub
+
 Public Sub DoViewLogs()
 Dim vFileNames() As String
 Dim sLogPath As String
@@ -48,7 +62,7 @@ Dim rSource As Range
     sFuncName = CsModuleName & "." & "DoViewLogs"
     sSheetName = "Logs"
     
-    sLogPath = "C:\Users\burtnolej\Documents\runtime\"
+    sLogPath = Environ("MYHOME") & "\runtime\"
     
     vFileNames = GetFolderFiles(sLogPath)
     
@@ -106,7 +120,7 @@ Dim iCount As Integer
 
 setup:
     sFuncName = CsModuleName & "." & "ImportModules"
-    sImportModuleDirPath = "C:\Users\burtnolej\Documents\GitHub\quadviewer\vba"
+    sImportModuleDirPath = Environ("MYHOME") & "\GitHub\quadviewer\vba"
     Set wbTmp = ActiveWorkbook
 main:
     iCount = ImportModules(wbTmp, sImportModuleDirPath, bOverwrite:=True, _
@@ -141,8 +155,8 @@ Dim ws As Worksheet
 
     GetLogFile
     sFuncName = CsModuleName & "." & "RunExportModules"
-    sDirectory = "C:\Users\burtnolej\Documents\GitHub\quadviewer\vba\"
-    sTmpDirectory = "C:\Users\burtnolej\tmp_export_modules\"
+    sDirectory = Environ("MYHOME") & "\GitHub\quadviewer\vba\"
+    sTmpDirectory = Environ("MYHOME") & "\tmp_export_modules\"
     
     
         
@@ -175,8 +189,7 @@ Dim ws As Worksheet
             FuncLogIt sFuncName, "Module [" & CStr(file_) & "] has NOT changed so ignoring", C_MODULE_NAME, LogMsgType.OK
         End If
     Next file_
-    
-    'RemoveDir "C:\Users\burtnolej\tmp_export_modules"
+
     If iNewCount + iUpdateCount <> 0 Then
         
         Set ws = CreateSheet(ActiveWorkbook, "Checkins")
@@ -219,8 +232,8 @@ Dim iFileCount As Integer
 Dim sDirectory As String, sTmpDirectory As String, sFuncName As String
 
     sFuncName = CsModuleName & "." & "DoGitCommit"
-    sDirectory = "C:\Users\burtnolej\Documents\GitHub\quadviewer\vba\"
-    sTmpDirectory = "C:\Users\burtnolej\tmp_export_modules\"
+    sDirectory = Environ("MYHOME") & "\GitHub\quadviewer\vba\"
+    sTmpDirectory = Environ("MYHOME") & "\tmp_export_modules\"
     
     ReDim aFiles(0 To 100)
     
@@ -253,13 +266,11 @@ Dim sDirectory As String, sTmpDirectory As String, sFuncName As String
     
     GitCommitFiles aFiles, sRepoName, sGitRootPath, sMessage
     
-    
-    RemoveDir "C:\Users\burtnolej\tmp_export_modules"
-    
+    RemoveDir Environ("MYHOME") & "\tmp_export_modules"
     iType = vbDefaultButton2
     PopUpWindow "commit " & sMessage & vbCrLf & Array2String(aFiles, sDelim:=vbCrLf) & vbCrLf & "committed to GitHub and moved to " & sDirectory, "DoGitCommit", iType
     
-    DeleteSheet ActiveWorkbook, "Checkins"
+    'DeleteSheet ActiveWorkbook, "Checkins"
     
 End Sub
 

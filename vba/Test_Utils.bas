@@ -86,14 +86,18 @@ End Function
 
 Sub DumpTestResultsToDB(dProjectTestResult As Dictionary, sBookName As String, _
         sDatabaseName As String, sTableName As String, _
-        Optional sFilename As String = "C:\\Users\\burtnolej\\unifoo.txt")
+        Optional sFilename As String)
 Dim sModuleTest As Variant, vTestResult As Variant, sTestCase As Variant, vTestCase As Variant
 Dim aColumnDefns() As Variant, aRows() As String
 Dim aColumns() As String, aArgs() As String
 Dim iResultCount As Integer
 Dim sExecPath As String
 
-    sExecPath = "C:\Users\burtnolej\Documents\GitHub\quadviewer\utils\excel\"
+    If sFilename = "" Then sFilename = Environ("MYHOME") & "\\unifoo.txt"
+    'End If
+    
+    sExecPath = Environ("MYHOME") & "\GitHub\quadviewer\utils\excel\"
+    
     
     ReDim aRows(0 To 1000, 0 To 5)
 
@@ -174,7 +178,7 @@ Dim sIncModules As String
     
     'ProjectTestRunner
     'Exit Sub
-    'sIncModules = "Test_App_Courses"
+    'sIncModules = "Test_Quad_Runtime"
     'ProjectTestRunner sIncModules
     'Exit Sub
     sIncModules = sIncModules & ",Test_App_Schedule"
@@ -182,7 +186,7 @@ Dim sIncModules As String
     sIncModules = sIncModules & ",Test_App_Person"
     sIncModules = sIncModules & ",Test_App_Courses"
     sIncModules = sIncModules & ",Test_Array_Utils"
-    'sIncModules = sIncModules & ",Test_DB_Utils"
+    sIncModules = sIncModules & ",Test_DB_Utils"
     sIncModules = sIncModules & ",Test_Entry_Utils"
     sIncModules = sIncModules & ",Test_Dict_Utils,Test_File_Utils"
     sIncModules = sIncModules & ",Test_Filter_Utils"
@@ -192,6 +196,7 @@ Dim sIncModules As String
     'sIncModules = sIncModules & ",Test_Module_Utils"
     sIncModules = sIncModules & ",Test_OS_Utils"
     sIncModules = sIncModules & ",Test_Quad_Utils"
+    sIncModules = sIncModules & ",Test_Quad_Runtime"
     sIncModules = sIncModules & ",Test_Range_Utils,Test_String_Utils"
     sIncModules = sIncModules & ",Test_Table_Utils"
     sIncModules = sIncModules & ",Test_Widget_Utils,Test_Workbook_Utils"
@@ -217,11 +222,10 @@ Dim vTestResult As Variant
     If sIncModules <> "" Then
         aIncModules = Split(sIncModules, ",")
     End If
-    'aProjectTestModules = GetTestModulesInBook("vba_source_new.xlsm")
+    
     aProjectTestModules = GetTestModulesInBook("vba_source_new.xlsm", _
-        sBookPath:="C:\\Users\\burtnolej\\Documents\\GitHub\\quadviewer")
-    
-    
+        sBookPath:=Environ("MYHOME") & "\\GitHub\\quadviewer")
+        
     Set dProjectTestResultSummary = InitTestSummary()
     dProjectTestResult.Add "summary", dProjectTestResultSummary
     
@@ -241,8 +245,7 @@ Dim vTestResult As Variant
         
         ' on the project, create a node for this module and assign the dict
         dProjectTestResult.Add sModuleTest, dModuleTestResult
-        
-        Debug.Print sModuleTest
+
         ' run the tests for the module, passing by ref the dictionary to store the results
         ModuleTestRunner dModuleTestResult, CStr(sModuleTest)
         'Application.Run sModuleTest & ".ModuleTestRunner", dModuleTestResult
@@ -267,7 +270,7 @@ Dim eTestResult As TestResult
 Dim sTest As Variant
 Dim wbTmp As Workbook
     
-    Set wbTmp = OpenBook("C:\\Users\\burtnolej\\Documents\\GitHub\\quadviewer\\vba_source_new.xlsm")
+    Set wbTmp = OpenBook(Environ("MYHOME") & "\\GitHub\\quadviewer\\vba_source_new.xlsm")
     'Set dTestCases = GetTestsInModule(Workbooks("vba_source_new.xlsm"), sModuleName)
     Set dTestCases = GetTestsInModule(wbTmp, sModuleName)
     For Each sTestCase In dTestCases

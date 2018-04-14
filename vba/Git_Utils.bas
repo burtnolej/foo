@@ -1,10 +1,11 @@
 Attribute VB_Name = "Git_Utils"
-Public Const sExecPath = "C:\Users\burtnolej\Documents\GitHub\quadviewer\utils\excel\"
-Public Const sRuntimeDir = "C:\Users\burtnolej\Documents\runtime\"
-Public Const sFilename = "C:\Users\burtnolej\Development\uupyshell.args.txt"
+Public Const sExecPath = "C:\Users\burtn\Documents\GitHub\quadviewer\utils\excel\"
+Public Const sRuntimeDir = "C:\Users\burtn\Documents\runtime\"
+Public Const sFilename = "C:\Users\burtn\Documents\uupyshell.args.txt"
 
-Const sTokenPath = "C:\Users\burtnolej\.gittoken"
+Public sTokenPath As String
 Public Function GetGitToken() As String
+    sTokenPath = Environ("MYHOME") & "\.gittoken"
     GetGitToken = ReadFile(sTokenPath)
 End Function
 Public Sub CreateGitArgsFile(sRepoName As String, _
@@ -12,8 +13,8 @@ Public Sub CreateGitArgsFile(sRepoName As String, _
         Optional aFiles As Variant, _
         Optional sMessage As String, _
         Optional sUsername As String, _
-        Optional sFilename As String = "C:\Users\burtnolej\Development\uupyshell.args.txt", _
-        Optional sRuntimeDir As String = "C:\Users\burtnolej\Documents\runtime")
+        Optional sFilename As String = "C:\Users\burtn\Documents\uupyshell.args.txt", _
+        Optional sRuntimeDir As String = "C:\Users\burtn\Documents\runtime")
 
 Dim PYTHONPATH As String
 Dim sTmp As String

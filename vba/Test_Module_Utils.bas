@@ -20,7 +20,7 @@ Dim eTestResult As TestResult
 setup:
     sFuncName = CsModuleName & "." & "ImportModules"
     sModuleName = "tmp1"
-    sRootDirectory = "C:\Users\burtnolej"
+    sRootDirectory = Environ("MYHOME")
     sBookName = "tmp.xls"
     sSuffix = "_" & GetDateString(Now(), "mmddyy")
     Set wbTmp = CreateBook(sRootDirectory & "\" & sBookName)
@@ -73,7 +73,7 @@ Dim eTestResult As TestResult
 
 setup:
     sFuncName = CsModuleName & "." & "ExportModules"
-    sDirectory = "C:\Users\burtnolej\"
+    sDirectory = Environ("MYHOME") & "\"
     sText = "public function test() as String" & vbNewLine & _
             "   test=" & """barfoo""" & vbNewLine & _
             "end function"

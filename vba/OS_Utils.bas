@@ -50,8 +50,20 @@ End Function
 
 Public Function GetHomePath() As String
 Dim oShell As Object
+Dim iLen As Integer
+Dim sSuffix As String, sNewSuffix As String
+
+    sSuffix = "\OneDrive\Desktop"
+    sNewSuffix = "Documents"
+    iLen = Len(sSuffix)
+    
     Set oShell = CreateObject("WScript.Shell")
-    GetHomePath = oShell.SpecialFolders("MyDocuments")
+    GetHomePath = oShell.SpecialFolders("Desktop")
+    
+    If Right(GetHomePath, iLen) = sSuffix Then
+        GetHomePath = Left(GetHomePath, Len(GetHomePath) - iLen) & "\" & sNewSuffix
+    End If
+    
 End Function
 
 Public Function PopUpWindow(strText As String, strTitle As String, iType As Integer, _
