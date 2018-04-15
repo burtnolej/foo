@@ -1,7 +1,7 @@
 Attribute VB_Name = "Git_Utils"
-Public Const sExecPath = "C:\Users\burtn\Documents\GitHub\quadviewer\utils\excel\"
-Public Const sRuntimeDir = "C:\Users\burtn\Documents\runtime\"
-Public Const sFilename = "C:\Users\burtn\Documents\uupyshell.args.txt"
+'Public Const sExecPath = "C:\Users\burtn\Documents\GitHub\quadviewer\utils\excel\"
+'Public Const sRuntimeDir = "C:\Users\burtn\Documents\runtime\"
+'Public Const sFilename = "C:\Users\burtn\Documents\uupyshell.args.txt"
 
 Public sTokenPath As String
 Public Function GetGitToken() As String
@@ -13,12 +13,23 @@ Public Sub CreateGitArgsFile(sRepoName As String, _
         Optional aFiles As Variant, _
         Optional sMessage As String, _
         Optional sUsername As String, _
-        Optional sFilename As String = "C:\Users\burtn\Documents\uupyshell.args.txt", _
-        Optional sRuntimeDir As String = "C:\Users\burtn\Documents\runtime")
+        Optional sFilename As String, _
+        Optional sRuntimeDir As String)
 
 Dim PYTHONPATH As String
 Dim sTmp As String
 
+    sRuntimeDir = GetHomePath & "\runtime\"
+    
+    ' because we cant have variable in default values for arguments
+    If sFilename = "" Then
+        sFilename = Environ("MYHOME") & "\uupyshell.args.txt"
+    End If
+    
+    If sRuntimeDir = "" Then
+        sRuntimeDir = Environ("MYHOME") & "\runtime"
+    End If
+    
     PYTHONPATH = LCase(Environ("PYTHONPATH"))
 
     On Error Resume Next 'in case running for first time and nothing to delete
@@ -44,7 +55,7 @@ Dim sTmp As String
         Call AppendFile(sFilename, "username:" & UUEncode(sUsername) & vbCrLf)
     End If
 
-    Call AppendFile(sFilename, "runtime_dir:" & UUEncode(Git_Utils.sRuntimeDir) & vbCrLf)
+    Call AppendFile(sFilename, "runtime_dir:" & UUEncode(sRuntimeDir) & vbCrLf)
     
     
 End Sub
@@ -82,9 +93,13 @@ Public Function GitCommitFiles(aFiles As Variant, sRepoName As String, sGitRootP
 Dim sExecPath As String
 Dim sRuntimePath As String
 
+    sExecPath = GetHomePath & "\GitHub\quadviewer\utils\excel\"
+    'sRuntimeDir = "C:\Users\burtn\Documents\runtime\"
+    sFilename = GetHomePath & "\uupyshell.args.txt"
+
     CreateGitArgsFile sRepoName, sGitRootPath, sMessage:=sMessage, aFiles:=aFiles
 
-    aArgs = InitStringArray(Array("python", Git_Utils.sExecPath & "excel_git_utils.py", _
+    aArgs = InitStringArray(Array("python", sExecPath & "excel_git_utils.py", _
             "commit", sFilename, sRuntimePath))
     ShellRun (aArgs)
 End Function
