@@ -8,6 +8,49 @@ Option Explicit
 'Test_BuildSchedule_Student_Multi
 Const C_MODULE_NAME = "Test_App_Schedule"
 
+Sub test()
+    Test_BuildScheduleHeaders
+End Sub
+Public Function Test_BuildScheduleHeaders() As TestResult
+Dim sSheetName As String, sFuncName As String, sTemplateRangeName As String
+Dim eTestResult As TestResult
+Dim aSchedule() As String, vKeys() As String, vValues As Variant
+Dim rResult As Range
+Dim wsSchedule As Worksheet
+Dim aColumnWidths() As Integer
+Dim iFormatWidth As Integer, iFormatHeight As Integer, iColWidthCount As Integer, iPersonID As Integer
+Dim clsQuadRuntime As New Quad_Runtime
+Dim dValues As New Dictionary
+
+setup:
+    sFuncName = C_MODULE_NAME & "." & "BuildScheduleCell"
+    sTemplateRangeName = "f" & "student" & "ScheduleRowLabel"
+    
+    clsQuadRuntime.InitProperties
+    sSheetName = "view_student_70"
+    Set wsSchedule = CreateSheet(clsQuadRuntime.CacheBook, sSheetName)
+    
+    ' copy the template format to the clipboard
+    GetScheduleCellFormat clsQuadRuntime, iFormatWidth, iFormatHeight, sTemplateRangeName
+    ' get the desired column widths from the template and return in an array
+    'aColumnWidths = GetScheduleCellColWidths(clsQuadRuntime, sTemplateRangeName, iColWidthCount)
+    
+    BuildScheduleHeaderView clsQuadRuntime, wsSchedule, clsQuadRuntime.DayEnum, iFormatWidth, iFormatHeight
+
+err:
+    eTestResult = TestResult.Error
+    
+teardown:
+    Test_BuildScheduleHeaders = eTestResult
+    clsQuadRuntime.Delete
+    'DeleteSheet clsQuadRuntime.CacheBook, "schedule_" & EnumQuadSubDataType(QuadSubDataType.student) & "_" & CStr(iPersonID)
+    DeleteSheet clsQuadRuntime.CacheBook, sSheetName
+    CloseBook clsQuadRuntime.CacheBook
+    DeleteBook clsQuadRuntime.CacheBookName, clsQuadRuntime.CacheBookPath
+    
+End Function
+
+
 Public Function Test_CacheQuadRuntimePtr() As TestResult
 Dim eTestResult As TestResult
 Dim clsQuadRuntime As New Quad_Runtime
@@ -156,9 +199,7 @@ teardown:
     
 End Function
 
-Sub test()
-    Test_BuildSchedule_Student_NotCached
-End Sub
+
 Public Function Test_BuildSchedule_Student_NotCached() As TestResult
 '"" get a full schedule for 1 student, parse and put into a backsheet
 '""

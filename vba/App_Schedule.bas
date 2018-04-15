@@ -137,8 +137,11 @@ Dim rScheduleFormatRange As Range
         Selection.Copy
     End With
         
-    iFormatWidth = rScheduleFormatRange.Columns.Count
-    iFormatHeight = rScheduleFormatRange.Rows.Count
+    iFormatWidth = Selection.Columns.Count
+    iFormatHeight = Selection.Rows.Count
+    
+    'iFormatWidth = rScheduleFormatRange.Columns.Count
+    'iFormatHeight = rScheduleFormatRange.Rows.Count
     
 End Sub
         
@@ -235,3 +238,63 @@ Dim i As Integer, j As Integer
     Set BuildScheduleView = wsSchedule
 DoEventsOn
 End Function
+
+Function BuildScheduleHeaderView(clsQuadRuntime As Quad_Runtime, _
+                          wsSchedule As Worksheet, _
+                          sEnums As String, _
+                          iFormatWidth As Integer, iFormatHeight As Integer, _
+                Optional eQuadSubDataType As QuadSubDataType = QuadSubDataType.student, _
+                Optional iStartRow As Integer = 4, _
+                Optional iStartCol As Integer = 1, _
+                Optional bVz As Boolean = True) As Range
+
+Dim iScheduleCurrentRow As Integer, iColWidthCount As Integer, i As Integer, iScheduleCurrentCol As Integer
+Dim rScheduleFormatTargetRange As Range, rCell As Range
+Dim sFormatTemplateRange As String
+Dim iNumValues As Integer
+Dim vEnumValues() As String
+
+    vEnumValues = Split(sEnums, COMMA)
+
+    iNumValues = UBound(vEnumValues) + 1
+    
+    If bVz = True Then
+        sFormatTemplateRange = "f" & EnumQuadSubDataType(eQuadSubDataType) & "ScheduleRowLabel"
+    Else
+        sFormatTemplateRange = "f" & EnumQuadSubDataType(eQuadSubDataType) & "ScheduleColLabel"
+    End If
+    
+    With wsSchedule
+        For i = 1 To iNumValues
+
+            ' paste the formats into the corresponding cell on the "grid"
+            If bVz = True Then
+                iScheduleCurrentRow = iStartRow + (iFormatHeight * i)
+                iScheduleCurrentCol = iStartCol
+            Else
+                iScheduleCurrentRow = iStartRow
+                iScheduleCurrentCol = iStartCol + (iFormatWidth * i)
+            End If
+            
+            Set rScheduleFormatTargetRange = .Range(.Cells(iScheduleCurrentRow, iScheduleCurrentCol), .Cells(iScheduleCurrentRow + iFormatHeight - 1, iScheduleCurrentCol + iFormatWidth - 1))
+            Set rScheduleFormatTargetRange = wsSchedule.Range(.Cells(iScheduleCurrentRow, iScheduleCurrentCol), .Cells(iScheduleCurrentRow + iFormatHeight - 1, iScheduleCurrentCol + iFormatWidth - 1))
+            .Activate
+            rScheduleFormatTargetRange.Select
+            Selection.PasteSpecial Paste:=xlPasteAll, operation:=xlNone, SkipBlanks:=False, Transpose:=False
+            
+            FormatColRowSize clsQuadRuntime.TemplateBook, clsQuadRuntime.Book, _
+                    wsSchedule.Name, clsQuadRuntime.TemplateSheetName, sFormatTemplateRange, _
+                    iTargetFirstRow:=iScheduleCurrentRow, iTargetFirstCol:=iScheduleCurrentCol
+        
+            ' evaluate the data functions to get the content
+            For Each rCell In rScheduleFormatTargetRange.Cells
+                If Left(rCell.value, 1) = "&" Then
+                    rCell.value = Application.Run(Right(rCell.value, Len(rCell.value) - 1), vEnumValues(i - 1))
+                End If
+            Next rCell
+        Next i
+    End With
+    
+    Set BuildScheduleHeaderView = rScheduleFormatTargetRange
+End Function
+

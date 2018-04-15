@@ -1,4 +1,11 @@
 Attribute VB_Name = "App_Schedule_Formatter"
+Function FmtRowLabel(ByVal sValue As String) As String
+    FmtRowLabel = sValue
+End Function
+Function FmtColLabel(ByVal sValue As String) As String
+    FmtColLabel = sValue
+End Function
+
 Function FmtSSCourseName(ByVal dFields As Dictionary) As String
 'Science
     FmtSSCourseName = dFields.Item("sCourseNm")
