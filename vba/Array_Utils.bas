@@ -18,14 +18,47 @@ Dim aTmp() As String
 Dim iOrigWidth As Integer
 Dim iOrigLength As Integer
 
+    If iStartCol = 0 Then iStartCol = LBound(aInput, 2)
+    If iStartRow = 0 Then iStartRow = LBound(aInput)
+    
     iOrigLength = UBound(aInput)
     iOrigWidth = UBound(aInput, 2)
     
-    ReDim aTmp(0 To iTargetLength - 1, 0 To iTargetWidth - 1)
+    'ReDim aTmp(0 To iTargetLength - 1, 0 To iTargetWidth - 1)
+    
+    ReDim aTmp(iStartRow To iTargetLength + iStartRow - 1, _
+            iStartCol To iTargetWidth + iStartCol - 1)
+    
+    For i = iStartRow To iTargetLength + iStartRow - 1
+        For j = iStartCol To iTargetWidth + iStartCol - 1
+            aTmp(i, j) = aInput(i, j)
+        Next j
+    Next i
+    ReDim2DArray = aTmp
+
+End Function
+
+Function ReDim2DArray_NEW(aInput As Variant, _
+                      iTargetLength As Integer, _
+                      iTargetWidth As Integer, _
+                      Optional iStartRow As Integer = 0, _
+                      Optional iStartCol As Integer = 0) As Variant
+Dim aTmp() As String
+Dim iOrigWidth As Integer
+Dim iOrigLength As Integer
+
+    iOrigLength = UBound(aInput)
+    iOrigWidth = UBound(aInput, 2)
+    
+    ' need to make sure this still works when startcol and row are defaulted to 0
+    
+    'ReDim aTmp(0 To iTargetLength - 1, 0 To iTargetWidth - 1)
+    ReDim aTmp(iStartRow To iTargetLength, iStartCol To iTargetWidth)
     
     For i = iStartRow To iStartRow + iTargetLength - 1
         For j = iStartCol To iStartCol + iTargetWidth - 1
-            aTmp(i - iStartRow, j - iStartCol) = aInput(i, j)
+            aTmp(i, j) = aInput(i, j)
+            'aTmp(i - iStartRow, j - iStartCol) = aInput(i, j)
         Next j
     Next i
     ReDim2DArray = aTmp

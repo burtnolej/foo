@@ -240,19 +240,20 @@ setup:
                                   
     With wsSchedule
     
-        Set rResult = .Range("C4:E7")
+        Set rResult = .Range("D4:E7")
+        'Set rResult = .Range("C4:E7")
         
-        If rResult.Columns(3).Rows(1).value <> "Homeroom" Then
+        If rResult.Columns(2).Rows(1).value <> "Homeroom" Then
             eTestResult = TestResult.Failure
             GoTo teardown
         End If
         
-        If rResult.Columns(3).Rows(2).value <> "Isaac[Seminar]" Then
+        If rResult.Columns(2).Rows(2).value <> "Isaac[Seminar]" Then
             eTestResult = TestResult.Failure
             GoTo teardown
         End If
 
-        If rResult.Columns(3).Rows(3).value <> "Room:9" Then
+        If rResult.Columns(2).Rows(3).value <> "Room:9" Then
             eTestResult = TestResult.Failure
             GoTo teardown
         Else
@@ -275,9 +276,6 @@ teardown:
     
 End Function
 
-Sub test()
-    Test_BuildSchedule_Student_NotCached
-End Sub
 Public Function Test_BuildSchedule_Student_NotCached() As TestResult
 '"" get a full schedule for 1 student, parse and put into a backsheet
 '""
@@ -296,7 +294,8 @@ Dim clsQuadRuntime As New Quad_Runtime
     Set wsSchedule = BuildSchedule(clsQuadRuntime, QuadSubDataType.Student, iPersonID)
                               
     With wsSchedule
-        Set rResult = .Range("L20:M23")
+        'Set rResult = .Range("L20:M23")
+        Set rResult = .Range("M20:N23")
         
         If rResult.Columns(2).Rows(1).value <> "Art" Then
             eTestResult = TestResult.Failure
@@ -331,6 +330,9 @@ teardown:
 
     
 End Function
+
+
+
 Public Function Test_BuildSchedule_Student_Cached() As TestResult
 '"" get a full schedule for 1 student, parse and put into a backsheet
 '""
@@ -355,7 +357,7 @@ main:
     Set wsSchedule = BuildSchedule(clsQuadRuntime, QuadSubDataType.Student, iPersonID)
                               
     With wsSchedule
-        Set rResult = .Range("L20:Q23")
+        Set rResult = .Range("L20:M23")
         
         If rResult.Columns(2).Rows(1).value <> "Art" Then
             eTestResult = TestResult.Failure
@@ -389,7 +391,6 @@ teardown:
 
     
 End Function
-
 
 Public Function Test_CacheData_Schedule() As TestResult
 '"" get a full schedule for 1 student, parse and put into a backsheet

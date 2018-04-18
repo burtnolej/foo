@@ -16,7 +16,8 @@ Dim iPersonID As Integer
     
 End Function
         
-Function AddNewLesson(clsQuadRuntime As Quad_Runtime, dValues As Dictionary, sTemplateRangeName As String, _
+Function AddNewLesson(clsQuadRuntime As Quad_Runtime, _
+                dValues As Dictionary, sTemplateRangeName As String, _
                 iStudentID As Integer, _
                 Optional eQuadDataSubType As QuadSubDataType = QuadSubDataType.Student) As Range
 Dim iFormatWidth As Integer, iFormatHeight As Integer, iColWidthCount As Integer

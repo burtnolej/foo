@@ -163,7 +163,9 @@ Function BuildScheduleCellView(clsQuadRuntime As Quad_Runtime, _
                           dValues As Dictionary, _
                           iFormatWidth As Integer, iFormatHeight As Integer, _
                           aColumnWidths() As Integer, _
-                Optional eQuadSubDataType As QuadSubDataType = QuadSubDataType.Student) As Range
+                Optional eQuadSubDataType As QuadSubDataType = QuadSubDataType.Student, _
+                Optional iViewRowOffset As Integer = 0, _
+                Optional iViewColOffset As Integer = 2) As Range
 
 Dim iScheduleCurrentRow As Integer, iScheduleCurrentCol As Integer, iColWidthCount As Integer
 Dim rScheduleFormatTargetRange As Range, rCell As Range
@@ -172,8 +174,9 @@ Dim sFormatTemplateRange As String
     sFormatTemplateRange = "f" & EnumQuadSubDataType(eQuadSubDataType) & "ScheduleCell"
     With wsSchedule
         ' paste the formats into the corresponding cell on the "grid"
-        iScheduleCurrentRow = iFormatHeight * CInt(dValues("idTimePeriod"))
-        iScheduleCurrentCol = 2 + (iFormatWidth * (CInt(IndexArray(Split(clsQuadRuntime.DayEnum, COMMA), dValues("cdDay"))) + 1))
+        iScheduleCurrentRow = iFormatHeight * CInt(dValues("idTimePeriod")) + iViewRowOffset
+        iScheduleCurrentCol = 2 + (iFormatWidth * (CInt(IndexArray(Split(clsQuadRuntime.DayEnum, COMMA), _
+                                        dValues("cdDay"))))) + iViewColOffset
         
         Set rScheduleFormatTargetRange = wsSchedule.Range(.Cells(iScheduleCurrentRow, iScheduleCurrentCol), _
                     .Cells(iScheduleCurrentRow + iFormatHeight - 1, iScheduleCurrentCol + iFormatWidth - 1))

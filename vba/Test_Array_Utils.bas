@@ -191,12 +191,54 @@ main:
     
 err:
     eTestResult = TestResult.Error
-    
+
 teardown:
     Test_ReDim2DArray = eTestResult
     
 End Function
 
+Function Test_ReDim2DArray_NonZero_StartColRow() As TestResult
+Dim aTmp() As String
+Dim aTmpVariant As Variant
+
+Dim sFuncName As String
+Dim eTestResult As TestResult
+
+setup:
+    On Error GoTo err:
+    sFuncName = CsModuleName & "." & "ReDim2DArray"
+    ReDim aTmpVariant(1 To 3, 1 To 3)
+    aTmpVariant(1, 1) = "A"
+    aTmpVariant(1, 2) = "B"
+    aTmpVariant(1, 3) = "C"
+    
+    aTmpVariant(2, 1) = "D"
+    aTmpVariant(2, 2) = "E"
+    aTmpVariant(2, 3) = "F"
+
+    aTmpVariant(3, 1) = ""
+    aTmpVariant(3, 2) = ""
+    aTmpVariant(3, 3) = ""
+    
+main:
+
+    aTmp = ReDim2DArray(aTmpVariant, 2, 2)
+    
+    If ArrayNDtoString(aTmp) <> "A^B$$D^E" Then
+        eTestResult = TestResult.Failure
+        GoTo teardown
+    End If
+    
+    On Error GoTo 0
+    GoTo teardown
+    
+err:
+    eTestResult = TestResult.Error
+    
+teardown:
+    Test_ReDim2DArray_NonZero_StartColRow = eTestResult
+    
+End Function
 
 Function Test_InArray() As TestResult
 ' test that an inarray can be used in a conditional check like an IF Then statement

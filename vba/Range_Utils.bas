@@ -32,11 +32,18 @@ Public Sub RangeSort(sSheetName As String, rSort As Range, Optional iStartCol As
     End With
 End Sub
 Public Function ListFromRange(wsTmp As Worksheet, sSourceAddress As String) As String()
-Dim vTmpRange() As Variant
+Dim vTmpRange As Variant
     With wsTmp
         vTmpRange = .Range(sSourceAddress)
     End With
     
+    For i = 1 To UBound(vTmpRange)
+        If vTmpRange(i, 1) = "" Then
+            vTmpRange = ReDim2DArray(vTmpRange, i - 1, 1, iStartRow:=1, iStartCol:=1)
+            GoTo endfunc
+        End If
+    Next i
+endfunc:
     ListFromRange = ConvertArrayFromRangeto1D(vTmpRange)
 End Function
 Public Function IsCell(rCell As Range) As Boolean

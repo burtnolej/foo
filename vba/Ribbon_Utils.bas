@@ -292,25 +292,22 @@ Dim rSelection As Range
 End Sub
 
 Sub rxgal_getItemCount(control As IRibbonControl, ByRef returnedVal)
-'This callback tell the RibbonX how many labels you use in the Gallery
-    returnedVal = 100
+Dim vLabelNames As Variant
+Dim clsQuadRuntime As New Quad_Runtime
+    clsQuadRuntime.InitProperties bInitializeCache:=False
+    vLabelNames = GetColumnValues(clsQuadRuntime, QuadDataType.person, QuadSubDataType.Student, "sStudentLastNm")
+    returnedVal = UBound(vLabelNames) + 1
 End Sub
 
 Sub rxgal_getItemLabel(control As IRibbonControl, index As Integer, ByRef returnedVal)
-''Use this if you want to use the cell values of "A1:A12" on Sheet2 as Label names
-'     returnedVal = Sheets("Sheet2").Cells(index + 1, 1).Value
-Dim wsCache As Worksheet
-Dim sLookUpRangeName As String
 Dim vLabelNames As Variant
 Dim clsQuadRuntime As New Quad_Runtime
 
     clsQuadRuntime.InitProperties bInitializeCache:=False
-     
-    Set wsCache = GetPersonData(clsQuadRuntime, QuadDataType.person, QuadSubDataType.Student, QuadScope.all, bInTable:=True)
-    sLookUpRangeName = GetDBColumnRange(wsCache.Name, "sStudentLastNm")
-    vLabelNames = ListFromRange(wsCache, sLookUpRangeName)
+    vLabelNames = GetColumnValues(clsQuadRuntime, QuadDataType.person, QuadSubDataType.Student, "sStudentLastNm")
     
-    returnedVal = vLabelNames(index + 1)
+    'is this correct at last index ?
+    returnedVal = vLabelNames(index)
 End Sub
 
 Sub rxgal_getItemImage(control As IRibbonControl, index As Integer, ByRef returnedVal)

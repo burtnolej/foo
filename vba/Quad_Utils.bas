@@ -232,7 +232,19 @@ Dim PYTHONPATH As String, xSpArgs As String, sTmp As String
     End If
     
 End Sub
-                                       
+                        
+Public Function GetColumnValues(clsQuadRuntime As Quad_Runtime, _
+                                 eQuadDataType As QuadDataType, _
+                                 eQuadSubDataType As QuadSubDataType, _
+                                 sLookUpColName As String) As String()
+Dim wsCache As Worksheet
+Dim sLookUpRangeName As String
+
+    Set wsCache = GetPersonData(clsQuadRuntime, eQuadDataType, eQuadSubDataType, QuadScope.all, bInTable:=True)
+    sLookUpRangeName = GetDBColumnRange(wsCache.Name, sLookUpColName)
+    GetColumnValues = ListFromRange(wsCache, sLookUpRangeName)
+                                 
+                                 End Function
 Public Function CrossRefQuadData(clsQuadRuntime As Quad_Runtime, _
                                  eQuadDataType As QuadDataType, _
                                  eQuadSubDataType As QuadSubDataType, _
