@@ -25,7 +25,7 @@ Public Sub xxgetPressed(control As IRibbonControl, ByRef returnedVal)
 '
 ' Code for getPressed callback. Ribbon control checkBox
 '
-    If control.ID = "checkboxShowMessage" Then
+    If control.id = "checkboxShowMessage" Then
         returnedVal = b_checkboxShowMessage
     End If
 End Sub
@@ -35,7 +35,7 @@ Dim iIndex As Integer
 Dim dControlValues As Dictionary
 
     Set dControlValues = GetControlValues()
-    returnedVal = dControlValues.Item(control.ID)
+    returnedVal = dControlValues.Item(control.id)
 
 End Sub
 Public Sub xxxOnChange(control As IRibbonControl, text As Variant)
@@ -51,9 +51,9 @@ Dim rRibValues As Range
     
     Set dControlValues = GetControlValues(vControls)
     
-    iIndex = Application.Run("VBASource.xlsm!IndexArray", vControls, control.ID)
+    iIndex = Application.Run("VBASource.xlsm!IndexArray", vControls, control.id)
     
-    If control.ID = "SetStartDate" Then
+    If control.id = "SetStartDate" Then
         rRibValues.Rows(iIndex + 1).value = Application.Run("VBASource.xlsm!GetSecsFromOrigin", text, dReturnVal)
     ElseIf text = " False" Then
             rRibValues.Rows(iIndex + 1).value = "False"
@@ -99,48 +99,48 @@ Dim dControlValues As Dictionary
 
     Set dControlValues = GetControlValues()
     
-    If control.ID = "EventOnButton" Then
+    If control.id = "EventOnButton" Then
         Application.Run "VBASource.xlsm!EventsToggle", True
-    ElseIf control.ID = "LoadFiles" Then
+    ElseIf control.id = "LoadFiles" Then
         Application.Run "VBASource.xlsm!LoadDirToRange"
-    ElseIf control.ID = "LoadEmailsFromDB" Then
+    ElseIf control.id = "LoadEmailsFromDB" Then
         Application.Run "VBASource.xlsm!DoLoadEmailFromDB", dControlValues.Item("SetFieldSelect"), dControlValues.Item("SetDatabaseName"), _
                                                         dControlValues.Item("SetTableName"), dControlValues.Item("SetStartDate"), _
                                                         dControlValues.Item("SetEndDate"), dControlValues.Item("SetKeyword"), _
                                                         dControlValues.Item("SetSender")
                                                         
-    ElseIf control.ID = "LoadEmailsFromOutlook" Then
+    ElseIf control.id = "LoadEmailsFromOutlook" Then
         Application.Run "VBASource.xlsm!DoLoadEmailFromOutlook", dControlValues.Item("SetFieldSelect"), dControlValues.Item("SetDatabaseName"), _
                                                         dControlValues.Item("SetTableName"), dControlValues.Item("SetStartDate")
-    ElseIf control.ID = "GetTagsFromColumn" Then
+    ElseIf control.id = "GetTagsFromColumn" Then
         Application.Run "VBASource.xlsm!DoGetTagsFromColumn"
-    ElseIf control.ID = "UpdateTags" Then
+    ElseIf control.id = "UpdateTags" Then
         Application.Run "VBASource.xlsm!DoUpdateTags"
-    ElseIf control.ID = "LoadRange2DB" Then
+    ElseIf control.id = "LoadRange2DB" Then
         Application.Run "VBASource.xlsm!DoRange2DB", dControlValues.Item("SetDBDatabaseName"), dControlValues.Item("SetDBTableName"), _
                                                         dControlValues.Item("SetDBRange"), dControlValues.Item("SetDBSheet")
-    ElseIf control.ID = "UpdateRange2DB" Then
+    ElseIf control.id = "UpdateRange2DB" Then
         Application.Run "VBASource.xlsm!DoUpdate2DB", dControlValues.Item("SetDBDatabaseName"), dControlValues.Item("SetDBTableName"), _
                                                         dControlValues.Item("SetDBRange"), dControlValues.Item("SetDBSheet")
-    ElseIf control.ID = "LookupInDB" Then
+    ElseIf control.id = "LookupInDB" Then
         Application.Run "VBASource.xlsm!DoLookupInDB", dControlValues.Item("SetDBDatabaseName"), dControlValues.Item("SetDBTableName"), _
                                                         dControlValues.Item("SetDBRange"), dControlValues.Item("SetDBSheet")
-    ElseIf control.ID = "Export2File" Then
+    ElseIf control.id = "Export2File" Then
         Application.Run "VBASource.xlsm!DoRange2File", ActiveWorkbook.ActiveSheet.Name, ActiveWorkbook.Name, Selection.Address, Selection.Column, Selection.Rows.Count, _
             CBool(dControlValues.Item("sheetUtils_SetEncode")), dControlValues.Item("sheetUtils_SetFileName"), dControlValues.Item("sheetUtils_SetDelim")
-    ElseIf control.ID = "SetEncode" Then
+    ElseIf control.id = "SetEncode" Then
         OnChange control, str(bCheckbox)
-    ElseIf control.ID = "sheetUtils_SetEncode" Then
+    ElseIf control.id = "sheetUtils_SetEncode" Then
         OnChange control, str(bCheckbox)
-    ElseIf control.ID = "GotoBottom" Then
+    ElseIf control.id = "GotoBottom" Then
         Application.Run "VBASource.xlsm!ChangeFocus", "bottom", ActiveWorkbook.ActiveSheet.Name
-    ElseIf control.ID = "ScrollUp" Then
+    ElseIf control.id = "ScrollUp" Then
         Application.Run "VBASource.xlsm!ScrollWindow", "up", ActiveWorkbook.ActiveSheet.Name
-    ElseIf control.ID = "ScrollDown" Then
+    ElseIf control.id = "ScrollDown" Then
         Application.Run "VBASource.xlsm!ScrollWindow", "down", ActiveWorkbook.ActiveSheet.Name
-    ElseIf control.ID = "ClearBelow" Then
+    ElseIf control.id = "ClearBelow" Then
         Application.Run "VBASource.xlsm!ClearContentsBelow", Selection, ActiveWorkbook.ActiveSheet.Name
-    ElseIf control.ID = "ViewLogDir" Then
+    ElseIf control.id = "ViewLogDir" Then
         Application.Run "VBASource.xlsm!LoadDirToRange", dControlValues.Item("SetDirName"), dControlValues.Item("SetLogSheet")
     End If
 
@@ -180,7 +180,7 @@ End Sub
 
 ''Drop down change handler.
 ''Called when a drop down item is selected.
-Sub xxxDDOnAction(control As IRibbonControl, ID As String, index As Integer)
+Sub xxxDDOnAction(control As IRibbonControl, id As String, index As Integer)
     ''All we do is note the index number of the item selected.
     ''We use this in sub DDItemSelectedIndex below to reselect the current
     ''item, if possible, after an invalidate.

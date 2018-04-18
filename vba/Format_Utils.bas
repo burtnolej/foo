@@ -55,28 +55,41 @@ Sub CopyFormat(wbSourceBook As Workbook, wbTargetbook As Workbook, sSourceSheetN
 End Sub
 
 Sub CopyFormatRange(rSourceRange As Range, rTargetRange As Range)
-    rSourceRange.Select
-    Selection.Copy
+    'rSourceRange.Select
+    'Selection.Copy
+    rSourceRange.Copy
     
-    rTargetRange.Worksheet.Activate
-    rTargetRange.Select
+    'rTargetRange.Worksheet.Activate
+    'rTargetRange.Select
     'Application.CutCopyMode = False
-    
-    Selection.PasteSpecial Paste:=xlPasteFormats, operation:=xlNone, SkipBlanks:=False, Transpose:=False
-            
+    ' HERE
+    'Selection.PasteSpecial Paste:=xlPasteFormats, operation:=xlNone, SkipBlanks:=False, Transpose:=False
+    rTargetRange.PasteSpecial Paste:=xlPasteFormats, operation:=xlNone, SkipBlanks:=False, Transpose:=False
 End Sub
-Sub SetBgColor(sSheetName As String, rTarget As Range, iRed As Integer, iGreen As Integer, iBlue As Integer)
-    With GetSheet(Application.ActiveWorkbook, sSheetName)
+Sub SetBgColor(sSheetName As String, rTarget As Range, iRed As Integer, iGreen As Integer, _
+                    iBlue As Integer, Optional wbTmp As Workbook)
+    
+    If IsSet(wbTmp) = False Then
+        Set wbTmp = ActiveWorkbook
+    End If
+    
+    With GetSheet(wbTmp, sSheetName)
         With rTarget.Interior
             .Color = RGB(iRed, iGreen, iBlue)
         End With
     End With
 End Sub
-Sub SetBgColorFromString(sSheetName As String, rTarget As Range, sRGB As String)
+Sub SetBgColorFromString(sSheetName As String, rTarget As Range, sRGB As String, _
+            Optional wbTmp As Workbook)
 Dim aRGBElements() As String
 
+    If IsSet(wbTmp) = False Then
+        Set wbTmp = ActiveWorkbook
+    End If
+    
     aRGBElements = Split(sRGB, ",")
-    SetBgColor sSheetName, rTarget, CInt(aRGBElements(0)), CInt(aRGBElements(1)), CInt(aRGBElements(2))
+    SetBgColor sSheetName, rTarget, CInt(aRGBElements(0)), CInt(aRGBElements(1)), CInt(aRGBElements(2)), _
+                wbTmp:=wbTmp
 
 End Sub
 Function GetBgColor(sSheetName As String, rTarget As Range) As RGBColor

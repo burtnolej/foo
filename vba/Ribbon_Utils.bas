@@ -38,7 +38,7 @@ Dim ListItemsRg As Range
 Dim dStartDate As Double
 Public Sub getPressed(control As IRibbonControl, ByRef returnedVal)
 ' Code for getPressed callback. Ribbon control checkBox
-    If control.ID = "checkboxShowMessage" Then
+    If control.id = "checkboxShowMessage" Then
         returnedVal = checkVal
     End If
 End Sub
@@ -47,7 +47,7 @@ Dim iIndex As Integer
 Dim dControlValues As Dictionary
 
     Set dControlValues = GetControlValues()
-    returnedVal = dControlValues.Item(control.ID)
+    returnedVal = dControlValues.Item(control.id)
 
 End Sub
 Function GetControlValues(Optional ByRef vControls As Variant) As Dictionary
@@ -93,7 +93,7 @@ Dim rRibValues As Range
     
     ' this is so we can overide the control whose persisted value gets updated
     If sControlID = BLANK Then
-        sControlID = CStr(control.ID)
+        sControlID = CStr(control.id)
     End If
     
     iIndex = IndexArray(vControls, sControlID)
@@ -107,6 +107,20 @@ Dim rRibValues As Range
     Else
             rRibValues.Rows(iIndex + 1).value = text
     End If
+End Sub
+
+Sub rxgal_Click(control As IRibbonControl, id As String, index As Integer)
+'Call the macro that belong to the Label when you click on one of the labels
+'Example: When you click on the first Label it run the macro named "macro_1"
+    'On Error Resume Next
+    
+    Set clsQuadRuntime = GetQuadRuntimeGlobal(bInitFlag:=True)
+    'BuildSchedule clsQuadRuntime, _
+    '                eQuadSubDataType:=GetQuadSubDataTypeEnumFromValue(id), _
+    '                iPersonID:=CInt(aControlIDSplit(2))
+
+    'Application.Run "macro_" & Format(index + 1, "00")
+    'On Error GoTo 0
 End Sub
 
 Sub OnAction(control As IRibbonControl, Optional bCheckbox As Boolean)
@@ -123,83 +137,83 @@ setup:
     GetLogFile
 
     'On Error GoTo err
-    If control.ID = "LoadDefinitions" Then
+    If control.id = "LoadDefinitions" Then
         DoLoadDefinitions
         DumpDefinitions
         
-    ElseIf Left(control.ID, 8) = "SchedBut" Then
-        aControlIDSplit = Split(control.ID, "_")
+    ElseIf Left(control.id, 8) = "SchedBut" Then
+        aControlIDSplit = Split(control.id, "_")
         If UBound(aControlIDSplit) <> 2 Then
-            FuncLogIt sFuncName, "SchedBut ID is incorrectly formed [" & control.ID & "] needs to have 3 parts delimed by _", C_MODULE_NAME, LogMsgType.Error
+            FuncLogIt sFuncName, "SchedBut ID is incorrectly formed [" & control.id & "] needs to have 3 parts delimed by _", C_MODULE_NAME, LogMsgType.Error
         Else
             Set clsQuadRuntime = GetQuadRuntimeGlobal(bInitFlag:=True)
             BuildSchedule clsQuadRuntime, _
                             eQuadSubDataType:=GetQuadSubDataTypeEnumFromValue(aControlIDSplit(1)), _
                             iPersonID:=CInt(aControlIDSplit(2))
         End If
-                
-    ElseIf control.ID = "GenerateEntryForm" Then
+             
+    ElseIf control.id = "GenerateEntryForm" Then
         Set clsQuadRuntime = GetQuadRuntimeGlobal(bInitFlag:=True)
         GenerateEntryForms clsQuadRuntime
-    ElseIf control.ID = "DeleteEntryForm" Then
+    ElseIf control.id = "DeleteEntryForm" Then
         DeleteEntryForms
-    ElseIf control.ID = "Student" Then
+    ElseIf control.id = "Student" Then
         HideAllEntryForms
         ShowEntryForm "Student"
-    ElseIf control.ID = "Teacher" Then
+    ElseIf control.id = "Teacher" Then
         HideAllEntryForms
         ShowEntryForm "Teacher"
-    ElseIf control.ID = "FormStyles" Then
+    ElseIf control.id = "FormStyles" Then
         ToggleSheet ActiveWorkbook, "FormStyles"
-    ElseIf control.ID = "Definitions" Then
+    ElseIf control.id = "Definitions" Then
         ToggleSheet ActiveWorkbook, "Definitions"
-    ElseIf control.ID = "CellStyles" Then
+    ElseIf control.id = "CellStyles" Then
         ToggleSheet ActiveWorkbook, "CellStyles"
         
     ' Tab: Admin
-    ElseIf control.ID = "DoBackups" Then
+    ElseIf control.id = "DoBackups" Then
         BackupModules
-    ElseIf control.ID = "GetProcs" Then
+    ElseIf control.id = "GetProcs" Then
         DumpProcs
-    ElseIf control.ID = "ViewLogs" Then
+    ElseIf control.id = "ViewLogs" Then
         DoViewLogs
-    ElseIf control.ID = "RefreshRibbon" Then
+    ElseIf control.id = "RefreshRibbon" Then
         RefreshRibbon
-    ElseIf control.ID = "EventsOn" Then
+    ElseIf control.id = "EventsOn" Then
         EventsToggle True
     ' Git
-    ElseIf control.ID = "Commit" Then
+    ElseIf control.id = "Commit" Then
         Set dControlValues = GetControlValues(vControls)
         DoGitCommit Selection, dControlValues.Item("RepoName"), dControlValues.Item("GitRootPath"), _
         sMessage:=dControlValues.Item("CommitMessage")
-    ElseIf control.ID = "CreateRepo" Then
+    ElseIf control.id = "CreateRepo" Then
         Set dControlValues = GetControlValues(vControls)
         DoGitCreateRepo dControlValues.Item("RepoName"), dControlValues.Item("UserName")
-    ElseIf control.ID = "DeleteRepo" Then
+    ElseIf control.id = "DeleteRepo" Then
         Set dControlValues = GetControlValues(vControls)
         DoGitDeleteRepo dControlValues.Item("RepoName"), dControlValues.Item("UserName")
-    ElseIf control.ID = "ViewCommits" Then
+    ElseIf control.id = "ViewCommits" Then
         Set dControlValues = GetControlValues(vControls)
         DoGitViewCommits dControlValues.Item("RepoName")
     
     ' Group: Config
-    ElseIf control.ID = "DecodeFlag" Then
+    ElseIf control.id = "DecodeFlag" Then
         OnChange control, str(bCheckbox)
-    ElseIf control.ID = "AutoSelect" Then
+    ElseIf control.id = "AutoSelect" Then
         OnChange control, str(bCheckbox)
-    ElseIf control.ID = "NewSheet" Then
+    ElseIf control.id = "NewSheet" Then
         OnChange control, str(bCheckbox)
         'If checkVal = True Then
-    ElseIf control.ID = "ImportQuery" Then
+    ElseIf control.id = "ImportQuery" Then
         OnChange control, GetQueryFromRange, "QueryString"
         RefreshRibbon ' so that the Ribbon entry gets updated
     ' Group: Database Actions
-    ElseIf control.ID = "Insert" Then
+    ElseIf control.id = "Insert" Then
         Set dControlValues = GetControlValues(vControls)
         DoInsertDBRows ActiveSheet, Selection, dControlValues.Item("DatabaseName"), _
                     dControlValues.Item("TableName"), dControlValues.Item("DecodeFlag")
         ', bDecodeFlag:=True
-    ElseIf control.ID = "Query" Then
+    ElseIf control.id = "Query" Then
         Set dControlValues = GetControlValues(vControls)
         DoQueryDBRows ActiveWorkbook, dControlValues.Item("TableName"), dControlValues.Item("DatabaseName"), _
                 dControlValues.Item("TableName"), dControlValues.Item("QueryString"), _
@@ -209,11 +223,11 @@ setup:
     End If
     'On Error GoTo 0
     
-    FuncLogIt sFuncName, "Control element ID in [" & control.ID & "]", C_MODULE_NAME, LogMsgType.OK
+    FuncLogIt sFuncName, "Control element ID in [" & control.id & "]", C_MODULE_NAME, LogMsgType.OK
     GoTo exitsub
     
 fail:
-    FuncLogIt sFuncName, "Could not find an action for  in [" & control.ID & "] definitions", C_MODULE_NAME, LogMsgType.Failure
+    FuncLogIt sFuncName, "Could not find an action for  in [" & control.id & "] definitions", C_MODULE_NAME, LogMsgType.Failure
     GoTo exitsub
 
 err:
@@ -279,31 +293,24 @@ End Sub
 
 Sub rxgal_getItemCount(control As IRibbonControl, ByRef returnedVal)
 'This callback tell the RibbonX how many labels you use in the Gallery
-    returnedVal = 12
+    returnedVal = 100
 End Sub
 
 Sub rxgal_getItemLabel(control As IRibbonControl, index As Integer, ByRef returnedVal)
 ''Use this if you want to use the cell values of "A1:A12" on Sheet2 as Label names
 '     returnedVal = Sheets("Sheet2").Cells(index + 1, 1).Value
+Dim wsCache As Worksheet
+Dim sLookUpRangeName As String
+Dim vLabelNames As Variant
+Dim clsQuadRuntime As New Quad_Runtime
 
-    Dim Labelname As Variant
-    Labelname = _
-    Array("Sheila Webster", _
-          "Brian Main", _
-          "Susan Zhang", _
-          "Anne Walzer", _
-          "Andrea Vogel", _
-          "Ronda Viescas", _
-          "Norman Harker", _
-          "Michelle Wells", _
-          "Wilma Yang", _
-          "Angel Wang", _
-          "Raymond Denny", _
-          "June Winograd")
-
-    On Error Resume Next
-    returnedVal = Labelname(index)
-    On Error GoTo 0
+    clsQuadRuntime.InitProperties bInitializeCache:=False
+     
+    Set wsCache = GetPersonData(clsQuadRuntime, QuadDataType.person, QuadSubDataType.Student, QuadScope.all, bInTable:=True)
+    sLookUpRangeName = GetDBColumnRange(wsCache.Name, "sStudentLastNm")
+    vLabelNames = ListFromRange(wsCache, sLookUpRangeName)
+    
+    returnedVal = vLabelNames(index + 1)
 End Sub
 
 Sub rxgal_getItemImage(control As IRibbonControl, index As Integer, ByRef returnedVal)
@@ -315,7 +322,7 @@ Dim vExtensions() As String
 
 
     If index > 8 Then
-        index = index - 8
+        index = 0
     End If
     
     vExtensions = InitStringArray(Array("png", "jpg"))

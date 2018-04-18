@@ -49,7 +49,7 @@ Public Sub CreatePySqliteArgsFile( _
     Optional sEncoding As String = "uni", _
     Optional aRows As Variant, _
     Optional sQryStr As String = "", _
-    Optional sFilename As String, _
+    Optional sFileName As String, _
     Optional sRuntimeDir As String, _
     Optional sResultFileName As String)
     
@@ -60,8 +60,8 @@ Dim sTmp As String
     MYHOME = Environ("MYHOME")
     
     ' these are here because you cannot have a const as a default value form optional arguments
-    If sFilename = "" Then
-        sFilename = MYHOME & "\Development\pyshell.args.txt"
+    If sFileName = "" Then
+        sFileName = MYHOME & "\Development\pyshell.args.txt"
     End If
     
     If sRuntimeDir = "" Then
@@ -81,37 +81,37 @@ Dim sTmp As String
     'rows           :[valA]^[valB]^[valC]$$[valA1]^[valB1]^[valC1]\n
 
     On Error Resume Next 'in case running for first time and nothing to delete
-    Call DeleteFile(sFilename)
+    Call DeleteFile(sFileName)
     On Error GoTo 0
-    Call TouchFile(sFilename)
+    Call TouchFile(sFileName)
 
     If bDecodeFlag = True Then
-        Call AppendFile(sFilename, "database_name:" & EncodeBase64(sDatabaseName) & vbCrLf)
-        Call AppendFile(sFilename, "table_name:" & EncodeBase64(sTableName) & vbCrLf)
-        Call AppendFile(sFilename, "delete_flag:" & EncodeBase64(CStr(bDeleteFlag)) & vbCrLf)
-        Call AppendFile(sFilename, "decode_flag:" & EncodeBase64(CStr(bDecodeFlag)) & vbCrLf)
-        Call AppendFile(sFilename, "runtime_dir:" & EncodeBase64(sRuntimeDir) & vbCrLf)
+        Call AppendFile(sFileName, "database_name:" & EncodeBase64(sDatabaseName) & vbCrLf)
+        Call AppendFile(sFileName, "table_name:" & EncodeBase64(sTableName) & vbCrLf)
+        Call AppendFile(sFileName, "delete_flag:" & EncodeBase64(CStr(bDeleteFlag)) & vbCrLf)
+        Call AppendFile(sFileName, "decode_flag:" & EncodeBase64(CStr(bDecodeFlag)) & vbCrLf)
+        Call AppendFile(sFileName, "runtime_dir:" & EncodeBase64(sRuntimeDir) & vbCrLf)
 
         If sQryStr <> "" Then
-            Call AppendFile(sFilename, "qry_str:" & EncodeBase64(sQryStr) & vbCrLf)
+            Call AppendFile(sFileName, "qry_str:" & EncodeBase64(sQryStr) & vbCrLf)
         End If
 
         If sResultFileName <> "" Then
-            Call AppendFile(sFilename, "result_file:" & EncodeBase64(sResultFileName) & vbCrLf)
+            Call AppendFile(sFileName, "result_file:" & EncodeBase64(sResultFileName) & vbCrLf)
         End If
         
     Else
-        Call AppendFile(sFilename, "database_name:" & Encode(sDatabaseName, sEncoding) & vbCrLf)
-        Call AppendFile(sFilename, "table_name:" & Encode(sTableName, sEncoding) & vbCrLf)
-        Call AppendFile(sFilename, "delete_flag:" & Encode(CStr(bDeleteFlag), sEncoding) & vbCrLf)
-        Call AppendFile(sFilename, "decode_flag:" & Encode(CStr(bDecodeFlag), sEncoding) & vbCrLf)
-        Call AppendFile(sFilename, "runtime_dir:" & Encode(sRuntimeDir, sEncoding) & vbCrLf)
+        Call AppendFile(sFileName, "database_name:" & Encode(sDatabaseName, sEncoding) & vbCrLf)
+        Call AppendFile(sFileName, "table_name:" & Encode(sTableName, sEncoding) & vbCrLf)
+        Call AppendFile(sFileName, "delete_flag:" & Encode(CStr(bDeleteFlag), sEncoding) & vbCrLf)
+        Call AppendFile(sFileName, "decode_flag:" & Encode(CStr(bDecodeFlag), sEncoding) & vbCrLf)
+        Call AppendFile(sFileName, "runtime_dir:" & Encode(sRuntimeDir, sEncoding) & vbCrLf)
 
         If sQryStr <> "" Then
-            Call AppendFile(sFilename, "qry_str:" & Encode(sQryStr, sEncoding) & vbCrLf)
+            Call AppendFile(sFileName, "qry_str:" & Encode(sQryStr, sEncoding) & vbCrLf)
         End If
         If sResultFileName <> "" Then
-            Call AppendFile(sFilename, "result_file:" & Encode(sResultFileName, sEncoding) & vbCrLf)
+            Call AppendFile(sFileName, "result_file:" & Encode(sResultFileName, sEncoding) & vbCrLf)
         End If
         
         
@@ -119,11 +119,11 @@ Dim sTmp As String
     End If
     
     If Not IsMissing(aColumnDefns) Then
-        Call AppendFile(sFilename, "column_defns:" & ArrayNDtoString(aColumnDefns, bUUEncode:=bDecodeFlag) & vbCrLf)
+        Call AppendFile(sFileName, "column_defns:" & ArrayNDtoString(aColumnDefns, bUUEncode:=bDecodeFlag) & vbCrLf)
     End If
     
     If Not IsMissing(aColumns) Then
-        Call AppendFile(sFilename, "columns:" & ArrayNDtoString(aColumns, bUUEncode:=bDecodeFlag) & vbCrLf)
+        Call AppendFile(sFileName, "columns:" & ArrayNDtoString(aColumns, bUUEncode:=bDecodeFlag) & vbCrLf)
     End If
     
     If Not IsMissing(aRows) Then
@@ -136,21 +136,21 @@ Dim sTmp As String
             sTmp = Replace(sTmp, "'", "")
         End If
 
-        Call AppendFile(sFilename, "rows:" & sTmp & vbCrLf)
+        Call AppendFile(sFileName, "rows:" & sTmp & vbCrLf)
     
     End If
 
 
 End Sub
 
-Public Function ParsePySqliteArgsFile(sFilename As String, Optional sEncoding As String = "uni") As Dictionary
+Public Function ParsePySqliteArgsFile(sFileName As String, Optional sEncoding As String = "uni") As Dictionary
 Dim dResult As New Dictionary
 Dim sFileStr As String
 Dim aResultRows() As String, aRows() As String, aCols() As String
 Dim aResult As Variant
 Dim iRow As Integer, iCol As Integer
 
-    sFileAsStr = ReadFile(sFilename)
+    sFileAsStr = ReadFile(sFileName)
     
     aResultRows = Split(sFileAsStr, vbLf)
     
@@ -187,14 +187,14 @@ Public Function DBInsert(sDatabaseName As String, _
                     aColumns() As String, _
                     aColumnsDefns() As String, _
                     aRows As Variant, _
-                    Optional sFilename As String)
+                    Optional sFileName As String)
        
 Dim sExecPath As String
 Dim iCurrentNumRows As Integer, iNumRows As Integer
 
     ' these are here because you cannot have a const as a default value form optional arguments
-    If sFilename = "" Then
-        sFilename = MYHOME & "\args.txt"
+    If sFileName = "" Then
+        sFileName = MYHOME & "\args.txt"
     End If
     
     sExecPath = Environ("MYHOME") & "\GitHub\quadviewer\utils\"
@@ -206,43 +206,43 @@ Dim iCurrentNumRows As Integer, iNumRows As Integer
                             aColumnDefns:=aColumnsDefns, _
                             aRows:=aRows, _
                             sQryStr:="select * from " & sTableName, _
-                            sFilename:=sFilename
+                            sFileName:=sFileName
                             
     aArgs = InitStringArray(Array("python", _
             sExecPath & "excel_database_util.py", _
             "--access_type query", _
-            "--input_filename " & sFilename, _
+            "--input_filename " & sFileName, _
             "--runtime_path " & sRuntimePath))
                    
-    iCurrentNumRows = UBound(Split(ShellRun(aArgs), DOUBLEDOLLAR)) + 1
+    iCurrentNumRows = UBound(Split(ShellRun_Foreground(aArgs), DOUBLEDOLLAR)) + 1
     
     
     ' create the database and table
     aArgs = InitStringArray(Array("python", _
             sExecPath & "excel_database_util.py", _
             "--access_type create", _
-            "--input_filename " & sFilename, _
+            "--input_filename " & sFileName, _
             "--runtime_path " & sRuntimePath))
 
-    sResults = ShellRun(aArgs)
+    sResults = ShellRun_Foreground(aArgs)
     
     aArgs = InitStringArray(Array("python", _
             sExecPath & "excel_database_util.py", _
             "--access_type insert", _
-            "--input_filename " & sFilename, _
+            "--input_filename " & sFileName, _
             "--runtime_path " & sRuntimePath))
 
 
-    sResults = ShellRun(aArgs)
+    sResults = ShellRun_Foreground(aArgs)
     
     aArgs = InitStringArray(Array("python", _
             sExecPath & "excel_database_util.py", _
             "--access_type query", _
-            "--input_filename " & sFilename, _
+            "--input_filename " & sFileName, _
             "--runtime_path " & sRuntimePath))
     
 
-     iNumRows = UBound(Split(ShellRun(aArgs), DOUBLEDOLLAR)) + 1
+     iNumRows = UBound(Split(ShellRun_Foreground(aArgs), DOUBLEDOLLAR)) + 1
      
      DBInsert = iNumRows
 End Function
@@ -252,7 +252,7 @@ Public Function DBQuery(sDatabaseName As String, _
                         sQryStr As String, _
                         Optional bDecodeFlag As Boolean = False, _
                         Optional bResultFile As Boolean = False, _
-                        Optional sFilename As String = "unipyshellargs.txt", _
+                        Optional sFileName As String = "unipyshellargs.txt", _
                         Optional sResultFileName As String = "pyshellresults.txt") As String
 Dim aArgs() As String
 Dim sExecPath As String
@@ -264,24 +264,24 @@ Dim sExecPath As String
                             sTableName, _
                             bDeleteFlag:=bDeleteFlag, _
                             sQryStr:=sQryStr, _
-                            sFilename:=sFilename
+                            sFileName:=sFileName
                             
     aArgs = InitStringArray(Array("python", _
             sExecPath & "excel_database_util.py", _
             "--access_type query", _
-            "--input_filename " & sFilename, _
+            "--input_filename " & sFileName, _
             "--runtime_path " & sRuntimePath))
             
     If bResultFile = True Then
         ReDim Preserve aArgs(0 To UBound(aArgs) + 1)
         aArgs(UBound(aArgs)) = "--result_file " & sRuntimePath & sResultFileName
 
-        ShellRun aArgs
+        ShellRun_Foreground aArgs
         ' return location of result file to caller
         DBQuery = sRuntimePath & sResultFileName
     Else
         ' return results directly to caller
-        DBQuery = CleanString(ShellRun(aArgs))
+        DBQuery = CleanString(ShellRun_Foreground(aArgs))
     End If
     
 End Function

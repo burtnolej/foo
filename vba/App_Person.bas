@@ -45,7 +45,7 @@ main:
 End Function
 Public Function get_person_student(clsQuadRuntime As Quad_Runtime, _
                       Optional bInTable As Boolean = True) As Worksheet
-    Set get_person_student = GetPersonData(clsQuadRuntime, QuadDataType.person, QuadSubDataType.student, eQuadScope:=QuadScope.all, bInTable:=bInTable)
+    Set get_person_student = GetPersonData(clsQuadRuntime, QuadDataType.person, QuadSubDataType.Student, eQuadScope:=QuadScope.all, bInTable:=bInTable)
 End Function
 Public Function get_person_teacher(clsQuadRuntime As Quad_Runtime, _
                       Optional bInTable As Boolean = True) As Worksheet

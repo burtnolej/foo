@@ -43,12 +43,18 @@ Dim cRGB As RGBColor
     IsEntryValid = True
 
 End Function
-Public Function SetEntryValue(sAction As String, sFieldName As String, vValue As Variant) As Integer
+Public Function SetEntryValue(sAction As String, sFieldName As String, vValue As Variant, _
+    Optional wbTmp As Workbook) As Integer
 Dim dDefnDetails As Dictionary
 Dim sEntryKey As String
 Dim sFuncName As String
 
 setup:
+
+    If IsSet(wbTmp) = False Then
+        Set wbTmp = ActiveWorkbook
+    End If
+    
     sFuncName = C_MODULE_NAME & "." & "SetEntryValue"
     
     sEntryKey = GetEntryKey(sAction, sFieldName)
@@ -60,7 +66,7 @@ setup:
     End If
     
     Set dDefnDetails = dDefinitions.Item(sEntryKey)
-    With ActiveWorkbook.Sheets(sAction)
+    With wbTmp.Sheets(sAction)
         .Range(dDefnDetails("address")).value = vValue
     End With
     
@@ -82,7 +88,7 @@ main:
         sActionName = Split(name_, "_")(0)
         If sActionName = "e" & sSheetName Then
             sFieldName = Split(name_, "_")(1)
-            Set rEntryCell = ActiveWorkbook.Sheets(sSheetName).Range(name_)
+            Set rEntryCell = wbTargetbook.Sheets(sSheetName).Range(name_)
             dValues.Add sFieldName, rEntryCell.value
             End If
     Next name_
@@ -103,7 +109,7 @@ main:
     aNames = GetSheetNamedRanges(wbTargetbook, sSheetName)
     For Each name_ In aNames
         If Split(name_, "_")(0) = "e" & sSheetName Then
-            Set rEntryCell = ActiveWorkbook.Sheets(sSheetName).Range(name_)
+            Set rEntryCell = wbTargetbook.Sheets(sSheetName).Range(name_)
             Set cRGB = GetBgColor(sSheetName, rEntryCell)
             If cRGB.AsString <> C_RGB_VALID Then
                 IsRecordValid = False
@@ -134,19 +140,23 @@ Dim wsTmp As Worksheet
 Dim wbTmp As Workbook
 
     If IsSet(clsQuadRuntime) = True Then
-        Set wbTmp = clsQuadRuntime.Book
+        ' 4/17/18 to get dynamic menus to work
+        Set wbTmp = clsQuadRuntime.TemplateBook
+        'Set wbTmp = clsQuadRuntime.Book
+        
         Set wsTmp = wbTmp.Sheets(clsQuadRuntime.DefinitionSheetName)
     Else
         Set wbTmp = ActiveWorkbook
         Set wsTmp = wbTmp.Sheets("Definitions")
     End If
     
-    wsTmp.Activate
+    'wsTmp.Activate
+    'HERE
     Set rSource = wsTmp.Range("Definitions")
     'Set rSource = wbTmp.Sheets("Definitions").Range("Definitions")
     Set Entry_Utils.dDefinitions = LoadDefinitions(wsTmp, rSource)
     
-End Sub
+    End Sub
 'Public Function IsValidInteger(ByVal iValue As Variant) As Boolean
 Public Function IsValidInteger(ParamArray args()) As Boolean
 Dim sFuncName As String
@@ -167,7 +177,7 @@ main:
     Exit Function
 err:
     IsValidInteger = False
-    FuncLogIt sFuncName, "Value [" & CStr(iValue) & "] is invalid [" & NotAnInteger & "]", C_MODULE_NAME, LogMsgType.OK
+    FuncLogIt sFuncName, "Value [" & CStr(iValue) & "] is invalid ", C_MODULE_NAME, LogMsgType.OK
 
 End Function
 Public Function IsValidPrep(ParamArray args()) As Boolean
@@ -192,7 +202,7 @@ main:
     End If
 err:
     IsValidPrep = False
-    FuncLogIt sFuncName, "Value [" & CStr(iValue) & "] is invalid [" & NotValidPrep & "]", C_MODULE_NAME, LogMsgType.OK
+    FuncLogIt sFuncName, "Value [" & CStr(iValue) & "] is invalid", C_MODULE_NAME, LogMsgType.OK
 
 End Function
 Public Function IsMember(ParamArray args()) As Boolean
@@ -215,7 +225,7 @@ Dim wsCache As Worksheet
         Set wsCache = Application.Run(Right(sLookUpTableName, Len(sLookUpTableName) - 1), clsQuadRuntime)
         vValidValues = ListFromRange(wsCache, sColumnRange)
     Else
-        vValidValues = ListFromRange(ActiveWorkbook.Sheets(sLookUpTableName), sColumnRange)
+        vValidValues = ListFromRange(clsQuadRuntime.CacheBook.Sheets(sLookUpTableName), sColumnRange)
     End If
     
     'sColumnRange = GetDBColumnRange(sLookUpTableName, sLookUpColumnName)
@@ -289,18 +299,22 @@ Dim sKey As String
     sKey = "e" & sSheetName & "_" & sFieldName
     GetEntryKey = sKey
 End Function
-Function GetEntryCell(sSheetName As String, sFieldName As String) As Range
+Function GetEntryCell(sSheetName As String, sFieldName As String, Optional wbTmp As Workbook) As Range
 Dim sFuncName As String
 Dim sKey As String
 Dim dDefnDetail As Dictionary
 Dim rEntry As Range
 
+    If IsSet(wbTmp) = False Then
+        Set wbTmp = ActiveWorkbook
+    End If
+    
     sFuncName = C_MODULE_NAME & "." & "GetEntryCell"
     sKey = GetEntryKey(sSheetName, sFieldName)
    
     Set dDefnDetail = dDefinitions.Item(sKey)
     
-    With ActiveWorkbook.Sheets(sSheetName)
+    With wbTmp.Sheets(sSheetName)
         Set GetEntryCell = .Range(dDefnDetail.Item("address"))
     End With
     
@@ -310,17 +324,22 @@ Public Function GenerateEntry(sSheetName As String, _
                               sKey As Variant, _
                               sAction As Variant, _
                               iRow As Integer, _
-                              Optional iCol As Integer = 1) As Range
+                              Optional iCol As Integer = 1, _
+                              Optional wbTmp As Workbook) As Range
 Dim sFuncName As String
 
     sFuncName = C_MODULE_NAME & "." & "GenerateEntry"
     
-    With ActiveWorkbook.Sheets(sSheetName)
+    If IsSet(wbTmp) = False Then
+        Set wbTmp = ActiveWorkbook
+    End If
+    
+    With wbTmp.Sheets(sSheetName)
         sFieldName = Split(sKey, "_")(1)
         Set rCell = .Range(.Cells(iRow, iCol), .Cells(iRow, iCol))
     
         rCell.value = sFieldName
-        CreateNamedRange ActiveWorkbook, rCell.Offset(, 1).Address, CStr(sAction), CStr(sKey), "True"
+        CreateNamedRange wbTmp, rCell.Offset(, 1).Address, CStr(sAction), CStr(sKey), "True"
     End With
     
     Set GenerateEntry = rCell.Offset(, 1)
@@ -328,12 +347,16 @@ Dim sFuncName As String
     FuncLogIt sFuncName, "Generated for field [" & sFieldName & "] in cell [" & GenerateEntry.Address & "]", C_MODULE_NAME, LogMsgType.OK
      
 End Function
-Public Sub DeleteEntry(sSheetName As String, sKey As Variant)
+Public Sub DeleteEntry(sSheetName As String, sKey As Variant, Optional wbTmp As Workbook)
 Dim sFuncName As String
 
+    If IsSet(wbTmp) = False Then
+        Set wbTmp = ActiveWorkbook
+    End If
+    
     sFuncName = C_MODULE_NAME & "." & "DeleteEntry"
     If Left(sKey, Len("e" & sSheetName)) = "e" & sSheetName Then
-        DeleteNamedRange ActiveWorkbook, sSheetName, CStr(sKey)
+        DeleteNamedRange wbTmp, sSheetName, CStr(sKey)
     Else
         FuncLogIt sFuncName, "Not an entry named range [" & sKey & "]", C_MODULE_NAME, LogMsgType.INFO
     End If
@@ -345,10 +368,10 @@ Public Function GenerateButton(wbSourceBook As Workbook, wbTargetbook As Workboo
                                eButtonState As CellState, sButtonFormatSheetName As String) As Range
 Dim sButtonRangeName As String
 
-   With ActiveWorkbook.Sheets(sSheetName)
+   With wbTargetbook.Sheets(sSheetName)
         Set rCell = .Range(.Cells(iRow, iCol), .Cells(iRow, iCol))
         sButtonRangeName = "b" & sSheetName
-        CreateNamedRange ActiveWorkbook, rCell.Address, sSheetName, sButtonRangeName, "True"
+        CreateNamedRange wbTargetbook, rCell.Address, sSheetName, sButtonRangeName, "True"
     End With
     
     Set GenerateButton = rCell
@@ -366,7 +389,7 @@ Dim rCurrentFocus As Range
 Dim rCell As Range
 
     EventsToggle False
-    With ActiveWorkbook.Sheets(sSheetName)
+    With wbTargetbook.Sheets(sSheetName)
         Set rCurrentFocus = Selection
         Set rCell = .Range(.Cells(iRow, iCol), .Cells(iRow, iCol))
     End With
@@ -410,10 +433,14 @@ Dim sKey As Variant
     
 End Sub
 
-Public Sub DeleteEntryForms()
+Public Sub DeleteEntryForms(Optional wbTmp As Workbook)
 Dim sAction As Variant
 Dim sKey As Variant
 
+    If IsSet(wbTmp) = False Then
+        Set wbTmp = ActiveWorkbook
+    End If
+    
     If dDefinitions Is Nothing Then
         DoLoadDefinitions
     End If
@@ -421,10 +448,9 @@ Dim sKey As Variant
     Set dActions = dDefinitions.Item("actions")
     For Each sAction In dActions.Keys()
         For Each sKey In dDefinitions.Keys()
-        
-            DeleteEntry CStr(sAction), sKey
+            DeleteEntry CStr(sAction), sKey, wbTmp:=wbTmp
         Next sKey
-        DeleteSheet ActiveWorkbook, CStr(sAction)
+        DeleteSheet wbTmp, CStr(sAction)
     Next sAction
     
 End Sub
@@ -444,21 +470,35 @@ Dim wsForm As Worksheet
     Set wsForm = clsQuadRuntime.Book.Sheets(sTargetSheetName)
     
     With clsQuadRuntime.TemplateSheet
-        .Activate
-        Set rFormFormatRange = .Range(sFormFormatRangeName)
-        rFormFormatRange.Select
-        Selection.Copy
+        '.Activate
+        'Set rFormFormatRange = .Range(sFormFormatRangeName)
+        'rFormFormatRange.Select
+        'Selection.Copy
+        
+        .Range(sFormFormatRangeName).Copy
+        iFormatWidth = .Range(sFormFormatRangeName).Columns.Count
+        iFormatHeight = .Range(sFormFormatRangeName).Rows.Count
+        
     End With
         
-    iFormatWidth = rFormFormatRange.Columns.Count
-    iFormatHeight = rFormFormatRange.Rows.Count
+    'Set rFormFormatRange = clsQuadRuntime.TemplateSheet.Range(sFormFormatRangeName)
+    'iFormatWidth = rFormFormatRange.Columns.Count
+    'iFormatHeight = rFormFormatRange.Rows.Count
     
     wsForm.Visible = True
     With wsForm
-        .Activate
-        Set rFormFormatTargetRange = wsForm.Range(.Cells(iFirstRow, iFirstCol), .Cells(iFirstRow + iFormatHeight - 1, iFirstCol + iFormatWidth - 1))
-        rFormFormatTargetRange.Select
-        Selection.PasteSpecial Paste:=xlPasteFormats, operation:=xlNone, SkipBlanks:=False, Transpose:=False
+        '.Activate
+        'Set rFormFormatTargetRange = wsForm.Range(.Cells(iFirstRow, iFirstCol), .Cells(iFirstRow + iFormatHeight - 1, iFirstCol + iFormatWidth - 1))
+        'rFormFormatTargetRange.Select
+        'Selection.PasteSpecial Paste:=xlPasteFormats, operation:=xlNone, SkipBlanks:=False, Transpose:=False
+        
+        '.Activate
+        wsForm.Range(.Cells(iFirstRow, iFirstCol), _
+                     .Cells(iFirstRow + iFormatHeight - 1, _
+                            iFirstCol + iFormatWidth - 1)).PasteSpecial Paste:=xlPasteFormats, _
+                                                                               operation:=xlNone, _
+                                                                               SkipBlanks:=False, _
+                                                                               Transpose:=False
     End With
 
     FormatColRowSize clsQuadRuntime.TemplateBook, clsQuadRuntime.Book, _
@@ -527,7 +567,7 @@ setup:
         
             For Each sKey In dDefinitions.Keys()
                 If Split(sKey, "_")(0) = "e" & sAction Then
-                    Set rCell = GenerateEntry(CStr(sAction), sKey, sAction, iRow)
+                    Set rCell = GenerateEntry(CStr(sAction), sKey, sAction, iRow, wbTmp:=clsQuadRuntime.CacheBook)
                     dDefinitions.Item(sKey).Add "address", rCell.Address
                     
                     ' copy across any formatting that exists
@@ -705,19 +745,19 @@ setup:
         On Error GoTo 0
         
         If Validate = True Then
-            SetBgColorFromString sSheetName, rTarget, C_RGB_VALID
+            SetBgColorFromString sSheetName, rTarget, C_RGB_VALID, wbTmp:=clsQuadRuntime.CacheBook
             Exit Function
         End If
     End If
     
-    SetBgColorFromString sSheetName, rTarget, C_RGB_INVALID
+    SetBgColorFromString sSheetName, rTarget, C_RGB_INVALID, wbTmp:=clsQuadRuntime.CacheBook
     Validate = False
     EventsToggle True
     
     Exit Function
 
 err:
-    SetBgColorFromString sSheetName, rTarget, C_RGB_ERROR
+    SetBgColorFromString sSheetName, rTarget, C_RGB_ERROR, wbTmp:=clsQuadRuntime.CacheBook
     FuncLogIt sFuncName, "Error [" & err.Description & "]", C_MODULE_NAME, _
             LogMsgType.Failure
     Exit Function

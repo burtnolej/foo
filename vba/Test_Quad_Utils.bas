@@ -29,7 +29,7 @@ setup:
     Set Entry_Utils.dDefinitions = LoadDefinitions(wsTmp, rSource:=rTarget)
     
     If CrossRefQuadData(clsQuadRuntime, QuadDataType.person, _
-                    QuadSubDataType.student, "idStudent", 1, "sStudentLastNm") <> "Gromek" Then
+                    QuadSubDataType.Student, "idStudent", 1, "sStudentLastNm") <> "Gromek" Then
         eTestResult = TestResult.Failure
         GoTo teardown
     End If
@@ -87,9 +87,9 @@ setup:
     Set rTarget = RangeFromStrArray(vSource, wsTmp, 0, 1)
     Set Entry_Utils.dDefinitions = LoadDefinitions(wsTmp, rSource:=rTarget)
     
-    GetPersonDataFromDB clsQuadRuntime, QuadSubDataType.student, eQuadScope:=QuadScope.all
+    GetPersonDataFromDB clsQuadRuntime, QuadSubDataType.Student, eQuadScope:=QuadScope.all
     aPersonData = ParseRawData(ReadFile(clsQuadRuntime.ResultFileName))
-    sCacheSheetName = CacheData(clsQuadRuntime, aPersonData, QuadDataType.person, QuadSubDataType.student, bInTable:=True)
+    sCacheSheetName = CacheData(clsQuadRuntime, aPersonData, QuadDataType.person, QuadSubDataType.Student, bInTable:=True)
         
     With clsQuadRuntime.CacheBook.Sheets(sCacheSheetName)
         If .Range(.Cells(83, 2), .Cells(83, 2)).value <> "Tzvi" Then

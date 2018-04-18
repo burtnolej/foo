@@ -86,14 +86,14 @@ End Function
 
 Sub DumpTestResultsToDB(dProjectTestResult As Dictionary, sBookName As String, _
         sDatabaseName As String, sTableName As String, _
-        Optional sFilename As String)
+        Optional sFileName As String)
 Dim sModuleTest As Variant, vTestResult As Variant, sTestCase As Variant, vTestCase As Variant
 Dim aColumnDefns() As Variant, aRows() As String
 Dim aColumns() As String, aArgs() As String
 Dim iResultCount As Integer
 Dim sExecPath As String
 
-    If sFilename = "" Then sFilename = Environ("MYHOME") & "\\unifoo.txt"
+    If sFileName = "" Then sFileName = Environ("MYHOME") & "\\unifoo.txt"
     'End If
     
     sExecPath = Environ("MYHOME") & "\GitHub\quadviewer\utils\excel\"
@@ -123,22 +123,22 @@ Dim sExecPath As String
     
     aRows = ReDim2DArray(aRows, iResultCount, 6)
         
-    CreatePySqliteArgsFile sDatabaseName, sTableName, aColumnDefns:=aColumnDefns, sFilename:=sFilename, _
+    CreatePySqliteArgsFile sDatabaseName, sTableName, aColumnDefns:=aColumnDefns, sFileName:=sFileName, _
                            aRows:=aRows, aColumns:=aColumns
     
     ' test is the table already exists
     'CreatePySqliteArgsFile sDatabaseName, sTableName, sFileName:=sFileName
-    aArgs = InitStringArray(Array("python", sExecPath & "excel_database_util.py", "--access_type table_exists", "--input_filename " & sFilename))
+    aArgs = InitStringArray(Array("python", sExecPath & "excel_database_util.py", "--access_type table_exists", "--input_filename " & sFileName))
     If Left(ShellRun(aArgs), 4) <> "True" Then
         ' create db/table
         aArgs = InitStringArray(Array("python", sExecPath & "excel_database_util.py", _
-                "--access_type create", "--input_filename " & sFilename))
+                "--access_type create", "--input_filename " & sFileName))
         sResults = ShellRun(aArgs)
     End If
 
     ' insert rows
     aArgs = InitStringArray(Array("python", sExecPath & "excel_database_util.py", _
-            "--access_type insert", "--input_filename " & sFilename))
+            "--access_type insert", "--input_filename " & sFileName))
     sResults = ShellRun(aArgs)
     
 End Sub
@@ -178,7 +178,7 @@ Dim sIncModules As String
     
     'ProjectTestRunner
     'Exit Sub
-    'sIncModules = "Test_Quad_Runtime"
+    'sIncModules = "Test_Entry_Utils"
     'ProjectTestRunner sIncModules
     'Exit Sub
     sIncModules = sIncModules & ",Test_App_Schedule"
@@ -186,7 +186,7 @@ Dim sIncModules As String
     sIncModules = sIncModules & ",Test_App_Person"
     sIncModules = sIncModules & ",Test_App_Courses"
     sIncModules = sIncModules & ",Test_Array_Utils"
-    sIncModules = sIncModules & ",Test_DB_Utils"
+    'sIncModules = sIncModules & ",Test_DB_Utils"
     sIncModules = sIncModules & ",Test_Entry_Utils"
     sIncModules = sIncModules & ",Test_Dict_Utils,Test_File_Utils"
     sIncModules = sIncModules & ",Test_Filter_Utils"
@@ -235,7 +235,8 @@ Dim vTestResult As Variant
                 GoTo nextmodule
             End If
         End If
-                
+        
+        Debug.Print sModuleTest
         ' for this module, create a dictionary to store results for this module
         Set dModuleTestResult = New Dictionary
 

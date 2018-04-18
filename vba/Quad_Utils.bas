@@ -9,7 +9,7 @@ Attribute VB_Name = "Quad_Utils"
 Const C_MODULE_NAME = "Quad_Utils"
 
 Enum QuadDataType
-    Schedule = 1
+    schedule = 1
     person = 2
     courses = 3
     misc = 4
@@ -18,7 +18,7 @@ End Enum
 Const C_QUAD_DATA_TYPE = "schedule,person,courses,misc"
 
 Enum QuadSubDataType
-    student = 1
+    Student = 1
     teacher = 2
     Course = 3
     subject = 4
@@ -342,7 +342,7 @@ Dim wsCurrentFocus As Worksheet
     
     ' wrap the data in a Table structure from Table_Utils or create manually
     If bInTable = True Then
-        CreateTable sCacheSheetName
+        CreateTable sCacheSheetName, wbTmp:=clsQuadRuntime.CacheBook
         ReDim vColNames(0 To UBound(aData, 2))
         For iColCount = 0 To UBound(aData, 2)
             vColNames(iColCount) = aData(0, iColCount)
@@ -359,11 +359,12 @@ Dim wsCurrentFocus As Worksheet
         iNumCols = UBound(aData, 2)
         
         With wsCache
-            .Activate
+            '.Activate
+            ' HERE
             Set rTarget = .Range(.Cells(1, 1), .Cells(iNumRows + 1, iNumCols + 1))
             rTarget.value = aData
             
-            CreateNamedRange ActiveWorkbook, rTarget.Address, sCacheSheetName, clsQuadRuntime.CacheRangeName, sLocalScope:="True"
+            CreateNamedRange clsQuadRuntime.CacheBook, rTarget.Address, sCacheSheetName, clsQuadRuntime.CacheRangeName, sLocalScope:="True"
         End With
     End If
 

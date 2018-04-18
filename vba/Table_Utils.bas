@@ -15,14 +15,18 @@ Const C_MODULE_NAME = "Table_Utils"
 
 Const C_DB_DEFAULT_FIELDS = "CreatedTime,LastUpdatedTime,ID"
 
-Public Function CalcCreatedTime(sTableName As String) As Date
+Public Function CalcCreatedTime(sTableName As String, Optional wbTmp As Workbook) As Date
     CalcCreatedTime = Now()
 End Function
-Public Function CalcLastUpdatedTime(sTableName As String) As Date
+Public Function CalcLastUpdatedTime(sTableName As String, Optional wbTmp As Workbook) As Date
     CalcLastUpdatedTime = Now()
 End Function
-Public Function CalcID(sTableName As String) As Integer
-    CalcID = ActiveWorkbook.Sheets(sTableName).Range("i" & sTableName & "NextFree").value
+Public Function CalcID(sTableName As String, Optional wbTmp As Workbook) As Integer
+    If IsSet(wbTmp) = False Then
+        Set wbTmp = ActiveWorkbook
+    End If
+    
+    CalcID = wbTmp.Sheets(sTableName).Range("i" & sTableName & "NextFree").value
 End Function
 Public Sub FormatID(wsTmp As Worksheet, rCell As Range)
     MakeCellInteger wsTmp, rCell
@@ -42,7 +46,7 @@ Dim sLookUpTableName As String
     
     GetDBColumnRange = "db" & sTableName & sFieldName
 End Function
-Public Function GetTableRecord(sTableName As String, iID As Integer) As Dictionary
+Public Function GetTableRecord(sTableName As String, iID As Integer, Optional wbTmp As Workbook) As Dictionary
 Dim sFuncName As String
 Dim i As Integer
 Dim wsTable As Worksheet
@@ -54,8 +58,13 @@ Dim sFieldName As String
 Dim sFieldValue As String
 
 setup:
+
+    If IsSet(wbTmp) = False Then
+        Set wbTmp = ActiveWorkbook
+    End If
+    
     sFuncName = C_MODULE_NAME & "." & "GetTableRecord"
-    Set wsTable = GetSheet(ActiveWorkbook, sTableName)
+    Set wsTable = GetSheet(wbTmp, sTableName)
     
 main:
     With wsTable
@@ -130,7 +139,7 @@ main:
     
             For iDefaultFieldCount = 0 To UBound(aDefaultFields)
                 sColRange = GetDBColumnRange(sTableName, aDefaultFields(iDefaultFieldCount))
-                wsTable.Range(sColRange).Rows(iNextFree) = Application.Run("Calc" & aDefaultFields(iDefaultFieldCount), sTableName)
+                wsTable.Range(sColRange).Rows(iNextFree) = Application.Run("Calc" & aDefaultFields(iDefaultFieldCount), sTableName, wbTmp)
             Next iDefaultFieldCount
             wsTable.Range("i" & sTableName & "NextFree").value = iNextFree
             iNextFree = iNextFree + 1
@@ -173,7 +182,7 @@ main:
 
     AddTableRecordFromDict = iNextFree
 End Function
-Public Function AddTableRecord(sTableName As String) As Integer
+Public Function AddTableRecord(sTableName As String, Optional wbTmp As Workbook) As Integer
 Dim sKey As Variant
 Dim dDefnDetails As Dictionary
 Dim wsTmp As Worksheet
@@ -186,8 +195,13 @@ Dim i As Integer
 
 setup:
     sFuncName = C_MODULE_NAME & "." & "AddTableRecord"
-    Set wsTmp = GetSheet(ActiveWorkbook, "New" & sTableName)
-    Set wsTable = GetSheet(ActiveWorkbook, sTableName)
+    
+    If IsSet(wbTmp) = False Then
+        Set wbTmp = ActiveWorkbook
+    End If
+    
+    Set wsTmp = GetSheet(wbTmp, "New" & sTableName)
+    Set wsTable = GetSheet(wbTmp, sTableName)
     
 main:
     With wsTmp
@@ -203,7 +217,7 @@ main:
                 Set dDefnDetails = dDefinitions.Item(sKey)
                 sColRange = GetDBColumnRange(sTableName, dDefnDetails.Item("db_field_name"))
 
-                If NamedRangeExists(ActiveWorkbook, sTableName, sColRange) = False Then
+                If NamedRangeExists(wbTmp, sTableName, sColRange) = False Then
                     AddTableRecord = -1
                     FuncLogIt sFuncName, "range [" & sColRange & "] does not exist in sheet [" & sTableName & "]", C_MODULE_NAME, LogMsgType.OK
                     Exit Function
@@ -216,7 +230,7 @@ main:
         aDefaultFields = Split(C_DB_DEFAULT_FIELDS, ",")
         For i = 0 To UBound(aDefaultFields)
             sColRange = GetDBColumnRange(sTableName, aDefaultFields(i))
-            wsTable.Range(sColRange).Rows(iNextFree) = Application.Run("Calc" & aDefaultFields(i), sTableName)
+            wsTable.Range(sColRange).Rows(iNextFree) = Application.Run("Calc" & aDefaultFields(i), sTableName, wbTmp)
             'Application.Run "Format" & aDefaultFields(i), wsTmp, wsTable.Range(sColRange).Rows(iNextFree)
         Next i
     End With
@@ -228,19 +242,24 @@ main:
 err:
     
 End Function
-Public Sub CreateTableColumn(wsTmp As Worksheet, iCol As Integer, sTableName As String, sFieldName As String)
+Public Sub CreateTableColumn(wsTmp As Worksheet, iCol As Integer, sTableName As String, sFieldName As String, _
+                Optional wbTmp As Workbook)
 Dim rColumn As Range
 Dim sRangeName As String
 
+    If IsSet(wbTmp) = False Then
+        Set wbTmp = ActiveWorkbook
+    End If
+    
     With wsTmp
         .Range(.Cells(1, iCol), .Cells(1, iCol)).value = sFieldName
         Set rColumn = .Range(.Cells(1, iCol), .Cells(10000, iCol))
     End With
     
     sRangeName = "db" & sTableName & sFieldName
-    CreateNamedRange ActiveWorkbook, rColumn.Address, wsTmp.Name, sRangeName, "True"
+    CreateNamedRange wbTmp, rColumn.Address, wsTmp.Name, sRangeName, "True"
 End Sub
-Public Function CreateTable(sTableName As String) As Worksheet
+Public Function CreateTable(sTableName As String, Optional wbTmp As Workbook) As Worksheet
 Dim iCol As Integer
 Dim dDefnDetail As Dictionary
 Dim vSource() As String
@@ -256,9 +275,13 @@ Dim clsQuadRuntime As New Quad_Runtime
 setup:
     clsQuadRuntime.InitProperties bInitializeCache:=False
     
+    If IsSet(wbTmp) = False Then
+        Set wbTmp = ActiveWorkbook
+    End If
+    
     sFuncName = C_MODULE_NAME & "." & "CreateTable"
     
-    Set wsTmp = CreateSheet(ActiveWorkbook, CStr(sTableName), bOverwrite:=True)
+    Set wsTmp = CreateSheet(wbTmp, CStr(sTableName), bOverwrite:=True)
     wsTmp.Visible = xlSheetHidden
     
     aDefaultFields = Split(C_DB_DEFAULT_FIELDS, ",")
@@ -274,18 +297,20 @@ setup:
             If dDefinitions.Item(sKey).Item("db_table_name") = sTableName Then
                 Set dDefnDetail = dDefinitions.Item(sKey)
                 iCol = iCol + 1
-                CreateTableColumn wsTmp, iCol, sTableName, dDefinitions.Item(sKey).Item("db_field_name")
+                CreateTableColumn wsTmp, iCol, sTableName, dDefinitions.Item(sKey).Item("db_field_name"), _
+                    wbTmp:=clsQuadRuntime.CacheBook
             End If
         Next sKey
         iCol = iCol + 1
         For i = iCol To iCol + UBound(aDefaultFields)
-            CreateTableColumn wsTmp, i, sTableName, aDefaultFields(i - iCol)
+            CreateTableColumn wsTmp, i, sTableName, aDefaultFields(i - iCol), _
+                wbTmp:=clsQuadRuntime.CacheBook
         Next i
 
         Set rTarget = .Range(.Cells(1, i + 1), .Cells(1, i + 1))
         rTarget.value = 1
         sRangeName = "i" & sTableName & "NextFree"
-        CreateNamedRange ActiveWorkbook, rTarget.Address, wsTmp.Name, sRangeName, "True"
+        CreateNamedRange wbTmp, rTarget.Address, wsTmp.Name, sRangeName, "True"
         
         FuncLogIt sFuncName, "Created db table [" & sTableName & "] with [" & CStr(i + 1) & "] columns", C_MODULE_NAME, LogMsgType.INFO
     End With
@@ -294,7 +319,7 @@ setup:
                 
 End Function
 
-Public Sub CreateTables()
+Public Sub CreateTables(Optional wbTmp As Workbook)
 
 Dim dTables As Dictionary
 Dim sTableName As Variant
@@ -305,6 +330,10 @@ Dim wsTmp
 setup:
     sFuncName = C_MODULE_NAME & "." & "CreateTables"
 
+    If IsSet(wbTmp) = False Then
+        Set wbTmp = ActiveWorkbook
+    End If
+    
     If dDefinitions Is Nothing Then
         DoLoadDefinitions
     End If
@@ -312,7 +341,7 @@ setup:
     Set dTables = dDefinitions.Item("tables")
     For Each sTableName In dTables.Keys()
         iCount = iCount + 1
-        CreateTable CStr(sTableName)
+        CreateTable CStr(sTableName), wbTmp:=wbTmp
         
     Next sTableName
 

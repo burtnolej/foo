@@ -11,31 +11,44 @@ Dim iPersonID As Integer
     clsQuadRuntime.InitProperties bInitializeCache:=False
     sFormatRangeName = "f" & "student" & "ScheduleCell"
     Set dEntryValues = GetRecordValuesAsDict(clsQuadRuntime.TemplateBook, clsQuadRuntime.CacheBook, "NewLesson")
-    iPersonID = CrossRefQuadData(clsQuadRuntime, QuadDataType.person, QuadSubDataType.student, "sStudentFirstNm", dEntryValues.Item("sStudentFirstNm"), "idStudent")
+    iPersonID = CrossRefQuadData(clsQuadRuntime, QuadDataType.person, QuadSubDataType.Student, "sStudentFirstNm", dEntryValues.Item("sStudentFirstNm"), "idStudent")
     Set NewLesson = AddNewLesson(clsQuadRuntime, dEntryValues, sFormatRangeName, iPersonID)
     
 End Function
         
 Function AddNewLesson(clsQuadRuntime As Quad_Runtime, dValues As Dictionary, sTemplateRangeName As String, _
                 iStudentID As Integer, _
-                Optional eQuadDataSubType As QuadSubDataType = QuadSubDataType.student) As Range
+                Optional eQuadDataSubType As QuadSubDataType = QuadSubDataType.Student) As Range
 Dim iFormatWidth As Integer, iFormatHeight As Integer, iColWidthCount As Integer
 Dim aColumnWidths() As Integer
-Dim sSheetName As String, sTableName As String
+Dim sSheetName As String, sTableName As String, sTemplateRowRangeName As String, sTemplateColRangeName As String
 Dim wsSchedule As Worksheet, wsTable As Worksheet
-
+Dim rTemplateSource As Range
+    
+    clsQuadRuntime.ScheduleBook.Windows(1).Visible = False
+    
     sSheetName = "view_" & EnumQuadSubDataType(eQuadDataSubType) & "_" & CStr(iStudentID)
-    If SheetExists(clsQuadRuntime.CacheBook, sSheetName) = False Then
-        Set wsSchedule = CreateSheet(clsQuadRuntime.CacheBook, sSheetName)
+    If SheetExists(clsQuadRuntime.ScheduleBook, sSheetName) = False Then
+        Set wsSchedule = CreateSheet(clsQuadRuntime.ScheduleBook, sSheetName)
+        
+        ' draw headers
+        sTemplateRowRangeName = "f" & "student" & "ScheduleRowLabel"
+        GetScheduleCellFormat clsQuadRuntime, iFormatWidth, iFormatHeight, sTemplateRowRangeName
+        BuildScheduleHeaderView clsQuadRuntime, wsSchedule, clsQuadRuntime.PeriodEnum, iFormatWidth, iFormatHeight
+    
+        sTemplateColRangeName = "f" & "student" & "ScheduleColLabel"
+        GetScheduleCellFormat clsQuadRuntime, iFormatWidth, iFormatHeight, sTemplateColRangeName
+        BuildScheduleHeaderView clsQuadRuntime, wsSchedule, clsQuadRuntime.DayEnum, iFormatWidth, iFormatHeight, iStartCol:=4, iStartRow:=2, bVz:=False
+
     Else
-        Set wsSchedule = GetSheet(clsQuadRuntime.CacheBook, sSheetName)
+        Set wsSchedule = GetSheet(clsQuadRuntime.ScheduleBook, sSheetName)
     End If
     
     sTableName = "schedule_" & EnumQuadSubDataType(eQuadDataSubType)
     
     ' if Table does not exist
     If SheetExists(clsQuadRuntime.CacheBook, sTableName) = False Then
-        Set wsTable = CreateTable(sTableName)
+        Set wsTable = CreateTable(sTableName, wbTmp:=clsQuadRuntime.CacheBook)
     Else
         Set wsTable = GetSheet(clsQuadRuntime.CacheBook, sTableName)
     End If
@@ -49,6 +62,8 @@ Dim wsSchedule As Worksheet, wsTable As Worksheet
     Set AddNewLesson = BuildScheduleCellView(clsQuadRuntime, wsSchedule, dValues, iFormatWidth, iFormatHeight, aColumnWidths)
 
     AddTableRecordFromDict wsTable, sTableName, dValues
+    
+    clsQuadRuntime.ScheduleBook.Windows(1).Visible = True
 End Function
 Public Sub GenerateScheduleEntry(clsQuadRuntime As Quad_Runtime)
 Dim sFuncName As String, sSheetName As String
@@ -65,7 +80,7 @@ setup:
     sFuncName = CsModuleName & "." & "GenerateScheduleEntry"
     sSheetName = "test"
     'clsQuadRuntime.InitProperties bInitializeCache:=True, sDefinitionSheetName:=sSheetName
-    Set wsTmp = CreateSheet(clsQuadRuntime.Book, sSheetName, bOverwrite:=True)
+    Set wsTmp = CreateSheet(clsQuadRuntime.TemplateBook, sSheetName, bOverwrite:=True)
 
     ''sDefn = "NewLesson^Lesson^SFirstName^String^IsMember^&get_person_student^sStudentFirstNm" & DOUBLEDOLLAR
     ''sDefn = sDefn & "NewLesson^Lesson^SLastName^String^IsMember^&get_person_student^sStudentLastNm" & DOUBLEDOLLAR
@@ -125,7 +140,7 @@ setup:
     vSource = Init2DStringArrayFromString(sDefn)
 
     Set rTarget = RangeFromStrArray(vSource, wsTmp, 0, 1)
-    CreateNamedRange clsQuadRuntime.Book, rTarget.Address, sSheetName, "Definitions", "True"
+    CreateNamedRange clsQuadRuntime.TemplateBook, rTarget.Address, sSheetName, "Definitions", "True"
     Set Entry_Utils.dDefinitions = LoadDefinitions(wsTmp, rSource:=rTarget)
 
 main:

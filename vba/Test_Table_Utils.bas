@@ -9,6 +9,7 @@ Attribute VB_Name = "Test_Table_Utils"
 Option Explicit
 Const CsModuleName = "Test_Table_Utils"
 
+
 Function TestAddTableRecordAuto() As TestResult
 Dim sFuncName As String, sSheetName As String, sResultStr As String, sExpectedResultStr As String, sColumns As String
 Dim vSource() As String, vRows() As String, vColNames() As String
@@ -24,7 +25,7 @@ setup:
     
     sFuncName = CsModuleName & "." & "AddTableRecordAuto"
     sSheetName = "test"
-    Set wsTmp = CreateSheet(ActiveWorkbook, sSheetName, bOverwrite:=True)
+    Set wsTmp = CreateSheet(clsQuadRuntime.TemplateBook, sSheetName, bOverwrite:=True)
     vSource = Init2DStringArray([{"NewFoo","Foo","FooName","List","IsMember";"NewFoo","Foo","FooAge","Integer","IsValidInteger";"NewBar","Bar","BarName","List","IsMember";"NewBar","Bar","BarAge","Integer","IsValidInteger"}])
     Set rTarget = RangeFromStrArray(vSource, wsTmp, 0, 1)
     vRows = Init2DStringArray([{"Jon","43";"Quinton","6"}])
@@ -32,11 +33,11 @@ setup:
 main:
 
     Set Entry_Utils.dDefinitions = LoadDefinitions(wsTmp, rSource:=rTarget)
-    CreateTables
+    CreateTables wbTmp:=clsQuadRuntime.CacheBook
         
-    AddTableRecordAuto ActiveWorkbook, "foo", vColNames, vRows
+    AddTableRecordAuto clsQuadRuntime.CacheBook, "foo", vColNames, vRows
     
-    Set dRecord = GetTableRecord("Foo", 2)
+    Set dRecord = GetTableRecord("Foo", 2, wbTmp:=clsQuadRuntime.CacheBook)
     
     If dRecord.Exists("FooAge") = False Then
          eTestResult = TestResult.Failure
@@ -69,9 +70,9 @@ err:
 teardown:
     TestAddTableRecordAuto = eTestResult
     clsQuadRuntime.Delete
-    DeleteSheet ActiveWorkbook, sSheetName
-    DeleteSheet ActiveWorkbook, "Foo"
-    DeleteSheet ActiveWorkbook, "Bar"
+    DeleteSheet clsQuadRuntime.CacheBook, sSheetName
+    DeleteSheet clsQuadRuntime.CacheBook, "Foo"
+    DeleteSheet clsQuadRuntime.CacheBook, "Bar"
     CloseBook clsQuadRuntime.CacheBook
     DeleteBook clsQuadRuntime.CacheBookName, clsQuadRuntime.CacheBookPath
 
@@ -104,16 +105,16 @@ setup:
 main:
 
     Set Entry_Utils.dDefinitions = LoadDefinitions(wsTmp, rSource:=rTarget)
-    CreateTables
+    CreateTables clsQuadRuntime.CacheBook
     
     GenerateEntryForms clsQuadRuntime
     
-    SetEntryValue "NewFoo", "FooAge", 123
-    SetEntryValue "NewFoo", "FooName", "blahblah"
+    SetEntryValue "NewFoo", "FooAge", 123, wbTmp:=clsQuadRuntime.CacheBook
+    SetEntryValue "NewFoo", "FooName", "blahblah", wbTmp:=clsQuadRuntime.CacheBook
     
-    AddTableRecord "Foo"
+    AddTableRecord "Foo", wbTmp:=clsQuadRuntime.CacheBook
     
-    Set dRecord = GetTableRecord("Foo", 1)
+    Set dRecord = GetTableRecord("Foo", 1, wbTmp:=clsQuadRuntime.CacheBook)
     
     If dRecord.Exists("FooAge") = False Then
          eTestResult = TestResult.Failure
@@ -147,12 +148,11 @@ teardown:
     DeleteSheet ActiveWorkbook, sSheetName
     DeleteSheet ActiveWorkbook, "Foo"
     DeleteSheet ActiveWorkbook, "Bar"
-    DeleteEntryForms
+    DeleteEntryForms wbTmp:=clsQuadRuntime.CacheBook
     CloseBook clsQuadRuntime.CacheBook
     DeleteBook clsQuadRuntime.CacheBookName, clsQuadRuntime.CacheBookPath
 
 End Function
-
 
 Function TestCreateTables() As TestResult
 Dim sFuncName As String
@@ -180,29 +180,29 @@ main:
 
     Set Entry_Utils.dDefinitions = LoadDefinitions(wsTmp, rSource:=rTarget)
   
-    CreateTables
+    CreateTables clsQuadRuntime.CacheBook
     
-    If SheetExists(ActiveWorkbook, "foo") = False Then
+    If SheetExists(clsQuadRuntime.CacheBook, "foo") = False Then
          eTestResult = TestResult.Failure
          GoTo teardown
     End If
     
-    If SheetExists(ActiveWorkbook, "bar") = False Then
+    If SheetExists(clsQuadRuntime.CacheBook, "bar") = False Then
          eTestResult = TestResult.Failure
          GoTo teardown
     End If
     
-    If NamedRangeExists(ActiveWorkbook, "foo", "dbFooFooAge") = False Then
+    If NamedRangeExists(clsQuadRuntime.CacheBook, "foo", "dbFooFooAge") = False Then
          eTestResult = TestResult.Failure
          GoTo teardown
     End If
     
-    If NamedRangeExists(ActiveWorkbook, "bar", "dbBarBarName") = False Then
+    If NamedRangeExists(clsQuadRuntime.CacheBook, "bar", "dbBarBarName") = False Then
          eTestResult = TestResult.Failure
          GoTo teardown
     End If
     
-    If NamedRangeExists(ActiveWorkbook, "bar", "iBarNextFree") = False Then
+    If NamedRangeExists(clsQuadRuntime.CacheBook, "bar", "iBarNextFree") = False Then
         eTestResult = TestResult.Failure
     Else
         eTestResult = TestResult.OK
@@ -216,9 +216,9 @@ err:
 teardown:
     TestCreateTables = eTestResult
     clsQuadRuntime.Delete
-    DeleteSheet ActiveWorkbook, sSheetName
-    DeleteSheet ActiveWorkbook, "foo"
-    DeleteSheet ActiveWorkbook, "bar"
+    DeleteSheet clsQuadRuntime.CacheBook, sSheetName
+    DeleteSheet clsQuadRuntime.CacheBook, "foo"
+    DeleteSheet clsQuadRuntime.CacheBook, "bar"
     CloseBook clsQuadRuntime.CacheBook
     DeleteBook clsQuadRuntime.CacheBookName, clsQuadRuntime.CacheBookPath
 
@@ -256,14 +256,14 @@ Dim eTestResult As TestResult
     Set rTarget = RangeFromStrArray(vSource, wsTmp, 0, 1)
 
     Set Entry_Utils.dDefinitions = LoadDefinitions(wsTmp, rSource:=rTarget)
-    Set wsTable = CreateTable(sTableName)
+    Set wsTable = CreateTable(sTableName, wbTmp:=clsQuadRuntime.CacheBook)
     
 main:
     
     AddTableRecordFromDict wsTable, sTableName, dValues
     
     
-    Set dRecordValues = GetTableRecord(sTableName, 1)
+    Set dRecordValues = GetTableRecord(sTableName, 1, wbTmp:=clsQuadRuntime.CacheBook)
     
     If dRecordValues.Item("sPrepNm") <> "Luna" Then
         eTestResult = TestResult.Failure
@@ -308,25 +308,25 @@ setup:
 main:
 
     Set Entry_Utils.dDefinitions = LoadDefinitions(wsTmp, rSource:=rTarget)
-    CreateTables
+    CreateTables clsQuadRuntime.CacheBook
     GenerateEntryForms clsQuadRuntime
         
-    SetEntryValue "NewFoo", "FooAge", 123
-    SetEntryValue "NewFoo", "FooName", "blahblah"
+    SetEntryValue "NewFoo", "FooAge", 123, wbTmp:=clsQuadRuntime.CacheBook
+    SetEntryValue "NewFoo", "FooName", "blahblah", wbTmp:=clsQuadRuntime.CacheBook
     
-    AddTableRecord "Foo"
+    AddTableRecord "Foo", wbTmp:=clsQuadRuntime.CacheBook
     
-    SetEntryValue "NewFoo", "FooAge", 666
-    SetEntryValue "NewFoo", "FooName", "foofoo"
+    SetEntryValue "NewFoo", "FooAge", 666, wbTmp:=clsQuadRuntime.CacheBook
+    SetEntryValue "NewFoo", "FooName", "foofoo", wbTmp:=clsQuadRuntime.CacheBook
     
-    AddTableRecord "Foo"
+    AddTableRecord "Foo", wbTmp:=clsQuadRuntime.CacheBook
     
-    SetEntryValue "NewFoo", "FooAge", 444
-    SetEntryValue "NewFoo", "FooName", "barbar"
+    SetEntryValue "NewFoo", "FooAge", 444, wbTmp:=clsQuadRuntime.CacheBook
+    SetEntryValue "NewFoo", "FooName", "barbar", wbTmp:=clsQuadRuntime.CacheBook
     
-    AddTableRecord "Foo"
+    AddTableRecord "Foo", wbTmp:=clsQuadRuntime.CacheBook
     
-    Set dRecord = GetTableRecord("Foo", 1)
+    Set dRecord = GetTableRecord("Foo", 1, wbTmp:=clsQuadRuntime.CacheBook)
     
     If dRecord.Exists("FooAge") = False Then
         eTestResult = TestResult.Failure
@@ -338,7 +338,7 @@ main:
         GoTo teardown
     End If
     
-    Set dRecord = GetTableRecord("Foo", 2)
+    Set dRecord = GetTableRecord("Foo", 2, wbTmp:=clsQuadRuntime.CacheBook)
     
     If dRecord.Exists("FooAge") = False Then
         eTestResult = TestResult.Failure
@@ -350,7 +350,7 @@ main:
         GoTo teardown
     End If
     
-    Set dRecord = GetTableRecord("Foo", 3)
+    Set dRecord = GetTableRecord("Foo", 3, wbTmp:=clsQuadRuntime.CacheBook)
     
     If dRecord.Exists("FooAge") = False Then
         eTestResult = TestResult.Failure
@@ -374,7 +374,7 @@ teardown:
     DeleteSheet ActiveWorkbook, sSheetName
     DeleteSheet ActiveWorkbook, "Foo"
     DeleteSheet ActiveWorkbook, "Bar"
-    DeleteEntryForms
+    DeleteEntryForms wbTmp:=clsQuadRuntime.CacheBook
     CloseBook clsQuadRuntime.CacheBook
     DeleteBook clsQuadRuntime.CacheBookName, clsQuadRuntime.CacheBookPath
 
@@ -408,42 +408,42 @@ setup:
 main:
 
     Set Entry_Utils.dDefinitions = LoadDefinitions(wsTmp, rSource:=rTarget)
-    CreateTables
+    CreateTables clsQuadRuntime.CacheBook
     GenerateEntryForms clsQuadRuntime
     
     ' Table Foo
-    SetEntryValue "NewFoo", "FooAge", 123
-    SetEntryValue "NewFoo", "FooName", "blahblah"
+    SetEntryValue "NewFoo", "FooAge", 123, wbTmp:=clsQuadRuntime.CacheBook
+    SetEntryValue "NewFoo", "FooName", "blahblah", wbTmp:=clsQuadRuntime.CacheBook
     
-    AddTableRecord "Foo"
+    AddTableRecord "Foo", wbTmp:=clsQuadRuntime.CacheBook
     
-    SetEntryValue "NewFoo", "FooAge", 666
-    SetEntryValue "NewFoo", "FooName", "foofoo"
+    SetEntryValue "NewFoo", "FooAge", 666, wbTmp:=clsQuadRuntime.CacheBook
+    SetEntryValue "NewFoo", "FooName", "foofoo", wbTmp:=clsQuadRuntime.CacheBook
     
-    AddTableRecord "Foo"
+    AddTableRecord "Foo", wbTmp:=clsQuadRuntime.CacheBook
     
-    SetEntryValue "NewFoo", "FooAge", 444
-    SetEntryValue "NewFoo", "FooName", "barbar"
+    SetEntryValue "NewFoo", "FooAge", 444, wbTmp:=clsQuadRuntime.CacheBook
+    SetEntryValue "NewFoo", "FooName", "barbar", wbTmp:=clsQuadRuntime.CacheBook
     
-    AddTableRecord "Foo"
+    AddTableRecord "Foo", wbTmp:=clsQuadRuntime.CacheBook
     
     ' Table Bar
-    SetEntryValue "NewBar", "BarAge", 123
-    SetEntryValue "NewBar", "BarName", "blahblah"
+    SetEntryValue "NewBar", "BarAge", 123, wbTmp:=clsQuadRuntime.CacheBook
+    SetEntryValue "NewBar", "BarName", "blahblah", wbTmp:=clsQuadRuntime.CacheBook
     
-    AddTableRecord "Bar"
+    AddTableRecord "Bar", wbTmp:=clsQuadRuntime.CacheBook
     
-    SetEntryValue "NewBar", "BarAge", 666
-    SetEntryValue "NewBar", "BarName", "foofoo"
+    SetEntryValue "NewBar", "BarAge", 666, wbTmp:=clsQuadRuntime.CacheBook
+    SetEntryValue "NewBar", "BarName", "foofoo", wbTmp:=clsQuadRuntime.CacheBook
     
-    AddTableRecord "Bar"
+    AddTableRecord "Bar", wbTmp:=clsQuadRuntime.CacheBook
     
-    SetEntryValue "NewBar", "BarAge", 444
-    SetEntryValue "NewBar", "BarName", "barbar"
+    SetEntryValue "NewBar", "BarAge", 444, wbTmp:=clsQuadRuntime.CacheBook
+    SetEntryValue "NewBar", "BarName", "barbar", wbTmp:=clsQuadRuntime.CacheBook
     
-    AddTableRecord "Bar"
+    AddTableRecord "Bar", wbTmp:=clsQuadRuntime.CacheBook
     
-    Set dRecord = GetTableRecord("Foo", 3)
+    Set dRecord = GetTableRecord("Foo", 3, wbTmp:=clsQuadRuntime.CacheBook)
     
     If dRecord.Exists("FooAge") = False Then
         eTestResult = TestResult.Failure
@@ -455,7 +455,7 @@ main:
         GoTo teardown
     End If
     
-    Set dRecord = GetTableRecord("Bar", 3)
+    Set dRecord = GetTableRecord("Bar", 3, wbTmp:=clsQuadRuntime.CacheBook)
     
     If dRecord.Exists("BarAge") = False Then
         eTestResult = TestResult.Failure
@@ -479,7 +479,7 @@ teardown:
     DeleteSheet ActiveWorkbook, sSheetName
     DeleteSheet ActiveWorkbook, "Foo"
     DeleteSheet ActiveWorkbook, "Bar"
-    DeleteEntryForms
+    DeleteEntryForms wbTmp:=clsQuadRuntime.CacheBook
     CloseBook clsQuadRuntime.CacheBook
     DeleteBook clsQuadRuntime.CacheBookName, clsQuadRuntime.CacheBookPath
 
@@ -510,10 +510,10 @@ setup:
 main:
 
     Set Entry_Utils.dDefinitions = LoadDefinitions(wsTmp, rSource:=rTarget)
-    CreateTables
+    CreateTables clsQuadRuntime.CacheBook
     GenerateEntryForms clsQuadRuntime
     
-    iResultCode = SetEntryValue("NewFoo", "BadFieldName", 123)
+    iResultCode = SetEntryValue("NewFoo", "BadFieldName", 123, wbTmp:=clsQuadRuntime.CacheBook)
     
     If iResultCode <> -1 Then
         eTestResult = TestResult.Failure
@@ -532,7 +532,7 @@ teardown:
     DeleteSheet ActiveWorkbook, sSheetName
     DeleteSheet ActiveWorkbook, "Foo"
     DeleteSheet ActiveWorkbook, "Bar"
-    DeleteEntryForms
+    DeleteEntryForms wbTmp:=clsQuadRuntime.CacheBook
     CloseBook clsQuadRuntime.CacheBook
     DeleteBook clsQuadRuntime.CacheBookName, clsQuadRuntime.CacheBookPath
     

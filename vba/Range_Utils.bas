@@ -175,7 +175,7 @@ init:
 main:
     With wbTmp.Sheets(sSheetName)
         On Error GoTo err
-        Set rData = Sheets(sSheetName).Range(sAddress)
+        Set rData = .Range(sAddress)
         On Error GoTo 0
     End With
     
@@ -204,3 +204,24 @@ err:
     FuncLogIt sFuncName, "Could not create range named [" & sAddress & "] in [" & sSheetName & "] [" & err.Description & "]", C_MODULE_NAME, LogMsgType.Error
 
 End Sub
+Public Function GetRangeDimensions(rSource As Range, ByRef iWidth As Integer, ByRef iHeight As Integer)
+Dim rMerge As Range
+
+    If rSource.MergeCells Then
+        ' of a merged cell, you can only reference the merged range from the top left cell
+        Set rSource = rSource.Resize(1, 1)
+        On Error GoTo err
+        Set rMerge = rSource.MergeArea
+        On Error Resume Next
+        iWidth = rMerge.Columns.Count
+        iHeight = rMerge.Rows.Count
+    Else
+        iWidth = rSource.Columns.Count
+        iHeight = rSource.Rows.Count
+    End If
+    
+    Exit Function
+
+err:
+    err.Raise Error_Utils.NOT_SINGLE_CELL_RANGE, "range [" & rSource.Address & "] might not be a single cell"
+End Function

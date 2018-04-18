@@ -1,6 +1,89 @@
 Attribute VB_Name = "Test_Range_Utils"
 Option Explicit
 Const CsModuleName = "Test_Range_Utils"
+
+Function Test_GetRangeDimensions_Merged() As TestResult
+Dim sFuncName As String, sSheetName As String
+Dim wsTmp As Worksheet
+Dim eTestResult As TestResult
+Dim rSource As Range
+Dim iWidth As Integer, iHeight As Integer
+
+setup:
+    sFuncName = CsModuleName & "." & "ListFromRange"
+    sSheetName = "test"
+    Set wsTmp = CreateSheet(ActiveWorkbook, sSheetName, bOverwrite:=True)
+    Set rSource = wsTmp.Range("A1:C3")
+    rSource.Merge
+    Set rSource = wsTmp.Range("A1:A1")
+    
+    GetRangeDimensions rSource, iWidth, iHeight
+    
+    If iWidth <> 3 Then
+        eTestResult = TestResult.Failure
+        GoTo teardown
+    End If
+    
+    If iHeight <> 3 Then
+        eTestResult = TestResult.Failure
+        GoTo teardown
+    Else
+        eTestResult = TestResult.OK
+    End If
+    
+    On Error GoTo 0
+    GoTo teardown
+    
+err:
+    eTestResult = TestResult.Error
+    
+teardown:
+    Test_GetRangeDimensions_Merged = eTestResult
+    
+    DeleteSheet ActiveWorkbook, sSheetName
+
+End Function
+
+Function Test_GetRangeDimensions() As TestResult
+Dim sFuncName As String, sSheetName As String
+Dim wsTmp As Worksheet
+Dim eTestResult As TestResult
+Dim rSource As Range
+Dim iWidth As Integer, iHeight As Integer
+
+setup:
+    sFuncName = CsModuleName & "." & "ListFromRange"
+    sSheetName = "test"
+    Set wsTmp = CreateSheet(ActiveWorkbook, sSheetName, bOverwrite:=True)
+    Set rSource = wsTmp.Range("A1:C3")
+    
+    GetRangeDimensions rSource, iWidth, iHeight
+    
+    If iWidth <> 3 Then
+        eTestResult = TestResult.Failure
+        GoTo teardown
+    End If
+    
+    If iHeight <> 3 Then
+        eTestResult = TestResult.Failure
+        GoTo teardown
+    Else
+        eTestResult = TestResult.OK
+    End If
+    
+    On Error GoTo 0
+    GoTo teardown
+    
+err:
+    eTestResult = TestResult.Error
+    
+teardown:
+    Test_GetRangeDimensions = eTestResult
+    
+    DeleteSheet ActiveWorkbook, sSheetName
+
+End Function
+
 Function Test_ListFromRange() As TestResult
 Dim sFuncName As String
 Dim wsTmp As Worksheet

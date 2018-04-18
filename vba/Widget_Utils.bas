@@ -40,7 +40,8 @@ Dim iWidth As Integer, iHeight As Integer, iSizeCount As Integer
     
     ReDim aSizes(0 To 50)
     With wsTemplate
-        .Activate
+        'HERE
+        '.Activate
         Set rNewRange = rSource.Resize(iHeight, iWidth)
         
         If eCellDim = Hz Then

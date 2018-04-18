@@ -247,8 +247,8 @@ err:
 teardown:
     Test_Init_Quad_Runtime_Override_BookPath_Invalid = eTestResult
     clsQuadRuntime.Delete
-    'CloseBook clsQuadRuntime.CacheBook
-    'DeleteBook clsQuadRuntime.CacheBookName
+    CloseBook clsQuadRuntime.CacheBook
+    DeleteBook clsQuadRuntime.CacheBookName
     Exit Function
 End Function
 

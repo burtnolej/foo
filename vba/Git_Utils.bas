@@ -13,7 +13,7 @@ Public Sub CreateGitArgsFile(sRepoName As String, _
         Optional aFiles As Variant, _
         Optional sMessage As String, _
         Optional sUsername As String, _
-        Optional sFilename As String, _
+        Optional sFileName As String, _
         Optional sRuntimeDir As String)
 
 Dim PYTHONPATH As String
@@ -22,8 +22,8 @@ Dim sTmp As String
     sRuntimeDir = GetHomePath & "\runtime\"
     
     ' because we cant have variable in default values for arguments
-    If sFilename = "" Then
-        sFilename = Environ("MYHOME") & "\uupyshell.args.txt"
+    If sFileName = "" Then
+        sFileName = Environ("MYHOME") & "\uupyshell.args.txt"
     End If
     
     If sRuntimeDir = "" Then
@@ -33,29 +33,29 @@ Dim sTmp As String
     PYTHONPATH = LCase(Environ("PYTHONPATH"))
 
     On Error Resume Next 'in case running for first time and nothing to delete
-    Call DeleteFile(sFilename)
+    Call DeleteFile(sFileName)
     On Error GoTo 0
-    Call TouchFile(sFilename)
+    Call TouchFile(sFileName)
     
-    Call AppendFile(sFilename, "token:" & UUEncode(GetGitToken) & vbCrLf)
-    Call AppendFile(sFilename, "reponame:" & UUEncode(sRepoName) & vbCrLf)
-    Call AppendFile(sFilename, "gitrootpath:" & UUEncode(sGitRootPath) & vbCrLf)
+    Call AppendFile(sFileName, "token:" & UUEncode(GetGitToken) & vbCrLf)
+    Call AppendFile(sFileName, "reponame:" & UUEncode(sRepoName) & vbCrLf)
+    Call AppendFile(sFileName, "gitrootpath:" & UUEncode(sGitRootPath) & vbCrLf)
      
     If Not IsEmpty(aFiles) And Not IsMissing(sMessage) Then
-        Call AppendFile(sFilename, "commit_message:" & UUEncode(sMessage) & vbCrLf)
+        Call AppendFile(sFileName, "commit_message:" & UUEncode(sMessage) & vbCrLf)
     End If
     
     If Not IsEmpty(aFiles) And Not IsMissing(aFiles) Then
         sTmp = ArrayNDtoString(aFiles, bUUEncode:=True)
         'sTmp = AsciiReplace(sTmp, 10, 43, iToCount:=3)
-        Call AppendFile(sFilename, "commit_files:" & sTmp & vbCrLf)
+        Call AppendFile(sFileName, "commit_files:" & sTmp & vbCrLf)
     End If
     
     If Not IsMissing(sUsername) Then
-        Call AppendFile(sFilename, "username:" & UUEncode(sUsername) & vbCrLf)
+        Call AppendFile(sFileName, "username:" & UUEncode(sUsername) & vbCrLf)
     End If
 
-    Call AppendFile(sFilename, "runtime_dir:" & UUEncode(sRuntimeDir) & vbCrLf)
+    Call AppendFile(sFileName, "runtime_dir:" & UUEncode(sRuntimeDir) & vbCrLf)
     
     
 End Sub
@@ -71,7 +71,7 @@ Dim aRows() As String, aCols() As String
     CreateGitArgsFile sRepoName
 
     aArgs = InitStringArray(Array("python", Git_Utils.sExecPath & "excel_git_utils.py", _
-            "history", sFilename, sRuntimePath))
+            "history", sFileName, sRuntimePath))
     Results = ShellRun(aArgs)
     
     iNumRows = UBound(Split(Results, DOUBLE_DOLLAR))
@@ -95,12 +95,12 @@ Dim sRuntimePath As String
 
     sExecPath = GetHomePath & "\GitHub\quadviewer\utils\excel\"
     'sRuntimeDir = "C:\Users\burtn\Documents\runtime\"
-    sFilename = GetHomePath & "\uupyshell.args.txt"
+    sFileName = GetHomePath & "\uupyshell.args.txt"
 
     CreateGitArgsFile sRepoName, sGitRootPath, sMessage:=sMessage, aFiles:=aFiles
 
     aArgs = InitStringArray(Array("python", sExecPath & "excel_git_utils.py", _
-            "commit", sFilename, sRuntimePath))
+            "commit", sFileName, sRuntimePath))
     ShellRun (aArgs)
 End Function
 
@@ -111,7 +111,7 @@ Dim sExecPath As String
     CreateGitArgsFile sRepoName, sGitRootPath, sUsername:=sUsername
     
     aArgs = InitStringArray(Array("python", Git_Utils.sExecPath & "excel_git_utils.py", _
-            "create", Git_Utils.sFilename, Git_Utils.sRuntimeDir))
+            "create", Git_Utils.sFileName, Git_Utils.sRuntimeDir))
     ShellRun (aArgs)
 End Function
 
@@ -122,7 +122,7 @@ Dim sExecPath As String
     CreateGitArgsFile sRepoName, sUsername:=sUsername
     
     aArgs = InitStringArray(Array("python", Git_Utils.sExecPath & "excel_git_utils.py", _
-            "delete", Git_Utils.sFilename, Git_Utils.sRuntimeDir))
+            "delete", Git_Utils.sFileName, Git_Utils.sRuntimeDir))
     ShellRun (aArgs)
 End Function
 

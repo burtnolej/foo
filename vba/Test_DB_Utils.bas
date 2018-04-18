@@ -5,7 +5,7 @@ Const CsModuleName = "Test_DB_Utils"
 
 Function Test_PySqliteDBInsert() As TestResult
 Dim sFuncName As String, sResults As String, sExecPath As String, sDatabaseName As String, _
-    sTableName As String, sFilename As String
+    sTableName As String, sFileName As String
 Dim bDeleteFlag As Boolean, bDecodeFlag As Boolean
 Dim eTestResult As TestResult
 Dim aColumnDefns() As Variant, aRows() As Variant
@@ -21,7 +21,7 @@ setup:
     aColumnDefns = Init2DVariantArray([{"colA","Test";"colB","Text";"colC","Text"}])
     aColumns = InitStringArray(Array("colA", "colB", "colC"))
     aRows = Init2DVariantArray([{"valA","valB","valC";"valA1","valB2","valC2";"valA3","valB3","valC3"}])
-    sFilename = Environ("MYHOME") & "\\unifoo.txt"
+    sFileName = Environ("MYHOME") & "\\unifoo.txt"
     sExecPath = Environ("MYHOME") & "\Documents\GitHub\quadviewer\utils\excel\"
 main:
     
@@ -31,14 +31,14 @@ main:
                             aColumns:=aColumns, _
                             aColumnDefns:=aColumnDefns, _
                             aRows:=aRows, _
-                            sFilename:=sFilename
+                            sFileName:=sFileName
                                             
             
     ' create the database and table
     aArgs = InitStringArray(Array("python", _
             sExecPath & "excel_database_util.py", _
             "--access_type create", _
-            "--input_filename " & sFilename))
+            "--input_filename " & sFileName))
 
     sResults = ShellRun(aArgs)
     
@@ -46,22 +46,22 @@ main:
     aArgs = InitStringArray(Array("python", _
             sExecPath & "excel_database_util.py", _
             "--access_type insert", _
-            "--input_filename " & sFilename))
+            "--input_filename " & sFileName))
 
     sResults = ShellRun(aArgs)
     
     ' query results and change the delete flag status as need to cleanup after test
-    Call DeleteFile(sFilename)
+    Call DeleteFile(sFileName)
     CreatePySqliteArgsFile sDatabaseName, _
                             sTableName, _
                             bDeleteFlag:=True, _
                             sQryStr:="select * from foobar", _
-                            sFilename:=sFilename
+                            sFileName:=sFileName
                             
     aArgs = InitStringArray(Array("python", _
             sExecPath & "excel_database_util.py", _
             "--access_type query", _
-            "--input_filename " & sFilename))
+            "--input_filename " & sFileName))
 
     If CleanString(ShellRun(aArgs)) <> "valA^valB^valC$$valA1^valB2^valC2$$valA3^valB3^valC3" Then
         eTestResult = TestResult.Failure
@@ -76,12 +76,12 @@ err:
     
 teardown:
     Test_PySqliteDBInsert = eTestResult
-    Call DeleteFile(sFilename)
+    Call DeleteFile(sFileName)
     
 End Function
 Function Test_PySqliteDBInsertLarge() As TestResult
 Dim sFuncName As String, sResults As String, sExecPath As String, sDatabaseName As String, _
-    sTableName As String, sFilename As String, sDataPath As String, sExpectedResult As String
+    sTableName As String, sFileName As String, sDataPath As String, sExpectedResult As String
 Dim bDecodeFlag As Boolean, bDeleteFlag As Boolean
 Dim aColumnDefns() As Variant
 Dim eTestResult As TestResult
@@ -99,7 +99,7 @@ setup:
     aColumnDefns = Init2DVariantArray([{"FirstName","Text";"LastName","Text";"Country","Text";"Description","Text";"Age","Integer"}])
     aColumns = InitStringArray(Array("FirstName", "LastName", "Country", "Description", "Age"))
     aRows = ReadFile2Array(sDataPath)
-    sFilename = Environ("MYHOME") & "\\unifoo.txt"
+    sFileName = Environ("MYHOME") & "\\unifoo.txt"
     sExecPath = Environ("MYHOME") & "\Documents\GitHub\quadviewer\utils\excel\"
     
 main:
@@ -110,13 +110,13 @@ main:
                             aColumns:=aColumns, _
                             aColumnDefns:=aColumnDefns, _
                             aRows:=aRows, _
-                            sFilename:=sFilename
+                            sFileName:=sFileName
                             
     ' create the database and table
     aArgs = InitStringArray(Array("python", _
             sExecPath & "excel_database_util.py", _
             "--access_type create", _
-            "--input_filename " & sFilename))
+            "--input_filename " & sFileName))
 
     sResults = ShellRun(aArgs)
     
@@ -124,22 +124,22 @@ main:
     aArgs = InitStringArray(Array("python", _
             sExecPath & "excel_database_util.py", _
             "--access_type insert", _
-            "--input_filename " & sFilename))
+            "--input_filename " & sFileName))
 
     sResults = ShellRun(aArgs)
     
     ' query results and change the delete flag status as need to cleanup after test
-    Call DeleteFile(sFilename)
+    Call DeleteFile(sFileName)
     CreatePySqliteArgsFile sDatabaseName, _
                             sTableName, _
                             bDeleteFlag:=True, _
                             sQryStr:="select * from foobar", _
-                            sFilename:=sFilename
+                            sFileName:=sFileName
                             
     aArgs = InitStringArray(Array("python", _
             sExecPath & "excel_database_util.py", _
             "--access_type query", _
-            "--input_filename " & sFilename))
+            "--input_filename " & sFileName))
 
     aRows = Split(CleanString(ShellRun(aArgs)), "$$")
     aFields = Split(aRows(99), "^")
@@ -158,7 +158,7 @@ err:
     
 teardown:
     Test_PySqliteDBInsertLarge = eTestResult
-    Call DeleteFile(sFilename)
+    Call DeleteFile(sFileName)
     
 End Function
 
@@ -168,7 +168,7 @@ Dim sDatabaseName As String
 Dim sTableName As String
 Dim bDeleteFlag As Boolean
 Dim bDecodeFlag As Boolean
-Dim sFilename As String
+Dim sFileName As String
 Dim aColumnDefns() As Variant
 Dim aArgs() As String
 Dim sResults As String
@@ -182,7 +182,7 @@ setup:
     sTableName = "foobar"
     bDeleteFlag = False
     aColumnDefns = Init2DVariantArray([{"colA","Test";"colB","Text";"colC","Text"}])
-    sFilename = Environ("MYHOME") & "\\foo.txt"
+    sFileName = Environ("MYHOME") & "\\foo.txt"
     sExecPath = Environ("MYHOME") & "\Documents\GitHub\quadviewer\utils\excel\"
 main:
     
@@ -190,26 +190,26 @@ main:
                             sTableName, _
                             bDeleteFlag:=bDeleteFlag, _
                             aColumnDefns:=aColumnDefns, _
-                            sFilename:=sFilename
+                            sFileName:=sFileName
                             
     aArgs = InitStringArray(Array("python", _
             sExecPath & "excel_database_util.py", _
             "--access_type create", _
-            "--input_filename " & sFilename))
+            "--input_filename " & sFileName))
 
     sResults = ShellRun(aArgs)
     
     ' change the delete flag status as need to cleanup after test
-    Call DeleteFile(sFilename)
+    Call DeleteFile(sFileName)
     CreatePySqliteArgsFile sDatabaseName, _
                             sTableName, _
                             bDeleteFlag:=True, _
-                            sFilename:=sFilename
+                            sFileName:=sFileName
                             
     aArgs = InitStringArray(Array("python", _
             sExecPath & "excel_database_util.py", _
             "--access_type table_info", _
-            "--input_filename " & sFilename))
+            "--input_filename " & sFileName))
 
     sResults = CleanString(ShellRun(aArgs))
 
@@ -226,7 +226,7 @@ err:
     
 teardown:
     Test_PySqliteDBInfo = eTestResult
-    Call DeleteFile(sFilename)
+    Call DeleteFile(sFileName)
     
 End Function
 
@@ -237,7 +237,7 @@ Dim sDatabaseName As String
 Dim sTableName As String
 Dim bDeleteFlag As Boolean
 Dim bDecodeFlag As Boolean
-Dim sFilename As String
+Dim sFileName As String
 Dim aColumnDefns() As Variant
 Dim aArgs() As String
 Dim sResults As String
@@ -251,7 +251,7 @@ setup:
     sTableName = "foobar"
     bDeleteFlag = False
     aColumnDefns = Init2DVariantArray([{"colA","Test";"colB","Text";"colC","Text"}])
-    sFilename = Environ("MYHOME") & "\\unifoo.txt"
+    sFileName = Environ("MYHOME") & "\\unifoo.txt"
     sExecPath = Environ("MYHOME") & "\Documents\GitHub\quadviewer\utils\excel\"
 main:
     
@@ -259,26 +259,26 @@ main:
                             sTableName, _
                             bDeleteFlag:=bDeleteFlag, _
                             aColumnDefns:=aColumnDefns, _
-                            sFilename:=sFilename
+                            sFileName:=sFileName
                             
     aArgs = InitStringArray(Array("python", _
             sExecPath & "excel_database_util.py", _
             "--access_type create", _
-            "--input_filename " & sFilename))
+            "--input_filename " & sFileName))
 
     sResults = ShellRun(aArgs)
     
     ' change the delete flag status as need to cleanup after test
-    Call DeleteFile(sFilename)
+    Call DeleteFile(sFileName)
     CreatePySqliteArgsFile sDatabaseName, _
                             sTableName, _
                             bDeleteFlag:=True, _
-                            sFilename:=sFilename
+                            sFileName:=sFileName
                             
     aArgs = InitStringArray(Array("python", _
             sExecPath & "excel_database_util.py", _
             "--access_type table_exists", _
-            "--input_filename " & sFilename))
+            "--input_filename " & sFileName))
 
     sResults = ShellRun(aArgs)
     
@@ -295,7 +295,7 @@ err:
     
 teardown:
     Test_PySqliteDBCreate = eTestResult
-    Call DeleteFile(sFilename)
+    Call DeleteFile(sFileName)
     
 End Function
 Function Test_CreatePySqliteArgsFile() As TestResult
@@ -308,7 +308,7 @@ Dim bDeleteFlag As Boolean
 Dim bDecodeFlag As Boolean
 Dim aColumns() As String
 
-Dim sFilename As String
+Dim sFileName As String
 Dim sFileAsStr As String
 Dim aResultRows() As String
 Dim dResult As New Dictionary
@@ -331,7 +331,7 @@ setup:
     aColumns = InitStringArray(Array("colA", "colB", "colC"))
     aColumnDefns = Init2DVariantArray([{"colA","Test";"colB","Text";"colC","Text"}])
     aRows = Init2DVariantArray([{"valA","valB","valC";"valA1","valB2","valC2";"valA3","valB3","valC3"}])
-    sFilename = Environ("MYHOME") & "\\foo.txt"
+    sFileName = Environ("MYHOME") & "\\foo.txt"
 main:
     
     CreatePySqliteArgsFile sDatabaseName, _
@@ -340,9 +340,9 @@ main:
                             aColumns:=aColumns, _
                             aColumnDefns:=aColumnDefns, _
                             aRows:=aRows, _
-                            sFilename:=sFilename
+                            sFileName:=sFileName
 
-    Set dResult = ParsePySqliteArgsFile(sFilename)
+    Set dResult = ParsePySqliteArgsFile(sFileName)
  
     If dResult.Item("database_name") <> "foobar" Then
         eTestResult = TestResult.Failure
@@ -372,7 +372,7 @@ err:
     
 teardown:
     Test_CreatePySqliteArgsFile = eTestResult
-    Call DeleteFile(sFilename)
+    Call DeleteFile(sFileName)
 End Function
 
 Function Test_AutoParseInputRange() As TestResult
@@ -412,7 +412,7 @@ End Function
 
 Function Test_PySqliteDBInsertVeryLarge() As TestResult
 Dim sFuncName As String, sResults As String, sExecPath As String, sDatabaseName As String, _
-    sTableName As String, sFilename As String, sDataPath As String, sExpectedResult As String
+    sTableName As String, sFileName As String, sDataPath As String, sExpectedResult As String
 Dim bDeleteFlag As Boolean, bDecodeFlag As Boolean
 Dim eTestResult As TestResult
 Dim aColumnDefns() As Variant
@@ -429,7 +429,7 @@ setup:
     aColumnDefns = Init2DVariantArray([{"FirstName","Text";"LastName","Text";"Country","Text";"Description","Text";"Age","Integer"}])
     aColumns = InitStringArray(Array("FirstName", "LastName", "Country", "Description", "Age"))
     aRows = ReadFile2Array(sDataPath)
-    sFilename = Environ("MYHOME") & "\\unifoo.txt"
+    sFileName = Environ("MYHOME") & "\\unifoo.txt"
     sExecPath = Environ("MYHOME") & "\Documents\GitHub\quadviewer\utils\excel\"
     
 main:
@@ -440,13 +440,13 @@ main:
                             aColumns:=aColumns, _
                             aColumnDefns:=aColumnDefns, _
                             aRows:=aRows, _
-                            sFilename:=sFilename
+                            sFileName:=sFileName
                             
     ' create the database and table
     aArgs = InitStringArray(Array("python", _
             sExecPath & "excel_database_util.py", _
             "--access_type create", _
-            "--input_filename " & sFilename))
+            "--input_filename " & sFileName))
 
     sResults = ShellRun(aArgs)
     
@@ -454,22 +454,22 @@ main:
     aArgs = InitStringArray(Array("python", _
             sExecPath & "excel_database_util.py", _
             "--access_type insert", _
-            "--input_filename " & sFilename))
+            "--input_filename " & sFileName))
 
     sResults = ShellRun(aArgs)
     
     ' query results and change the delete flag status as need to cleanup after test
-    Call DeleteFile(sFilename)
+    Call DeleteFile(sFileName)
     CreatePySqliteArgsFile sDatabaseName, _
                             sTableName, _
                             bDeleteFlag:=True, _
                             sQryStr:="select * from foobar", _
-                            sFilename:=sFilename
+                            sFileName:=sFileName
                             
     aArgs = InitStringArray(Array("python", _
             sExecPath & "excel_database_util.py", _
             "--access_type query", _
-            "--input_filename " & sFilename))
+            "--input_filename " & sFileName))
 
     aRows = Split(CleanString(ShellRun(aArgs)), "$$")
     aFields = Split(aRows(99), "^")
@@ -488,13 +488,13 @@ err:
     
 teardown:
     Test_PySqliteDBInsertVeryLarge = eTestResult
-    Call DeleteFile(sFilename)
+    Call DeleteFile(sFileName)
     
 End Function
 
 Function Test_PySqliteDBQueryResultFileUUEncode() As TestResult
 Dim sFuncName As String, sResults As String, sExecPath As String, sDatabaseName As String, _
-    sTableName As String, sFilename As String, sResultFileName As String, resultstr As String
+    sTableName As String, sFileName As String, sResultFileName As String, resultstr As String
 Dim bDeleteFlag As Boolean, bDecodeFlag As Boolean
 Dim eTestResult As TestResult
 Dim aColumnDefns() As Variant, aRows() As Variant
@@ -511,7 +511,7 @@ setup:
     aColumnDefns = Init2DVariantArray([{"colA","Test";"colB","Text";"colC","Text"}])
     aColumns = InitStringArray(Array("colA", "colB", "colC"))
     aRows = Init2DVariantArray([{"valA","valB","valC";"valA1","valB2","valC2";"valA3","valB3","valC3"}])
-    sFilename = Environ("MYHOME") & "\\uufoo.txt"
+    sFileName = Environ("MYHOME") & "\\uufoo.txt"
     sResultFileName = Environ("MYHOME") & "\\uufoo.txt_result"
     sExecPath = Environ("MYHOME") & "\Documents\GitHub\quadviewer\utils\excel\"
 main:
@@ -523,14 +523,14 @@ main:
                             aColumnDefns:=aColumnDefns, _
                             aRows:=aRows, _
                             sEncoding:="uu", _
-                            sFilename:=sFilename
+                            sFileName:=sFileName
                                             
             
     ' create the database and table
     aArgs = InitStringArray(Array("python", _
             sExecPath & "excel_database_util.py", _
             "--access_type create", _
-            "--input_filename " & sFilename))
+            "--input_filename " & sFileName))
 
     sResults = ShellRun(aArgs)
     
@@ -538,24 +538,24 @@ main:
     aArgs = InitStringArray(Array("python", _
             sExecPath & "excel_database_util.py", _
             "--access_type insert", _
-            "--input_filename " & sFilename))
+            "--input_filename " & sFileName))
 
     sResults = ShellRun(aArgs)
     
     ' query results and change the delete flag status as need to cleanup after test
-    Call DeleteFile(sFilename)
+    Call DeleteFile(sFileName)
     CreatePySqliteArgsFile sDatabaseName, _
                             sTableName, _
                             bDeleteFlag:=True, _
                             sQryStr:="select * from foobar", _
-                            sFilename:=sFilename, _
+                            sFileName:=sFileName, _
                             sEncoding:="uu", _
                             sResultFileName:=sResultFileName
                             
     aArgs = InitStringArray(Array("python", _
             sExecPath & "excel_database_util.py", _
             "--access_type query", _
-            "--input_filename " & sFilename))
+            "--input_filename " & sFileName))
 
     sResults = ShellRun(aArgs)
     
@@ -579,14 +579,14 @@ err:
     
 teardown:
     Test_PySqliteDBQueryResultFileUUEncode = eTestResult
-    Call DeleteFile(sFilename)
+    Call DeleteFile(sFileName)
     Call DeleteFile(sResultFileName)
     
 End Function
 
 Function Test_PySqliteDBQueryResultFileUUEncodeVeryLarge() As TestResult
 Dim sFuncName As String, sResults As String, sExecPath As String, sDatabaseName As String, _
-    sTableName As String, sFilename As String, sResultFileName As String, resultstr As String, _
+    sTableName As String, sFileName As String, sResultFileName As String, resultstr As String, _
     sDataPath As String
 Dim bDeleteFlag As Boolean, bDecodeFlag As Boolean
 Dim eTestResult As TestResult
@@ -604,7 +604,7 @@ setup:
     aColumns = InitStringArray(Array("FirstName", "LastName", "Country", "Description", "Age"))
     sDataPath = Environ("MYHOME") & "\Documents\GitHub\quadviewer\utils\excel\test_misc\testdata.csv" 'takes about 2mins
     aRows = ReadFile2Array(sDataPath)
-    sFilename = Environ("MYHOME") & "\\uufoo.txt"
+    sFileName = Environ("MYHOME") & "\\uufoo.txt"
     sResultFileName = Environ("MYHOME") & "\\uufoo.txt_result"
     sExecPath = Environ("MYHOME") & "\Documents\GitHub\quadviewer\utils\excel\"
  
@@ -617,14 +617,14 @@ main:
                             aColumnDefns:=aColumnDefns, _
                             aRows:=aRows, _
                             sEncoding:="uu", _
-                            sFilename:=sFilename
+                            sFileName:=sFileName
                                             
             
     ' create the database and table
     aArgs = InitStringArray(Array("python", _
             sExecPath & "excel_database_util.py", _
             "--access_type create", _
-            "--input_filename " & sFilename))
+            "--input_filename " & sFileName))
 
     sResults = ShellRun(aArgs)
     
@@ -632,24 +632,24 @@ main:
     aArgs = InitStringArray(Array("python", _
             sExecPath & "excel_database_util.py", _
             "--access_type insert", _
-            "--input_filename " & sFilename))
+            "--input_filename " & sFileName))
 
     sResults = ShellRun(aArgs)
     
     ' query results and change the delete flag status as need to cleanup after test
-    Call DeleteFile(sFilename)
+    Call DeleteFile(sFileName)
     CreatePySqliteArgsFile sDatabaseName, _
                             sTableName, _
                             bDeleteFlag:=True, _
                             sQryStr:="select * from foobar", _
-                            sFilename:=sFilename, _
+                            sFileName:=sFileName, _
                             sEncoding:="uu", _
                             sResultFileName:=sResultFileName
                             
     aArgs = InitStringArray(Array("python", _
             sExecPath & "excel_database_util.py", _
             "--access_type query", _
-            "--input_filename " & sFilename))
+            "--input_filename " & sFileName))
 
     sResults = ShellRun(aArgs)
     
@@ -673,7 +673,7 @@ err:
     
 teardown:
     Test_PySqliteDBQueryResultFileUUEncodeVeryLarge = eTestResult
-    Call DeleteFile(sFilename)
+    Call DeleteFile(sFileName)
     Call DeleteFile(sResultFileName)
     
 End Function

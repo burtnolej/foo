@@ -28,7 +28,7 @@ setup:
     rTarget.Name = "target"
     rSource.Name = "source"
 
-    SetBgColor sSheetName, rSource, 255, 255, 0
+    SetBgColor sSheetName, rSource, 255, 255, 0, wbTmp:=clsQuadRuntime.CacheBook
     CopyFormat clsQuadRuntime.Book, clsQuadRuntime.Book, _
             sSheetName, sSheetName, "source", "target"
             

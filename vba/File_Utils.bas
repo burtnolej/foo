@@ -18,18 +18,18 @@ Dim FileName As String
     GetFileFromPath = fso.GetFileName(sPath)
 End Function
 
-Public Sub FileMove(sFilename As String, sSourcePath As String, sTargetPath As String)
+Public Sub FileMove(sFileName As String, sSourcePath As String, sTargetPath As String)
 Dim objFSO As Object
 Dim sFuncName As String
     sFuncName = "FileMove"
     Set objFSO = CreateObject("Scripting.FileSystemObject")
     On Error GoTo err
-    objFSO.MoveFile sSourcePath & sFilename, sTargetPath & sFilename
+    objFSO.MoveFile sSourcePath & sFileName, sTargetPath & sFileName
     On Error GoTo 0
-    FuncLogIt sFuncName, "Moved [" & sFilename & "] from  [" & sSourcePath & "] to [" & sTargetPath & "]", C_MODULE_NAME, LogMsgType.Failure
+    FuncLogIt sFuncName, "Moved [" & sFileName & "] from  [" & sSourcePath & "] to [" & sTargetPath & "]", C_MODULE_NAME, LogMsgType.Failure
     Exit Sub
 err:
-    FuncLogIt sFuncName, "Failed to move [" & sFilename & "] from  [" & sSourcePath & "] to [" & sTargetPath & "] with err [" & err.Description & "]", C_MODULE_NAME, LogMsgType.Failure
+    FuncLogIt sFuncName, "Failed to move [" & sFileName & "] from  [" & sSourcePath & "] to [" & sTargetPath & "] with err [" & err.Description & "]", C_MODULE_NAME, LogMsgType.Failure
 
 End Sub
 Public Function GetFolderFiles(sPath As String, Optional bDateSorted As Boolean = False, _
@@ -269,16 +269,16 @@ Dim oFile As Object
     Set objFSO = Nothing
 End Sub
 
-Public Function DeleteFile(sFilename As String, Optional sPath As String)
+Public Function DeleteFile(sFileName As String, Optional sPath As String)
 Dim objFSO As Object
 Dim oFile As Object
 Dim sFuncName As String
 
     If sPath <> "" Then
         If Right(sPath, 1) <> "\" Then
-        sFilename = sPath & "\\" & sFilename
+        sFileName = sPath & "\\" & sFileName
         Else
-            sFilename = sPath & sFilename
+            sFileName = sPath & sFileName
         End If
     End If
         
@@ -286,13 +286,13 @@ Dim sFuncName As String
     
     Set objFSO = CreateObject("Scripting.FileSystemObject")
     On Error GoTo err
-    objFSO.DeleteFile sFilename
+    objFSO.DeleteFile sFileName
     On Error GoTo 0
-    FuncLogIt sFuncName, "Deleted [" & sFilename & "]", C_MODULE_NAME, LogMsgType.Failure
+    FuncLogIt sFuncName, "Deleted [" & sFileName & "]", C_MODULE_NAME, LogMsgType.Failure
     Exit Function
     
 err:
-    FuncLogIt sFuncName, "Failed to delete [" & sFilename & "] with err [" & err.Description & "]", C_MODULE_NAME, LogMsgType.Failure
+    FuncLogIt sFuncName, "Failed to delete [" & sFileName & "] with err [" & err.Description & "]", C_MODULE_NAME, LogMsgType.Failure
     Debug.Print err.Description
 End Function
 

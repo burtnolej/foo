@@ -7,4 +7,5 @@ Enum ErrorMsgType
     BAD_FILE_EXTENSION = 557
     NULL_OBJECT = 558
     BAD_ENUM = 559
+    NOT_SINGLE_CELL_RANGE = 600
 End Enum

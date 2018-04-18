@@ -32,12 +32,22 @@ End Sub
 Public Sub DoAddNewScheduleEntry()
 Dim clsQuadRuntime As New Quad_Runtime
 Dim sSheetName As String
+Dim sScheduleName As String, sSchedulePath As String
 
-setup:
+    DoEventsOn
+    
+    sScheduleName = "schedule.xlsm"
+    sSchedulePath = GetHomePath() & "\"
+    
+    CreateBook sScheduleName, sSchedulePath
+    
     ResetQuadRuntimeGlobal
     sFuncName = CsModuleName & "." & "Test_AddNewScheduleEntry"
     sSheetName = "test"
-    clsQuadRuntime.InitProperties bInitializeCache:=True, sDefinitionSheetName:=sSheetName
+    clsQuadRuntime.InitProperties bInitializeCache:=True, sDefinitionSheetName:=sSheetName, _
+                    sScheduleBookName:=sScheduleName, sScheduleBookPath:=sSchedulePath
+                    
+    DoEventsOff
     
 main:
     GenerateScheduleEntry clsQuadRuntime
@@ -46,7 +56,7 @@ End Sub
 Public Sub DoViewLogs()
 Dim vFileNames() As String
 Dim sLogPath As String
-Dim sFilename As Variant
+Dim sFileName As Variant
 Dim sFuncName As String
 Dim iCount As Integer
 Dim vFile() As String
@@ -74,19 +84,19 @@ Dim rSource As Range
     
     Set wsTmp = CreateSheet(Application.ActiveWorkbook, sSheetName)
     
-    For Each sFilename In vFileNames
-        If InStr(sFilename, "_log") <> 0 Then
-            FuncLogIt sFuncName, "Found log [" & sFilename & "] loading", C_MODULE_NAME, LogMsgType.OK
+    For Each sFileName In vFileNames
+        If InStr(sFileName, "_log") <> 0 Then
+            FuncLogIt sFuncName, "Found log [" & sFileName & "] loading", C_MODULE_NAME, LogMsgType.OK
             
-            vFile = ReadFile2Array(sLogPath & sFilename, sFieldDelim:="|")
+            vFile = ReadFile2Array(sLogPath & sFileName, sFieldDelim:="|")
             
             Set rSource = RangeFromStrArray(vFile, wsTmp, iRowNum, 0)
             Set rSource = rSource.Resize(, 1).Offset(, 3)
-            rSource.value = sFilename
+            rSource.value = sFileName
             
             iRowNum = iRowNum + UBound(vFile) + 1
         End If
-    Next sFilename
+    Next sFileName
     
     iCount = 1
     For Each iColWidth In aColWidths
@@ -270,7 +280,7 @@ Dim sDirectory As String, sTmpDirectory As String, sFuncName As String
     iType = vbDefaultButton2
     PopUpWindow "commit " & sMessage & vbCrLf & Array2String(aFiles, sDelim:=vbCrLf) & vbCrLf & "committed to GitHub and moved to " & sDirectory, "DoGitCommit", iType
     
-    'DeleteSheet ActiveWorkbook, "Checkins"
+    DeleteSheet ActiveWorkbook, "Checkins"
     
 End Sub
 

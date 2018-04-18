@@ -48,7 +48,7 @@ Private Declare Function OleCreatePictureIndirect Lib "olepro32.dll" (PicDesc As
 ' Procedure:    LoadPictureGDI
 ' Purpose:      Loads an image using GDI+
 ' Returns:      The image as an IPicture Object
-Public Function LoadPictureGDI(ByVal sFilename As String) As IPicture
+Public Function LoadPictureGDI(ByVal sFileName As String) As IPicture
 
     Dim uGdiInput As GdiplusStartupInput
     Dim hGdiPlus As Long
@@ -63,7 +63,7 @@ Public Function LoadPictureGDI(ByVal sFilename As String) As IPicture
     If lResult = 0 Then
 
         'Load the image
-        lResult = GdipCreateBitmapFromFile(StrPtr(sFilename), hGdiImage)
+        lResult = GdipCreateBitmapFromFile(StrPtr(sFileName), hGdiImage)
 
         If lResult = 0 Then
 

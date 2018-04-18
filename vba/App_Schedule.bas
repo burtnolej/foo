@@ -28,7 +28,7 @@ setup:
     FuncLogIt sFuncName, "Template range name not set so defaulting to  [" & sTemplateRangeName & "]", C_MODULE_NAME, LogMsgType.INFO
     
 main:
-    If IsDataCached(clsQuadRuntime, QuadDataType.Schedule, eQuadSubDataType, iPersonID) = False Then
+    If IsDataCached(clsQuadRuntime, QuadDataType.schedule, eQuadSubDataType, iPersonID) = False Then
         FuncLogIt sFuncName, "Data cache NOT found for [" & EnumQuadSubDataType(eQuadSubDataType) & "_" & CStr(iPersonID) & "]", C_MODULE_NAME, LogMsgType.INFO
 
         ' get the raw data from the database and return the filename that holds the results
@@ -37,11 +37,11 @@ main:
         ' parse the raw data in the result file and return an array of the data
         aSchedule = ParseRawData(ReadFile(clsQuadRuntime.ResultFileName))
         ' store the parsed raw data in a back sheet, return the sheet name
-        sCacheSheetName = CacheData(clsQuadRuntime, aSchedule, QuadDataType.Schedule, _
+        sCacheSheetName = CacheData(clsQuadRuntime, aSchedule, QuadDataType.schedule, _
                             eQuadSubDataType, iPersonID)
     Else
         FuncLogIt sFuncName, "Data cache found for [" & EnumQuadSubDataType(eQuadSubDataType) & "_" & CStr(iPersonID) & "]", C_MODULE_NAME, LogMsgType.INFO
-        sCacheSheetName = CacheData(clsQuadRuntime, aSchedule, QuadDataType.Schedule, eQuadSubDataType, _
+        sCacheSheetName = CacheData(clsQuadRuntime, aSchedule, QuadDataType.schedule, eQuadSubDataType, _
                             iPersonID, bCacheNameOnly:=True)
     End If
     ' get the template widths and heights
@@ -73,7 +73,7 @@ setup:
     ' END Assertions ----------------------------
 
 main:
-    If eQuadSubDataType = QuadSubDataType.student Then
+    If eQuadSubDataType = QuadSubDataType.Student Then
         sSpName = "student_schedule"
         dSpArgs.Add "students", InitVariantArray(Array(sPersonId))
     ElseIf eQuadSubDataType = QuadSubDataType.teacher Then
@@ -97,25 +97,17 @@ main:
 End Sub
 Function GetScheduleDataHelpers(clsQuadRuntime As Quad_Runtime, sCacheSheetName As String)
 Dim iScheduleWidth As Integer, iScheduleHeight As Integer
-
+Dim rSource As Range
     ' Assertions --------------------------------
     ' END Assertions ----------------------------
     
-    With clsQuadRuntime.CacheBook.Sheets(sCacheSheetName)
-        .Activate
-        With .Range(clsQuadRuntime.CacheRangeName)
-            iScheduleWidth = .Columns.Count
-            iScheduleHeight = .Rows.Count
-            
-            ReDim vSource(1 To iScheduleHeight - 1, 1 To iScheduleWidth)
-            ReDim vColumns(1 To 1, 1 To iScheduleWidth)
+    Set rSource = clsQuadRuntime.CacheBook.Sheets(sCacheSheetName).Range(clsQuadRuntime.CacheRangeName)
+    iScheduleWidth = rSource.Columns.Count
+    iScheduleHeight = rSource.Rows.Count
 
-            .Rows(1).Select
-            clsQuadRuntime.CurrentSheetColumns = .Resize(1)
-            clsQuadRuntime.CurrentSheetSource = .Resize(.Rows.Count - 1).Offset(1)
-        End With
-    End With
-
+    clsQuadRuntime.CurrentSheetColumns = rSource.Rows(1)
+    clsQuadRuntime.CurrentSheetSource = rSource.Resize(rSource.Rows.Count - 1).Offset(1)
+    
 End Function
 
 
@@ -126,28 +118,26 @@ Public Sub GetScheduleCellFormat(clsQuadRuntime As Quad_Runtime, ByRef iFormatWi
 'param: sSourceSheetName, string, the sheet in sSourceBookName that holds the templates (FormStyles)
 'param: sScheduleFormatRangeName, string, named range that contains the specific format (fStudentScheduleCell
 
-
-'this is where i had got up to .. adding assertions and logging ....
-'need to go through and default cache book to Quad_Utils in the signature
 Dim rScheduleFormatRange As Range
     With clsQuadRuntime.TemplateSheet
-        .Activate
-        Set rScheduleFormatRange = .Range(sScheduleFormatRangeName)
-        rScheduleFormatRange.Select
-        Selection.Copy
-    End With
+        '.Activate
+        'Set rScheduleFormatRange = .Range(sScheduleFormatRangeName)
+        'rScheduleFormatRange.Select
+        'Selection.Copy
+        .Range(sScheduleFormatRangeName).Copy
         
-    iFormatWidth = Selection.Columns.Count
-    iFormatHeight = Selection.Rows.Count
+    'End With
+        
+    'iFormatWidth = Selection.Columns.Count
+    'iFormatHeight = Selection.Rows.Count
     
-    'iFormatWidth = rScheduleFormatRange.Columns.Count
-    'iFormatHeight = rScheduleFormatRange.Rows.Count
+        iFormatWidth = .Range(sScheduleFormatRangeName).Columns.Count
+        iFormatHeight = .Range(sScheduleFormatRangeName).Rows.Count
+    
+    End With
     
 End Sub
         
-
-'generalize this so it can get col and row widths for form formats too
-
 Public Function GetScheduleCellColWidths(clsQuadRuntime As Quad_Runtime, sScheduleFormatRangeName As String, _
                                          iColWidthCount As Integer) As Integer()
 ' get the column widths from the template and return in an integer array
@@ -157,7 +147,7 @@ Dim rCell As Range
 
     ReDim aColumnWidths(0 To 20)
     With clsQuadRuntime.TemplateSheet
-        .Activate
+        '.Activate
         For Each rCell In Selection.Rows(1).Cells
             aColumnWidths(iColWidthCount) = rCell.EntireColumn.ColumnWidth
             iColWidthCount = iColWidthCount + 1
@@ -173,7 +163,7 @@ Function BuildScheduleCellView(clsQuadRuntime As Quad_Runtime, _
                           dValues As Dictionary, _
                           iFormatWidth As Integer, iFormatHeight As Integer, _
                           aColumnWidths() As Integer, _
-                Optional eQuadSubDataType As QuadSubDataType = QuadSubDataType.student) As Range
+                Optional eQuadSubDataType As QuadSubDataType = QuadSubDataType.Student) As Range
 
 Dim iScheduleCurrentRow As Integer, iScheduleCurrentCol As Integer, iColWidthCount As Integer
 Dim rScheduleFormatTargetRange As Range, rCell As Range
@@ -183,19 +173,15 @@ Dim sFormatTemplateRange As String
     With wsSchedule
         ' paste the formats into the corresponding cell on the "grid"
         iScheduleCurrentRow = iFormatHeight * CInt(dValues("idTimePeriod"))
-        iScheduleCurrentCol = iFormatWidth * (CInt(IndexArray(Split(clsQuadRuntime.DayEnum, COMMA), dValues("cdDay"))) + 1)
+        iScheduleCurrentCol = 2 + (iFormatWidth * (CInt(IndexArray(Split(clsQuadRuntime.DayEnum, COMMA), dValues("cdDay"))) + 1))
         
-        'Set rScheduleFormatTargetRange = .Range(.Cells(iScheduleCurrentRow, iScheduleCurrentCol), .Cells(iScheduleCurrentRow + iFormatHeight - 1, iScheduleCurrentCol + iFormatWidth - 1))
-        Set rScheduleFormatTargetRange = wsSchedule.Range(.Cells(iScheduleCurrentRow, iScheduleCurrentCol), .Cells(iScheduleCurrentRow + iFormatHeight - 1, iScheduleCurrentCol + iFormatWidth - 1))
-        .Activate
-        rScheduleFormatTargetRange.Select
-        Selection.PasteSpecial Paste:=xlPasteAll, operation:=xlNone, SkipBlanks:=False, Transpose:=False
+        Set rScheduleFormatTargetRange = wsSchedule.Range(.Cells(iScheduleCurrentRow, iScheduleCurrentCol), _
+                    .Cells(iScheduleCurrentRow + iFormatHeight - 1, iScheduleCurrentCol + iFormatWidth - 1))
         
-        'If dValues.Item("idTimePeriod") = "1" Or CInt(IndexArray(Split(clsQuadRuntime.DayEnum, COMMA), dValues("cdDay"))) + 1 = 1 Then
-        FormatColRowSize clsQuadRuntime.TemplateBook, clsQuadRuntime.Book, _
+        rScheduleFormatTargetRange.PasteSpecial Paste:=xlPasteAll, operation:=xlNone, SkipBlanks:=False, Transpose:=False
+        FormatColRowSize clsQuadRuntime.TemplateBook, clsQuadRuntime.ScheduleBook, _
                 wsSchedule.Name, clsQuadRuntime.TemplateSheetName, sFormatTemplateRange, _
                 iTargetFirstRow:=iScheduleCurrentRow, iTargetFirstCol:=iScheduleCurrentCol
-        'End If
         
         ' evaluate the data functions to get the content
         For Each rCell In rScheduleFormatTargetRange.Cells
@@ -222,7 +208,7 @@ Dim i As Integer, j As Integer
     
     sScheduleSheetName = "view_" & EnumQuadSubDataType(eQuadSubDataType) & "_" & CStr(iPersonID)
     
-    Set wsSchedule = CreateSheet(clsQuadRuntime.Book, sScheduleSheetName, bOverwrite:=True)
+    Set wsSchedule = CreateSheet(clsQuadRuntime.ScheduleBook, sScheduleSheetName, bOverwrite:=True)
 
     For i = 1 To UBound(clsQuadRuntime.CurrentSheetSource)
     
@@ -243,8 +229,8 @@ Function BuildScheduleHeaderView(clsQuadRuntime As Quad_Runtime, _
                           wsSchedule As Worksheet, _
                           sEnums As String, _
                           iFormatWidth As Integer, iFormatHeight As Integer, _
-                Optional eQuadSubDataType As QuadSubDataType = QuadSubDataType.student, _
-                Optional iStartRow As Integer = 4, _
+                Optional eQuadSubDataType As QuadSubDataType = QuadSubDataType.Student, _
+                Optional iStartRow As Integer = 3, _
                 Optional iStartCol As Integer = 1, _
                 Optional bVz As Boolean = True) As Range
 
@@ -269,20 +255,22 @@ Dim vEnumValues() As String
 
             ' paste the formats into the corresponding cell on the "grid"
             If bVz = True Then
-                iScheduleCurrentRow = iStartRow + (iFormatHeight * i)
+                iScheduleCurrentRow = iStartRow + (iFormatHeight * (i - 1))
                 iScheduleCurrentCol = iStartCol
             Else
                 iScheduleCurrentRow = iStartRow
-                iScheduleCurrentCol = iStartCol + (iFormatWidth * i)
+                iScheduleCurrentCol = iStartCol + (iFormatWidth * (i - 1))
             End If
             
-            Set rScheduleFormatTargetRange = .Range(.Cells(iScheduleCurrentRow, iScheduleCurrentCol), .Cells(iScheduleCurrentRow + iFormatHeight - 1, iScheduleCurrentCol + iFormatWidth - 1))
+            'Set rScheduleFormatTargetRange = .Range(.Cells(iScheduleCurrentRow, iScheduleCurrentCol), .Cells(iScheduleCurrentRow + iFormatHeight - 1, iScheduleCurrentCol + iFormatWidth - 1))
             Set rScheduleFormatTargetRange = wsSchedule.Range(.Cells(iScheduleCurrentRow, iScheduleCurrentCol), .Cells(iScheduleCurrentRow + iFormatHeight - 1, iScheduleCurrentCol + iFormatWidth - 1))
-            .Activate
-            rScheduleFormatTargetRange.Select
-            Selection.PasteSpecial Paste:=xlPasteAll, operation:=xlNone, SkipBlanks:=False, Transpose:=False
+            '.Activate
+            'HERE
+            'rScheduleFormatTargetRange.Select
+            '.Activate
+            rScheduleFormatTargetRange.PasteSpecial Paste:=xlPasteAll, operation:=xlNone, SkipBlanks:=False, Transpose:=False
             
-            FormatColRowSize clsQuadRuntime.TemplateBook, clsQuadRuntime.Book, _
+            FormatColRowSize clsQuadRuntime.TemplateBook, clsQuadRuntime.ScheduleBook, _
                     wsSchedule.Name, clsQuadRuntime.TemplateSheetName, sFormatTemplateRange, _
                     iTargetFirstRow:=iScheduleCurrentRow, iTargetFirstCol:=iScheduleCurrentCol
         
