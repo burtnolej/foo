@@ -22,20 +22,26 @@ Public Function IsValidPersonID(clsQuadRuntime As Quad_Runtime, _
 
 Dim sFuncName As String, sLookUpCol As String
 Dim wsPersonDataCache As Worksheet
-
+Dim vStudentIDs() As String
 setup:
     sFuncName = C_MODULE_NAME & "." & "IsValidPersonID"
 
 main:
-    Set wsPersonDataCache = GetPersonData(clsQuadRuntime, QuadDataType.person, eQuadSubDataType, eQuadScope:=QuadScope.all)
+    Set wsPersonDataCache = GetPersonData(clsQuadRuntime, QuadDataType.person, eQuadSubDataType, _
+                eQuadScope:=QuadScope.all, bInTable:=True)
 
     If eQuadSubDataType = QuadSubDataType.teacher Then
         sLookUpCol = cTeacherLookUpCol
     Else
         sLookUpCol = cStudentLookUpCol
     End If
-    
-    If SheetTableLookup(wsPersonDataCache, "data", sLookUpCol, iPersonID) <> -1 Then
+
+    clsQuadRuntime.InitProperties bInitializeCache:=False
+    vStudentIDs = GetColumnValues(clsQuadRuntime, QuadDataType.person, QuadSubDataType.student, "idStudent")
+
+    If InArray(vStudentIDs, CStr(iPersonID)) Then
+    'If SheetTableLookup(wsPersonDataCache, "data", sLookUpCol, iPersonID, _
+        wbTmp:=clsQuadRuntime.CacheBook) <> -1 Then
         IsValidPersonID = True
         Exit Function
     End If
@@ -45,7 +51,7 @@ main:
 End Function
 Public Function get_person_student(clsQuadRuntime As Quad_Runtime, _
                       Optional bInTable As Boolean = True) As Worksheet
-    Set get_person_student = GetPersonData(clsQuadRuntime, QuadDataType.person, QuadSubDataType.Student, eQuadScope:=QuadScope.all, bInTable:=bInTable)
+    Set get_person_student = GetPersonData(clsQuadRuntime, QuadDataType.person, QuadSubDataType.student, eQuadScope:=QuadScope.all, bInTable:=bInTable)
 End Function
 Public Function get_person_teacher(clsQuadRuntime As Quad_Runtime, _
                       Optional bInTable As Boolean = True) As Worksheet

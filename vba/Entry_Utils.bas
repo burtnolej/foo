@@ -180,6 +180,9 @@ err:
     FuncLogIt sFuncName, "Value [" & CStr(iValue) & "] is invalid ", C_MODULE_NAME, LogMsgType.OK
 
 End Function
+Public Function IsValidString(ParamArray args()) As Boolean
+    IsValidString = True
+End Function
 Public Function IsValidPrep(ParamArray args()) As Boolean
 Dim sFuncName As String
 Dim aPreps() As String
@@ -507,7 +510,10 @@ End Sub
 
 Public Sub GenerateEntryForms(clsQuadRuntime As Quad_Runtime, _
                      Optional bLoadRefData As Boolean = False, _
-                     Optional sOverideButtonCallback As String)
+                     Optional sOverideButtonCallback As String, _
+                     Optional sFormName As String, _
+                     Optional dDefaultValues As Dictionary, _
+                     Optional bSetAsValid As Boolean = False)
 '<<<
 'purpose: based on Definitions, create a set of sheets that serve as entry screens;
 '       : add callback code to the sheets so that user entries are processed immediately
@@ -518,9 +524,9 @@ Public Sub GenerateEntryForms(clsQuadRuntime As Quad_Runtime, _
 '       :                 also contains any variables that need to be passed continually
 'param  : bLoadRefData, Boolean; when true will force loading of ref data from db
 '>>>
-Dim dActions As Dictionary
+Dim dActions As Dictionary, dDefnDetails As Dictionary
 Dim sAction As Variant, sKey As Variant
-Dim sCode As String, sFieldName As String, sFuncName As String, sCallbackFunc As String
+Dim sCode As String, sFieldName As String, sFuncName As String, sCallbackFunc As String, sDBColName As String
 Dim iRow As Integer
 Dim rCell As Range, rButton As Range
 
@@ -534,6 +540,12 @@ setup:
     Set dActions = dDefinitions.Item("actions")
     For Each sAction In dActions.Keys()
     
+        If sFormName <> "" Then
+            If sAction <> sFormName Then
+                GoTo nextaction
+            End If
+        End If
+                
         If sOverideButtonCallback <> "" Then
             sCallbackFunc = sOverideButtonCallback
         Else
@@ -549,15 +561,16 @@ setup:
                 "dim wbTarget as Workbook, wbSource as Workbook" & vbNewLine & _
                 "dim sSourceSheetName as string" & vbNewLine & _
                 "set wbSource= Workbooks(" & DOUBLEQUOTE & clsQuadRuntime.TemplateBookName & DOUBLEQUOTE & ")" & vbNewLine & _
-                "set wbTarget= Workbooks(" & DOUBLEQUOTE & clsQuadRuntime.BookName & DOUBLEQUOTE & ")" & vbNewLine & _
+                "set wbTarget= Workbooks(" & DOUBLEQUOTE & clsQuadRuntime.CacheBookName & DOUBLEQUOTE & ")" & vbNewLine & _
                 "sSourceSheetName = " & DOUBLEQUOTE & clsQuadRuntime.TemplateCellSheetName & DOUBLEQUOTE & vbNewLine & _
                 "Application.Run " & DOUBLEQUOTE & clsQuadRuntime.TemplateBook.Name & "!Validate" & DOUBLEQUOTE & ",Application.ActiveWorkbook, Application.ActiveSheet.Name, Target" & vbNewLine & _
-                "Application.Run " & DOUBLEQUOTE & clsQuadRuntime.TemplateBook.Name & "!IsRecordValid" & DOUBLEQUOTE & ",wbSource,wbTarget,Application.ActiveSheet.Name," & "sSourceSheetName" & vbNewLine & _
+                "Application.Run " & DOUBLEQUOTE & clsQuadRuntime.TemplateBook.Name & "!IsRecordValid" & DOUBLEQUOTE & ",wbSource,wbTarget," & DOUBLEQUOTE & sAction & DOUBLEQUOTE & "," & "sSourceSheetName" & vbNewLine & _
                 "End Sub"
 
         ' MOVED  THIS LINE DOWN
         'AddCode2Module clsQuadRuntime.Book, wsTmp.CodeName, sCode
 
+        'Debug.Print sCode
         FormatEntryForm clsQuadRuntime, CStr(sAction)
         
         ' for each entry in the definition generate a input field
@@ -570,11 +583,25 @@ setup:
                     Set rCell = GenerateEntry(CStr(sAction), sKey, sAction, iRow, wbTmp:=clsQuadRuntime.CacheBook)
                     dDefinitions.Item(sKey).Add "address", rCell.Address
                     
+                    ' add default value if one exists
+                    If IsSet(dDefaultValues) = True Then
+                        If dDefaultValues.Exists(sAction) = True Then
+                            sDBColName = Split(sKey, "_")(1)
+                            
+                            'Set dDefnDetails = dDefaultValues.Item(sAction)
+                            If dDefaultValues.Item(sAction).Exists(sDBColName) = True Then
+                                rCell.value = dDefaultValues.Item(sAction).Item(sDBColName)
+                            End If
+                        End If
+                    End If
                     ' copy across any formatting that exists
                     FormatCell clsQuadRuntime.TemplateBook, clsQuadRuntime.Book, CStr(sAction), rCell, CellState.Invalid, _
                                 sSourceSheetName:=clsQuadRuntime.TemplateCellSheetName, eCellType:=CellType.Entry
             
-            
+                    If bSetAsValid = True Then
+                        SetBgColorFromString sFormName, rCell, C_RGB_VALID, wbTmp:=clsQuadRuntime.CacheBook
+                    End If
+                    
                     iRow = iRow + 1
                 End If
             Next sKey
@@ -608,7 +635,7 @@ setup:
         
         HideEntryForm CStr(sAction)
         FuncLogIt sFuncName, "Generated Form for action [" & sAction & "]", C_MODULE_NAME, LogMsgType.INFO
-        
+nextaction:
     Next sAction
 End Sub
 Public Function LoadDefinitions(wsTmp As Worksheet, Optional rSource As Range = Nothing) As Dictionary

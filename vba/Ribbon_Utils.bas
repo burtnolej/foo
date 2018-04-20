@@ -110,17 +110,33 @@ Dim rRibValues As Range
 End Sub
 
 Sub rxgal_Click(control As IRibbonControl, id As String, index As Integer)
-'Call the macro that belong to the Label when you click on one of the labels
-'Example: When you click on the first Label it run the macro named "macro_1"
-    'On Error Resume Next
+Dim vLabelNames As Variant
+Dim vStudentIDs As Variant
+Dim clsQuadRuntime As New Quad_Runtime
+Dim sTemplateRowRangeName As String, sSheetName As String, sTemplateColRangeName As String
+Dim iFormatWidth As Integer, iFormatHeight As Integer
+Dim wsSchedule As Worksheet
     
-    Set clsQuadRuntime = GetQuadRuntimeGlobal(bInitFlag:=True)
-    'BuildSchedule clsQuadRuntime, _
-    '                eQuadSubDataType:=GetQuadSubDataTypeEnumFromValue(id), _
-    '                iPersonID:=CInt(aControlIDSplit(2))
+    clsQuadRuntime.InitProperties bInitializeCache:=False
+    vStudentIDs = GetColumnValues(clsQuadRuntime, QuadDataType.person, QuadSubDataType.student, "idStudent")
 
-    'Application.Run "macro_" & Format(index + 1, "00")
-    'On Error GoTo 0
+    sSheetName = "view_" & EnumQuadSubDataType(QuadSubDataType.student) & "_" & CStr(CInt(vStudentIDs(index)))
+    If SheetExists(clsQuadRuntime.ScheduleBook, sSheetName) = False Then
+        Set wsSchedule = CreateSheet(clsQuadRuntime.ScheduleBook, sSheetName)
+    End If
+    
+    sTemplateRowRangeName = "f" & "student" & "ScheduleRowLabel"
+    GetScheduleCellFormat clsQuadRuntime, iFormatWidth, iFormatHeight, sTemplateRowRangeName
+    BuildScheduleHeaderView clsQuadRuntime, wsSchedule, clsQuadRuntime.PeriodEnum, iFormatWidth, iFormatHeight
+
+    sTemplateColRangeName = "f" & "student" & "ScheduleColLabel"
+    GetScheduleCellFormat clsQuadRuntime, iFormatWidth, iFormatHeight, sTemplateColRangeName
+    BuildScheduleHeaderView clsQuadRuntime, wsSchedule, clsQuadRuntime.DayEnum, iFormatWidth, iFormatHeight, iStartCol:=4, iStartRow:=2, bVz:=False
+    
+    BuildSchedule clsQuadRuntime, _
+                    eQuadSubDataType:=QuadSubDataType.student, _
+                    iPersonID:=CInt(vStudentIDs(index))
+
 End Sub
 
 Sub OnAction(control As IRibbonControl, Optional bCheckbox As Boolean)
@@ -278,11 +294,28 @@ End Sub
 
 
 Sub GetContent(control As IRibbonControl, ByRef returnedVal)
-Dim xml As String
+Dim xml As String, sSheetName As String, sRowLabel As String, sColLabel As String, sQuadSubDataType As String, sQuadDataType As String
 Dim rSelection As Range
+Dim iSelectionRowId As Integer, iSelectionColId As Integer, iDataID As Integer
+Dim wsTmp As Worksheet
 
-    Set rSelection = Selection
+    iSelectionRowId = Selection.Row
+    iSelectionColId = Selection.Column
+    Set wsTmp = Selection.Parent
     
+    With wsTmp
+        sRowLabel = .Range(.Cells(iSelectionRowId, 1), .Cells(iSelectionRowId, 1)).value
+        sColLabel = .Range(.Cells(1, iSelectionColId), .Cells(1, iSelectionColId)).value
+    End With
+    sSheetName = wsTmp.Name
+    
+    On Error Resume Next
+    sQuadSubDataType = Split(sSheetName, UNDERSCORE)(1)
+    sQuadDataType = Split(sSheetName, UNDERSCORE)(0)
+    iDataID = CInt(Split(sSheetName, UNDERSCORE)(2))
+    On Error GoTo 0
+    
+    Debug.Print sQuadDataType & COMMA & sQuadSubDataType & COMMA & CStr(iDataID)
     xml = "<menu xmlns=""http://schemas.microsoft.com/office/2009/07/customui"">" & _
           "<button id=""but1"" imageMso=""Help"" label=""Help"" onAction=""HelpMacro""/>" & _
           "<button id=""but2"" imageMso=""FindDialog"" label=""Find"" onAction=""FindMacro""/>" & _
@@ -295,19 +328,22 @@ Sub rxgal_getItemCount(control As IRibbonControl, ByRef returnedVal)
 Dim vLabelNames As Variant
 Dim clsQuadRuntime As New Quad_Runtime
     clsQuadRuntime.InitProperties bInitializeCache:=False
-    vLabelNames = GetColumnValues(clsQuadRuntime, QuadDataType.person, QuadSubDataType.Student, "sStudentLastNm")
+    vLabelNames = GetColumnValues(clsQuadRuntime, QuadDataType.person, QuadSubDataType.student, "sStudentLastNm")
     returnedVal = UBound(vLabelNames) + 1
 End Sub
 
 Sub rxgal_getItemLabel(control As IRibbonControl, index As Integer, ByRef returnedVal)
-Dim vLabelNames As Variant
+Dim vLabelFirstNames As Variant, vLabelLastNames As Variant
 Dim clsQuadRuntime As New Quad_Runtime
 
+    If index = 0 Then index = 1
+    
     clsQuadRuntime.InitProperties bInitializeCache:=False
-    vLabelNames = GetColumnValues(clsQuadRuntime, QuadDataType.person, QuadSubDataType.Student, "sStudentLastNm")
+    vLabelFirstNames = GetColumnValues(clsQuadRuntime, QuadDataType.person, QuadSubDataType.student, "sStudentFirstNm")
+    vLabelLastNames = GetColumnValues(clsQuadRuntime, QuadDataType.person, QuadSubDataType.student, "sStudentLastNm")
     
     'is this correct at last index ?
-    returnedVal = vLabelNames(index)
+    returnedVal = vLabelFirstNames(index) & SPACE & vLabelLastNames(index)
 End Sub
 
 Sub rxgal_getItemImage(control As IRibbonControl, index As Integer, ByRef returnedVal)
@@ -316,16 +352,18 @@ Sub rxgal_getItemImage(control As IRibbonControl, index As Integer, ByRef return
 Dim sImagePath As String
 Dim vFiles() As String
 Dim vExtensions() As String
+Dim vPrepIDs As Variant
+Dim clsQuadRuntime As New Quad_Runtime
 
-
-    If index > 8 Then
-        index = 0
-    End If
+    If index = 0 Then index = 1
+    
+    clsQuadRuntime.InitProperties bInitializeCache:=False
+    vPrepIDs = GetColumnValues(clsQuadRuntime, QuadDataType.person, QuadSubDataType.student, "idPrep")
     
     vExtensions = InitStringArray(Array("png", "jpg"))
     sImagePath = Environ("MYHOME") & "\Pictures\icons\"
     vFiles = GetFolderFiles(sImagePath, vExtensions:=vExtensions)
-    Set returnedVal = LoadPictureGDI(sImagePath & vFiles(index))
+    Set returnedVal = LoadPictureGDI(sImagePath & vFiles(vPrepIDs(index) - 1))
         
 End Sub
 

@@ -2,6 +2,42 @@ Attribute VB_Name = "App_Schedule_Entry"
 Option Explicit
 Const CsModuleName = "App_Schedule_Entry"
 
+Public Sub EditLesson(iPersonID As Integer, _
+                      sDayCd As String, _
+                      iPeriodID As Integer, _
+             Optional eQuadSubDataType As QuadSubDataType = QuadSubDataType.student)
+Dim vPeriodIds() As String, vDayCds() As String
+Dim vTmp() As Integer
+Dim sCacheSheetName As String
+Dim wsCache As Worksheet
+Dim iIndex As Integer
+Dim dAllDefaultValues As New Dictionary, dDefaultValues As New Dictionary
+Dim clsQuadRuntime As New Quad_Runtime
+
+    clsQuadRuntime.InitProperties bInitializeCache:=False
+
+    Set Entry_Utils.dDefinitions = LoadDefinitions(clsQuadRuntime.TemplateBook.Sheets("Definitions"), _
+                rSource:=clsQuadRuntime.TemplateBook.Sheets("Definitions").Range("Definitions"))
+                
+    Set wsCache = GetScheduleData(clsQuadRuntime, iPersonID, QuadDataType.schedule, eQuadSubDataType, bInTable:=True)
+        
+    vPeriodIds = GetColumnValues(clsQuadRuntime, QuadDataType.schedule, QuadSubDataType.student, _
+                "idTimePeriod", iPersonID:=iPersonID)
+    vTmp = IndexArrayMulti(vPeriodIds, CStr(iPeriodID))
+    vDayCds = GetColumnValues(clsQuadRuntime, QuadDataType.schedule, QuadSubDataType.student, _
+                    "cdDay", iPersonID:=iPersonID)
+
+    iIndex = IndexArray(vDayCds, sDayCd, vWhere:=vTmp)
+    
+    'Set dDefaultValues = Row2Dict(wsCache, clsQuadRuntime.CacheRangeName, iIndex)
+    dDefaultValues.Add "NewLesson", Row2Dict(wsCache, clsQuadRuntime.CacheRangeName, iIndex + 1)
+    'Set dValues = Row2Dict(wsCache, clsQuadRuntime.CacheRangeName, iIndex)
+
+    'THEN LAUNCH AN ENTRY SCREEN WITH THESE VALUES WILL BE LIKE PROVIDING DEFAULTS
+    GenerateEntryForms clsQuadRuntime, sFormName:="NewLesson", dDefaultValues:=dDefaultValues, _
+        bSetAsValid:=True
+
+End Sub
 Public Function NewLesson() As Range
 Dim dEntryValues As Dictionary
 Dim sFormatRangeName As String
@@ -11,7 +47,7 @@ Dim iPersonID As Integer
     clsQuadRuntime.InitProperties bInitializeCache:=False
     sFormatRangeName = "f" & "student" & "ScheduleCell"
     Set dEntryValues = GetRecordValuesAsDict(clsQuadRuntime.TemplateBook, clsQuadRuntime.CacheBook, "NewLesson")
-    iPersonID = CrossRefQuadData(clsQuadRuntime, QuadDataType.person, QuadSubDataType.Student, "sStudentFirstNm", dEntryValues.Item("sStudentFirstNm"), "idStudent")
+    iPersonID = CrossRefQuadData(clsQuadRuntime, QuadDataType.person, QuadSubDataType.student, "sStudentFirstNm", dEntryValues.Item("sStudentFirstNm"), "idStudent")
     Set NewLesson = AddNewLesson(clsQuadRuntime, dEntryValues, sFormatRangeName, iPersonID)
     
 End Function
@@ -19,7 +55,7 @@ End Function
 Function AddNewLesson(clsQuadRuntime As Quad_Runtime, _
                 dValues As Dictionary, sTemplateRangeName As String, _
                 iStudentID As Integer, _
-                Optional eQuadDataSubType As QuadSubDataType = QuadSubDataType.Student) As Range
+                Optional eQuadDataSubType As QuadSubDataType = QuadSubDataType.student) As Range
 Dim iFormatWidth As Integer, iFormatHeight As Integer, iColWidthCount As Integer
 Dim aColumnWidths() As Integer
 Dim sSheetName As String, sTableName As String, sTemplateRowRangeName As String, sTemplateColRangeName As String

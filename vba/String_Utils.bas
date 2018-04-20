@@ -6,6 +6,8 @@ Public Const COMMA = ","
 Public Const SPACE = " "
 Public Const BLANK = ""
 Public Const QUOTE = "'"
+Public Const UNDERSCORE = "_"
+
 
 Function PadStr(sInputStr As String, sDirection As String, iPadLength As Integer, sPadChar As String, _
         Optional bAsciiFlag As Boolean = False, Optional iAscii As Integer) As String

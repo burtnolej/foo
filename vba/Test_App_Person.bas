@@ -15,10 +15,11 @@ Dim eTestResult As TestResult
 Dim clsQuadRuntime As New Quad_Runtime
 
 setup:
+    On Error GoTo err
     clsQuadRuntime.InitProperties bInitializeCache:=True
     
 main:
-    If IsValidPersonID(clsQuadRuntime, 70, QuadSubDataType.Student) = False Then
+    If IsValidPersonID(clsQuadRuntime, 70, QuadSubDataType.student) = False Then
         eTestResult = TestResult.Failure
         GoTo teardown
     End If
@@ -43,9 +44,10 @@ Dim eTestResult As TestResult
 Dim clsQuadRuntime As New Quad_Runtime
 
 setup:
+    On Error GoTo err
     clsQuadRuntime.InitProperties bInitializeCache:=True
     
-    If IsValidPersonID(clsQuadRuntime, 999, QuadSubDataType.Student) = True Then
+    If IsValidPersonID(clsQuadRuntime, 999, QuadSubDataType.student) = True Then
         eTestResult = TestResult.Failure
         GoTo teardown
     End If
@@ -69,6 +71,7 @@ Dim eTestResult As TestResult
 Dim clsQuadRuntime As New Quad_Runtime
 
 setup:
+    On Error GoTo err
     clsQuadRuntime.InitProperties bInitializeCache:=True
     
     If IsValidPersonID(clsQuadRuntime, 70, QuadSubDataType.teacher) = False Then
@@ -95,6 +98,7 @@ Dim eTestResult As TestResult
 Dim clsQuadRuntime As New Quad_Runtime
 
 setup:
+    On Error GoTo err
     clsQuadRuntime.InitProperties bInitializeCache:=True
     
     If IsValidPersonID(clsQuadRuntime, 999, QuadSubDataType.teacher) = True Then
@@ -123,10 +127,11 @@ Dim eTestResult As TestResult
 Dim clsQuadRuntime As New Quad_Runtime
 
 setup:
+    On Error GoTo err
     clsQuadRuntime.InitProperties bInitializeCache:=True
     
 main:
-    GetPersonDataFromDB clsQuadRuntime, QuadSubDataType.Student, eQuadScope:=QuadScope.all
+    GetPersonDataFromDB clsQuadRuntime, QuadSubDataType.student, eQuadScope:=QuadScope.all
     
     If FileExists(clsQuadRuntime.ResultFileName) Then
         sResultStr = ReadFile(clsQuadRuntime.ResultFileName)
@@ -160,10 +165,11 @@ Dim eTestResult As TestResult
 Dim clsQuadRuntime As New Quad_Runtime
 
 setup:
+    On Error GoTo err
     clsQuadRuntime.InitProperties bInitializeCache:=True
     
 main:
-    GetPersonDataFromDB clsQuadRuntime, QuadSubDataType.Student, eQuadScope:=QuadScope.specified, _
+    GetPersonDataFromDB clsQuadRuntime, QuadSubDataType.student, eQuadScope:=QuadScope.specified, _
                         iPersonID:=70
     
     If FileExists(clsQuadRuntime.ResultFileName) Then
@@ -203,12 +209,13 @@ Dim wsCache As Worksheet
 Dim clsQuadRuntime As New Quad_Runtime
 
 setup:
+    On Error GoTo err
     clsQuadRuntime.InitProperties bInitializeCache:=True
 
 main:
-    GetPersonData clsQuadRuntime, QuadDataType.person, QuadSubDataType.Student, eQuadScope:=QuadScope.all
+    GetPersonData clsQuadRuntime, QuadDataType.person, QuadSubDataType.student, eQuadScope:=QuadScope.all
 
-    Set wsCache = GetPersonData(clsQuadRuntime, QuadDataType.person, QuadSubDataType.Student, eQuadScope:=QuadScope.all)
+    Set wsCache = GetPersonData(clsQuadRuntime, QuadDataType.person, QuadSubDataType.student, eQuadScope:=QuadScope.all)
     With wsCache
         If .Range(.Cells(83, 5), .Cells(83, 5)).value <> "Photon" Then
             eTestResult = TestResult.Failure
@@ -242,10 +249,11 @@ Dim wsCache As Worksheet
 Dim clsQuadRuntime As New Quad_Runtime
 
 setup:
+    On Error GoTo err
     clsQuadRuntime.InitProperties bInitializeCache:=True
 
 main:
-    Set wsCache = GetPersonData(clsQuadRuntime, QuadDataType.person, QuadSubDataType.Student, eQuadScope:=QuadScope.all)
+    Set wsCache = GetPersonData(clsQuadRuntime, QuadDataType.person, QuadSubDataType.student, eQuadScope:=QuadScope.all)
     With wsCache
         If .Range(.Cells(83, 5), .Cells(83, 5)).value <> "Photon" Then
             eTestResult = TestResult.Failure

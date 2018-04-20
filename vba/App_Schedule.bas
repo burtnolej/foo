@@ -52,6 +52,41 @@ main:
     Set BuildSchedule = BuildScheduleView(clsQuadRuntime, aColumnWidths, iFormatWidth, iFormatHeight, eQuadSubDataType, iPersonID)
   
 End Function
+
+Public Function GetScheduleData(clsQuadRuntime As Quad_Runtime, _
+                                iPersonID As Integer, _
+                              eQuadDataType As QuadDataType, _
+                              eQuadSubDataType As QuadSubDataType, _
+                     Optional eQuadScope As QuadScope = QuadScope.specified, _
+                     Optional bInTable As Boolean = False) As Worksheet
+
+Dim sCacheSheetName As String, sFuncName As String
+Dim aSchedule() As String
+
+setup:
+    sFuncName = C_MODULE_NAME & "." & "GetScheduleData"
+    
+main:
+    If IsDataCached(clsQuadRuntime, QuadDataType.schedule, eQuadSubDataType, iPersonID) = False Then
+        FuncLogIt sFuncName, "Data cache NOT found for [" & EnumQuadSubDataType(eQuadSubDataType) & "_" & CStr(iPersonID) & "]", C_MODULE_NAME, LogMsgType.INFO
+
+        ' get the raw data from the database and return the filename that holds the results
+        GetScheduleDataFromDB clsQuadRuntime, iPersonID, eQuadSubDataType
+                                     
+        ' parse the raw data in the result file and return an array of the data
+        aSchedule = ParseRawData(ReadFile(clsQuadRuntime.ResultFileName))
+        ' store the parsed raw data in a back sheet, return the sheet name
+        sCacheSheetName = CacheData(clsQuadRuntime, aSchedule, QuadDataType.schedule, _
+                            eQuadSubDataType, iDataID:=iPersonID, bInTable:=bInTable)
+    Else
+        FuncLogIt sFuncName, "Data cache found for [" & EnumQuadSubDataType(eQuadSubDataType) & "_" & CStr(iPersonID) & "]", C_MODULE_NAME, LogMsgType.INFO
+        sCacheSheetName = CacheData(clsQuadRuntime, aSchedule, QuadDataType.schedule, eQuadSubDataType, _
+                            iPersonID, bCacheNameOnly:=True, bInTable:=bInTable)
+    End If
+    
+    Set GetScheduleData = clsQuadRuntime.CacheBook.Sheets(sCacheSheetName)
+End Function
+    
 Public Sub GetScheduleDataFromDB(clsQuadRuntime As Quad_Runtime, _
                                  sPersonId As Integer, _
                                  eQuadSubDataType As QuadSubDataType, _
@@ -73,7 +108,7 @@ setup:
     ' END Assertions ----------------------------
 
 main:
-    If eQuadSubDataType = QuadSubDataType.Student Then
+    If eQuadSubDataType = QuadSubDataType.student Then
         sSpName = "student_schedule"
         dSpArgs.Add "students", InitVariantArray(Array(sPersonId))
     ElseIf eQuadSubDataType = QuadSubDataType.teacher Then
@@ -163,7 +198,7 @@ Function BuildScheduleCellView(clsQuadRuntime As Quad_Runtime, _
                           dValues As Dictionary, _
                           iFormatWidth As Integer, iFormatHeight As Integer, _
                           aColumnWidths() As Integer, _
-                Optional eQuadSubDataType As QuadSubDataType = QuadSubDataType.Student, _
+                Optional eQuadSubDataType As QuadSubDataType = QuadSubDataType.student, _
                 Optional iViewRowOffset As Integer = 0, _
                 Optional iViewColOffset As Integer = 2) As Range
 
@@ -211,8 +246,12 @@ Dim i As Integer, j As Integer
     
     sScheduleSheetName = "view_" & EnumQuadSubDataType(eQuadSubDataType) & "_" & CStr(iPersonID)
     
-    Set wsSchedule = CreateSheet(clsQuadRuntime.ScheduleBook, sScheduleSheetName, bOverwrite:=True)
-
+    If SheetExists(clsQuadRuntime.ScheduleBook, sScheduleSheetName) = True Then
+        Set wsSchedule = GetSheet(clsQuadRuntime.ScheduleBook, sScheduleSheetName)
+    Else
+        Set wsSchedule = CreateSheet(clsQuadRuntime.ScheduleBook, sScheduleSheetName, bOverwrite:=True)
+    End If
+    
     For i = 1 To UBound(clsQuadRuntime.CurrentSheetSource)
     
         ' generate a dictionary of the details
@@ -232,13 +271,13 @@ Function BuildScheduleHeaderView(clsQuadRuntime As Quad_Runtime, _
                           wsSchedule As Worksheet, _
                           sEnums As String, _
                           iFormatWidth As Integer, iFormatHeight As Integer, _
-                Optional eQuadSubDataType As QuadSubDataType = QuadSubDataType.Student, _
+                Optional eQuadSubDataType As QuadSubDataType = QuadSubDataType.student, _
                 Optional iStartRow As Integer = 3, _
                 Optional iStartCol As Integer = 1, _
                 Optional bVz As Boolean = True) As Range
 
 Dim iScheduleCurrentRow As Integer, iColWidthCount As Integer, i As Integer, iScheduleCurrentCol As Integer
-Dim rScheduleFormatTargetRange As Range, rCell As Range
+Dim rScheduleFormatTargetRange As Range, rCell As Range, rMarker As Range
 Dim sFormatTemplateRange As String
 Dim iNumValues As Integer
 Dim vEnumValues() As String
@@ -265,12 +304,7 @@ Dim vEnumValues() As String
                 iScheduleCurrentCol = iStartCol + (iFormatWidth * (i - 1))
             End If
             
-            'Set rScheduleFormatTargetRange = .Range(.Cells(iScheduleCurrentRow, iScheduleCurrentCol), .Cells(iScheduleCurrentRow + iFormatHeight - 1, iScheduleCurrentCol + iFormatWidth - 1))
             Set rScheduleFormatTargetRange = wsSchedule.Range(.Cells(iScheduleCurrentRow, iScheduleCurrentCol), .Cells(iScheduleCurrentRow + iFormatHeight - 1, iScheduleCurrentCol + iFormatWidth - 1))
-            '.Activate
-            'HERE
-            'rScheduleFormatTargetRange.Select
-            '.Activate
             rScheduleFormatTargetRange.PasteSpecial Paste:=xlPasteAll, operation:=xlNone, SkipBlanks:=False, Transpose:=False
             
             FormatColRowSize clsQuadRuntime.TemplateBook, clsQuadRuntime.ScheduleBook, _
@@ -283,6 +317,15 @@ Dim vEnumValues() As String
                     rCell.value = Application.Run(Right(rCell.value, Len(rCell.value) - 1), vEnumValues(i - 1))
                 End If
             Next rCell
+            
+            ' put inivisble markets in row 1 and col 1 so context menu's know what cell
+            If bVz = True Then
+                Set rMarker = wsSchedule.Range(.Cells(iScheduleCurrentRow, 1), .Cells(iScheduleCurrentRow + iFormatHeight - 1, 1))
+            Else
+                Set rMarker = wsSchedule.Range(.Cells(1, iScheduleCurrentCol), .Cells(1, iScheduleCurrentCol + iFormatWidth - 1))
+            End If
+            rMarker.value = vEnumValues(i - 1)
+            SetFgColor wsSchedule.Name, rMarker.Address, 255, 255, 255, wbTmp:=clsQuadRuntime.ScheduleBook
         Next i
     End With
     

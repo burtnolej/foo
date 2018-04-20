@@ -56,6 +56,7 @@ Private cExecPath  As String
 Private cRuntimeDir  As String
 Private cBookPath As String
 Private cBookName As String
+Private cNewBookPath As String
 Private cCacheBookName  As String
 Private cCacheBookPath  As String
 Private cCacheRangeName  As String
@@ -652,6 +653,7 @@ Sub SetDefaults()
     cCacheBookName = "cache.xlsm"
     cCacheBookPath = cRuntimeDir
     cCacheRangeName = "data"
+    cNewBookPath = cRuntimeDir & "\archive\"
     
     cTemplateBookPath = cAppDir
     cTemplateBookName = "vba_source_new.xlsm"
@@ -705,10 +707,12 @@ Public Sub InitProperties( _
     Me.CacheRangeName = sCacheRangeName
     
     If bInitializeCache = True Then
-        CreateBook Me.CacheBookName, sBookPath:=Me.CacheBookPath
+        FileCopy cCacheBookName, cNewBookPath, cRuntimeDir
+        'CreateBook Me.CacheBookName, sBookPath:=Me.CacheBookPath
     Else
         If BookExists(Me.CacheBookPath & "\" & Me.CacheBookName) = False Then
-            CreateBook Me.CacheBookName, sBookPath:=Me.CacheBookPath
+            FileCopy cCacheBookName, cNewBookPath, cRuntimeDir
+            'CreateBook Me.CacheBookName, sBookPath:=Me.CacheBookPath
         End If
     End If
     

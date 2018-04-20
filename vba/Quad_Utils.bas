@@ -18,7 +18,7 @@ End Enum
 Const C_QUAD_DATA_TYPE = "schedule,person,courses,misc"
 
 Enum QuadSubDataType
-    Student = 1
+    student = 1
     teacher = 2
     Course = 3
     subject = 4
@@ -103,13 +103,19 @@ Dim sFuncName As String
     End If
 End Function
 Public Function SheetTableLookup(wsDataSheet As Worksheet, sRangeName As String, _
-                            sLookUpColName As String, vLookUpVal As Variant) As Integer
+                            sLookUpColName As String, vLookUpVal As Variant, _
+                            Optional wbTmp As Workbook) As Integer
 ' assumes row 1 contains the column names
 ':param:sLookupColName, string, column name that will be used as AboveAverage unique index to lookup by
 Dim vColumnNames As Variant, vColumnNamesTransposed As Variant
 Dim rColumns As Range, rData As Range
 Dim iColumnIdx As Integer
 
+    If IsSet(wbTmp) = False Then
+        Set wbTmp = ActiveWorkbook
+    End If
+        
+    'Set rData = wbTmp.Sheets("person_student").Range(sRangeName)
     With wsDataSheet
         Set rData = .Range(sRangeName)
         Set rColumns = rData.Resize(1)
@@ -236,15 +242,20 @@ End Sub
 Public Function GetColumnValues(clsQuadRuntime As Quad_Runtime, _
                                  eQuadDataType As QuadDataType, _
                                  eQuadSubDataType As QuadSubDataType, _
-                                 sLookUpColName As String) As String()
+                                 sLookUpColName As String, _
+                        Optional iPersonID As Integer) As String()
 Dim wsCache As Worksheet
 Dim sLookUpRangeName As String
 
-    Set wsCache = GetPersonData(clsQuadRuntime, eQuadDataType, eQuadSubDataType, QuadScope.all, bInTable:=True)
+    If eQuadDataType = QuadDataType.schedule Then
+        Set wsCache = GetScheduleData(clsQuadRuntime, iPersonID, eQuadDataType, eQuadSubDataType, bInTable:=True)
+    Else
+        Set wsCache = GetPersonData(clsQuadRuntime, eQuadDataType, eQuadSubDataType, QuadScope.all, bInTable:=True)
+    End If
     sLookUpRangeName = GetDBColumnRange(wsCache.Name, sLookUpColName)
     GetColumnValues = ListFromRange(wsCache, sLookUpRangeName)
                                  
-                                 End Function
+End Function
 Public Function CrossRefQuadData(clsQuadRuntime As Quad_Runtime, _
                                  eQuadDataType As QuadDataType, _
                                  eQuadSubDataType As QuadSubDataType, _
@@ -285,7 +296,7 @@ End Sub
 Public Function IsDataCached(clsQuadRuntime As Quad_Runtime, _
                              eQuadDataType As QuadDataType, _
                              eQuadSubDataType As QuadSubDataType, _
-                    Optional iDataId As Integer) As Boolean
+                    Optional iDataID As Integer) As Boolean
 '<<<
 ' purpose: has this data set already been cached
 ' param  : clsQuadRuntime, Quad_Runtime; all config controlling names of books, sheets, ranges for
@@ -297,8 +308,8 @@ Public Function IsDataCached(clsQuadRuntime As Quad_Runtime, _
 Dim sCacheSheetName As String
 
     sCacheSheetName = EnumQuadDataType(eQuadDataType) & "_" & EnumQuadSubDataType(eQuadSubDataType)
-    If iDataId <> 0 Then
-        sCacheSheetName = sCacheSheetName & "_" & CStr(iDataId)
+    If iDataID <> 0 Then
+        sCacheSheetName = sCacheSheetName & "_" & CStr(iDataID)
     End If
 
     IsDataCached = SheetExists(clsQuadRuntime.CacheBook, sCacheSheetName)
@@ -316,7 +327,7 @@ Public Function CacheData(clsQuadRuntime As Quad_Runtime, _
                           aData() As String, _
                           eQuadDataType As QuadDataType, _
                           eQuadSubDataType As QuadSubDataType, _
-                 Optional iDataId As Integer, _
+                 Optional iDataID As Integer, _
                  Optional bCacheNameOnly As Boolean = False, _
                  Optional bInTable As Boolean = False) As String
 '<<<
@@ -342,9 +353,9 @@ Dim vColNames() As String
 Dim wsCurrentFocus As Worksheet
 
     sCacheSheetName = EnumQuadDataType(eQuadDataType) & "_" & EnumQuadSubDataType(eQuadSubDataType)
-
-    If iDataId <> 0 Then
-        sCacheSheetName = sCacheSheetName & "_" & CStr(iDataId)
+        
+    If iDataID <> 0 Then
+        sCacheSheetName = sCacheSheetName & "_" & CStr(iDataID)
     End If
     
     ' when the data is already cached and the caller just needs the cache location
@@ -359,7 +370,8 @@ Dim wsCurrentFocus As Worksheet
         For iColCount = 0 To UBound(aData, 2)
             vColNames(iColCount) = aData(0, iColCount)
         Next iColCount
-        AddTableRecordAuto clsQuadRuntime.CacheBook, sCacheSheetName, vColNames, aData, bBulkLoad:=True
+        AddTableRecordAuto clsQuadRuntime.CacheBook, sCacheSheetName, vColNames, _
+                aData, bBulkLoad:=True, vTableFilterID:=iDataID
 
     Else
         Set wsCache = CreateSheet(clsQuadRuntime.CacheBook, sCacheSheetName, bOverwrite:=True)

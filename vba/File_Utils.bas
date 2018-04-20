@@ -32,6 +32,22 @@ err:
     FuncLogIt sFuncName, "Failed to move [" & sFileName & "] from  [" & sSourcePath & "] to [" & sTargetPath & "] with err [" & err.Description & "]", C_MODULE_NAME, LogMsgType.Failure
 
 End Sub
+
+Public Sub FileCopy(sFileName As String, sSourcePath As String, sTargetPath As String)
+Dim objFSO As Object
+Dim sFuncName As String
+    sFuncName = "FileCopy"
+    Set objFSO = CreateObject("Scripting.FileSystemObject")
+    On Error GoTo err
+    objFSO.CopyFile sSourcePath & sFileName, sTargetPath & sFileName
+    On Error GoTo 0
+    FuncLogIt sFuncName, "Copied [" & sFileName & "] from  [" & sSourcePath & "] to [" & sTargetPath & "]", C_MODULE_NAME, LogMsgType.Failure
+    Exit Sub
+err:
+    FuncLogIt sFuncName, "Failed to copy [" & sFileName & "] from  [" & sSourcePath & "] to [" & sTargetPath & "] with err [" & err.Description & "]", C_MODULE_NAME, LogMsgType.Failure
+
+End Sub
+
 Public Function GetFolderFiles(sPath As String, Optional bDateSorted As Boolean = False, _
                 Optional vExtensions As Variant) As String()
 Dim vFileNames() As String

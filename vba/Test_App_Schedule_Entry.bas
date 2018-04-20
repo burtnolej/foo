@@ -433,3 +433,41 @@ teardown:
     DeleteBook clsQuadRuntime.CacheBookName
     
 End Function
+
+Function Test_EditLesson() As TestResult
+Dim eTestResult As TestResult
+Dim clsQuadRuntime As New Quad_Runtime
+Dim sFuncName As String, sSheetName As String, sTargetSheetName As String
+Dim dRecordValues As Dictionary
+
+setup:
+    ResetQuadRuntimeGlobal
+    sFuncName = CsModuleName & "." & "EditLesson"
+    clsQuadRuntime.InitProperties bInitializeCache:=True
+    
+main:
+    ' force using "Definitions" not "test"
+    Set Entry_Utils.dDefinitions = LoadDefinitions(ActiveWorkbook.Sheets("Definitions"), _
+                rSource:=ActiveWorkbook.Sheets("Definitions").Range("Definitions"))
+
+    EditLesson 70, "M", 1
+
+    If clsQuadRuntime.CacheBook.Sheets("NewLesson").Range("eNewLesson_sFacultyFirstNm").value = "Isaac" Then
+        eTestResult = TestResult.OK
+        GoTo teardown
+    Else
+        eTestResult = TestResult.Failure
+    End If
+
+err:
+    eTestResult = TestResult.Error
+
+teardown:
+    Test_EditLesson = eTestResult
+    clsQuadRuntime.Delete
+    'DeleteEntryForms wbTmp:=clsQuadRuntime.CacheBook
+    DeleteSheet clsQuadRuntime.Book, sSheetName
+    CloseBook clsQuadRuntime.CacheBook
+    DeleteBook clsQuadRuntime.CacheBookName
+    
+End Function

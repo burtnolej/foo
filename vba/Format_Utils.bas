@@ -79,6 +79,18 @@ Sub SetBgColor(sSheetName As String, rTarget As Range, iRed As Integer, iGreen A
         End With
     End With
 End Sub
+Sub SetFgColor(sSheetName As String, sRange As String, iRed As Integer, iGreen As Integer, _
+            iBlue As Integer, Optional wbTmp As Workbook)
+    If IsSet(wbTmp) = False Then
+        Set wbTmp = ActiveWorkbook
+    End If
+            
+    With GetSheet(wbTmp, sSheetName)
+        With .Range(sRange).Font
+            .Color = RGB(iRed, iGreen, iBlue)
+        End With
+    End With
+End Sub
 Sub SetBgColorFromString(sSheetName As String, rTarget As Range, sRGB As String, _
             Optional wbTmp As Workbook)
 Dim aRGBElements() As String

@@ -28,7 +28,7 @@ Dim sScheduleName As String, sSchedulePath As String
             
     iPersonID = 70
     
-    Set wsSchedule = BuildSchedule(clsQuadRuntime, QuadSubDataType.Student, iPersonID)
+    Set wsSchedule = BuildSchedule(clsQuadRuntime, QuadSubDataType.student, iPersonID)
                               
     With wsSchedule
         Set rResult = .Range("L20:M23")
@@ -59,7 +59,7 @@ err:
 teardown:
     Test_BuildSchedule_Student_OverideScheduleBook = eTestResult
     clsQuadRuntime.Delete
-    DeleteSheet clsQuadRuntime.CacheBook, "schedule_" & EnumQuadSubDataType(QuadSubDataType.Student) & "_" & CStr(iPersonID)
+    'DeleteSheet clsQuadRuntime.CacheBook, "schedule_" & EnumQuadSubDataType(QuadSubDataType.student) & "_" & CStr(iPersonID)
     DeleteSheet clsQuadRuntime.CacheBook, wsSchedule.Name
     CloseBook clsQuadRuntime.CacheBook
     DeleteBook clsQuadRuntime.CacheBookName, clsQuadRuntime.CacheBookPath
@@ -68,6 +68,9 @@ teardown:
 
 End Function
 
+Sub test()
+    Test_BuildScheduleHeaders
+End Sub
 Public Function Test_BuildScheduleHeaders() As TestResult
 Dim sSheetName As String, sFuncName As String, sTemplateRangeName As String, sTargetSheetName As String
 Dim eTestResult As TestResult
@@ -110,6 +113,10 @@ main:
         GoTo teardown
     End If
 
+    If clsQuadRuntime.CacheBook.Sheets(sSheetName).Range("E1:E1").value <> "T" Then
+        eTestResult = TestResult.Failure
+        GoTo teardown
+    End If
     eTestResult = TestResult.OK
     GoTo teardown
     
@@ -181,11 +188,11 @@ setup:
     clsQuadRuntime.InitProperties bInitializeCache:=True
     iPersonID = 70
     
-    Set wsSchedule = BuildSchedule(clsQuadRuntime, QuadSubDataType.Student, iPersonID)
-    Set wsSchedule = BuildSchedule(clsQuadRuntime, QuadSubDataType.Student, iPersonID - 1)
-    Set wsSchedule = BuildSchedule(clsQuadRuntime, QuadSubDataType.Student, iPersonID - 2)
-    Set wsSchedule = BuildSchedule(clsQuadRuntime, QuadSubDataType.Student, iPersonID - 3)
-    Set wsSchedule = BuildSchedule(clsQuadRuntime, QuadSubDataType.Student, iPersonID - 4)
+    Set wsSchedule = BuildSchedule(clsQuadRuntime, QuadSubDataType.student, iPersonID)
+    Set wsSchedule = BuildSchedule(clsQuadRuntime, QuadSubDataType.student, iPersonID - 1)
+    Set wsSchedule = BuildSchedule(clsQuadRuntime, QuadSubDataType.student, iPersonID - 2)
+    Set wsSchedule = BuildSchedule(clsQuadRuntime, QuadSubDataType.student, iPersonID - 3)
+    Set wsSchedule = BuildSchedule(clsQuadRuntime, QuadSubDataType.student, iPersonID - 4)
                               
     With ActiveWorkbook
         If "view_student_66,schedule_student_66,view_student_67,schedule_student_67,view_student_68,schedule_student_68,view_student_69,schedule_student_69,view_student_70,schedule_student_70,person_student" <> Join(GetSheets(clsQuadRuntime.CacheBook), ",") Then
@@ -201,7 +208,7 @@ err:
     
 teardown:
     clsQuadRuntime.Delete
-    DeleteSheet clsQuadRuntime.CacheBook, "schedule_" & EnumQuadSubDataType(QuadSubDataType.Student) & "_" & CStr(iPersonID)
+    DeleteSheet clsQuadRuntime.CacheBook, "schedule_" & EnumQuadSubDataType(QuadSubDataType.student) & "_" & CStr(iPersonID)
     DeleteSheet clsQuadRuntime.CacheBook, wsSchedule.Name
     CloseBook clsQuadRuntime.CacheBook
     DeleteBook clsQuadRuntime.CacheBookName, clsQuadRuntime.CacheBookPath
@@ -291,7 +298,7 @@ Dim clsQuadRuntime As New Quad_Runtime
             
     iPersonID = 70
     
-    Set wsSchedule = BuildSchedule(clsQuadRuntime, QuadSubDataType.Student, iPersonID)
+    Set wsSchedule = BuildSchedule(clsQuadRuntime, QuadSubDataType.student, iPersonID)
                               
     With wsSchedule
         'Set rResult = .Range("L20:M23")
@@ -323,7 +330,7 @@ err:
 teardown:
     Test_BuildSchedule_Student_NotCached = eTestResult
     clsQuadRuntime.Delete
-    DeleteSheet clsQuadRuntime.CacheBook, "schedule_" & EnumQuadSubDataType(QuadSubDataType.Student) & "_" & CStr(iPersonID)
+    'DeleteSheet clsQuadRuntime.CacheBook, "schedule_" & EnumQuadSubDataType(QuadSubDataType.student) & "_" & CStr(iPersonID)
     DeleteSheet clsQuadRuntime.CacheBook, wsSchedule.Name
     CloseBook clsQuadRuntime.CacheBook
     DeleteBook clsQuadRuntime.CacheBookName, clsQuadRuntime.CacheBookPath
@@ -349,12 +356,12 @@ setup:
     clsQuadRuntime.InitProperties bInitializeCache:=True
     iPersonID = 70
     
-    GetScheduleDataFromDB clsQuadRuntime, iPersonID, QuadSubDataType.Student
+    GetScheduleDataFromDB clsQuadRuntime, iPersonID, QuadSubDataType.student
     aSchedule = ParseRawData(ReadFile(clsQuadRuntime.ResultFileName))
-    sCacheSheetName = CacheData(clsQuadRuntime, aSchedule, QuadDataType.schedule, QuadSubDataType.Student, iPersonID)
+    sCacheSheetName = CacheData(clsQuadRuntime, aSchedule, QuadDataType.schedule, QuadSubDataType.student, iPersonID)
     
 main:
-    Set wsSchedule = BuildSchedule(clsQuadRuntime, QuadSubDataType.Student, iPersonID)
+    Set wsSchedule = BuildSchedule(clsQuadRuntime, QuadSubDataType.student, iPersonID)
                               
     With wsSchedule
         Set rResult = .Range("L20:M23")
@@ -384,7 +391,7 @@ err:
 teardown:
     Test_BuildSchedule_Student_Cached = eTestResult
     clsQuadRuntime.Delete
-    DeleteSheet clsQuadRuntime.CacheBook, "schedule_" & EnumQuadSubDataType(QuadSubDataType.Student) & "_" & CStr(iPersonID)
+    'DeleteSheet clsQuadRuntime.CacheBook, "schedule_" & EnumQuadSubDataType(QuadSubDataType.student) & "_" & CStr(iPersonID)
     DeleteSheet clsQuadRuntime.CacheBook, wsSchedule.Name
     CloseBook clsQuadRuntime.CacheBook
     DeleteBook clsQuadRuntime.CacheBookName, clsQuadRuntime.CacheBookPath
@@ -405,9 +412,9 @@ setup:
     clsQuadRuntime.InitProperties bInitializeCache:=True
     iPersonID = 70
     
-    GetScheduleDataFromDB clsQuadRuntime, iPersonID, QuadSubDataType.Student
+    GetScheduleDataFromDB clsQuadRuntime, iPersonID, QuadSubDataType.student
     aSchedule = ParseRawData(ReadFile(clsQuadRuntime.ResultFileName))
-    sCacheSheetName = CacheData(clsQuadRuntime, aSchedule, QuadDataType.schedule, QuadSubDataType.Student, iPersonID)
+    sCacheSheetName = CacheData(clsQuadRuntime, aSchedule, QuadDataType.schedule, QuadSubDataType.student, iPersonID)
  
     With clsQuadRuntime.CacheBook.Sheets(sCacheSheetName)
         If .Range(.Cells(47, 11), .Cells(47, 11)).value <> 1476 Then
@@ -425,7 +432,7 @@ err:
 teardown:
     Test_CacheData_Schedule = eTestResult
     clsQuadRuntime.Delete
-    DeleteSheet clsQuadRuntime.CacheBook, sCacheSheetName
+    'DeleteSheet clsQuadRuntime.CacheBook, sCacheSheetName
     CloseBook clsQuadRuntime.CacheBook
     DeleteBook clsQuadRuntime.CacheBookName, clsQuadRuntime.CacheBookPath
 
@@ -480,7 +487,7 @@ setup:
     iPersonID = 70
 
 main:
-    GetScheduleDataFromDB clsQuadRuntime, iPersonID, QuadSubDataType.Student, _
+    GetScheduleDataFromDB clsQuadRuntime, iPersonID, QuadSubDataType.student, _
                 sPeriod:="1,2", sDay:="M,F"
 
    If FileExists(clsQuadRuntime.ResultFileName) Then
@@ -522,7 +529,7 @@ setup:
     iPersonID = 70
 
 main:
-    GetScheduleDataFromDB clsQuadRuntime, iPersonID, QuadSubDataType.Student, sPeriod:="1"
+    GetScheduleDataFromDB clsQuadRuntime, iPersonID, QuadSubDataType.student, sPeriod:="1"
     
     If FileExists(clsQuadRuntime.ResultFileName) Then
         sResultStr = ReadFile(clsQuadRuntime.ResultFileName)

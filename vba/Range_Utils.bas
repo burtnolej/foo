@@ -33,6 +33,7 @@ Public Sub RangeSort(sSheetName As String, rSort As Range, Optional iStartCol As
 End Sub
 Public Function ListFromRange(wsTmp As Worksheet, sSourceAddress As String) As String()
 Dim vTmpRange As Variant
+    
     With wsTmp
         vTmpRange = .Range(sSourceAddress)
     End With

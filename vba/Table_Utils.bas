@@ -90,7 +90,9 @@ main:
 End Function
 Public Function AddTableRecordAuto(wbTmp As Workbook, sTableName As String, _
         vColNames() As String, vRows() As String, _
-        Optional bAddDefaultFields As Boolean = True, Optional bBulkLoad As Boolean = False) As Integer
+        Optional bAddDefaultFields As Boolean = True, _
+        Optional bBulkLoad As Boolean = False, _
+        Optional vTableFilterID As Variant) As Integer
 ' add 1 or more records to a "table"; used for bulk load from db or for creating tests
 ' assumes records are "valid", all values need to be passed in as arguments
 ' can provide a database table as the source
@@ -123,7 +125,15 @@ Dim aDefaultFields() As String
 
 setup:
     sFuncName = C_MODULE_NAME & "." & "AddTableRecordAuto"
+    
+    If IsSet(vTableFilterID) = True Then
+        If vTableFilterID <> 0 Then
+            sTableName = sTableName & "_" & CStr(vTableFilterID)
+        End If
+    End If
+    
     Set wsTable = GetSheet(wbTmp, sTableName)
+    'End If
     aDefaultFields = Split(C_DB_DEFAULT_FIELDS, ",")
         
 main:
@@ -154,6 +164,7 @@ main:
         With wsTable
             Set rTarget = .Range(.Cells(1, 1), .Cells(iMaxRow + 1, iMaxCol + 1))
             rTarget = vRows
+            rTarget.Name = "data"
         End With
         
     End If
@@ -243,7 +254,7 @@ err:
     
 End Function
 Public Sub CreateTableColumn(wsTmp As Worksheet, iCol As Integer, sTableName As String, sFieldName As String, _
-                Optional wbTmp As Workbook)
+                Optional wbTmp As Workbook, Optional vDataID As Variant)
 Dim rColumn As Range
 Dim sRangeName As String
 
@@ -256,13 +267,18 @@ Dim sRangeName As String
         Set rColumn = .Range(.Cells(1, iCol), .Cells(10000, iCol))
     End With
     
+    
+    If IsSet(vDataID) Then
+        sTableName = sTableName & UNDERSCORE & CStr(vDataID)
+    End If
     sRangeName = "db" & sTableName & sFieldName
+        
     CreateNamedRange wbTmp, rColumn.Address, wsTmp.Name, sRangeName, "True"
 End Sub
 Public Function CreateTable(sTableName As String, Optional wbTmp As Workbook) As Worksheet
 Dim iCol As Integer
 Dim dDefnDetail As Dictionary
-Dim vSource() As String
+Dim vSource() As String, vTableNameSplits() As String
 Dim rTarget As Range
 Dim wsTmp As Worksheet
 Dim sKey As Variant
@@ -271,6 +287,7 @@ Dim i As Integer
 Dim sRangeName As String
 Dim sFuncName As String
 Dim clsQuadRuntime As New Quad_Runtime
+Dim vDataID As Variant
 
 setup:
     clsQuadRuntime.InitProperties bInitializeCache:=False
@@ -294,11 +311,20 @@ setup:
     
     With wsTmp
         For Each sKey In dDefinitions.Keys()
+            ' this is to account for sub tables that are filtered tables (like by personID)
+            vTableNameSplits = Split(sTableName, UNDERSCORE)
+            If UBound(vTableNameSplits) = 2 Then
+                sTableName = vTableNameSplits(0) & UNDERSCORE & vTableNameSplits(1)
+                vDataID = vTableNameSplits(2)
+            Else
+                Set vDataID = Nothing
+            End If
+            
             If dDefinitions.Item(sKey).Item("db_table_name") = sTableName Then
                 Set dDefnDetail = dDefinitions.Item(sKey)
                 iCol = iCol + 1
                 CreateTableColumn wsTmp, iCol, sTableName, dDefinitions.Item(sKey).Item("db_field_name"), _
-                    wbTmp:=clsQuadRuntime.CacheBook
+                    wbTmp:=clsQuadRuntime.CacheBook, vDataID:=vDataID
             End If
         Next sKey
         iCol = iCol + 1

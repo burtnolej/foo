@@ -64,14 +64,40 @@ Dim iOrigLength As Integer
     ReDim2DArray = aTmp
 
 End Function
-Function IndexArray(aSearch As Variant, sValue As String) As Integer
+Function IndexArray(aSearch As Variant, sValue As String, _
+                Optional vWhere As Variant) As Integer
     For i = 0 To UBound(aSearch)
         If aSearch(i) = sValue Then
-            IndexArray = i
-            Exit Function
+            If IsSet(vWhere) Then
+                If InArray(vWhere, i) Then GoTo found
+            Else
+                GoTo found
+            End If
         End If
     Next
+    
+    GoTo notfound
+
+found:
+    IndexArray = i
+    Exit Function
+        
+notfound:
     IndexArray = -1
+End Function
+Function IndexArrayMulti(aSearch As Variant, sValue As String) As Integer()
+Dim vHits() As Integer
+Dim iCount As Integer
+
+    ReDim vHits(0 To 10000)
+    For i = 0 To UBound(aSearch)
+        If aSearch(i) = sValue Then
+            vHits(iCount) = i
+            iCount = iCount + 1
+        End If
+    Next
+    ReDim Preserve vHits(0 To iCount - 1)
+    IndexArrayMulti = vHits
 End Function
 Public Function AddArrays(iWidth As Integer, ParamArray X()) As Variant
 Dim aTmp As Variant
