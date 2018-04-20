@@ -144,10 +144,12 @@ Dim wbTmp As Workbook
         Set wsTmp = wbTmp.Sheets(clsQuadRuntime.DefinitionSheetName)
     Else
         Set wbTmp = ActiveWorkbook
-        Set wsTmp = wbTmp.Sheets("Definitions")
+        'Set wsTmp = wbTmp.Sheets("Definitions")
+        Set wsTmp = wbTmp.Sheets(clsQuadRuntime.DefinitionSheetName)
     End If
     
-    Set rSource = wsTmp.Range("Definitions")
+    'Set rSource = wsTmp.Range("Definitions")
+    Set rSource = wsTmp.Range(clsQuadRuntime.DefinitionSheetName)
     Set Entry_Utils.dDefinitions = LoadDefinitions(wsTmp, rSource)
     
     End Sub

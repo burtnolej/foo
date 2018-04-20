@@ -32,14 +32,17 @@ End Sub
 Public Sub DoAddNewScheduleEntry()
 Dim clsQuadRuntime As New Quad_Runtime
 Dim sSheetName As String
-Dim sScheduleName As String, sSchedulePath As String
+Dim sScheduleName As String, sSchedulePath As String, sNewSchedulePath As String
 
     DoEventsOn
     
-    sScheduleName = "schedule.xlsm"
-    sSchedulePath = GetHomePath() & "\"
+    'sScheduleName = "schedule.xlsm"
+    'sSchedulePath = GetHomePath() & "\runtime\"
+    'sNewSchedulePath = sSchedulePath & "archive\"
     
-    CreateBook sScheduleName, sSchedulePath
+    'FileCopy sScheduleName, sNewSchedulePath, sSchedulePath
+            
+    'CreateBook sScheduleName, sSchedulePath
     
     ResetQuadRuntimeGlobal
     sFuncName = CsModuleName & "." & "Test_AddNewScheduleEntry"

@@ -353,16 +353,16 @@ setup:
     
     pScheduleBookName = GetUpdatedValue(sFuncName, sConstValue, value)
     
-    If Me.ScheduleBookPath = "" Then
-         err.Raise ErrorMsgType.DEPENDENT_ATTR_NOT_SET, Description:="ScheduleBookPath needs to be set before CacheBookName"
-    End If
+    'If Me.ScheduleBookPath = "" Then
+    '     err.Raise ErrorMsgType.DEPENDENT_ATTR_NOT_SET, Description:="ScheduleBookPath needs to be set before CacheBookName"
+    'End If
     
-    If FileExists(Me.ScheduleBookPath & "\\" & value) = False Then
-        err.Raise ErrorMsgType.BAD_ARGUMENT, Description:="ScheduleBookName file does not exist [" & value & "]"
-    End If
+    'If FileExists(Me.ScheduleBookPath & "\\" & value) = False Then
+    '    err.Raise ErrorMsgType.BAD_ARGUMENT, Description:="ScheduleBookName file does not exist [" & value & "]"
+    'End If
     
     
-    Me.ScheduleBook = OpenBook(Me.ScheduleBookName, sPath:=Me.ScheduleBookPath)
+    
     
 End Property
 ' END schedule -------------------------------------
@@ -651,7 +651,7 @@ Sub SetDefaults()
     cCacheBookName = "cache.xlsm"
     cCacheBookPath = cRuntimeDir
     cCacheRangeName = "data"
-    cNewBookPath = cRuntimeDir & "\archive\"
+    cNewBookPath = cRuntimeDir & "archive\"
     
     cTemplateBookPath = cAppDir
     cTemplateBookName = "vba_source_new.xlsm"
@@ -659,7 +659,7 @@ Sub SetDefaults()
     cTemplateSheetName = "FormStyles"
     cTemplateCellSheetName = "CellStyles"
     cScheduleBookPath = cRuntimeDir
-    cScheduleBookName = "cache.xlsm"
+    cScheduleBookName = "schedule.xlsm"
     
     cDefinitionSheetName = "Definitions"
     cDatabasePath = cAppDir & "app\quad\utils\excel\test_misc\QuadQA.db"
@@ -703,18 +703,29 @@ Public Sub InitProperties( _
     Me.CacheBookPath = sCacheBookPath
     Me.CacheBookName = sCacheBookName
     Me.CacheRangeName = sCacheRangeName
+    Me.ScheduleBookPath = sScheduleBookPath
+    Me.ScheduleBookName = sScheduleBookName
+    
+    
+    'sScheduleName = "schedule.xlsm"
+    'sSchedulePath = GetHomePath() & "\runtime\"
+    'sNewSchedulePath = sSchedulePath & "archive\"
+    'FileCopy sScheduleName, cNewBookPath, cRuntimeDir
     
     If bInitializeCache = True Then
         FileCopy cCacheBookName, cNewBookPath, cRuntimeDir
+        FileCopy cScheduleBookName, cNewBookPath, cRuntimeDir
         'CreateBook Me.CacheBookName, sBookPath:=Me.CacheBookPath
     Else
         If BookExists(Me.CacheBookPath & "\" & Me.CacheBookName) = False Then
             FileCopy cCacheBookName, cNewBookPath, cRuntimeDir
+            FileCopy cScheduleBookName, cNewBookPath, cRuntimeDir
             'CreateBook Me.CacheBookName, sBookPath:=Me.CacheBookPath
         End If
     End If
     
     Me.CacheBook = OpenBook(Me.CacheBookName, sPath:=Me.CacheBookPath)
+    Me.ScheduleBook = OpenBook(Me.ScheduleBookName, sPath:=Me.ScheduleBookPath)
     
     Me.BookPath = sBookPath
     Me.BookName = sBookName
@@ -724,8 +735,7 @@ Public Sub InitProperties( _
     Me.TemplateSheetName = sTemplateSheetName
     Me.TemplateCellSheetName = sTemplateCellSheetName
     
-    Me.ScheduleBookPath = sScheduleBookPath
-    Me.ScheduleBookName = sScheduleBookName
+
     
     Me.DefinitionSheetName = sDefinitionSheetName
     

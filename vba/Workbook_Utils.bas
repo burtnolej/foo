@@ -32,7 +32,7 @@ Dim w As Variant
         End If
     Next w
     If sPath <> "" Then
-        sName = sPath & "\\" & sName
+        sName = sPath & "\" & sName
     End If
     Set OpenBook = Workbooks.Open(sName)
 End Function

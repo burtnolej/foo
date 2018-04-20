@@ -36,15 +36,25 @@ End Sub
 Public Sub FileCopy(sFileName As String, sSourcePath As String, sTargetPath As String)
 Dim objFSO As Object
 Dim sFuncName As String
+Dim sSourceFilePath As String, sTargetFilePath As String
+
     sFuncName = "FileCopy"
+    
+    sSourceFilePath = sSourcePath & sFileName
+    sTargetFilePath = sTargetPath & sFileName
+    
+    If FileExists(sSourceFilePath) = False Then
+        GoTo err
+    End If
+    
     Set objFSO = CreateObject("Scripting.FileSystemObject")
     On Error GoTo err
-    objFSO.CopyFile sSourcePath & sFileName, sTargetPath & sFileName
+    objFSO.CopyFile sSourceFilePath, sTargetFilePath
     On Error GoTo 0
-    FuncLogIt sFuncName, "Copied [" & sFileName & "] from  [" & sSourcePath & "] to [" & sTargetPath & "]", C_MODULE_NAME, LogMsgType.Failure
+    FuncLogIt sFuncName, "Copied from  [" & sSourceFilePath & "] to [" & sTargetFilePath & "]", C_MODULE_NAME, LogMsgType.Failure
     Exit Sub
 err:
-    FuncLogIt sFuncName, "Failed to copy [" & sFileName & "] from  [" & sSourcePath & "] to [" & sTargetPath & "] with err [" & err.Description & "]", C_MODULE_NAME, LogMsgType.Failure
+    FuncLogIt sFuncName, "Failed to copy [" & sSourceFilePath & "] to  [" & sTargetFilePath & "]", C_MODULE_NAME, LogMsgType.Failure
 
 End Sub
 

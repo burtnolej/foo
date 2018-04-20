@@ -117,7 +117,7 @@ Dim sTemplateRowRangeName As String, sSheetName As String, sTemplateColRangeName
 Dim iFormatWidth As Integer, iFormatHeight As Integer
 Dim wsSchedule As Worksheet
     
-    clsQuadRuntime.InitProperties bInitializeCache:=False
+    clsQuadRuntime.InitProperties bInitializeCache:=False, sDefinitionSheetName:="Definitions"
     vStudentIDs = GetColumnValues(clsQuadRuntime, QuadDataType.person, QuadSubDataType.student, "idStudent")
 
     sSheetName = "view_" & EnumQuadSubDataType(QuadSubDataType.student) & "_" & CStr(CInt(vStudentIDs(index)))
@@ -327,7 +327,7 @@ End Sub
 Sub rxgal_getItemCount(control As IRibbonControl, ByRef returnedVal)
 Dim vLabelNames As Variant
 Dim clsQuadRuntime As New Quad_Runtime
-    clsQuadRuntime.InitProperties bInitializeCache:=False
+    clsQuadRuntime.InitProperties bInitializeCache:=True
     vLabelNames = GetColumnValues(clsQuadRuntime, QuadDataType.person, QuadSubDataType.student, "sStudentLastNm")
     returnedVal = UBound(vLabelNames) + 1
 End Sub

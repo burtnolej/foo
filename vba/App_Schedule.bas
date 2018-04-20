@@ -38,7 +38,7 @@ main:
         aSchedule = ParseRawData(ReadFile(clsQuadRuntime.ResultFileName))
         ' store the parsed raw data in a back sheet, return the sheet name
         sCacheSheetName = CacheData(clsQuadRuntime, aSchedule, QuadDataType.schedule, _
-                            eQuadSubDataType, iPersonID)
+                            eQuadSubDataType, iPersonID, bInTable:=True)
     Else
         FuncLogIt sFuncName, "Data cache found for [" & EnumQuadSubDataType(eQuadSubDataType) & "_" & CStr(iPersonID) & "]", C_MODULE_NAME, LogMsgType.INFO
         sCacheSheetName = CacheData(clsQuadRuntime, aSchedule, QuadDataType.schedule, eQuadSubDataType, _
