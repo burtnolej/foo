@@ -31,21 +31,78 @@ Public Sub RangeSort(sSheetName As String, rSort As Range, Optional iStartCol As
         .Apply
     End With
 End Sub
-Public Function ListFromRange(wsTmp As Worksheet, sSourceAddress As String) As String()
-Dim vTmpRange As Variant
+
+Public Function GetRange(sBookName As String, sSheetName As String, sAddress As String, _
+                    Optional bNamedRange As Boolean = False) As Range
+Dim wbTmp As Workbook
+Dim wsTmp As Worksheet
+Dim sFuncName As String, sDebugStr As String
+Dim nName As Name
+
+setup:
+    sFuncName = CsModuleName & "." & "GetRange"
+    FuncLogIt sFuncName, "[sBookName=" & sBookName & "] [sSheetName=" & sSheetName & "] [sAddress=" & sAddress & "]", C_MODULE_NAME, LogMsgType.INFUNC
+    On Error GoTo err
+
+    Set wbTmp = Workbooks(sBookName)
+    Set wsTmp = wbTmp.Sheets(sSheetName)
     
-    With wsTmp
-        vTmpRange = .Range(sSourceAddress)
-    End With
+    If bNamedRange = True Then
+        If NamedRangeExists(wbTmp, sSheetName, sAddress) = False Then
+            err.Raise ErrorMsgType.NAMED_RANGE_NOT_EXIST, Description:="named range does not exist"
+        End If
+    End If
+    
+    Set GetRange = wsTmp.Range(sAddress)
+    
+endfunc:
+    On Error GoTo 0
+    Exit Function
+
+err:
+    FuncLogIt sFuncName, "[" & err.Description & "] [sBookName=" & sBookName & "] [sSheetName=" & sSheetName & "] [sAddress=" & sAddress & "]", C_MODULE_NAME, LogMsgType.Error
+    
+    'If bNamedRange = True Then
+    '    For Each nName In wsTmp.Names
+    '        sDebugStr = "sheet [" & wsTmp.Name & "] name [" & nName.Name & "] refers to [" & nName.RefersToRange.Address & "]"
+    '        FuncLogIt sFuncName, sDebugStr, C_MODULE_NAME, LogMsgType.DEBUGGING
+    '    Next nName
+    'End If
+End Function
+Public Function ListFromRange(wsTmp As Worksheet, sSourceAddress As String, _
+                    Optional bNamedRange As Boolean = False) As String()
+Dim vTmpRange As Variant
+Dim sFuncName As String
+
+setup:
+    sFuncName = CsModuleName & "." & "ListFromRange"
+    FuncLogIt sFuncName, "[wsTmp=" & wsTmp.Name & "] [sSourceAddress=" & sSourceAddress & "]", C_MODULE_NAME, LogMsgType.INFUNC
+    On Error GoTo errorhandler
+    
+main:
+
+    vTmpRange = GetRange(wsTmp.Parent.Name, wsTmp.Name, sSourceAddress, bNamedRange:=bNamedRange)
+    
+    'With wsTmp
+    '    vTmpRange = .Range(sSourceAddress)
+    'End With
     
     For i = 1 To UBound(vTmpRange)
         If vTmpRange(i, 1) = "" Then
             vTmpRange = ReDim2DArray(vTmpRange, i - 1, 1, iStartRow:=1, iStartCol:=1)
-            GoTo endfunc
+            GoTo lastvaluefound
         End If
     Next i
-endfunc:
+    
+lastvaluefound:
     ListFromRange = ConvertArrayFromRangeto1D(vTmpRange)
+    On Error GoTo 0
+    Exit Function
+
+errorhandler:
+    FuncLogIt sFuncName, "[" & err.Description & "] [sSourceAddress=" & sSourceAddress & "]", C_MODULE_NAME, LogMsgType.Error
+    err.Raise err.Number, err.Source, err.Description
+    
 End Function
 Public Function IsCell(rCell As Range) As Boolean
 ' is rCell a cell, so 1 column and 1 row in size

@@ -14,7 +14,15 @@ Enum LogMsgType
     OUTFUNC = 12
 End Enum
 
+Const C_LOG_MSG_TYPE = "FATAL,Error,Failure,INFO,OK,,,DEBUGGING,FAIL_TEST,PASS_TEST,,INFUNC,OUTFUNC"
+
+Private clsQuadRuntimeGlobal As Quad_Runtime
 Public LogFilter As String
+
+Function EnumLogMsgType(i As Long) As String
+    EnumLogMsgType = Split(C_LOG_MSG_TYPE, COMMA)(i)
+End Function
+
 
 Public Sub FuncLogIt(sFuncName As String, sLogMsg As String, sModuleName, eLogMsgType As LogMsgType, Optional sKey As String)
 Dim aLogVals() As String
@@ -34,7 +42,7 @@ Dim aLogFilter() As String
         sNowDate = GetDateString(Now(), "ddmmyy")
 
         ' take the calling function, a message and some id and write a formatted record to the log
-        aLogVals = InitStringArray(Array(sNowTime, eLogMsgType, BLANK, BLANK, sFuncName, sLogMsg, sNowDate))
+        aLogVals = InitStringArray(Array(sNowTime, EnumLogMsgType(eLogMsgType), BLANK, BLANK, sFuncName, sLogMsg, sNowDate))
         aLogWidths = InitIntArray(Array(10, 8, 1, 1, 40, 60, 10))
         Call WriteToLog(aLogVals, aLogWidths)
     End If

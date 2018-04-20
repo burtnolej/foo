@@ -246,7 +246,13 @@ Public Function GetColumnValues(clsQuadRuntime As Quad_Runtime, _
                         Optional iPersonID As Integer) As String()
 Dim wsCache As Worksheet
 Dim sLookUpRangeName As String
+Dim sFuncName As String
 
+setup:
+    sFuncName = C_MODULE_NAME & "." & "GetColumnValues"
+    FuncLogIt sFuncName, "[sLookUpColName=" & sLookUpColName & "] [iPersonID=" & iPersonID & "]", C_MODULE_NAME, LogMsgType.INFUNC
+
+main:
     If eQuadDataType = QuadDataType.schedule Then
         Set wsCache = GetScheduleData(clsQuadRuntime, iPersonID, eQuadDataType, eQuadSubDataType, bInTable:=True)
     Else
@@ -254,7 +260,14 @@ Dim sLookUpRangeName As String
     End If
     sLookUpRangeName = GetDBColumnRange(wsCache.Name, sLookUpColName)
     GetColumnValues = ListFromRange(wsCache, sLookUpRangeName)
-                                 
+                       
+endfunc:
+    On Error GoTo 0
+    Exit Function
+    
+err:
+    FuncLogIt sFuncName, "[sLookUpColName=" & sLookUpColName & "] [iPersonID=" & iPersonID & "]", C_MODULE_NAME, LogMsgType.Error
+                       
 End Function
 Public Function CrossRefQuadData(clsQuadRuntime As Quad_Runtime, _
                                  eQuadDataType As QuadDataType, _

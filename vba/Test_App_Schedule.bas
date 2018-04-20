@@ -67,10 +67,6 @@ teardown:
     DeleteBook clsQuadRuntime.ScheduleBookName, clsQuadRuntime.ScheduleBookPath
 
 End Function
-
-Sub test()
-    Test_BuildScheduleHeaders
-End Sub
 Public Function Test_BuildScheduleHeaders() As TestResult
 Dim sSheetName As String, sFuncName As String, sTemplateRangeName As String, sTargetSheetName As String
 Dim eTestResult As TestResult
@@ -301,8 +297,8 @@ Dim clsQuadRuntime As New Quad_Runtime
     Set wsSchedule = BuildSchedule(clsQuadRuntime, QuadSubDataType.student, iPersonID)
                               
     With wsSchedule
-        'Set rResult = .Range("L20:M23")
-        Set rResult = .Range("M20:N23")
+        
+        Set rResult = .Range("L20:M23")
         
         If rResult.Columns(2).Rows(1).value <> "Art" Then
             eTestResult = TestResult.Failure

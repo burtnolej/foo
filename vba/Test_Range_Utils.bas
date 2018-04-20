@@ -84,6 +84,40 @@ teardown:
 
 End Function
 
+Function Test_ListFromRange_RangeDoesNotExist() As TestResult
+Dim sFuncName As String
+Dim wsTmp As Worksheet
+Dim sSheetName As String
+Dim eTestResult As TestResult
+Dim rTarget As Range
+Dim vSource() As String
+Dim vResult() As String
+
+setup:
+    sFuncName = CsModuleName & "." & "ListFromRange"
+    sSheetName = "test"
+    Set wsTmp = CreateSheet(ActiveWorkbook, sSheetName, bOverwrite:=True)
+    vSource = Init2DStringArray([{"A","B";"C","D";"E","F"}])
+    Set rTarget = RangeFromStrArray(vSource, wsTmp, 0, 1)
+    
+main:
+
+    On Error GoTo err
+    vResult = ListFromRange(wsTmp, "foobar", bNamedRange:=True)
+    eTestResult = TestResult.Failure
+    GoTo teardown
+    
+err:
+    eTestResult = TestResult.OK
+    GoTo teardown
+    
+teardown:
+    Test_ListFromRange_RangeDoesNotExist = eTestResult
+    
+    DeleteSheet ActiveWorkbook, sSheetName
+
+End Function
+
 Function Test_ListFromRange() As TestResult
 Dim sFuncName As String
 Dim wsTmp As Worksheet

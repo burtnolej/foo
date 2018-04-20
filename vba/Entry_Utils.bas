@@ -140,20 +140,14 @@ Dim wsTmp As Worksheet
 Dim wbTmp As Workbook
 
     If IsSet(clsQuadRuntime) = True Then
-        ' 4/17/18 to get dynamic menus to work
         Set wbTmp = clsQuadRuntime.TemplateBook
-        'Set wbTmp = clsQuadRuntime.Book
-        
         Set wsTmp = wbTmp.Sheets(clsQuadRuntime.DefinitionSheetName)
     Else
         Set wbTmp = ActiveWorkbook
         Set wsTmp = wbTmp.Sheets("Definitions")
     End If
     
-    'wsTmp.Activate
-    'HERE
     Set rSource = wsTmp.Range("Definitions")
-    'Set rSource = wbTmp.Sheets("Definitions").Range("Definitions")
     Set Entry_Utils.dDefinitions = LoadDefinitions(wsTmp, rSource)
     
     End Sub
@@ -215,12 +209,10 @@ Dim vValidValues() As String
 Dim clsQuadRuntime As New Quad_Runtime
 Dim wsCache As Worksheet
 
-    'clsQuadRuntime.InitProperties
     Set clsQuadRuntime = args(0)
     sValue = args(1)
     sLookUpTableName = args(2)(0)
     sLookUpColumnName = args(2)(1)
-
 
     sColumnRange = GetDBColumnRange(sLookUpTableName, sLookUpColumnName)
     
@@ -231,9 +223,6 @@ Dim wsCache As Worksheet
         vValidValues = ListFromRange(clsQuadRuntime.CacheBook.Sheets(sLookUpTableName), sColumnRange)
     End If
     
-    'sColumnRange = GetDBColumnRange(sLookUpTableName, sLookUpColumnName)
-    
-    'vValidValues = ListFromRange(wsCache, sColumnRange)
     If InArray(vValidValues, sValue) = False Then
         IsMember = False
         Exit Function
@@ -327,16 +316,19 @@ Public Function GenerateEntry(sSheetName As String, _
                               sKey As Variant, _
                               sAction As Variant, _
                               iRow As Integer, _
-                              Optional iCol As Integer = 1, _
-                              Optional wbTmp As Workbook) As Range
+                     Optional iCol As Integer = 1, _
+                     Optional wbTmp As Workbook) As Range
 Dim sFuncName As String
 
+setup:
+    On Error GoTo err
     sFuncName = C_MODULE_NAME & "." & "GenerateEntry"
     
     If IsSet(wbTmp) = False Then
         Set wbTmp = ActiveWorkbook
     End If
     
+main:
     With wbTmp.Sheets(sSheetName)
         sFieldName = Split(sKey, "_")(1)
         Set rCell = .Range(.Cells(iRow, iCol), .Cells(iRow, iCol))
@@ -347,7 +339,12 @@ Dim sFuncName As String
     
     Set GenerateEntry = rCell.Offset(, 1)
 
-    FuncLogIt sFuncName, "Generated for field [" & sFieldName & "] in cell [" & GenerateEntry.Address & "]", C_MODULE_NAME, LogMsgType.OK
+cleanup:
+    On Error GoTo 0
+    Exit Function
+
+err:
+    FuncLogIt sFuncName, "Error [sSheetName=" & sSheetName & "]  [sKey=" & sKey & "] [sAction=" & sAction & "]", C_MODULE_NAME, LogMsgType.Error
      
 End Function
 Public Sub DeleteEntry(sSheetName As String, sKey As Variant, Optional wbTmp As Workbook)
@@ -360,8 +357,6 @@ Dim sFuncName As String
     sFuncName = C_MODULE_NAME & "." & "DeleteEntry"
     If Left(sKey, Len("e" & sSheetName)) = "e" & sSheetName Then
         DeleteNamedRange wbTmp, sSheetName, CStr(sKey)
-    Else
-        FuncLogIt sFuncName, "Not an entry named range [" & sKey & "]", C_MODULE_NAME, LogMsgType.INFO
     End If
         
 End Sub

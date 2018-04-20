@@ -23,8 +23,11 @@ Public Function IsValidPersonID(clsQuadRuntime As Quad_Runtime, _
 Dim sFuncName As String, sLookUpCol As String
 Dim wsPersonDataCache As Worksheet
 Dim vStudentIDs() As String
+
 setup:
     sFuncName = C_MODULE_NAME & "." & "IsValidPersonID"
+    FuncLogIt sFuncName, "[iPersonID=" & iPersonID & "] [eQuadSubDataType=" & eQuadSubDataType & "]", C_MODULE_NAME, LogMsgType.INFUNC
+    On Error GoTo err
 
 main:
     Set wsPersonDataCache = GetPersonData(clsQuadRuntime, QuadDataType.person, eQuadSubDataType, _
@@ -36,18 +39,25 @@ main:
         sLookUpCol = cStudentLookUpCol
     End If
 
-    clsQuadRuntime.InitProperties bInitializeCache:=False
+    'clsQuadRuntime.InitProperties bInitializeCache:=False
     vStudentIDs = GetColumnValues(clsQuadRuntime, QuadDataType.person, QuadSubDataType.student, "idStudent")
 
     If InArray(vStudentIDs, CStr(iPersonID)) Then
-    'If SheetTableLookup(wsPersonDataCache, "data", sLookUpCol, iPersonID, _
-        wbTmp:=clsQuadRuntime.CacheBook) <> -1 Then
         IsValidPersonID = True
+        FuncLogIt sFuncName, "Student ID [" & CStr(iPersonID) & "] is VALID", C_MODULE_NAME, LogMsgType.INFO
         Exit Function
     End If
     
     IsValidPersonID = False
+    FuncLogIt sFuncName, "Student ID [" & CStr(iPersonID) & "] is INVALID ", C_MODULE_NAME, LogMsgType.INFO
     
+cleanup:
+    On Error GoTo 0
+    Exit Function
+
+err:
+    FuncLogIt sFuncName, "[iPersonID=" & iPersonID & "] [eQuadSubDataType=" & eQuadSubDataType & "]", C_MODULE_NAME, LogMsgType.Error
+
 End Function
 Public Function get_person_student(clsQuadRuntime As Quad_Runtime, _
                       Optional bInTable As Boolean = True) As Worksheet
@@ -67,7 +77,6 @@ Public Function GetPersonData(clsQuadRuntime As Quad_Runtime, _
                               eQuadSubDataType As QuadSubDataType, _
                      Optional eQuadScope As QuadScope = QuadScope.specified, _
                      Optional bInTable As Boolean = False) As Worksheet
-
 '<<<
 ' purpose: returns a worksheet containing the person data set, uses cached data if already there
 ' param  : clsQuadRuntime, Quad_Runtime; all config controlling names of books, sheets, ranges for
@@ -76,12 +85,16 @@ Public Function GetPersonData(clsQuadRuntime As Quad_Runtime, _
 ' param  : eQuadScope, QuadScope; all persons or a specific individual
 ' returns: Worksheet; containing the data
 '>>>
-'Dim eQuadDataType As QuadDataType
-Dim sCacheSheetName As String
+Dim sCacheSheetName As String, sFuncName As String
 Dim aSchedule() As String
 
-    'eQuadDataType = QuadDataType.person
-    
+setup:
+    sFuncName = C_MODULE_NAME & "." & "GetPersonData"
+    FuncLogIt sFuncName, "[eQuadDataType=" & eQuadDataType & "] [eQuadSubDataType=" & eQuadSubDataType & "] [bInTable=" & CStr(bInTable) & "]", C_MODULE_NAME, LogMsgType.INFUNC
+
+main:
+
+    On Error GoTo err
     If IsDataCached(clsQuadRuntime, eQuadDataType, eQuadSubDataType) = False Then
         GetPersonDataFromDB clsQuadRuntime, eQuadSubDataType, eQuadScope:=eQuadScope
         aSchedule = ParseRawData(ReadFile(clsQuadRuntime.ResultFileName))
@@ -94,6 +107,13 @@ Dim aSchedule() As String
     
     Set GetPersonData = clsQuadRuntime.CacheBook.Sheets(sCacheSheetName)
     
+cleanup:
+    On Error GoTo 0
+    Exit Function
+
+err:
+    FuncLogIt sFuncName, "Error raised", C_MODULE_NAME, LogMsgType.Error
+
 End Function
 Public Sub GetPersonDataFromDB(clsQuadRuntime As Quad_Runtime, _
                                eQuadSubDataType As QuadSubDataType, _

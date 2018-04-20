@@ -178,7 +178,7 @@ Dim sIncModules As String
     
     'ProjectTestRunner
     'Exit Sub
-    'sIncModules = "Test_App_Schedule_Entry"
+    'sIncModules = "Test_App_Person"
     'ProjectTestRunner sIncModules
     'Exit Sub
     sIncModules = sIncModules & ",Test_App_Schedule"
@@ -217,7 +217,7 @@ Dim sModuleTest As Variant
 Dim vTestResult As Variant
 
     GetLogFile
-    Log_Utils.LogFilter = "8,9"
+    'Log_Utils.LogFilter = "8,9"
      
     If sIncModules <> "" Then
         aIncModules = Split(sIncModules, ",")

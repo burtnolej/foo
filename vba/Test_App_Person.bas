@@ -16,8 +16,8 @@ Dim clsQuadRuntime As New Quad_Runtime
 
 setup:
     On Error GoTo err
-    clsQuadRuntime.InitProperties bInitializeCache:=True
-    
+    clsQuadRuntime.InitProperties bInitializeCache:=True, sDefinitionSheetName:="Definitions"
+    DoLoadDefinitions clsQuadRuntime
 main:
     If IsValidPersonID(clsQuadRuntime, 70, QuadSubDataType.student) = False Then
         eTestResult = TestResult.Failure
@@ -45,7 +45,8 @@ Dim clsQuadRuntime As New Quad_Runtime
 
 setup:
     On Error GoTo err
-    clsQuadRuntime.InitProperties bInitializeCache:=True
+    clsQuadRuntime.InitProperties bInitializeCache:=True, sDefinitionSheetName:="Definitions"
+
     
     If IsValidPersonID(clsQuadRuntime, 999, QuadSubDataType.student) = True Then
         eTestResult = TestResult.Failure
@@ -72,7 +73,8 @@ Dim clsQuadRuntime As New Quad_Runtime
 
 setup:
     On Error GoTo err
-    clsQuadRuntime.InitProperties bInitializeCache:=True
+    clsQuadRuntime.InitProperties bInitializeCache:=True, sDefinitionSheetName:="Definitions"
+
     
     If IsValidPersonID(clsQuadRuntime, 70, QuadSubDataType.teacher) = False Then
         eTestResult = TestResult.Failure
@@ -99,7 +101,7 @@ Dim clsQuadRuntime As New Quad_Runtime
 
 setup:
     On Error GoTo err
-    clsQuadRuntime.InitProperties bInitializeCache:=True
+    clsQuadRuntime.InitProperties bInitializeCache:=True, sDefinitionSheetName:="Definitions"
     
     If IsValidPersonID(clsQuadRuntime, 999, QuadSubDataType.teacher) = True Then
         eTestResult = TestResult.Failure

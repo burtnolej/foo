@@ -556,6 +556,7 @@ Function GetUpdatedValue(sFuncName As String, sConstValue As String, value As St
 ' returns: value to set member attr to , variant
 '>>>
 Dim sCachedValue As String, sOrigValue As String
+
     sCachedValue = RetreiveOverride(sFuncName)
     If sCachedValue <> " " Then
         sOrigValue = value
@@ -563,11 +564,8 @@ Dim sCachedValue As String, sOrigValue As String
         FuncLogIt "Let_" & sFuncName, "retreived value from overide cache file to [" & sCachedValue & "] instead of [" & sOrigValue & "]", C_MODULE_NAME, LogMsgType.INFO
     Else
         If value = "" Then
-        'If value <> sConstValue Then
+            'using default value
             value = sConstValue
-            FuncLogIt "Let_" & sFuncName, "using default value [" & sConstValue & "]", C_MODULE_NAME, LogMsgType.INFO
-
-        'ElseIf value = "" Then
         ElseIf value <> sConstValue Then
             FuncLogIt "Let_" & sFuncName, "overidden to [" & value & "] default was [" & sConstValue & "]", C_MODULE_NAME, LogMsgType.INFO
             PersistOverride sFuncName, value

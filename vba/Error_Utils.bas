@@ -8,4 +8,5 @@ Enum ErrorMsgType
     NULL_OBJECT = 558
     BAD_ENUM = 559
     NOT_SINGLE_CELL_RANGE = 600
+    NAMED_RANGE_NOT_EXIST = 601
 End Enum
