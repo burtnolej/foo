@@ -32,6 +32,10 @@ Private pScheduleBook As Workbook
 Private pScheduleBookPath As String
 Private pScheduleBookName As String
 
+Private pEntryBook As Workbook
+Private pEntryBookPath As String
+Private pEntryBookName As String
+
 Private pDatabasePath As String
 Private pResultFileName As String
 
@@ -66,6 +70,8 @@ Private cTemplateSheetName  As String
 Private cTemplateCellSheetName  As String
 Private cScheduleBookPath As String
 Private cScheduleBookName As String
+Private cEntryBookPath As String
+Private cEntryBookName As String
 Private cDefinitionSheetName   As String
 Private cDatabasePath  As String
 Private cResultFileName  As String
@@ -337,7 +343,6 @@ setup:
          err.Raise ErrorMsgType.BAD_ARGUMENT, Description:="workbook [" & value & "] does not exist"
     End If
     
-
 End Property
 Public Property Get ScheduleBookName() As String
     
@@ -352,20 +357,49 @@ setup:
     sConstValue = cScheduleBookName
     
     pScheduleBookName = GetUpdatedValue(sFuncName, sConstValue, value)
-    
-    'If Me.ScheduleBookPath = "" Then
-    '     err.Raise ErrorMsgType.DEPENDENT_ATTR_NOT_SET, Description:="ScheduleBookPath needs to be set before CacheBookName"
-    'End If
-    
-    'If FileExists(Me.ScheduleBookPath & "\\" & value) = False Then
-    '    err.Raise ErrorMsgType.BAD_ARGUMENT, Description:="ScheduleBookName file does not exist [" & value & "]"
-    'End If
-    
-    
-    
-    
 End Property
 ' END schedule -------------------------------------
+
+' Entry -----------------------------------------
+Public Property Get EntryBook() As Workbook
+    Set EntryBook = pEntryBook
+End Property
+Public Property Let EntryBook(value As Workbook)
+    Set pEntryBook = value
+End Property
+Public Property Get EntryBookPath() As String
+    EntryBookPath = pEntryBookPath
+End Property
+Public Property Let EntryBookPath(value As String)
+Dim sCachedValue As String, sOrigValue As String, sConstValue As String
+Dim sFuncName As String
+
+setup:
+    sFuncName = "EntryBookPath"
+    sConstValue = cEntryBookPath
+    
+    pEntryBookPath = GetUpdatedValue(sFuncName, sConstValue, value)
+    
+    If DirExists(value) <> True Then
+         err.Raise ErrorMsgType.BAD_ARGUMENT, Description:="workbook [" & value & "] does not exist"
+    End If
+    
+End Property
+Public Property Get EntryBookName() As String
+    
+    EntryBookName = pEntryBookName
+End Property
+Public Property Let EntryBookName(value As String)
+Dim sCachedValue As String, sOrigValue As String, sConstValue As String
+Dim sFuncName As String
+
+setup:
+    sFuncName = "EntryBookName"
+    sConstValue = cEntryBookName
+    
+    pEntryBookName = GetUpdatedValue(sFuncName, sConstValue, value)
+End Property
+' END Entry -------------------------------------
 
 ' misc ---------------------------------------------
 Public Property Get DayEnum() As String
@@ -661,11 +695,14 @@ Sub SetDefaults()
     cScheduleBookPath = cRuntimeDir
     cScheduleBookName = "schedule.xlsm"
     
+    cEntryBookPath = cRuntimeDir
+    cEntryBookName = "entry.xlsm"
+    
     cDefinitionSheetName = "Definitions"
     cDatabasePath = cAppDir & "app\quad\utils\excel\test_misc\QuadQA.db"
     cResultFileName = cRuntimeDir & "pyshell_results.txt"
     cFileName = cRuntimeDir & "uupyshell.args.txt"
-    cQuadRuntimeEnum = "BookPath,BookName,CacheBookName,CacheBookPath,CacheRangeName,TemplateBookPath,TemplateBookName,TemplateSheetName,TemplateCellSheetName,DatabasePath,ResultFileName,ExecPath,RuntimeDir,FileName,DayEnum,PeriodEnum,CurrentSheetSource,CurrentSheetColumns,QuadRuntimeCacheFileName,DefinitionSheetName,ScheduleBookPath,ScheduleBookName"
+    cQuadRuntimeEnum = "BookPath,BookName,CacheBookName,CacheBookPath,CacheRangeName,TemplateBookPath,TemplateBookName,TemplateSheetName,TemplateCellSheetName,DatabasePath,ResultFileName,ExecPath,RuntimeDir,FileName,DayEnum,PeriodEnum,CurrentSheetSource,CurrentSheetColumns,QuadRuntimeCacheFileName,DefinitionSheetName,ScheduleBookPath,ScheduleBookName,EntryBookPath,EntryBookName"
     cDayEnum = "M,T,W,R,F"
     cPeriodEnum = "1,2,3,4,5,6,7,8,9,10,11"
     cQuadRuntimeCacheFileName = cHomeDir & "\quad_runtime_cache.txt"
@@ -679,6 +716,7 @@ Public Sub InitProperties( _
                  Optional sTemplateBookPath As String, Optional sTemplateBookName As String, _
                  Optional sTemplateSheetName As String, Optional sTemplateCellSheetName As String, _
                  Optional sScheduleBookPath As String, Optional sScheduleBookName As String, _
+                 Optional sEntryBookPath As String, Optional sEntryBookName As String, _
                  Optional sDatabasePath As String, _
                  Optional sResultFileName As String, _
                  Optional sExecPath As String, _
@@ -705,27 +743,24 @@ Public Sub InitProperties( _
     Me.CacheRangeName = sCacheRangeName
     Me.ScheduleBookPath = sScheduleBookPath
     Me.ScheduleBookName = sScheduleBookName
-    
-    
-    'sScheduleName = "schedule.xlsm"
-    'sSchedulePath = GetHomePath() & "\runtime\"
-    'sNewSchedulePath = sSchedulePath & "archive\"
-    'FileCopy sScheduleName, cNewBookPath, cRuntimeDir
+    Me.EntryBookPath = sEntryBookPath
+    Me.EntryBookName = sEntryBookName
     
     If bInitializeCache = True Then
         FileCopy cCacheBookName, cNewBookPath, cRuntimeDir
         FileCopy cScheduleBookName, cNewBookPath, cRuntimeDir
-        'CreateBook Me.CacheBookName, sBookPath:=Me.CacheBookPath
+        FileCopy cEntryBookName, cNewBookPath, cRuntimeDir
     Else
         If BookExists(Me.CacheBookPath & "\" & Me.CacheBookName) = False Then
             FileCopy cCacheBookName, cNewBookPath, cRuntimeDir
             FileCopy cScheduleBookName, cNewBookPath, cRuntimeDir
-            'CreateBook Me.CacheBookName, sBookPath:=Me.CacheBookPath
+            FileCopy cEntryBookName, cNewBookPath, cRuntimeDir
         End If
     End If
     
     Me.CacheBook = OpenBook(Me.CacheBookName, sPath:=Me.CacheBookPath)
     Me.ScheduleBook = OpenBook(Me.ScheduleBookName, sPath:=Me.ScheduleBookPath)
+    Me.EntryBook = OpenBook(Me.EntryBookName, sPath:=Me.EntryBookPath)
     
     Me.BookPath = sBookPath
     Me.BookName = sBookName
@@ -734,8 +769,6 @@ Public Sub InitProperties( _
     Me.TemplateBookName = sTemplateBookName
     Me.TemplateSheetName = sTemplateSheetName
     Me.TemplateCellSheetName = sTemplateCellSheetName
-    
-
     
     Me.DefinitionSheetName = sDefinitionSheetName
     
@@ -759,9 +792,18 @@ Dim oFile As Object
     oFile.Close
     On Error GoTo 0
 End Sub
+Public Sub CleanUpTmpBooks()
+    CloseBook Me.CacheBook
+    DeleteBook Me.CacheBookName, Me.CacheBookPath
+    CloseBook Me.ScheduleBook
+    DeleteBook Me.ScheduleBookName, Me.ScheduleBookPath
+    CloseBook Me.EntryBook
+    DeleteBook Me.EntryBookName, Me.EntryBookPath
+End Sub
 Public Sub Delete()
     Me.CloseRuntimeCacheFile
     DeleteFile Me.QuadRuntimeCacheFileName
+    Me.CleanUpTmpBooks
 End Sub
 
 

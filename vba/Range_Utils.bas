@@ -61,13 +61,7 @@ endfunc:
 
 err:
     FuncLogIt sFuncName, "[" & err.Description & "] [sBookName=" & sBookName & "] [sSheetName=" & sSheetName & "] [sAddress=" & sAddress & "]", C_MODULE_NAME, LogMsgType.Error
-    
-    'If bNamedRange = True Then
-    '    For Each nName In wsTmp.Names
-    '        sDebugStr = "sheet [" & wsTmp.Name & "] name [" & nName.Name & "] refers to [" & nName.RefersToRange.Address & "]"
-    '        FuncLogIt sFuncName, sDebugStr, C_MODULE_NAME, LogMsgType.DEBUGGING
-    '    Next nName
-    'End If
+
 End Function
 Public Function ListFromRange(wsTmp As Worksheet, sSourceAddress As String, _
                     Optional bNamedRange As Boolean = False) As String()
@@ -80,12 +74,7 @@ setup:
     On Error GoTo errorhandler
     
 main:
-
     vTmpRange = GetRange(wsTmp.Parent.Name, wsTmp.Name, sSourceAddress, bNamedRange:=bNamedRange)
-    
-    'With wsTmp
-    '    vTmpRange = .Range(sSourceAddress)
-    'End With
     
     For i = 1 To UBound(vTmpRange)
         If vTmpRange(i, 1) = "" Then
@@ -218,7 +207,6 @@ main:
         Else
             On Error GoTo err
             nTmp.Delete
-            FuncLogIt sFuncName, "Deleted name [" & sRangeName & "]", C_MODULE_NAME, LogMsgType.OK
             On Error GoTo 0
             Exit Sub
         End If

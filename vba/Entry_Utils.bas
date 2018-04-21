@@ -148,8 +148,7 @@ Dim wbTmp As Workbook
         Set wsTmp = wbTmp.Sheets(clsQuadRuntime.DefinitionSheetName)
     End If
     
-    'Set rSource = wsTmp.Range("Definitions")
-    Set rSource = wsTmp.Range(clsQuadRuntime.DefinitionSheetName)
+    Set rSource = wsTmp.Range("Definitions")
     Set Entry_Utils.dDefinitions = LoadDefinitions(wsTmp, rSource)
     
     End Sub
@@ -467,32 +466,16 @@ Dim wsForm As Worksheet
 
     sFormFormatRangeName = "f" & sFormType
     
-    Set wsForm = clsQuadRuntime.Book.Sheets(sTargetSheetName)
+    Set wsForm = clsQuadRuntime.EntryBook.Sheets(sTargetSheetName)
     
     With clsQuadRuntime.TemplateSheet
-        '.Activate
-        'Set rFormFormatRange = .Range(sFormFormatRangeName)
-        'rFormFormatRange.Select
-        'Selection.Copy
-        
         .Range(sFormFormatRangeName).Copy
         iFormatWidth = .Range(sFormFormatRangeName).Columns.Count
         iFormatHeight = .Range(sFormFormatRangeName).Rows.Count
-        
     End With
-        
-    'Set rFormFormatRange = clsQuadRuntime.TemplateSheet.Range(sFormFormatRangeName)
-    'iFormatWidth = rFormFormatRange.Columns.Count
-    'iFormatHeight = rFormFormatRange.Rows.Count
     
     wsForm.Visible = True
     With wsForm
-        '.Activate
-        'Set rFormFormatTargetRange = wsForm.Range(.Cells(iFirstRow, iFirstCol), .Cells(iFirstRow + iFormatHeight - 1, iFirstCol + iFormatWidth - 1))
-        'rFormFormatTargetRange.Select
-        'Selection.PasteSpecial Paste:=xlPasteFormats, operation:=xlNone, SkipBlanks:=False, Transpose:=False
-        
-        '.Activate
         wsForm.Range(.Cells(iFirstRow, iFirstCol), _
                      .Cells(iFirstRow + iFormatHeight - 1, _
                             iFirstCol + iFormatWidth - 1)).PasteSpecial Paste:=xlPasteFormats, _
@@ -501,7 +484,7 @@ Dim wsForm As Worksheet
                                                                                Transpose:=False
     End With
 
-    FormatColRowSize clsQuadRuntime.TemplateBook, clsQuadRuntime.Book, _
+    FormatColRowSize clsQuadRuntime.TemplateBook, clsQuadRuntime.EntryBook, _
             wsForm.Name, clsQuadRuntime.TemplateSheetName, sFormFormatRangeName
 End Sub
 
@@ -553,12 +536,12 @@ setup:
         iRow = 1
         
         ' create the entry sheet and add call back code
-        Set wsTmp = CreateSheet(clsQuadRuntime.Book, CStr(sAction), bOverwrite:=True)
+        Set wsTmp = CreateSheet(clsQuadRuntime.EntryBook, CStr(sAction), bOverwrite:=True)
         sCode = "Private Sub Worksheet_Change(ByVal Target As Range)" & vbNewLine & _
                 "dim wbTarget as Workbook, wbSource as Workbook" & vbNewLine & _
                 "dim sSourceSheetName as string" & vbNewLine & _
                 "set wbSource= Workbooks(" & DOUBLEQUOTE & clsQuadRuntime.TemplateBookName & DOUBLEQUOTE & ")" & vbNewLine & _
-                "set wbTarget= Workbooks(" & DOUBLEQUOTE & clsQuadRuntime.CacheBookName & DOUBLEQUOTE & ")" & vbNewLine & _
+                "set wbTarget= Workbooks(" & DOUBLEQUOTE & clsQuadRuntime.EntryBookName & DOUBLEQUOTE & ")" & vbNewLine & _
                 "sSourceSheetName = " & DOUBLEQUOTE & clsQuadRuntime.TemplateCellSheetName & DOUBLEQUOTE & vbNewLine & _
                 "Application.Run " & DOUBLEQUOTE & clsQuadRuntime.TemplateBook.Name & "!Validate" & DOUBLEQUOTE & ",Application.ActiveWorkbook, Application.ActiveSheet.Name, Target" & vbNewLine & _
                 "Application.Run " & DOUBLEQUOTE & clsQuadRuntime.TemplateBook.Name & "!IsRecordValid" & DOUBLEQUOTE & ",wbSource,wbTarget," & DOUBLEQUOTE & sAction & DOUBLEQUOTE & "," & "sSourceSheetName" & vbNewLine & _
@@ -577,7 +560,7 @@ setup:
         
             For Each sKey In dDefinitions.Keys()
                 If Split(sKey, "_")(0) = "e" & sAction Then
-                    Set rCell = GenerateEntry(CStr(sAction), sKey, sAction, iRow, wbTmp:=clsQuadRuntime.CacheBook)
+                    Set rCell = GenerateEntry(CStr(sAction), sKey, sAction, iRow, wbTmp:=clsQuadRuntime.EntryBook)
                     dDefinitions.Item(sKey).Add "address", rCell.Address
                     
                     ' add default value if one exists
@@ -592,11 +575,11 @@ setup:
                         End If
                     End If
                     ' copy across any formatting that exists
-                    FormatCell clsQuadRuntime.TemplateBook, clsQuadRuntime.Book, CStr(sAction), rCell, CellState.Invalid, _
+                    FormatCell clsQuadRuntime.TemplateBook, clsQuadRuntime.EntryBook, CStr(sAction), rCell, CellState.Invalid, _
                                 sSourceSheetName:=clsQuadRuntime.TemplateCellSheetName, eCellType:=CellType.Entry
             
                     If bSetAsValid = True Then
-                        SetBgColorFromString sFormName, rCell, C_RGB_VALID, wbTmp:=clsQuadRuntime.CacheBook
+                        SetBgColorFromString sFormName, rCell, C_RGB_VALID, wbTmp:=clsQuadRuntime.EntryBook
                     End If
                     
                     iRow = iRow + 1
@@ -605,7 +588,7 @@ setup:
         End With
         
         ' generate the commit record button
-        GenerateButton clsQuadRuntime.TemplateBook, clsQuadRuntime.Book, CStr(sAction), C_GOBUTTON_ROW, C_GOBUTTON_COL, CellState.Invalid, clsQuadRuntime.TemplateCellSheetName
+        GenerateButton clsQuadRuntime.TemplateBook, clsQuadRuntime.EntryBook, CStr(sAction), C_GOBUTTON_ROW, C_GOBUTTON_COL, CellState.Invalid, clsQuadRuntime.TemplateCellSheetName
         
         sCode = sCode & vbNewLine & _
                         "Public Sub Worksheet_SelectionChange(ByVal Target As Range)" & vbNewLine & _
@@ -614,7 +597,7 @@ setup:
                         "End If" & vbNewLine & _
                         "End Sub"
 
-        AddCode2Module clsQuadRuntime.Book, wsTmp.CodeName, sCode
+        AddCode2Module clsQuadRuntime.EntryBook, wsTmp.CodeName, sCode
         
         ' add a caller module so can simulate change events more reliably
         sCode = "Public Sub Invoke_Worksheet_SelectionChange(sSheetName As String, rTarget As Range)" & vbNewLine & _
@@ -624,11 +607,9 @@ setup:
         "End Sub"
         
         ' will already exist if more than 1 entry
-        If ModuleExists(clsQuadRuntime.Book, "change_event_invoker") = False Then
-            CreateModule clsQuadRuntime.Book, "change_event_invoker", sCode
+        If ModuleExists(clsQuadRuntime.EntryBook, "change_event_invoker") = False Then
+            CreateModule clsQuadRuntime.EntryBook, "change_event_invoker", sCode
         End If
-
-        'FormatEntryForm clsQuadRuntime, CStr(sAction)
         
         HideEntryForm CStr(sAction)
         FuncLogIt sFuncName, "Generated Form for action [" & sAction & "]", C_MODULE_NAME, LogMsgType.INFO
@@ -769,19 +750,19 @@ setup:
         On Error GoTo 0
         
         If Validate = True Then
-            SetBgColorFromString sSheetName, rTarget, C_RGB_VALID, wbTmp:=clsQuadRuntime.CacheBook
+            SetBgColorFromString sSheetName, rTarget, C_RGB_VALID, wbTmp:=clsQuadRuntime.EntryBook
             Exit Function
         End If
     End If
     
-    SetBgColorFromString sSheetName, rTarget, C_RGB_INVALID, wbTmp:=clsQuadRuntime.CacheBook
+    SetBgColorFromString sSheetName, rTarget, C_RGB_INVALID, wbTmp:=clsQuadRuntime.EntryBook
     Validate = False
     EventsToggle True
     
     Exit Function
 
 err:
-    SetBgColorFromString sSheetName, rTarget, C_RGB_ERROR, wbTmp:=clsQuadRuntime.CacheBook
+    SetBgColorFromString sSheetName, rTarget, C_RGB_ERROR, wbTmp:=clsQuadRuntime.EntryBook
     FuncLogIt sFuncName, "Error [" & err.Description & "]", C_MODULE_NAME, _
             LogMsgType.Failure
     Exit Function

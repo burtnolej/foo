@@ -37,7 +37,7 @@ Dim aLogFilter() As String
         aLogFilter = Split(LogFilter, ",")
     End If
     
-    If InArray(aLogFilter, eLogMsgType) Then
+    If InArray(aLogFilter, eLogMsgType) = True Then
         sNowTime = GetDateString(Now(), "HH:MM:SS")
         sNowDate = GetDateString(Now(), "ddmmyy")
 

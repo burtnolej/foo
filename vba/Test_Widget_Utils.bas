@@ -98,10 +98,8 @@ err:
     
 teardown:
     Test_FormatButton = eTestResult
-    clsQuadRuntime.Delete
     DeleteSheet ActiveWorkbook, sSheetName
-    CloseBook clsQuadRuntime.CacheBook
-    DeleteBook clsQuadRuntime.CacheBookName, clsQuadRuntime.CacheBookPath
+    clsQuadRuntime.Delete
     
 End Function
 
@@ -150,10 +148,8 @@ err:
     
 teardown:
     Test_FormatEntry = eTestResult
-    clsQuadRuntime.Delete
     DeleteSheet ActiveWorkbook, sSheetName
-    CloseBook clsQuadRuntime.CacheBook
-    DeleteBook clsQuadRuntime.CacheBookName, clsQuadRuntime.CacheBookPath
+    clsQuadRuntime.Delete
     
 End Function
 Function Test_FormatColRowSize_1Cell() As TestResult
@@ -203,10 +199,8 @@ err:
     
 teardown:
     Test_FormatColRowSize_1Cell = eTestResult
-    clsQuadRuntime.Delete
     DeleteSheet ActiveWorkbook, sSheetName
-    CloseBook clsQuadRuntime.CacheBook
-    DeleteBook clsQuadRuntime.CacheBookName, clsQuadRuntime.CacheBookPath
+    clsQuadRuntime.Delete
     
 End Function
 
@@ -258,10 +252,8 @@ err:
     
 teardown:
     Test_FormatColRowSize_Range = eTestResult
-    clsQuadRuntime.Delete
     DeleteSheet ActiveWorkbook, sSheetName
-    CloseBook clsQuadRuntime.CacheBook
-    DeleteBook clsQuadRuntime.CacheBookName, clsQuadRuntime.CacheBookPath
+    clsQuadRuntime.Delete
     
 End Function
 
@@ -319,11 +311,10 @@ err:
     
 teardown:
     Test_FormatColRowSize_Range_DiffSizes = eTestResult
-    clsQuadRuntime.Delete
     DeleteSheet ActiveWorkbook, sSheetName
-    CloseBook clsQuadRuntime.CacheBook
-    DeleteBook clsQuadRuntime.CacheBookName, clsQuadRuntime.CacheBookPath
-    
+    clsQuadRuntime.Delete
+
+   
 End Function
 
 Function Test_FormatColRowSize_Range_MergedCell() As TestResult
@@ -382,10 +373,8 @@ err:
     
 teardown:
     Test_FormatColRowSize_Range_MergedCell = eTestResult
-    clsQuadRuntime.Delete
     DeleteSheet ActiveWorkbook, sSheetName
-    CloseBook clsQuadRuntime.CacheBook
-    DeleteBook clsQuadRuntime.CacheBookName, clsQuadRuntime.CacheBookPath
+    clsQuadRuntime.Delete
     
 End Function
 

@@ -35,22 +35,13 @@ Dim sSheetName As String
 Dim sScheduleName As String, sSchedulePath As String, sNewSchedulePath As String
 
     DoEventsOn
-    
-    'sScheduleName = "schedule.xlsm"
-    'sSchedulePath = GetHomePath() & "\runtime\"
-    'sNewSchedulePath = sSchedulePath & "archive\"
-    
-    'FileCopy sScheduleName, sNewSchedulePath, sSchedulePath
-            
-    'CreateBook sScheduleName, sSchedulePath
-    
+        
     ResetQuadRuntimeGlobal
     sFuncName = CsModuleName & "." & "Test_AddNewScheduleEntry"
     sSheetName = "test"
-    clsQuadRuntime.InitProperties bInitializeCache:=True, sDefinitionSheetName:=sSheetName, _
-                    sScheduleBookName:=sScheduleName, sScheduleBookPath:=sSchedulePath
-                    
-    DoEventsOff
+    clsQuadRuntime.InitProperties bInitializeCache:=True, sDefinitionSheetName:=sSheetName
+    ', _
+                    'sScheduleBookName:=sScheduleName, sScheduleBookPath:=sSchedulePath
     
 main:
     GenerateScheduleEntry clsQuadRuntime

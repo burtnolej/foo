@@ -314,7 +314,6 @@ Dim sFuncName As String
     On Error GoTo err
     objFSO.DeleteFile sFileName
     On Error GoTo 0
-    FuncLogIt sFuncName, "Deleted [" & sFileName & "]", C_MODULE_NAME, LogMsgType.Failure
     Exit Function
     
 err:

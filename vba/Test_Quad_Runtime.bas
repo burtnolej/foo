@@ -42,12 +42,10 @@ main:
 
 teardown:
     Test_Init_Quad_Runtime_MultiUpdate_Cached_Values = eTestResult
-    clsQuadRuntime.Delete
-     
     CloseBook wbTmp
     DeleteBook sTmpBookName, sTmpBookPath
-    CloseBook clsQuadRuntime.CacheBook
-    DeleteBook clsQuadRuntime.CacheBookName, clsQuadRuntime.CacheBookPath
+    clsQuadRuntime.Delete
+
 End Function
 
 
@@ -100,13 +98,9 @@ err:
     
 teardown:
     Test_Init_Quad_Runtime_Retreive_Cached_Values = eTestResult
-    clsQuadRuntime.Delete
-    
     CloseBook wbTmp
     DeleteBook sTmpBookName, sTmpBookPath
-    CloseBook clsQuadRuntime.CacheBook
-    DeleteBook clsQuadRuntime.CacheBookName, clsQuadRuntime.CacheBookPath
-    Exit Function
+    clsQuadRuntime.Delete
     
 End Function
 Function Test_Init_Quad_Runtime_Persist_Cache() As TestResult
@@ -142,12 +136,9 @@ main:
 
 teardown:
     Test_Init_Quad_Runtime_Persist_Cache = eTestResult
-    clsQuadRuntime.Delete
-     
     CloseBook wbTmp
     DeleteBook sTmpBookName, sTmpBookPath
-    CloseBook clsQuadRuntime.CacheBook
-    DeleteBook clsQuadRuntime.CacheBookName, clsQuadRuntime.CacheBookPath
+    clsQuadRuntime.Delete
     
 End Function
 
@@ -177,11 +168,6 @@ err:
 teardown:
     Test_Init_Quad_Runtime_Default = eTestResult
     clsQuadRuntime.Delete
-     
-    CloseBook clsQuadRuntime.CacheBook
-    DeleteBook clsQuadRuntime.CacheBookName, clsQuadRuntime.CacheBookPath
-    
-    Exit Function
 End Function
 
 Function Test_Init_Quad_Runtime_Override_BookPath() As TestResult
@@ -212,13 +198,9 @@ err:
     
 teardown:
     Test_Init_Quad_Runtime_Override_BookPath = eTestResult
-    clsQuadRuntime.Delete
-     
     CloseBook wbTmp
     DeleteBook sTmpBookName, sTmpBookPath
-    CloseBook clsQuadRuntime.CacheBook
-    DeleteBook clsQuadRuntime.CacheBookName, clsQuadRuntime.CacheBookPath
-    Exit Function
+    clsQuadRuntime.Delete
 End Function
 Function Test_Init_Quad_Runtime_Override_BookPath_Invalid() As TestResult
 Dim sFuncName As String, sFilePath As String
@@ -247,9 +229,6 @@ err:
 teardown:
     Test_Init_Quad_Runtime_Override_BookPath_Invalid = eTestResult
     clsQuadRuntime.Delete
-    CloseBook clsQuadRuntime.CacheBook
-    DeleteBook clsQuadRuntime.CacheBookName
-    Exit Function
 End Function
 
 Function Test_Init_Quad_Runtime_Override_BookName() As TestResult
@@ -282,12 +261,9 @@ err:
     
 teardown:
     Test_Init_Quad_Runtime_Override_BookName = eTestResult
-    clsQuadRuntime.Delete
     CloseBook Workbooks(sBookName)
     DeleteBook sBookName, sPath:=sBookPath
-    CloseBook clsQuadRuntime.CacheBook
-    DeleteBook clsQuadRuntime.CacheBookName, clsQuadRuntime.CacheBookPath
-    Exit Function
+    clsQuadRuntime.Delete
 End Function
 
 Function Test_Init_Quad_Runtime_Override_CacheBookRangeName() As TestResult
@@ -316,10 +292,6 @@ err:
 teardown:
     Test_Init_Quad_Runtime_Override_CacheBookRangeName = eTestResult
     clsQuadRuntime.Delete
-     
-    CloseBook clsQuadRuntime.CacheBook
-    DeleteBook clsQuadRuntime.CacheBookName, clsQuadRuntime.CacheBookPath
-    Exit Function
 End Function
 
 Function Test_Init_Quad_Runtime_Override_Template() As TestResult
@@ -367,13 +339,9 @@ err:
     
 teardown:
     Test_Init_Quad_Runtime_Override_Template = eTestResult
-    clsQuadRuntime.Delete
-     
     CloseBook clsQuadRuntime.TemplateBook
     DeleteBook sTemplateName, sPath:=sTemplatePath
-    CloseBook clsQuadRuntime.CacheBook
-    DeleteBook clsQuadRuntime.CacheBookName, clsQuadRuntime.CacheBookPath
-    Exit Function
+    clsQuadRuntime.Delete
 End Function
 
 Function Test_Init_Quad_Runtime_Override_Database() As TestResult
@@ -405,12 +373,8 @@ err:
     
 teardown:
     Test_Init_Quad_Runtime_Override_Database = eTestResult
-    clsQuadRuntime.Delete
-     
     DeleteFile sDatabasePath
-    CloseBook clsQuadRuntime.CacheBook
-    DeleteBook clsQuadRuntime.CacheBookName, clsQuadRuntime.CacheBookPath
-    Exit Function
+    clsQuadRuntime.Delete
 End Function
 
 

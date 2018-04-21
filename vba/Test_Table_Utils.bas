@@ -9,7 +9,6 @@ Attribute VB_Name = "Test_Table_Utils"
 Option Explicit
 Const CsModuleName = "Test_Table_Utils"
 
-
 Function TestAddTableRecordAuto() As TestResult
 Dim sFuncName As String, sSheetName As String, sResultStr As String, sExpectedResultStr As String, sColumns As String
 Dim vSource() As String, vRows() As String, vColNames() As String
@@ -69,12 +68,10 @@ err:
     
 teardown:
     TestAddTableRecordAuto = eTestResult
-    clsQuadRuntime.Delete
     DeleteSheet clsQuadRuntime.CacheBook, sSheetName
     DeleteSheet clsQuadRuntime.CacheBook, "Foo"
     DeleteSheet clsQuadRuntime.CacheBook, "Bar"
-    CloseBook clsQuadRuntime.CacheBook
-    DeleteBook clsQuadRuntime.CacheBookName, clsQuadRuntime.CacheBookPath
+    clsQuadRuntime.Delete
 
 End Function
 
@@ -109,10 +106,11 @@ main:
     
     GenerateEntryForms clsQuadRuntime
     
-    SetEntryValue "NewFoo", "FooAge", 123, wbTmp:=clsQuadRuntime.CacheBook
-    SetEntryValue "NewFoo", "FooName", "blahblah", wbTmp:=clsQuadRuntime.CacheBook
+    SetEntryValue "NewFoo", "FooAge", 123, wbTmp:=clsQuadRuntime.EntryBook
+    SetEntryValue "NewFoo", "FooName", "blahblah", wbTmp:=clsQuadRuntime.EntryBook
     
-    AddTableRecord "Foo", wbTmp:=clsQuadRuntime.CacheBook
+    AddTableRecord "Foo", wbEntryBook:=clsQuadRuntime.EntryBook, _
+        wbCacheBook:=clsQuadRuntime.CacheBook
     
     Set dRecord = GetTableRecord("Foo", 1, wbTmp:=clsQuadRuntime.CacheBook)
     
@@ -144,13 +142,11 @@ err:
     
 teardown:
     TestAddTableRecordManual = eTestResult
+    DeleteSheet clsQuadRuntime.EntryBook, sSheetName
+    DeleteSheet clsQuadRuntime.CacheBook, "Foo"
+    DeleteSheet clsQuadRuntime.CacheBook, "Bar"
+    DeleteEntryForms wbTmp:=clsQuadRuntime.EntryBook
     clsQuadRuntime.Delete
-    DeleteSheet ActiveWorkbook, sSheetName
-    DeleteSheet ActiveWorkbook, "Foo"
-    DeleteSheet ActiveWorkbook, "Bar"
-    DeleteEntryForms wbTmp:=clsQuadRuntime.CacheBook
-    CloseBook clsQuadRuntime.CacheBook
-    DeleteBook clsQuadRuntime.CacheBookName, clsQuadRuntime.CacheBookPath
 
 End Function
 
@@ -215,12 +211,10 @@ err:
     
 teardown:
     TestCreateTables = eTestResult
-    clsQuadRuntime.Delete
     DeleteSheet clsQuadRuntime.CacheBook, sSheetName
     DeleteSheet clsQuadRuntime.CacheBook, "foo"
     DeleteSheet clsQuadRuntime.CacheBook, "bar"
-    CloseBook clsQuadRuntime.CacheBook
-    DeleteBook clsQuadRuntime.CacheBookName, clsQuadRuntime.CacheBookPath
+    clsQuadRuntime.Delete
 
 End Function
 
@@ -279,8 +273,7 @@ err:
 teardown:
     Test_AddTableRecordFromDict = eTestResult
     clsQuadRuntime.Delete
-    CloseBook clsQuadRuntime.CacheBook
-    DeleteBook clsQuadRuntime.CacheBookName, clsQuadRuntime.CacheBookPath
+
 End Function
 Function TestAddTableMultipleRecordManual() As TestResult
 ' From a definition, create entry forms, fill out values for a record, manually call function
@@ -311,20 +304,20 @@ main:
     CreateTables clsQuadRuntime.CacheBook
     GenerateEntryForms clsQuadRuntime
         
-    SetEntryValue "NewFoo", "FooAge", 123, wbTmp:=clsQuadRuntime.CacheBook
-    SetEntryValue "NewFoo", "FooName", "blahblah", wbTmp:=clsQuadRuntime.CacheBook
+    SetEntryValue "NewFoo", "FooAge", 123, wbTmp:=clsQuadRuntime.EntryBook
+    SetEntryValue "NewFoo", "FooName", "blahblah", wbTmp:=clsQuadRuntime.EntryBook
     
-    AddTableRecord "Foo", wbTmp:=clsQuadRuntime.CacheBook
+    AddTableRecord "Foo", wbEntryBook:=clsQuadRuntime.EntryBook, wbCacheBook:=clsQuadRuntime.CacheBook
     
-    SetEntryValue "NewFoo", "FooAge", 666, wbTmp:=clsQuadRuntime.CacheBook
-    SetEntryValue "NewFoo", "FooName", "foofoo", wbTmp:=clsQuadRuntime.CacheBook
+    SetEntryValue "NewFoo", "FooAge", 666, wbTmp:=clsQuadRuntime.EntryBook
+    SetEntryValue "NewFoo", "FooName", "foofoo", wbTmp:=clsQuadRuntime.EntryBook
     
-    AddTableRecord "Foo", wbTmp:=clsQuadRuntime.CacheBook
+    AddTableRecord "Foo", wbEntryBook:=clsQuadRuntime.EntryBook, wbCacheBook:=clsQuadRuntime.CacheBook
     
-    SetEntryValue "NewFoo", "FooAge", 444, wbTmp:=clsQuadRuntime.CacheBook
-    SetEntryValue "NewFoo", "FooName", "barbar", wbTmp:=clsQuadRuntime.CacheBook
+    SetEntryValue "NewFoo", "FooAge", 444, wbTmp:=clsQuadRuntime.EntryBook
+    SetEntryValue "NewFoo", "FooName", "barbar", wbTmp:=clsQuadRuntime.EntryBook
     
-    AddTableRecord "Foo", wbTmp:=clsQuadRuntime.CacheBook
+    AddTableRecord "Foo", wbEntryBook:=clsQuadRuntime.EntryBook, wbCacheBook:=clsQuadRuntime.CacheBook
     
     Set dRecord = GetTableRecord("Foo", 1, wbTmp:=clsQuadRuntime.CacheBook)
     
@@ -370,13 +363,11 @@ err:
     
 teardown:
     TestAddTableMultipleRecordManual = eTestResult
+    DeleteSheet clsQuadRuntime.EntryBook, sSheetName
+    DeleteSheet clsQuadRuntime.CacheBook, "Foo"
+    DeleteSheet clsQuadRuntime.CacheBook, "Bar"
+    DeleteEntryForms wbTmp:=clsQuadRuntime.EntryBook
     clsQuadRuntime.Delete
-    DeleteSheet ActiveWorkbook, sSheetName
-    DeleteSheet ActiveWorkbook, "Foo"
-    DeleteSheet ActiveWorkbook, "Bar"
-    DeleteEntryForms wbTmp:=clsQuadRuntime.CacheBook
-    CloseBook clsQuadRuntime.CacheBook
-    DeleteBook clsQuadRuntime.CacheBookName, clsQuadRuntime.CacheBookPath
 
 End Function
 
@@ -412,36 +403,36 @@ main:
     GenerateEntryForms clsQuadRuntime
     
     ' Table Foo
-    SetEntryValue "NewFoo", "FooAge", 123, wbTmp:=clsQuadRuntime.CacheBook
-    SetEntryValue "NewFoo", "FooName", "blahblah", wbTmp:=clsQuadRuntime.CacheBook
+    SetEntryValue "NewFoo", "FooAge", 123, wbTmp:=clsQuadRuntime.EntryBook
+    SetEntryValue "NewFoo", "FooName", "blahblah", wbTmp:=clsQuadRuntime.EntryBook
     
-    AddTableRecord "Foo", wbTmp:=clsQuadRuntime.CacheBook
+    AddTableRecord "Foo", wbEntryBook:=clsQuadRuntime.EntryBook, wbCacheBook:=clsQuadRuntime.CacheBook
     
-    SetEntryValue "NewFoo", "FooAge", 666, wbTmp:=clsQuadRuntime.CacheBook
-    SetEntryValue "NewFoo", "FooName", "foofoo", wbTmp:=clsQuadRuntime.CacheBook
+    SetEntryValue "NewFoo", "FooAge", 666, wbTmp:=clsQuadRuntime.EntryBook
+    SetEntryValue "NewFoo", "FooName", "foofoo", wbTmp:=clsQuadRuntime.EntryBook
     
-    AddTableRecord "Foo", wbTmp:=clsQuadRuntime.CacheBook
+    AddTableRecord "Foo", wbEntryBook:=clsQuadRuntime.EntryBook, wbCacheBook:=clsQuadRuntime.CacheBook
     
-    SetEntryValue "NewFoo", "FooAge", 444, wbTmp:=clsQuadRuntime.CacheBook
-    SetEntryValue "NewFoo", "FooName", "barbar", wbTmp:=clsQuadRuntime.CacheBook
+    SetEntryValue "NewFoo", "FooAge", 444, wbTmp:=clsQuadRuntime.EntryBook
+    SetEntryValue "NewFoo", "FooName", "barbar", wbTmp:=clsQuadRuntime.EntryBook
     
-    AddTableRecord "Foo", wbTmp:=clsQuadRuntime.CacheBook
+    AddTableRecord "Foo", wbEntryBook:=clsQuadRuntime.EntryBook, wbCacheBook:=clsQuadRuntime.CacheBook
     
     ' Table Bar
-    SetEntryValue "NewBar", "BarAge", 123, wbTmp:=clsQuadRuntime.CacheBook
-    SetEntryValue "NewBar", "BarName", "blahblah", wbTmp:=clsQuadRuntime.CacheBook
+    SetEntryValue "NewBar", "BarAge", 123, wbTmp:=clsQuadRuntime.EntryBook
+    SetEntryValue "NewBar", "BarName", "blahblah", wbTmp:=clsQuadRuntime.EntryBook
     
-    AddTableRecord "Bar", wbTmp:=clsQuadRuntime.CacheBook
+    AddTableRecord "Bar", wbEntryBook:=clsQuadRuntime.EntryBook, wbCacheBook:=clsQuadRuntime.CacheBook
     
-    SetEntryValue "NewBar", "BarAge", 666, wbTmp:=clsQuadRuntime.CacheBook
-    SetEntryValue "NewBar", "BarName", "foofoo", wbTmp:=clsQuadRuntime.CacheBook
+    SetEntryValue "NewBar", "BarAge", 666, wbTmp:=clsQuadRuntime.EntryBook
+    SetEntryValue "NewBar", "BarName", "foofoo", wbTmp:=clsQuadRuntime.EntryBook
     
-    AddTableRecord "Bar", wbTmp:=clsQuadRuntime.CacheBook
+    AddTableRecord "Bar", wbEntryBook:=clsQuadRuntime.EntryBook, wbCacheBook:=clsQuadRuntime.CacheBook
     
-    SetEntryValue "NewBar", "BarAge", 444, wbTmp:=clsQuadRuntime.CacheBook
-    SetEntryValue "NewBar", "BarName", "barbar", wbTmp:=clsQuadRuntime.CacheBook
+    SetEntryValue "NewBar", "BarAge", 444, wbTmp:=clsQuadRuntime.EntryBook
+    SetEntryValue "NewBar", "BarName", "barbar", wbTmp:=clsQuadRuntime.EntryBook
     
-    AddTableRecord "Bar", wbTmp:=clsQuadRuntime.CacheBook
+    AddTableRecord "Bar", wbEntryBook:=clsQuadRuntime.EntryBook, wbCacheBook:=clsQuadRuntime.CacheBook
     
     Set dRecord = GetTableRecord("Foo", 3, wbTmp:=clsQuadRuntime.CacheBook)
     
@@ -475,13 +466,11 @@ err:
     
 teardown:
     TestAddTableMultipleRecordMultiTableManual = eTestResult
+    DeleteSheet clsQuadRuntime.EntryBook, sSheetName
+    DeleteSheet clsQuadRuntime.CacheBook, "Foo"
+    DeleteSheet clsQuadRuntime.CacheBook, "Bar"
+    DeleteEntryForms wbTmp:=clsQuadRuntime.EntryBook
     clsQuadRuntime.Delete
-    DeleteSheet ActiveWorkbook, sSheetName
-    DeleteSheet ActiveWorkbook, "Foo"
-    DeleteSheet ActiveWorkbook, "Bar"
-    DeleteEntryForms wbTmp:=clsQuadRuntime.CacheBook
-    CloseBook clsQuadRuntime.CacheBook
-    DeleteBook clsQuadRuntime.CacheBookName, clsQuadRuntime.CacheBookPath
 
 End Function
 
@@ -513,7 +502,7 @@ main:
     CreateTables clsQuadRuntime.CacheBook
     GenerateEntryForms clsQuadRuntime
     
-    iResultCode = SetEntryValue("NewFoo", "BadFieldName", 123, wbTmp:=clsQuadRuntime.CacheBook)
+    iResultCode = SetEntryValue("NewFoo", "BadFieldName", 123, wbTmp:=clsQuadRuntime.EntryBook)
     
     If iResultCode <> -1 Then
         eTestResult = TestResult.Failure
@@ -528,14 +517,11 @@ err:
     
 teardown:
     TestAddTableRecordFail = eTestResult
+    DeleteSheet clsQuadRuntime.EntryBook, sSheetName
+    DeleteSheet clsQuadRuntime.CacheBook, "Foo"
+    DeleteSheet clsQuadRuntime.CacheBook, "Bar"
+    DeleteEntryForms wbTmp:=clsQuadRuntime.EntryBook
     clsQuadRuntime.Delete
-    DeleteSheet ActiveWorkbook, sSheetName
-    DeleteSheet ActiveWorkbook, "Foo"
-    DeleteSheet ActiveWorkbook, "Bar"
-    DeleteEntryForms wbTmp:=clsQuadRuntime.CacheBook
-    CloseBook clsQuadRuntime.CacheBook
-    DeleteBook clsQuadRuntime.CacheBookName, clsQuadRuntime.CacheBookPath
+
     
 End Function
-
-

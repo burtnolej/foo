@@ -108,7 +108,7 @@ setup:
     ' END Assertions ----------------------------
 
 main:
-    If eQuadSubDataType = QuadSubDataType.student Then
+    If eQuadSubDataType = QuadSubDataType.Student Then
         sSpName = "student_schedule"
         dSpArgs.Add "students", InitVariantArray(Array(sPersonId))
     ElseIf eQuadSubDataType = QuadSubDataType.teacher Then
@@ -198,7 +198,7 @@ Function BuildScheduleCellView(clsQuadRuntime As Quad_Runtime, _
                           dValues As Dictionary, _
                           iFormatWidth As Integer, iFormatHeight As Integer, _
                           aColumnWidths() As Integer, _
-                Optional eQuadSubDataType As QuadSubDataType = QuadSubDataType.student, _
+                Optional eQuadSubDataType As QuadSubDataType = QuadSubDataType.Student, _
                 Optional iViewRowOffset As Integer = 0, _
                 Optional iViewColOffset As Integer = 2) As Range
 
@@ -271,7 +271,7 @@ Function BuildScheduleHeaderView(clsQuadRuntime As Quad_Runtime, _
                           wsSchedule As Worksheet, _
                           sEnums As String, _
                           iFormatWidth As Integer, iFormatHeight As Integer, _
-                Optional eQuadSubDataType As QuadSubDataType = QuadSubDataType.student, _
+                Optional eQuadSubDataType As QuadSubDataType = QuadSubDataType.Student, _
                 Optional iStartRow As Integer = 3, _
                 Optional iStartCol As Integer = 1, _
                 Optional bVz As Boolean = True) As Range

@@ -5,6 +5,6 @@ Public Function GetStudentNameFromID(iPersonID As Integer) As String
 Dim clsQuadRuntime As New Quad_Runtime
 
     clsQuadRuntime.InitProperties bInitializeCache:=False
-    GetStudentNameFromID = CrossRefQuadData(clsQuadRuntime, QuadDataType.person, QuadSubDataType.student, _
+    GetStudentNameFromID = CrossRefQuadData(clsQuadRuntime, QuadDataType.person, QuadSubDataType.Student, _
             "idStudent", iPersonID, "sStudentLastNm")
 End Function

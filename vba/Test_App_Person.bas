@@ -19,7 +19,7 @@ setup:
     clsQuadRuntime.InitProperties bInitializeCache:=True, sDefinitionSheetName:="Definitions"
     DoLoadDefinitions clsQuadRuntime
 main:
-    If IsValidPersonID(clsQuadRuntime, 70, QuadSubDataType.student) = False Then
+    If IsValidPersonID(clsQuadRuntime, 70, QuadSubDataType.Student) = False Then
         eTestResult = TestResult.Failure
         GoTo teardown
     End If
@@ -32,11 +32,8 @@ err:
     
 teardown:
     Test_IsValidPersonID_Student = eTestResult
-    clsQuadRuntime.Delete
     DeleteSheet clsQuadRuntime.CacheBook, "person_student"
-    CloseBook clsQuadRuntime.CacheBook
-    DeleteBook clsQuadRuntime.CacheBookName, clsQuadRuntime.CacheBookPath
-
+    clsQuadRuntime.Delete
 End Function
 
 Public Function Test_IsValidPersonID_Student_NotFound() As TestResult
@@ -48,7 +45,7 @@ setup:
     clsQuadRuntime.InitProperties bInitializeCache:=True, sDefinitionSheetName:="Definitions"
 
     
-    If IsValidPersonID(clsQuadRuntime, 999, QuadSubDataType.student) = True Then
+    If IsValidPersonID(clsQuadRuntime, 999, QuadSubDataType.Student) = True Then
         eTestResult = TestResult.Failure
         GoTo teardown
     End If
@@ -61,10 +58,8 @@ err:
     
 teardown:
     Test_IsValidPersonID_Student_NotFound = eTestResult
-    clsQuadRuntime.Delete
     DeleteSheet clsQuadRuntime.CacheBook, "person_student"
-    CloseBook clsQuadRuntime.CacheBook
-    DeleteBook clsQuadRuntime.CacheBookName, clsQuadRuntime.CacheBookPath
+    clsQuadRuntime.Delete
 
 End Function
 Public Function Test_IsValidPersonID_Teacher() As TestResult
@@ -75,7 +70,6 @@ setup:
     On Error GoTo err
     clsQuadRuntime.InitProperties bInitializeCache:=True, sDefinitionSheetName:="Definitions"
 
-    
     If IsValidPersonID(clsQuadRuntime, 70, QuadSubDataType.teacher) = False Then
         eTestResult = TestResult.Failure
         GoTo teardown
@@ -89,10 +83,9 @@ err:
     
 teardown:
     Test_IsValidPersonID_Teacher = eTestResult
-    clsQuadRuntime.Delete
     DeleteSheet clsQuadRuntime.CacheBook, "person_student"
-    CloseBook clsQuadRuntime.CacheBook
-    DeleteBook clsQuadRuntime.CacheBookName
+    clsQuadRuntime.Delete
+    
 End Function
 
 Public Function Test_IsValidPersonID_Teacher_NotFound() As TestResult
@@ -116,11 +109,9 @@ err:
     
 teardown:
     Test_IsValidPersonID_Teacher_NotFound = eTestResult
-    clsQuadRuntime.Delete
     DeleteSheet clsQuadRuntime.CacheBook, "person_student"
-    CloseBook clsQuadRuntime.CacheBook
-    DeleteBook clsQuadRuntime.CacheBookName, clsQuadRuntime.CacheBookPath
-
+    clsQuadRuntime.Delete
+   
 End Function
 
 Public Function Test_GetAllPersonDataFromDB() As TestResult
@@ -133,7 +124,7 @@ setup:
     clsQuadRuntime.InitProperties bInitializeCache:=True
     
 main:
-    GetPersonDataFromDB clsQuadRuntime, QuadSubDataType.student, eQuadScope:=QuadScope.all
+    GetPersonDataFromDB clsQuadRuntime, QuadSubDataType.Student, eQuadScope:=QuadScope.all
     
     If FileExists(clsQuadRuntime.ResultFileName) Then
         sResultStr = ReadFile(clsQuadRuntime.ResultFileName)
@@ -156,9 +147,6 @@ err:
 teardown:
     Test_GetAllPersonDataFromDB = eTestResult
     clsQuadRuntime.Delete
-    CloseBook clsQuadRuntime.CacheBook
-    DeleteBook clsQuadRuntime.CacheBookName, clsQuadRuntime.CacheBookPath
-
     
 End Function
 Public Function Test_GetPersonDataFromDB() As TestResult
@@ -171,7 +159,7 @@ setup:
     clsQuadRuntime.InitProperties bInitializeCache:=True
     
 main:
-    GetPersonDataFromDB clsQuadRuntime, QuadSubDataType.student, eQuadScope:=QuadScope.specified, _
+    GetPersonDataFromDB clsQuadRuntime, QuadSubDataType.Student, eQuadScope:=QuadScope.specified, _
                         iPersonID:=70
     
     If FileExists(clsQuadRuntime.ResultFileName) Then
@@ -195,9 +183,6 @@ err:
 teardown:
     Test_GetPersonDataFromDB = eTestResult
     clsQuadRuntime.Delete
-    CloseBook clsQuadRuntime.CacheBook
-    DeleteBook clsQuadRuntime.CacheBookName, clsQuadRuntime.CacheBookPath
-
     
 End Function
 
@@ -215,9 +200,9 @@ setup:
     clsQuadRuntime.InitProperties bInitializeCache:=True
 
 main:
-    GetPersonData clsQuadRuntime, QuadDataType.person, QuadSubDataType.student, eQuadScope:=QuadScope.all
+    GetPersonData clsQuadRuntime, QuadDataType.person, QuadSubDataType.Student, eQuadScope:=QuadScope.all
 
-    Set wsCache = GetPersonData(clsQuadRuntime, QuadDataType.person, QuadSubDataType.student, eQuadScope:=QuadScope.all)
+    Set wsCache = GetPersonData(clsQuadRuntime, QuadDataType.person, QuadSubDataType.Student, eQuadScope:=QuadScope.all)
     With wsCache
         If .Range(.Cells(83, 5), .Cells(83, 5)).value <> "Photon" Then
             eTestResult = TestResult.Failure
@@ -233,11 +218,8 @@ err:
     
 teardown:
     Test_GetPersonData_Cached = eTestResult
-    clsQuadRuntime.Delete
     DeleteSheet clsQuadRuntime.CacheBook, wsCache.Name
-    CloseBook clsQuadRuntime.CacheBook
-    DeleteBook clsQuadRuntime.CacheBookName, clsQuadRuntime.CacheBookPath
-
+    clsQuadRuntime.Delete
     
 End Function
 
@@ -255,7 +237,7 @@ setup:
     clsQuadRuntime.InitProperties bInitializeCache:=True
 
 main:
-    Set wsCache = GetPersonData(clsQuadRuntime, QuadDataType.person, QuadSubDataType.student, eQuadScope:=QuadScope.all)
+    Set wsCache = GetPersonData(clsQuadRuntime, QuadDataType.person, QuadSubDataType.Student, eQuadScope:=QuadScope.all)
     With wsCache
         If .Range(.Cells(83, 5), .Cells(83, 5)).value <> "Photon" Then
             eTestResult = TestResult.Failure
@@ -271,9 +253,7 @@ err:
     
 teardown:
     Test_GetPersonData_NotCached = eTestResult
-    clsQuadRuntime.Delete
     DeleteSheet clsQuadRuntime.CacheBook, wsCache.Name
-    CloseBook clsQuadRuntime.CacheBook
-    DeleteBook clsQuadRuntime.CacheBookName, clsQuadRuntime.CacheBookPath
+    clsQuadRuntime.Delete
 
 End Function

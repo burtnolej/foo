@@ -40,7 +40,7 @@ main:
     End If
 
     'clsQuadRuntime.InitProperties bInitializeCache:=False
-    vStudentIDs = GetColumnValues(clsQuadRuntime, QuadDataType.person, QuadSubDataType.student, "idStudent")
+    vStudentIDs = GetColumnValues(clsQuadRuntime, QuadDataType.person, QuadSubDataType.Student, "idStudent")
 
     If InArray(vStudentIDs, CStr(iPersonID)) Then
         IsValidPersonID = True
@@ -61,7 +61,7 @@ err:
 End Function
 Public Function get_person_student(clsQuadRuntime As Quad_Runtime, _
                       Optional bInTable As Boolean = True) As Worksheet
-    Set get_person_student = GetPersonData(clsQuadRuntime, QuadDataType.person, QuadSubDataType.student, eQuadScope:=QuadScope.all, bInTable:=bInTable)
+    Set get_person_student = GetPersonData(clsQuadRuntime, QuadDataType.person, QuadSubDataType.Student, eQuadScope:=QuadScope.all, bInTable:=bInTable)
 End Function
 Public Function get_person_teacher(clsQuadRuntime As Quad_Runtime, _
                       Optional bInTable As Boolean = True) As Worksheet
@@ -90,7 +90,7 @@ Dim aSchedule() As String
 
 setup:
     sFuncName = C_MODULE_NAME & "." & "GetPersonData"
-    FuncLogIt sFuncName, "[eQuadDataType=" & eQuadDataType & "] [eQuadSubDataType=" & eQuadSubDataType & "] [bInTable=" & CStr(bInTable) & "]", C_MODULE_NAME, LogMsgType.INFUNC
+    'FuncLogIt sFuncName, "[eQuadDataType=" & eQuadDataType & "] [eQuadSubDataType=" & eQuadSubDataType & "] [bInTable=" & CStr(bInTable) & "]", C_MODULE_NAME, LogMsgType.INFUNC
 
 main:
 

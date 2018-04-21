@@ -193,29 +193,32 @@ main:
 
     AddTableRecordFromDict = iNextFree
 End Function
-Public Function AddTableRecord(sTableName As String, Optional wbTmp As Workbook) As Integer
+Public Function AddTableRecord(sTableName As String, _
+                      Optional wbEntryBook As Workbook, _
+                      Optional wbCacheBook As Workbook) As Integer
 Dim sKey As Variant
 Dim dDefnDetails As Dictionary
-Dim wsTmp As Worksheet
-Dim iNextFree As Integer
-Dim sColRange As String
-Dim wsTable As Worksheet
+Dim wsEntry As Worksheet, wsTable As Worksheet
+Dim iNextFree As Integer, i As Integer
+Dim sColRange As String, sFuncName As String
 Dim aDefaultFields() As String
-Dim sFuncName As String
-Dim i As Integer
 
 setup:
     sFuncName = C_MODULE_NAME & "." & "AddTableRecord"
     
-    If IsSet(wbTmp) = False Then
-        Set wbTmp = ActiveWorkbook
+    If IsSet(wbEntryBook) = False Then
+        Set wbEntryBook = ActiveWorkbook
     End If
     
-    Set wsTmp = GetSheet(wbTmp, "New" & sTableName)
-    Set wsTable = GetSheet(wbTmp, sTableName)
+    If IsSet(wbCacheBook) = False Then
+        Set wbCacheBook = ActiveWorkbook
+    End If
+    
+    Set wsEntry = GetSheet(wbEntryBook, "New" & sTableName)
+    Set wsTable = GetSheet(wbCacheBook, sTableName)
     
 main:
-    With wsTmp
+    With wsEntry
         iNextFree = wsTable.Range("i" & sTableName & "NextFree").value + 1
         
         For Each sKey In dDefinitions.Keys()
@@ -228,7 +231,7 @@ main:
                 Set dDefnDetails = dDefinitions.Item(sKey)
                 sColRange = GetDBColumnRange(sTableName, dDefnDetails.Item("db_field_name"))
 
-                If NamedRangeExists(wbTmp, sTableName, sColRange) = False Then
+                If NamedRangeExists(wbCacheBook, sTableName, sColRange) = False Then
                     AddTableRecord = -1
                     FuncLogIt sFuncName, "range [" & sColRange & "] does not exist in sheet [" & sTableName & "]", C_MODULE_NAME, LogMsgType.OK
                     Exit Function
@@ -241,8 +244,7 @@ main:
         aDefaultFields = Split(C_DB_DEFAULT_FIELDS, ",")
         For i = 0 To UBound(aDefaultFields)
             sColRange = GetDBColumnRange(sTableName, aDefaultFields(i))
-            wsTable.Range(sColRange).Rows(iNextFree) = Application.Run("Calc" & aDefaultFields(i), sTableName, wbTmp)
-            'Application.Run "Format" & aDefaultFields(i), wsTmp, wsTable.Range(sColRange).Rows(iNextFree)
+            wsTable.Range(sColRange).Rows(iNextFree) = Application.Run("Calc" & aDefaultFields(i), sTableName, wbCacheBook)
         Next i
     End With
     

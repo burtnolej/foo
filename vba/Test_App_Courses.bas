@@ -44,10 +44,8 @@ err:
     
 teardown:
     Test_GetCoursesSubject = eTestResult
-    clsQuadRuntime.Delete
     DeleteSheet clsQuadRuntime.CacheBook, "courses_subject"
-    CloseBook clsQuadRuntime.CacheBook
-    DeleteBook clsQuadRuntime.CacheBookName, clsQuadRuntime.CacheBookPath
+    clsQuadRuntime.Delete
 
 End Function
 
@@ -91,10 +89,8 @@ err:
     
 teardown:
     Test_GetCoursesCourse = eTestResult
-    clsQuadRuntime.Delete
     DeleteSheet clsQuadRuntime.CacheBook, "courses_course"
-    CloseBook clsQuadRuntime.CacheBook
-    DeleteBook clsQuadRuntime.CacheBookName, clsQuadRuntime.CacheBookPath
+    clsQuadRuntime.Delete
 
 End Function
 
@@ -138,10 +134,8 @@ err:
     
 teardown:
     Test_GetMiscTimePeriod = eTestResult
-    clsQuadRuntime.Delete
     DeleteSheet clsQuadRuntime.CacheBook, "misc_timeperiod"
-    CloseBook clsQuadRuntime.CacheBook
-    DeleteBook clsQuadRuntime.CacheBookName, clsQuadRuntime.CacheBookPath
+    clsQuadRuntime.Delete
 
 End Function
 
@@ -184,10 +178,8 @@ err:
     
 teardown:
     Test_GetMiscPrep = eTestResult
-    clsQuadRuntime.Delete
     DeleteSheet clsQuadRuntime.CacheBook, "misc_prep"
-    CloseBook clsQuadRuntime.CacheBook
-    DeleteBook clsQuadRuntime.CacheBookName, clsQuadRuntime.CacheBookPath
+    clsQuadRuntime.Delete
 
 End Function
 
@@ -231,9 +223,7 @@ err:
     
 teardown:
     Test_GetMiscDay = eTestResult
-    clsQuadRuntime.Delete
     DeleteSheet clsQuadRuntime.CacheBook, "misc_day"
-    CloseBook clsQuadRuntime.CacheBook
-    DeleteBook clsQuadRuntime.CacheBookName, clsQuadRuntime.CacheBookPath
+    clsQuadRuntime.Delete
 
 End Function

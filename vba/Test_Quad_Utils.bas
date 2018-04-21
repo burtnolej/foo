@@ -29,7 +29,7 @@ setup:
     Set Entry_Utils.dDefinitions = LoadDefinitions(wsTmp, rSource:=rTarget)
     
     If CrossRefQuadData(clsQuadRuntime, QuadDataType.person, _
-                    QuadSubDataType.student, "idStudent", 1, "sStudentLastNm") <> "Gromek" Then
+                    QuadSubDataType.Student, "idStudent", 1, "sStudentLastNm") <> "Gromek" Then
         eTestResult = TestResult.Failure
         GoTo teardown
     End If
@@ -44,9 +44,6 @@ err:
 teardown:
     Test_CrossRefQuadData = eTestResult
     clsQuadRuntime.Delete
-    'DeleteSheet clsQuadRuntime.CacheBook, sCacheSheetName
-    CloseBook clsQuadRuntime.CacheBook
-    DeleteBook clsQuadRuntime.CacheBookName, clsQuadRuntime.CacheBookPath
     
 End Function
 Public Function Test_CacheData_Table() As TestResult
@@ -87,9 +84,9 @@ setup:
     Set rTarget = RangeFromStrArray(vSource, wsTmp, 0, 1)
     Set Entry_Utils.dDefinitions = LoadDefinitions(wsTmp, rSource:=rTarget)
     
-    GetPersonDataFromDB clsQuadRuntime, QuadSubDataType.student, eQuadScope:=QuadScope.all
+    GetPersonDataFromDB clsQuadRuntime, QuadSubDataType.Student, eQuadScope:=QuadScope.all
     aPersonData = ParseRawData(ReadFile(clsQuadRuntime.ResultFileName))
-    sCacheSheetName = CacheData(clsQuadRuntime, aPersonData, QuadDataType.person, QuadSubDataType.student, bInTable:=True)
+    sCacheSheetName = CacheData(clsQuadRuntime, aPersonData, QuadDataType.person, QuadSubDataType.Student, bInTable:=True)
         
     With clsQuadRuntime.CacheBook.Sheets(sCacheSheetName)
         If .Range(.Cells(83, 2), .Cells(83, 2)).value <> "Tzvi" Then
@@ -106,11 +103,8 @@ err:
     
 teardown:
     Test_CacheData_Table = eTestResult
-    clsQuadRuntime.Delete
     DeleteSheet clsQuadRuntime.CacheBook, sCacheSheetName
-    CloseBook clsQuadRuntime.CacheBook
-    DeleteBook clsQuadRuntime.CacheBookName, clsQuadRuntime.CacheBookPath
-
+    clsQuadRuntime.Delete
     
 End Function
 
@@ -139,8 +133,6 @@ err:
 teardown:
     TestGetAndInitQuadRuntimeNoVals = eTestResult
     clsQuadRuntime.Delete
-    CloseBook clsQuadRuntime.CacheBook
-    DeleteBook clsQuadRuntime.CacheBookName, clsQuadRuntime.CacheBookPath
     ResetQuadRuntimeGlobal
 
 End Function
@@ -171,8 +163,6 @@ err:
 teardown:
     TestGetAndInitQuadRuntime = eTestResult
     clsQuadRuntime.Delete
-    CloseBook clsQuadRuntime.CacheBook
-    DeleteBook clsQuadRuntime.CacheBookName, clsQuadRuntime.CacheBookPath
     ResetQuadRuntimeGlobal
 
 End Function
@@ -203,8 +193,6 @@ err:
 teardown:
     TestInitQuadRuntime = eTestResult
     clsQuadRuntime.Delete
-    CloseBook clsQuadRuntime.CacheBook
-    DeleteBook clsQuadRuntime.CacheBookName, clsQuadRuntime.CacheBookPath
     ResetQuadRuntimeGlobal
 
 End Function

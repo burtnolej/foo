@@ -118,9 +118,9 @@ Dim iFormatWidth As Integer, iFormatHeight As Integer
 Dim wsSchedule As Worksheet
     
     clsQuadRuntime.InitProperties bInitializeCache:=False, sDefinitionSheetName:="Definitions"
-    vStudentIDs = GetColumnValues(clsQuadRuntime, QuadDataType.person, QuadSubDataType.student, "idStudent")
+    vStudentIDs = GetColumnValues(clsQuadRuntime, QuadDataType.person, QuadSubDataType.Student, "idStudent")
 
-    sSheetName = "view_" & EnumQuadSubDataType(QuadSubDataType.student) & "_" & CStr(CInt(vStudentIDs(index)))
+    sSheetName = "view_" & EnumQuadSubDataType(QuadSubDataType.Student) & "_" & CStr(CInt(vStudentIDs(index)))
     If SheetExists(clsQuadRuntime.ScheduleBook, sSheetName) = False Then
         Set wsSchedule = CreateSheet(clsQuadRuntime.ScheduleBook, sSheetName)
     End If
@@ -134,7 +134,7 @@ Dim wsSchedule As Worksheet
     BuildScheduleHeaderView clsQuadRuntime, wsSchedule, clsQuadRuntime.DayEnum, iFormatWidth, iFormatHeight, iStartCol:=4, iStartRow:=2, bVz:=False
     
     BuildSchedule clsQuadRuntime, _
-                    eQuadSubDataType:=QuadSubDataType.student, _
+                    eQuadSubDataType:=QuadSubDataType.Student, _
                     iPersonID:=CInt(vStudentIDs(index))
 
 End Sub
@@ -328,7 +328,7 @@ Sub rxgal_getItemCount(control As IRibbonControl, ByRef returnedVal)
 Dim vLabelNames As Variant
 Dim clsQuadRuntime As New Quad_Runtime
     clsQuadRuntime.InitProperties bInitializeCache:=True
-    vLabelNames = GetColumnValues(clsQuadRuntime, QuadDataType.person, QuadSubDataType.student, "sStudentLastNm")
+    vLabelNames = GetColumnValues(clsQuadRuntime, QuadDataType.person, QuadSubDataType.Student, "sStudentLastNm")
     returnedVal = UBound(vLabelNames) + 1
 End Sub
 
@@ -339,8 +339,8 @@ Dim clsQuadRuntime As New Quad_Runtime
     If index = 0 Then index = 1
     
     clsQuadRuntime.InitProperties bInitializeCache:=False
-    vLabelFirstNames = GetColumnValues(clsQuadRuntime, QuadDataType.person, QuadSubDataType.student, "sStudentFirstNm")
-    vLabelLastNames = GetColumnValues(clsQuadRuntime, QuadDataType.person, QuadSubDataType.student, "sStudentLastNm")
+    vLabelFirstNames = GetColumnValues(clsQuadRuntime, QuadDataType.person, QuadSubDataType.Student, "sStudentFirstNm")
+    vLabelLastNames = GetColumnValues(clsQuadRuntime, QuadDataType.person, QuadSubDataType.Student, "sStudentLastNm")
     
     'is this correct at last index ?
     returnedVal = vLabelFirstNames(index) & SPACE & vLabelLastNames(index)
@@ -358,7 +358,7 @@ Dim clsQuadRuntime As New Quad_Runtime
     If index = 0 Then index = 1
     
     clsQuadRuntime.InitProperties bInitializeCache:=False
-    vPrepIDs = GetColumnValues(clsQuadRuntime, QuadDataType.person, QuadSubDataType.student, "idPrep")
+    vPrepIDs = GetColumnValues(clsQuadRuntime, QuadDataType.person, QuadSubDataType.Student, "idPrep")
     
     vExtensions = InitStringArray(Array("png", "jpg"))
     sImagePath = Environ("MYHOME") & "\Pictures\icons\"

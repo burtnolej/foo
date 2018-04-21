@@ -49,10 +49,8 @@ err:
     
 teardown:
     Test_CopyFormat = eTestResult
-    clsQuadRuntime.Delete
     DeleteSheet ActiveWorkbook, sSheetName
-    CloseBook clsQuadRuntime.CacheBook
-    DeleteBook clsQuadRuntime.CacheBookName, clsQuadRuntime.CacheBookPath
+    clsQuadRuntime.Delete
     
 End Function
 

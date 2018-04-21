@@ -25,6 +25,7 @@ Dim i As Integer
     FillEntryValues = True
 End Function
 
+
 Function Test_AddNewScheduleEntry_Multiple() As TestResult
 Dim eTestResult As TestResult
 Dim clsQuadRuntime As New Quad_Runtime
@@ -49,21 +50,21 @@ main:
     Set Entry_Utils.dDefinitions = Nothing
     clsQuadRuntime.CloseRuntimeCacheFile
     
-    With clsQuadRuntime.CacheBook.Sheets(sTargetSheetName)
+    With clsQuadRuntime.EntryBook.Sheets(sTargetSheetName)
         vEntryValues = InitStringArray(Array("Bruno", "Raskin", "David", "Stone", "Art", "Art", "Luna", "4", "M"))
-        FillEntryValues vEntryValues, 2, 2, sTargetSheetName, 9, wbTmp:=clsQuadRuntime.CacheBook
+        FillEntryValues vEntryValues, 2, 2, sTargetSheetName, 9, wbTmp:=clsQuadRuntime.EntryBook
     
-        IsRecordValid clsQuadRuntime.TemplateBook, clsQuadRuntime.CacheBook, "NewLesson", clsQuadRuntime.TemplateCellSheetName
+        IsRecordValid clsQuadRuntime.TemplateBook, clsQuadRuntime.EntryBook, "NewLesson", clsQuadRuntime.TemplateCellSheetName
 
         Set rCell = NewLesson()
         
         vEntryValues = InitStringArray(Array("Bruno", "Raskin", "David", "Stone", "Math", "Math", "Luna", "4", "T"))
-        FillEntryValues vEntryValues, 2, 2, sTargetSheetName, 9, wbTmp:=clsQuadRuntime.CacheBook
+        FillEntryValues vEntryValues, 2, 2, sTargetSheetName, 9, wbTmp:=clsQuadRuntime.EntryBook
         
         Set rCell = NewLesson()
         
         vEntryValues = InitStringArray(Array("Bruno", "Raskin", "David", "Stone", "History", "History", "Luna", "4", "W"))
-        FillEntryValues vEntryValues, 2, 2, sTargetSheetName, 9, wbTmp:=clsQuadRuntime.CacheBook
+        FillEntryValues vEntryValues, 2, 2, sTargetSheetName, 9, wbTmp:=clsQuadRuntime.EntryBook
         
         Set rCell = NewLesson()
         
@@ -97,34 +98,24 @@ err:
     
 teardown:
     Test_AddNewScheduleEntry_Multiple = eTestResult
-    clsQuadRuntime.Delete
-    DeleteEntryForms wbTmp:=clsQuadRuntime.CacheBook
+    DeleteEntryForms wbTmp:=clsQuadRuntime.EntryBook
     DeleteSheet clsQuadRuntime.Book, sSheetName
-    CloseBook clsQuadRuntime.CacheBook
-    DeleteBook clsQuadRuntime.CacheBookName
+    clsQuadRuntime.Delete
     
 End Function
-
 Function Test_AddNewScheduleEntryOverrideScheduleName() As TestResult
 Dim eTestResult As TestResult
 Dim clsQuadRuntime As New Quad_Runtime
-Dim sFuncName As String, sSheetName As String, sTargetSheetName As String
+Dim sFuncName As String, sSheetName As String, sTargetSheetName As String, sScheduleName As String, sSchedulePath As String
 Dim rTarget As Range, rCell As Range
 Dim dEntryValues As Dictionary, dRecordValues As Dictionary
 Dim iStudentID As Integer
-Dim sScheduleName As String, sSchedulePath As String
 
 setup:
     ResetQuadRuntimeGlobal
     sFuncName = CsModuleName & "." & "Test_AddNewScheduleEntry"
     sSheetName = "test"
-    
-    sScheduleName = "schedule.xlsm"
-    sSchedulePath = GetHomePath() & "\"
-    
-    CreateBook sScheduleName, sSchedulePath
-
-    clsQuadRuntime.InitProperties bInitializeCache:=True, sDefinitionSheetName:=sSheetName, sScheduleBookName:=sScheduleName, sScheduleBookPath:=sSchedulePath
+    clsQuadRuntime.InitProperties bInitializeCache:=True, sDefinitionSheetName:=sSheetName
     sTargetSheetName = "NewLesson"
     
 main:
@@ -133,15 +124,13 @@ main:
     EventsToggle True
     Set Entry_Utils.dDefinitions = Nothing
     clsQuadRuntime.CloseRuntimeCacheFile
-    
-    'need to test that the extra row has been added
-    
-    With clsQuadRuntime.CacheBook.Sheets(sTargetSheetName)
+
+    With clsQuadRuntime.EntryBook.Sheets(sTargetSheetName)
     
         ' SFirstName
         Set rTarget = .Range(.Cells(2, 2), .Cells(2, 2))
         rTarget = "Bruno"
-        Validate clsQuadRuntime.CacheBook, sTargetSheetName, rTarget
+        Validate clsQuadRuntime.EntryBook, sTargetSheetName, rTarget
     
         If GetBgColor(sTargetSheetName, rTarget).AsString <> "0,255,0" Then
             eTestResult = TestResult.Failure
@@ -151,7 +140,7 @@ main:
         ' SLastName
         Set rTarget = .Range(.Cells(3, 2), .Cells(3, 2))
         rTarget = "Raskin"
-        Validate clsQuadRuntime.CacheBook, sTargetSheetName, rTarget
+        Validate clsQuadRuntime.EntryBook, sTargetSheetName, rTarget
     
         If GetBgColor(sTargetSheetName, rTarget).AsString <> "0,255,0" Then
             eTestResult = TestResult.Failure
@@ -161,7 +150,7 @@ main:
         ' TFirstName
         Set rTarget = .Range(.Cells(4, 2), .Cells(4, 2))
         rTarget = "David"
-        Validate clsQuadRuntime.CacheBook, sTargetSheetName, rTarget
+        Validate clsQuadRuntime.EntryBook, sTargetSheetName, rTarget
     
         If GetBgColor(sTargetSheetName, rTarget).AsString <> "0,255,0" Then
             eTestResult = TestResult.Failure
@@ -171,7 +160,7 @@ main:
         ' TLastName
         Set rTarget = .Range(.Cells(5, 2), .Cells(5, 2))
         rTarget = "Stone"
-        Validate clsQuadRuntime.CacheBook, sTargetSheetName, rTarget
+        Validate clsQuadRuntime.EntryBook, sTargetSheetName, rTarget
     
         If GetBgColor(sTargetSheetName, rTarget).AsString <> "0,255,0" Then
             eTestResult = TestResult.Failure
@@ -181,7 +170,7 @@ main:
         ' CourseName
         Set rTarget = .Range(.Cells(6, 2), .Cells(6, 2))
         rTarget = "Art"
-        Validate clsQuadRuntime.CacheBook, sTargetSheetName, rTarget
+        Validate clsQuadRuntime.EntryBook, sTargetSheetName, rTarget
     
         If GetBgColor(sTargetSheetName, rTarget).AsString <> "0,255,0" Then
             eTestResult = TestResult.Failure
@@ -191,7 +180,7 @@ main:
         ' SubjectName
         Set rTarget = .Range(.Cells(7, 2), .Cells(7, 2))
         rTarget = "Science"
-        Validate clsQuadRuntime.CacheBook, sTargetSheetName, rTarget
+        Validate clsQuadRuntime.EntryBook, sTargetSheetName, rTarget
     
         If GetBgColor(sTargetSheetName, rTarget).AsString <> "0,255,0" Then
             eTestResult = TestResult.Failure
@@ -201,7 +190,7 @@ main:
         ' Prep
         Set rTarget = .Range(.Cells(8, 2), .Cells(8, 2))
         rTarget = "Luna"
-        Validate clsQuadRuntime.CacheBook, sTargetSheetName, rTarget
+        Validate clsQuadRuntime.EntryBook, sTargetSheetName, rTarget
     
         If GetBgColor(sTargetSheetName, rTarget).AsString <> "0,255,0" Then
             eTestResult = TestResult.Failure
@@ -211,7 +200,7 @@ main:
         ' TimePeriod
         Set rTarget = .Range(.Cells(9, 2), .Cells(9, 2))
         rTarget = "4"
-        Validate clsQuadRuntime.CacheBook, sTargetSheetName, rTarget
+        Validate clsQuadRuntime.EntryBook, sTargetSheetName, rTarget
     
         If GetBgColor(sTargetSheetName, rTarget).AsString <> "0,255,0" Then
             eTestResult = TestResult.Failure
@@ -221,14 +210,14 @@ main:
         ' Day
         Set rTarget = .Range(.Cells(10, 2), .Cells(10, 2))
         rTarget = "M"
-        Validate clsQuadRuntime.CacheBook, sTargetSheetName, rTarget
+        Validate clsQuadRuntime.EntryBook, sTargetSheetName, rTarget
     
         If GetBgColor(sTargetSheetName, rTarget).AsString <> "0,255,0" Then
             eTestResult = TestResult.Failure
             GoTo teardown
         End If
         
-        IsRecordValid clsQuadRuntime.TemplateBook, clsQuadRuntime.CacheBook, "NewLesson", clsQuadRuntime.TemplateCellSheetName
+        IsRecordValid clsQuadRuntime.TemplateBook, clsQuadRuntime.EntryBook, "NewLesson", clsQuadRuntime.TemplateCellSheetName
 
         Set rCell = NewLesson()
         
@@ -267,13 +256,9 @@ err:
     
 teardown:
     Test_AddNewScheduleEntryOverrideScheduleName = eTestResult
-    clsQuadRuntime.Delete
-    DeleteEntryForms wbTmp:=clsQuadRuntime.CacheBook
+    DeleteEntryForms wbTmp:=clsQuadRuntime.EntryBook
     DeleteSheet clsQuadRuntime.Book, sSheetName
-    CloseBook clsQuadRuntime.CacheBook
-    DeleteBook clsQuadRuntime.CacheBookName
-    CloseBook clsQuadRuntime.ScheduleBook
-    DeleteBook clsQuadRuntime.ScheduleBookName, clsQuadRuntime.ScheduleBookPath
+    clsQuadRuntime.Delete
 End Function
 
 Function Test_AddNewScheduleEntry() As TestResult
@@ -300,12 +285,12 @@ main:
     
     'need to test that the extra row has been added
     
-    With clsQuadRuntime.CacheBook.Sheets(sTargetSheetName)
+    With clsQuadRuntime.EntryBook.Sheets(sTargetSheetName)
     
         ' SFirstName
         Set rTarget = .Range(.Cells(2, 2), .Cells(2, 2))
         rTarget = "Bruno"
-        Validate clsQuadRuntime.CacheBook, sTargetSheetName, rTarget
+        Validate clsQuadRuntime.EntryBook, sTargetSheetName, rTarget
     
         If GetBgColor(sTargetSheetName, rTarget).AsString <> "0,255,0" Then
             eTestResult = TestResult.Failure
@@ -315,7 +300,7 @@ main:
         ' SLastName
         Set rTarget = .Range(.Cells(3, 2), .Cells(3, 2))
         rTarget = "Raskin"
-        Validate clsQuadRuntime.CacheBook, sTargetSheetName, rTarget
+        Validate clsQuadRuntime.EntryBook, sTargetSheetName, rTarget
     
         If GetBgColor(sTargetSheetName, rTarget).AsString <> "0,255,0" Then
             eTestResult = TestResult.Failure
@@ -325,7 +310,7 @@ main:
         ' TFirstName
         Set rTarget = .Range(.Cells(4, 2), .Cells(4, 2))
         rTarget = "David"
-        Validate clsQuadRuntime.CacheBook, sTargetSheetName, rTarget
+        Validate clsQuadRuntime.EntryBook, sTargetSheetName, rTarget
     
         If GetBgColor(sTargetSheetName, rTarget).AsString <> "0,255,0" Then
             eTestResult = TestResult.Failure
@@ -335,7 +320,7 @@ main:
         ' TLastName
         Set rTarget = .Range(.Cells(5, 2), .Cells(5, 2))
         rTarget = "Stone"
-        Validate clsQuadRuntime.CacheBook, sTargetSheetName, rTarget
+        Validate clsQuadRuntime.EntryBook, sTargetSheetName, rTarget
     
         If GetBgColor(sTargetSheetName, rTarget).AsString <> "0,255,0" Then
             eTestResult = TestResult.Failure
@@ -345,7 +330,7 @@ main:
         ' CourseName
         Set rTarget = .Range(.Cells(6, 2), .Cells(6, 2))
         rTarget = "Art"
-        Validate clsQuadRuntime.CacheBook, sTargetSheetName, rTarget
+        Validate clsQuadRuntime.EntryBook, sTargetSheetName, rTarget
     
         If GetBgColor(sTargetSheetName, rTarget).AsString <> "0,255,0" Then
             eTestResult = TestResult.Failure
@@ -355,7 +340,7 @@ main:
         ' SubjectName
         Set rTarget = .Range(.Cells(7, 2), .Cells(7, 2))
         rTarget = "Science"
-        Validate clsQuadRuntime.CacheBook, sTargetSheetName, rTarget
+        Validate clsQuadRuntime.EntryBook, sTargetSheetName, rTarget
     
         If GetBgColor(sTargetSheetName, rTarget).AsString <> "0,255,0" Then
             eTestResult = TestResult.Failure
@@ -365,7 +350,7 @@ main:
         ' Prep
         Set rTarget = .Range(.Cells(8, 2), .Cells(8, 2))
         rTarget = "Luna"
-        Validate clsQuadRuntime.CacheBook, sTargetSheetName, rTarget
+        Validate clsQuadRuntime.EntryBook, sTargetSheetName, rTarget
     
         If GetBgColor(sTargetSheetName, rTarget).AsString <> "0,255,0" Then
             eTestResult = TestResult.Failure
@@ -375,7 +360,7 @@ main:
         ' TimePeriod
         Set rTarget = .Range(.Cells(9, 2), .Cells(9, 2))
         rTarget = "4"
-        Validate clsQuadRuntime.CacheBook, sTargetSheetName, rTarget
+        Validate clsQuadRuntime.EntryBook, sTargetSheetName, rTarget
     
         If GetBgColor(sTargetSheetName, rTarget).AsString <> "0,255,0" Then
             eTestResult = TestResult.Failure
@@ -385,14 +370,14 @@ main:
         ' Day
         Set rTarget = .Range(.Cells(10, 2), .Cells(10, 2))
         rTarget = "M"
-        Validate clsQuadRuntime.CacheBook, sTargetSheetName, rTarget
+        Validate clsQuadRuntime.EntryBook, sTargetSheetName, rTarget
     
         If GetBgColor(sTargetSheetName, rTarget).AsString <> "0,255,0" Then
             eTestResult = TestResult.Failure
             GoTo teardown
         End If
         
-        IsRecordValid clsQuadRuntime.TemplateBook, clsQuadRuntime.CacheBook, "NewLesson", clsQuadRuntime.TemplateCellSheetName
+        IsRecordValid clsQuadRuntime.TemplateBook, clsQuadRuntime.EntryBook, "NewLesson", clsQuadRuntime.TemplateCellSheetName
 
         Set rCell = NewLesson()
         
@@ -426,11 +411,9 @@ err:
     
 teardown:
     Test_AddNewScheduleEntry = eTestResult
-    clsQuadRuntime.Delete
-    DeleteEntryForms wbTmp:=clsQuadRuntime.CacheBook
+    DeleteEntryForms wbTmp:=clsQuadRuntime.EntryBook
     DeleteSheet clsQuadRuntime.Book, sSheetName
-    CloseBook clsQuadRuntime.CacheBook
-    DeleteBook clsQuadRuntime.CacheBookName
+    clsQuadRuntime.Delete
     
 End Function
 
@@ -452,7 +435,7 @@ main:
 
     EditLesson 70, "M", 1
 
-    If clsQuadRuntime.CacheBook.Sheets("NewLesson").Range("eNewLesson_sFacultyFirstNm").value = "Isaac" Then
+    If clsQuadRuntime.EntryBook.Sheets("NewLesson").Range("eNewLesson_sFacultyFirstNm").value = "Isaac" Then
         eTestResult = TestResult.OK
         GoTo teardown
     Else
@@ -464,10 +447,7 @@ err:
 
 teardown:
     Test_EditLesson = eTestResult
-    clsQuadRuntime.Delete
-    'DeleteEntryForms wbTmp:=clsQuadRuntime.CacheBook
     DeleteSheet clsQuadRuntime.Book, sSheetName
-    CloseBook clsQuadRuntime.CacheBook
-    DeleteBook clsQuadRuntime.CacheBookName
+    clsQuadRuntime.Delete
     
 End Function

@@ -18,7 +18,7 @@ End Enum
 Const C_QUAD_DATA_TYPE = "schedule,person,courses,misc"
 
 Enum QuadSubDataType
-    student = 1
+    Student = 1
     teacher = 2
     Course = 3
     subject = 4
@@ -250,7 +250,7 @@ Dim sFuncName As String
 
 setup:
     sFuncName = C_MODULE_NAME & "." & "GetColumnValues"
-    FuncLogIt sFuncName, "[sLookUpColName=" & sLookUpColName & "] [iPersonID=" & iPersonID & "]", C_MODULE_NAME, LogMsgType.INFUNC
+    'FuncLogIt sFuncName, "[sLookUpColName=" & sLookUpColName & "] [iPersonID=" & iPersonID & "]", C_MODULE_NAME, LogMsgType.INFUNC
 
 main:
     If eQuadDataType = QuadDataType.schedule Then
