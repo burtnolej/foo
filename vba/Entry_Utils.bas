@@ -292,62 +292,131 @@ Dim sKey As String
     sKey = "e" & sSheetName & "_" & sFieldName
     GetEntryKey = sKey
 End Function
-Function GetEntryCell(sSheetName As String, sFieldName As String, Optional wbTmp As Workbook) As Range
+
+Public Function GenerateEntryCell(sKey As String, iLabelRow As Integer, iLabelCol As Integer, _
+                                  sAction As String, sSheetName As String, _
+                         Optional iEntryRowOffset As Integer = 0, _
+                         Optional iEntryColOffset As Integer = -1, _
+                         Optional wbTmp As Workbook) As Range
+'<<<
+'purpose: generate a specific entry cell
+'param  : sKey, String, named range to be applied to the new cell (like eNewLesson_SFirstName)
+'param  : iLabelCol, iLabelRow as integer, location of the entry cell label (the actual entry is
+'param  : iEntryRowOffset,iEntryColOffset as integer; where is the entry in relation to the label
+'param  : sAction, String; user action that entrys need to be generated for (like NewLesson)
+'>>>
+Dim rCell As Range, rLabel As Range
+Dim sFieldName As String
 Dim sFuncName As String
-Dim sKey As String
-Dim dDefnDetail As Dictionary
-Dim rEntry As Range
+
+setup:
+    On Error GoTo err
+    sFuncName = C_MODULE_NAME & "." & "GenerateEntryCell"
+    
+main:
 
     If IsSet(wbTmp) = False Then
         Set wbTmp = ActiveWorkbook
     End If
     
-    sFuncName = C_MODULE_NAME & "." & "GetEntryCell"
-    sKey = GetEntryKey(sSheetName, sFieldName)
-   
-    Set dDefnDetail = dDefinitions.Item(sKey)
-    
     With wbTmp.Sheets(sSheetName)
-        Set GetEntryCell = .Range(dDefnDetail.Item("address"))
+        Set rCell = .Range(.Cells(iLabelRow, iLabelCol), .Cells(iLabelRow, iLabelCol))
+        CreateNamedRange wbTmp, rCell.Address, CStr(sAction), CStr(sKey), "True"
+        
+        Set rLabel = rCell.Offset(iEntryRowOffset, iEntryColOffset)
+        sFieldName = Split(sKey, "_")(1)
+        rLabel.value = sFieldName
     End With
+
+    Set GenerateEntryCell = rCell
+    
+cleanup:
+    On Error GoTo 0
+    Exit Function
+
+err:
+    FuncLogIt sFuncName, "Error [ " & err.Description & "]  [sKey=" & sKey & "] [sAction=" & sAction & "]", C_MODULE_NAME, LogMsgType.Error
+    err.Raise err.Number, err.Source, err.Description ' cannot recover from this
     
 End Function
-
-Public Function GenerateEntry(sSheetName As String, _
-                              sKey As Variant, _
-                              sAction As Variant, _
-                              iRow As Integer, _
-                     Optional iCol As Integer = 1, _
-                     Optional wbTmp As Workbook) As Range
-Dim sFuncName As String
+Public Sub GenerateEntry(clsQuadRuntime As Quad_Runtime, _
+                              sAction As String, _
+                     Optional dDefaultValues As Dictionary, _
+                     Optional wbTmp As Workbook)
+'<<<
+'purpose: given a set of definition (taken from the global variable dDefinitions, generate
+'       : all the entry widgets (labels and entry cells)
+'param  : clsQuadRuntime, Quad_Runtime; all config controlling names of books, sheets, ranges for
+'       :                 also contains any variables that need to be passed continually
+'param  : sAction, String; user action that entrys need to be generated for (like NewLesson)
+'>>>
+Dim sFuncName As String, sSheetName As String
+Dim iRow As Integer, iCol As Integer, iEntryCount As Integer
+Dim rCell As Range, rFormat As Range
+Dim vDefinedEntryNamesRanges() As String
 
 setup:
     On Error GoTo err
     sFuncName = C_MODULE_NAME & "." & "GenerateEntry"
+    'iRow = 1
+    'iCol = 1
+    
+    sSheetName = sAction  'assume the Sheet name is equal to the Action (like NewLesson)
     
     If IsSet(wbTmp) = False Then
         Set wbTmp = ActiveWorkbook
     End If
     
 main:
+
+    ' get location opf entry screens
+    vDefinedEntryNamesRanges = GetSheetNamedRanges(clsQuadRuntime.TemplateBook, "FormStyles", "fNewEntry")
+    
+    ' for each entry in the definition generate a input field
     With wbTmp.Sheets(sSheetName)
-        sFieldName = Split(sKey, "_")(1)
-        Set rCell = .Range(.Cells(iRow, iCol), .Cells(iRow, iCol))
-    
-        rCell.value = sFieldName
-        CreateNamedRange wbTmp, rCell.Offset(, 1).Address, CStr(sAction), CStr(sKey), "True"
-    End With
-    
-    Set GenerateEntry = rCell.Offset(, 1)
+        .Range(.Cells(1, 1), .Cells(1, 1)).value = UCase(sAction)
+     
+        For Each sKey In dDefinitions.Keys()
+            If Split(sKey, "_")(0) = "e" & sAction Then
+            
+                If iEntryCount > UBound(vDefinedEntryNamesRanges) Then
+                    err.Raise ErrorMsgType.FORMAT_NOT_DEFINED, Description:="cannot find a format for number [" & CStr(iEntryCount) * "]"
+                End If
+                
+                Set rFormat = clsQuadRuntime.TemplateSheet.Range(vDefinedEntryNamesRanges(iEntryCount))
+                iRow = rFormat.Row
+                iCol = rFormat.Column
+                 
+                Set rCell = GenerateEntryCell(CStr(sKey), iRow, iCol, sAction, sSheetName, wbTmp:=wbTmp)
+                dDefinitions.Item(sKey).Add "address", rCell.Address
+                
+                If IsSet(dDefaultValues) = True Then ' add default value if one exists
+                    If dDefaultValues.Exists(sAction) = True Then
+                        sDBColName = Split(sKey, "_")(1)
+                        
+                        If dDefaultValues.Item(sAction).Exists(sDBColName) = True Then
+                            rCell.value = dDefaultValues.Item(sAction).Item(sDBColName)
+                        End If
+                    End If
+                End If
+
+                FormatCell clsQuadRuntime.TemplateBook, clsQuadRuntime.EntryBook, CStr(sAction), rCell, CellState.Invalid, _
+                            sSourceSheetName:=clsQuadRuntime.TemplateCellSheetName, eCellType:=CellType.Entry
+        
+                iEntryCount = iEntryCount + 1
+            End If
+        Next sKey
+     End With
 
 cleanup:
     On Error GoTo 0
-    Exit Function
+    Exit Sub
 
 err:
-    FuncLogIt sFuncName, "Error [sSheetName=" & sSheetName & "]  [sKey=" & sKey & "] [sAction=" & sAction & "]", C_MODULE_NAME, LogMsgType.Error
-     
-End Function
+    FuncLogIt sFuncName, "Error [ " & err.Description & "]  [sKey=" & sKey & "] [sAction=" & sAction & "]", C_MODULE_NAME, LogMsgType.Error
+    err.Raise err.Number, err.Source, err.Description ' cannot recover from this
+    
+End Sub
 Public Sub DeleteEntry(sSheetName As String, sKey As Variant, Optional wbTmp As Workbook)
 Dim sFuncName As String
 
@@ -488,6 +557,36 @@ Dim wsForm As Worksheet
             wsForm.Name, clsQuadRuntime.TemplateSheetName, sFormFormatRangeName
 End Sub
 
+Function GetCallerModuleCode() As String
+' add a caller module so can simulate change events more reliably
+
+    GetCallerModuleCode = "Public Sub Invoke_Worksheet_SelectionChange(sSheetName As String, rTarget As Range)" & vbNewLine & _
+                "Dim ws As Worksheet" & vbNewLine & _
+                "set ws = Sheets(sSheetName)" & vbNewLine & _
+                "Application.Run ws.CodeName & " & DOUBLEQUOTE & ".Worksheet_SelectionChange" & DOUBLEQUOTE & ", rTarget" & vbNewLine & _
+                "End Sub"
+End Function
+        
+Function GetEntryCallbackCode(clsQuadRuntime As Quad_Runtime, sAction As String) As String
+    GetEntryCallbackCode = "Private Sub Worksheet_Change(ByVal Target As Range)" & vbNewLine & _
+            "dim wbTarget as Workbook, wbSource as Workbook" & vbNewLine & _
+            "dim sSourceSheetName as string" & vbNewLine & _
+            "set wbSource= Workbooks(" & DOUBLEQUOTE & clsQuadRuntime.TemplateBookName & DOUBLEQUOTE & ")" & vbNewLine & _
+            "set wbTarget= Workbooks(" & DOUBLEQUOTE & clsQuadRuntime.EntryBookName & DOUBLEQUOTE & ")" & vbNewLine & _
+            "sSourceSheetName = " & DOUBLEQUOTE & clsQuadRuntime.TemplateCellSheetName & DOUBLEQUOTE & vbNewLine & _
+            "Application.Run " & DOUBLEQUOTE & clsQuadRuntime.TemplateBook.Name & "!Validate" & DOUBLEQUOTE & ",Application.ActiveWorkbook, Application.ActiveSheet.Name, Target" & vbNewLine & _
+            "Application.Run " & DOUBLEQUOTE & clsQuadRuntime.TemplateBook.Name & "!IsRecordValid" & DOUBLEQUOTE & ",wbSource,wbTarget," & DOUBLEQUOTE & sAction & DOUBLEQUOTE & "," & "sSourceSheetName" & vbNewLine & _
+            "End Sub"
+End Function
+
+Function GetButtonCallbackCode(clsQuadRuntime As Quad_Runtime, sCode As String, iButtonCol As Integer, iButtonRow As Integer, sCallbackFunc As String)
+    GetButtonCallbackCode = sCode & vbNewLine & _
+                    "Public Sub Worksheet_SelectionChange(ByVal Target As Range)" & vbNewLine & _
+                    "If Target.Column = " & CStr(iButtonCol) & " And Target.Row = " & CStr(iButtonRow) & " Then" & vbNewLine & _
+                    "Application.Run " & DOUBLEQUOTE & clsQuadRuntime.TemplateBook.Name & "!" & sCallbackFunc & DOUBLEQUOTE & vbNewLine & _
+                    "End If" & vbNewLine & _
+                    "End Sub"
+End Function
 Public Sub GenerateEntryForms(clsQuadRuntime As Quad_Runtime, _
                      Optional bLoadRefData As Boolean = False, _
                      Optional sOverideButtonCallback As String, _
@@ -507,7 +606,6 @@ Public Sub GenerateEntryForms(clsQuadRuntime As Quad_Runtime, _
 Dim dActions As Dictionary, dDefnDetails As Dictionary
 Dim sAction As Variant, sKey As Variant
 Dim sCode As String, sFieldName As String, sFuncName As String, sCallbackFunc As String, sDBColName As String
-Dim iRow As Integer
 Dim rCell As Range, rButton As Range
 
 setup:
@@ -533,78 +631,19 @@ setup:
             sCallbackFunc = sAction
         End If
         
-        iRow = 1
-        
         ' create the entry sheet and add call back code
         Set wsTmp = CreateSheet(clsQuadRuntime.EntryBook, CStr(sAction), bOverwrite:=True)
-        sCode = "Private Sub Worksheet_Change(ByVal Target As Range)" & vbNewLine & _
-                "dim wbTarget as Workbook, wbSource as Workbook" & vbNewLine & _
-                "dim sSourceSheetName as string" & vbNewLine & _
-                "set wbSource= Workbooks(" & DOUBLEQUOTE & clsQuadRuntime.TemplateBookName & DOUBLEQUOTE & ")" & vbNewLine & _
-                "set wbTarget= Workbooks(" & DOUBLEQUOTE & clsQuadRuntime.EntryBookName & DOUBLEQUOTE & ")" & vbNewLine & _
-                "sSourceSheetName = " & DOUBLEQUOTE & clsQuadRuntime.TemplateCellSheetName & DOUBLEQUOTE & vbNewLine & _
-                "Application.Run " & DOUBLEQUOTE & clsQuadRuntime.TemplateBook.Name & "!Validate" & DOUBLEQUOTE & ",Application.ActiveWorkbook, Application.ActiveSheet.Name, Target" & vbNewLine & _
-                "Application.Run " & DOUBLEQUOTE & clsQuadRuntime.TemplateBook.Name & "!IsRecordValid" & DOUBLEQUOTE & ",wbSource,wbTarget," & DOUBLEQUOTE & sAction & DOUBLEQUOTE & "," & "sSourceSheetName" & vbNewLine & _
-                "End Sub"
-
-        ' MOVED  THIS LINE DOWN
-        'AddCode2Module clsQuadRuntime.Book, wsTmp.CodeName, sCode
-
-        'Debug.Print sCode
-        FormatEntryForm clsQuadRuntime, CStr(sAction)
-        
-        ' for each entry in the definition generate a input field
-        With wsTmp
-            .Range(.Cells(iRow, 1), .Cells(iRow, 1)).value = UCase(sAction)
-            iRow = iRow + 1
-        
-            For Each sKey In dDefinitions.Keys()
-                If Split(sKey, "_")(0) = "e" & sAction Then
-                    Set rCell = GenerateEntry(CStr(sAction), sKey, sAction, iRow, wbTmp:=clsQuadRuntime.EntryBook)
-                    dDefinitions.Item(sKey).Add "address", rCell.Address
-                    
-                    ' add default value if one exists
-                    If IsSet(dDefaultValues) = True Then
-                        If dDefaultValues.Exists(sAction) = True Then
-                            sDBColName = Split(sKey, "_")(1)
-                            
-                            'Set dDefnDetails = dDefaultValues.Item(sAction)
-                            If dDefaultValues.Item(sAction).Exists(sDBColName) = True Then
-                                rCell.value = dDefaultValues.Item(sAction).Item(sDBColName)
-                            End If
-                        End If
-                    End If
-                    ' copy across any formatting that exists
-                    FormatCell clsQuadRuntime.TemplateBook, clsQuadRuntime.EntryBook, CStr(sAction), rCell, CellState.Invalid, _
-                                sSourceSheetName:=clsQuadRuntime.TemplateCellSheetName, eCellType:=CellType.Entry
-            
-                    If bSetAsValid = True Then
-                        SetBgColorFromString sFormName, rCell, C_RGB_VALID, wbTmp:=clsQuadRuntime.EntryBook
-                    End If
-                    
-                    iRow = iRow + 1
-                End If
-            Next sKey
-        End With
-        
-        ' generate the commit record button
-        GenerateButton clsQuadRuntime.TemplateBook, clsQuadRuntime.EntryBook, CStr(sAction), C_GOBUTTON_ROW, C_GOBUTTON_COL, CellState.Invalid, clsQuadRuntime.TemplateCellSheetName
-        
-        sCode = sCode & vbNewLine & _
-                        "Public Sub Worksheet_SelectionChange(ByVal Target As Range)" & vbNewLine & _
-                        "If Target.Column = " & CStr(C_GOBUTTON_COL) & " And Target.Row = " & CStr(C_GOBUTTON_ROW) & " Then" & vbNewLine & _
-                        "Application.Run " & DOUBLEQUOTE & clsQuadRuntime.TemplateBook.Name & "!" & sCallbackFunc & DOUBLEQUOTE & vbNewLine & _
-                        "End If" & vbNewLine & _
-                        "End Sub"
-
+        sCode = GetEntryCallbackCode(clsQuadRuntime, CStr(sAction))
+        sCode = GetButtonCallbackCode(clsQuadRuntime, sCode, C_GOBUTTON_COL, C_GOBUTTON_ROW, sCallbackFunc)
         AddCode2Module clsQuadRuntime.EntryBook, wsTmp.CodeName, sCode
-        
+    
+        ' Generate entry widgets
+        FormatEntryForm clsQuadRuntime, CStr(sAction)
+        GenerateEntry clsQuadRuntime, CStr(sAction), wbTmp:=clsQuadRuntime.EntryBook, dDefaultValues:=dDefaultValues
+        GenerateButton clsQuadRuntime.TemplateBook, clsQuadRuntime.EntryBook, CStr(sAction), C_GOBUTTON_ROW, C_GOBUTTON_COL, CellState.Invalid, clsQuadRuntime.TemplateCellSheetName
+
         ' add a caller module so can simulate change events more reliably
-        sCode = "Public Sub Invoke_Worksheet_SelectionChange(sSheetName As String, rTarget As Range)" & vbNewLine & _
-        "Dim ws As Worksheet" & vbNewLine & _
-        "set ws = Sheets(sSheetName)" & vbNewLine & _
-        "Application.Run ws.CodeName & " & DOUBLEQUOTE & ".Worksheet_SelectionChange" & DOUBLEQUOTE & ", rTarget" & vbNewLine & _
-        "End Sub"
+        sCode = GetCallerModuleCode
         
         ' will already exist if more than 1 entry
         If ModuleExists(clsQuadRuntime.EntryBook, "change_event_invoker") = False Then

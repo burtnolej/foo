@@ -350,6 +350,23 @@ teardown:
     clsQuadRuntime.Delete
 End Function
 
+
+Function GetEntryCell(sSheetName As String, sFieldName As String, Optional wbTmp As Workbook) As Range
+' just used in testing, puts an entry cell wherever the current focus is
+Dim sKey As String
+Dim dDefnDetail As Dictionary
+
+    If IsSet(wbTmp) = False Then
+        Set wbTmp = ActiveWorkbook
+    End If
+    
+    sKey = GetEntryKey(sSheetName, sFieldName)
+    Set dDefnDetail = dDefinitions.Item(sKey)
+    Set GetEntryCell = wbTmp.Sheets(sSheetName).Range(dDefnDetail.Item("address"))
+    
+End Function
+
+
 Function TestGenerateEntryFormsMulti() As TestResult
 ' multiple entry forms
 Dim sFuncName As String
@@ -757,7 +774,6 @@ Function DummyNewRecordCallback() As String
     Debug.Print "FOOBAR"
 End Function
 
-
 Function TestIsRecordValid() As TestResult
 Dim sFuncName As String
 Dim sSheetName As String
@@ -775,7 +791,7 @@ Dim clsQuadRuntime As New Quad_Runtime
 
 setup:
     clsQuadRuntime.InitProperties bInitializeCache:=True
-    On Error GoTo err:
+    'On Error GoTo err:
     sFuncName = CsModuleName & "." & "IsRecordValid"
     sSheetName = "TestNewStudent"
     sFieldName1 = "StudentAge"
@@ -786,7 +802,8 @@ setup:
     Set Entry_Utils.dDefinitions = LoadDefinitions(wsTmp, rSource:=rTarget)
     
     sKey = "e" & sSheetName & "_" & sFieldName1
-    Set rInput = GenerateEntry(sSheetName, sKey, sSheetName, 4, wbTmp:=clsQuadRuntime.EntryBook)
+    GenerateEntry clsQuadRuntime, sSheetName, wbTmp:=clsQuadRuntime.EntryBook
+    Set rInput = wsTmp.Range(sKey)
     rInput.value = 123
     bResult = Validate(clsQuadRuntime.EntryBook, sSheetName, rInput)
     
@@ -796,7 +813,8 @@ setup:
     End If
     
     sKey = "e" & sSheetName & "_" & sFieldName2
-    Set rInput = GenerateEntry(sSheetName, sKey, sSheetName, 5, wbTmp:=clsQuadRuntime.EntryBook)
+    'GenerateEntry clsQuadRuntime, sSheetName, sSheetName, "", wbTmp:=clsQuadRuntime.EntryBook
+    Set rInput = wsTmp.Range(sKey)
     rInput.value = "ABC"
     bResult = Validate(clsQuadRuntime.EntryBook, sSheetName, rInput)
     
@@ -824,7 +842,9 @@ teardown:
     
 End Function
 
-
+Sub test()
+    TestFormatEntryForms
+End Sub
 Function TestFormatEntryForms() As TestResult
 ' 1 entry form
 ' test if cell validation works
@@ -876,6 +896,8 @@ setup:
 
 main:
 
+    CreateNamedRange clsQuadRuntime.TemplateBook, "B2:B2", "FormStyles", "fNewEntry1", "True"
+    CreateNamedRange clsQuadRuntime.TemplateBook, "B3:C3", "FormStyles", "fNewEntry2", "True"
     GenerateEntryForms clsQuadRuntime
     
     With clsQuadRuntime.EntryBook.Sheets("NewStudent")

@@ -164,14 +164,18 @@ main:
 cleanup:
     
 End Sub
-Public Function GetSheetNamedRanges(wbTmp As Workbook, sSheetName As String) As String()
+Public Function GetSheetNamedRanges(wbTmp As Workbook, sSheetName As String, Optional sStartsWith As String = "") As String()
 Dim aNames() As String
 Dim iCount As Integer
+Dim sTmp As String
 
     ReDim aNames(0 To 100)
     For Each name_ In wbTmp.Sheets(sSheetName).Names
-        aNames(iCount) = Split(name_.Name, "!")(1)
-        iCount = iCount + 1
+        sTmp = Split(name_.Name, "!")(1)
+        If Left(sTmp, Len(sStartsWith)) = sStartsWith Then
+            aNames(iCount) = sTmp
+            iCount = iCount + 1
+        End If
     Next name_
     ReDim Preserve aNames(0 To iCount - 1)
     GetSheetNamedRanges = aNames

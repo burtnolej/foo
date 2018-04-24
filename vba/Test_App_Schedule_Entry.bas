@@ -416,7 +416,9 @@ teardown:
     clsQuadRuntime.Delete
     
 End Function
-
+Sub test()
+    Test_EditLesson
+End Sub
 Function Test_EditLesson() As TestResult
 Dim eTestResult As TestResult
 Dim clsQuadRuntime As New Quad_Runtime

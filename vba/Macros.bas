@@ -43,7 +43,7 @@ Dim sScheduleName As String, sSchedulePath As String, sNewSchedulePath As String
                                   sDefinitionSheetName:=sSheetName, _
                                   sBookName:="vba_source_new.xlsm", _
                                   sBookPath:="C:\Users\burtnolej\Documents\GitHub\quadviewer", _
-                                  bSetWindows:=True
+                                  bSetWindows:=False
 
 main:
     GenerateScheduleEntry clsQuadRuntime
