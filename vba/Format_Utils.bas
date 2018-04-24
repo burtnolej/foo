@@ -19,6 +19,13 @@ Sub SetTopLeftAlignOn(rTargetRange As Range)
         .VerticalAlignment = xlTop
     End With
 End Sub
+Sub SetCenterAlignOn(rTargetRange As Range)
+    With rTargetRange
+        .Select
+        .HorizontalAlignment = xlCenter
+        .VerticalAlignment = xlCenter
+    End With
+End Sub
 Sub SetColumnWidth(iColIdx As Integer, iColWidth As Integer, sSheetName As String)
 Dim rColumn As Range
     With GetSheet(Application.ActiveWorkbook, sSheetName)
@@ -79,6 +86,18 @@ Sub SetBgColor(sSheetName As String, rTarget As Range, iRed As Integer, iGreen A
         End With
     End With
 End Sub
+Sub SetBgColorByRGB(sSheetName As String, rTarget As Range, rgbClr As RGBColor, Optional wbTmp As Workbook)
+    If IsSet(wbTmp) = False Then
+        Set wbTmp = ActiveWorkbook
+    End If
+
+    With GetSheet(wbTmp, sSheetName)
+        With rTarget.Interior
+            .Color = RGB(rgbClr.Red, rgbClr.Green, rgbClr.Blue)
+        End With
+    End With
+    
+End Sub
 Sub SetFgColor(sSheetName As String, sRange As String, iRed As Integer, iGreen As Integer, _
             iBlue As Integer, Optional wbTmp As Workbook)
     If IsSet(wbTmp) = False Then
@@ -88,6 +107,27 @@ Sub SetFgColor(sSheetName As String, sRange As String, iRed As Integer, iGreen A
     With GetSheet(wbTmp, sSheetName)
         With .Range(sRange).Font
             .Color = RGB(iRed, iGreen, iBlue)
+        End With
+    End With
+End Sub
+Sub SetFgColorByRGB(sSheetName As String, sRange As String, rgbClr As RGBColor, Optional wbTmp As Workbook)
+    If IsSet(wbTmp) = False Then
+        Set wbTmp = ActiveWorkbook
+    End If
+            
+    With GetSheet(wbTmp, sSheetName)
+        With .Range(sRange).Font
+            .Color = RGB(rgbClr.Red, rgbClr.Green, rgbClr.Blue)
+        End With
+    End With
+End Sub
+Sub SetFont(sSheetName As String, sRange As String, sName As String, iSize As Integer, sStyle As String)
+    With GetSheet(Application.ActiveWorkbook, sSheetName)
+        With .Range(sRange).Font
+            .Name = sName
+            .FontStyle = sStyle
+            .Size = iSize
+            '.Underline = xlUnderlineStyleNone
         End With
     End With
 End Sub

@@ -54,6 +54,8 @@ Private pQuadRuntimeCacheFileArray() As String
 
 Private pDefinitionSheetName As String
 
+Private pWindowSettings As Quad_WindowSettings
+
 Private cHomeDir As String
 Private cAppDir As String
 Private cExecPath  As String
@@ -707,6 +709,38 @@ Sub SetDefaults()
     cPeriodEnum = "1,2,3,4,5,6,7,8,9,10,11"
     cQuadRuntimeCacheFileName = cHomeDir & "\quad_runtime_cache.txt"
 End Sub
+
+Sub SetWindows()
+Dim vWindowNames As Variant, vWindow As Variant
+Dim vWindowCol1() As String, vWindowCol2() As String
+Dim winsetTmp As Quad_WindowSettings
+Dim dWindows As New Dictionary
+Dim sBookName As Variant
+
+    ReDim vWindowCol1(0 To 1)
+    ReDim vWindowCol2(0 To 1)
+    ReDim vWindow(0 To 1)
+    
+    vWindowNames = Array(Me.BookName, Me.ScheduleBookName, Me.CacheBookName, Me.EntryBookName)
+    
+    For Each sBookName In vWindowNames
+        Set winsetTmp = New Quad_WindowSettings
+        winsetTmp.InitProperties
+        If dWindows.Exists(sBookName) = False Then
+            dWindows.Add sBookName, winsetTmp
+        End If
+    Next sBookName
+    
+    vWindowCol1(0) = Me.BookName
+    vWindowCol1(1) = Me.ScheduleBookName
+    vWindowCol2(0) = Me.CacheBookName
+    vWindowCol2(1) = Me.EntryBookName
+    vWindow(0) = vWindowCol1 'row 1
+    vWindow(1) = vWindowCol2 'row 1
+    
+    SetWindowScheme dWindows, vWindow
+End Sub
+    
 Public Sub InitProperties( _
                  Optional sBookPath As String, _
                  Optional sBookName As String, _
@@ -728,7 +762,8 @@ Public Sub InitProperties( _
                  Optional sQuadRuntimeCacheFileName As String, _
                  Optional bInitializeCache As Boolean = True, _
                  Optional bInitializeOveride As Boolean = True, _
-                 Optional bHydrateFromCache As Boolean = False)
+                 Optional bHydrateFromCache As Boolean = False, _
+                 Optional bSetWindows = False)
 
     SetDefaults
     
@@ -779,6 +814,10 @@ Public Sub InitProperties( _
     Me.FileName = sFileName
     Me.DayEnum = sDayEnum
     Me.PeriodEnum = sPeriodEnum
+    
+    If bSetWindows = True Then
+        SetWindows
+    End If
     
     ' added on 4/17/18 to get dynamic menus to work
     Me.TemplateBook.Activate

@@ -39,13 +39,16 @@ Dim sScheduleName As String, sSchedulePath As String, sNewSchedulePath As String
     ResetQuadRuntimeGlobal
     sFuncName = CsModuleName & "." & "Test_AddNewScheduleEntry"
     sSheetName = "test"
-    clsQuadRuntime.InitProperties bInitializeCache:=True, sDefinitionSheetName:=sSheetName
-    ', _
-                    'sScheduleBookName:=sScheduleName, sScheduleBookPath:=sSchedulePath
-    
+    clsQuadRuntime.InitProperties bInitializeCache:=True, _
+                                  sDefinitionSheetName:=sSheetName, _
+                                  sBookName:="vba_source_new.xlsm", _
+                                  sBookPath:="C:\Users\burtnolej\Documents\GitHub\quadviewer", _
+                                  bSetWindows:=True
+
 main:
     GenerateScheduleEntry clsQuadRuntime
 End Sub
+
 
 Public Sub DoViewLogs()
 Dim vFileNames() As String

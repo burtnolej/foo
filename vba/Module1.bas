@@ -1,112 +1,58 @@
 Attribute VB_Name = "Module1"
 Option Explicit
+Option Compare Text
+
+Private Declare Function GetWindowLong Lib "user32" Alias "GetWindowLongA" (ByVal hwnd As Long, ByVal nIndex As Long) As Long
+Private Declare Function SetWindowLong Lib "user32" Alias "SetWindowLongA" (ByVal hwnd As Long, ByVal nIndex As Long, ByVal dwNewLong As Long) As Long
+Private Declare Function DrawMenuBar Lib "user32" (ByVal hwnd As Long) As Long
+Private Declare Function SetFocus Lib "user32" (ByVal hwnd As Long) As Long
+Private Declare Function FindWindow Lib "user32" Alias "FindWindowA" (ByVal lpClassName As String, ByVal lpWindowName As String) As Long
+
+Private Const GWL_STYLE  As Long = (-16)      'The offset of a window's style
+Private Const GWL_EXSTYLE As Long = (-20)      'The offset of a window's extended style
+Private Const WS_CAPTION As Long = &HC00000      'Style to add a titlebar
+Private Const WS_SYSMENU As Long = &H80000      'Style to add a system menu
+Private Const WS_THICKFRAME As Long = &H40000      'Style to add a sizable frame
+Private Const WS_MINIMIZEBOX As Long = &H20000      'Style to add a Minimize box on the title bar
+Private Const WS_MAXIMIZEBOX As Long = &H10000      'Style to add a Maximize box to the title bar
+Private Const WS_EX_APPWINDOW As Long = &H40000      'Application Window: shown on taskbar
+Private Const WS_EX_TOOLWINDOW As Long = &H80      'Tool Window: small titlebar
 
 
-Sub test()
-Dim s As String
-Dim i As Integer
-Dim max As Integer
-Dim inc As Integer
+'Procedure to set the form's window style
+Public Sub ShowCaption(bShow As Boolean)
 
-    s = "^b^c^d"
-
-    max = Len(s)
-    inc = 2
-    
-    For i = max To inc Step -1 * inc
-        Debug.Print Mid(s, i - 1, inc)
-    Next i
-End Sub
-
-
-
-Sub test2()
-
-Dim a() As Variant
-Dim b() As Variant
-Dim C As Variant
-
-
-    a = Init2DVariantArray([{1, 2, 3;4,5,6}])
-    b = Init2DVariantArray([{7,8,9;10,11,12}])
-    
-    C = AddArrays(3, a, b)
-    
-End Sub
-
-Sub test3()
-
-Dim a() As String
-Dim b() As String
-Dim C As Variant
-
-
-    a = Init2DStringArray([{1, 2, 3;4,5,6}])
-    b = Init2DStringArray([{7,8,9;10,11,12}])
-    
-    C = AddArrays(3, a, b)
-    
-End Sub
-
-
-Sub passingbyref(ByRef arg As Range, ByRef vTmp As Variant)
-
-    Set arg = Range("A1:A1")
-    vTmp(0) = "foo"
-    vTmp(1) = "bar"
-End Sub
-
-Sub testpassingbyref()
-Dim rTmp As Range
-Dim vTmp As Variant
-
-    ReDim vTmp(0 To 1)
-     passingbyref rTmp, vTmp
-     Debug.Print rTmp.Address
-End Sub
-
-
-Sub poparray(ByRef vTmp() As Variant)
-
-End Sub
-
-Sub test4()
-Dim a() As String, a2() As String
-Dim s As String, s0 As String
-s = "^2^3^4"
-s0 = ""
-
-   a = Split(s, HAT)
+   Dim lStyle As Long
+   Dim hMenu As Long
    
-   a2 = Split(s0, HAT)
+   Dim mhWndForm As Long
    
-   Debug.Print UBound(a2)
+   mhWndForm = FindWindow(vbNullString, Application.Caption)
+   
+   'Have we got a window to set?
+   If mhWndForm = 0 Then Exit Sub
+
+   'Get the basic window style
+   lStyle = GetWindowLong(mhWndForm, GWL_STYLE)
+
+   'Build up the basic window style flags for the form
+   SetBit lStyle, WS_CAPTION, bShow
+
+   'Set the basic window styles
+   SetWindowLong mhWndForm, GWL_STYLE, lStyle
+
+
+   'Update the window with the changes
+   DrawMenuBar mhWndForm
+   SetFocus mhWndForm
+
 End Sub
 
-Function Test_NumColumns() As TestResult
-Dim sFuncName As String
-Dim eTestResult As TestResult
-Dim aTmp() As String
-
-setup:
-    On Error GoTo err:
-    sFuncName = CsModuleName & ".NumColumns"
-    ReDim aTmp(0 To 100, 0 To 3)
-
-main:
-    If NumColumns(aTmp) <> 4 Then
-        eTestResult = TestResult.Failure
-    Else
-        eTestResult = TestResult.OK
-    End If
-    On Error GoTo 0
-    GoTo teardown
-    
-err:
-    eTestResult = TestResult.Error
-    
-teardown:
-    Test_NumColumns = eTestResult
-    
-End Function
-
+'Procedure to set or clear a bit from a style flag
+Private Sub SetBit(ByRef lStyle As Long, ByVal lBit As Long, ByVal bOn As Boolean)
+   If bOn Then
+      lStyle = lStyle Or lBit
+   Else
+      lStyle = lStyle And Not lBit
+   End If
+End Sub
