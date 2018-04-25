@@ -21,8 +21,8 @@ setup:
     Set wsCache = CreateSheet(clsQuadRuntime.Book, sSheetName, bOverwrite:=True)
 
     ' table: new subject ---------------------------------------------------------------
-    sDefn = "NewSubject^courses_subject^Name^String^^^" & DOUBLEDOLLAR
-    sDefn = sDefn & "NewSubject^courses_subject^ID^String^^^"
+    sDefn = "NewSubject^courses_subject^Name^String^^^^^Entry" & DOUBLEDOLLAR
+    sDefn = sDefn & "NewSubject^courses_subject^ID^String^^^^^Entry"
 
     vSource = Init2DStringArrayFromString(sDefn)
 
@@ -65,9 +65,9 @@ setup:
     Set wsCache = CreateSheet(clsQuadRuntime.Book, sSheetName, bOverwrite:=True)
 
     ' table: new course ---------------------------------------------------------------
-    sDefn = "NewCourse^courses_course^Name^String^^^" & DOUBLEDOLLAR
-    sDefn = sDefn & "NewCourse^courses_course^ID^String^^^" & DOUBLEDOLLAR
-    sDefn = sDefn & "NewCourse^courses_course^SubjectID^String^^^"
+    sDefn = "NewCourse^courses_course^Name^String^^^^^Entry" & DOUBLEDOLLAR
+    sDefn = sDefn & "NewCourse^courses_course^ID^String^^^^^Entry" & DOUBLEDOLLAR
+    sDefn = sDefn & "NewCourse^courses_course^SubjectID^String^^^^^Entry"
 
     vSource = Init2DStringArrayFromString(sDefn)
 
@@ -110,9 +110,9 @@ setup:
     Set wsCache = CreateSheet(clsQuadRuntime.Book, sSheetName, bOverwrite:=True)
 
     ' table: new timeperiod ---------------------------------------------------------------
-    sDefn = "NewTimePeriod^misc_timeperiod^ID^String^^^" & DOUBLEDOLLAR
-    sDefn = sDefn & "NewTimePeriod^misc_timeperiod^PeriodStart^String^^^" & DOUBLEDOLLAR
-    sDefn = sDefn & "NewCourse^misc_timeperiod^SubjectID^PeriodEnd^^^"
+    sDefn = "NewTimePeriod^misc_timeperiod^ID^String^^^^^Entry" & DOUBLEDOLLAR
+    sDefn = sDefn & "NewTimePeriod^misc_timeperiod^PeriodStart^String^^^^^Entry" & DOUBLEDOLLAR
+    sDefn = sDefn & "NewCourse^misc_timeperiod^SubjectID^PeriodEnd^^^^^Entry"
 
     vSource = Init2DStringArrayFromString(sDefn)
 
@@ -155,8 +155,8 @@ setup:
     Set wsCache = CreateSheet(clsQuadRuntime.Book, sSheetName, bOverwrite:=True)
 
     ' table: new prep ---------------------------------------------------------------
-    sDefn = "NewPrep^misc_prep^ID^String^^^" & DOUBLEDOLLAR
-    sDefn = sDefn & "NewPrep^misc_prep^Name^String^^^"
+    sDefn = "NewPrep^misc_prep^ID^String^^^^^Entry" & DOUBLEDOLLAR
+    sDefn = sDefn & "NewPrep^misc_prep^Name^String^^^^^Entry"
 
     vSource = Init2DStringArrayFromString(sDefn)
 
@@ -199,9 +199,9 @@ setup:
     Set wsCache = CreateSheet(clsQuadRuntime.Book, sSheetName, bOverwrite:=True)
 
     ' table: new day ---------------------------------------------------------------
-    sDefn = "NewDay^misc_day^ID^String^^^" & DOUBLEDOLLAR
-    sDefn = sDefn & "NewDay^misc_day^LongDay^String^^^" & DOUBLEDOLLAR
-    sDefn = sDefn & "NewDay^misc_day^ShortDay^String^^^"
+    sDefn = "NewDay^misc_day^ID^String^^^^^Entry" & DOUBLEDOLLAR
+    sDefn = sDefn & "NewDay^misc_day^LongDay^String^^^^^Entry" & DOUBLEDOLLAR
+    sDefn = sDefn & "NewDay^misc_day^ShortDay^String^^^^^Entry"
     
     vSource = Init2DStringArrayFromString(sDefn)
 

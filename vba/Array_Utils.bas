@@ -175,7 +175,13 @@ Dim vValue As Variant
     
     ArrayNDtoString = sTableStr
 End Function
+Function IsEmptyArray(aTmp As Variant) As Boolean
 
+    IsEmptyArray = False
+    If UBound(aTmp) = 0 And aTmp(0) = "" Then
+        IsEmptyArray = True
+    End If
+End Function
 Function Is2DArray(aTmp As Variant) As Boolean
 Dim iTmp As Integer
 

@@ -23,12 +23,31 @@ Enum CellType
     Entry = 2
 End Enum
 
+Const C_CELL_TYPE = "Button,Entry"
+
 Enum CellDimension
     Hz = 1
     Vz = 2
 End Enum
 
-Const C_CELL_TYPE_STATE = "Button,Entry"
+Const C_CELL_TYPE_STATE = "Entry,Button"
+
+Function EnumCellType(i As Long) As String
+    EnumCellType = Split(C_CELL_TYPE, COMMA)(i - 1)
+End Function
+Function GetCellTypeFromValue(sValue As String) As Long
+    On Error GoTo err
+    GetCellTypeFromValue = IndexArray(Split(C_CELL_TYPE, COMMA), sValue) + 1
+    If GetCellTypeFromValue = 0 Then
+        GoTo err
+    End If
+    On Error GoTo 0
+    Exit Function
+    
+err:
+    err.Raise ErrorMsgType.INVALID_CELLTYPE, Description:="value [" & sValue & "] is not recognized"
+    
+End Function
 
 Public Function GetCellSizes(wsTemplate As Worksheet, _
                              rSource As Range, _
@@ -88,7 +107,7 @@ Public Sub FormatCell(wbSourceBook As Workbook, _
                         sSourceSheetName As String, _
                Optional eCellType As CellType = CellType.Button)
 Dim eWRefCName As String
-    eWRefCName = "f" & Split(C_CELL_TYPE_STATE, COMMA)(eCellType - 1) & Split(C_CELL_STATE, COMMA)(eCellState - 1)
+    eWRefCName = "f" & Split(C_CELL_TYPE, COMMA)(eCellType - 1) & Split(C_CELL_STATE, COMMA)(eCellState - 1)
     CopyFormat wbSourceBook, wbTargetbook, sSourceSheetName, sTargetSheetName, eWRefCName, rCell.Address
 End Sub
 

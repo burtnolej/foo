@@ -1,5 +1,6 @@
 Attribute VB_Name = "Test_Entry_Utils"
 Const CsModuleName = "Test_Entry_Utils"
+
 Function TestGenerateEntryFormsLoadRefDataFromDBMultipleRefs() As TestResult
 ' uses both student and teacher reference tables
 Dim sFuncName As String, sSheetName As String, sResultStr As String, sExpectedResultStr As String, sTargetSheetName As String
@@ -23,23 +24,23 @@ setup:
     
     ' table: new lesson ---------------------------------------------------------------
     ' attr : student name
-    sDefn = "NewLesson^Lesson^SFirstName^String^IsMember^&get_person_student^sStudentFirstNm" & DOUBLEDOLLAR
-    sDefn = sDefn & "NewLesson^Lesson^SLastName^String^IsMember^&get_person_student^sStudentLastNm" & DOUBLEDOLLAR
+    sDefn = "NewLesson^Lesson^SFirstName^String^IsMember^&get_person_student^sStudentFirstNm^^Entry" & DOUBLEDOLLAR
+    sDefn = sDefn & "NewLesson^Lesson^SLastName^String^IsMember^&get_person_student^sStudentLastNm^^Entry" & DOUBLEDOLLAR
     ' attr : teacher_name
-    sDefn = sDefn & "NewLesson^Lesson^TFirstName^String^IsMember^&get_person_teacher^sFacultyFirstNm" & DOUBLEDOLLAR
-    sDefn = sDefn & "NewLesson^Lesson^TLastName^String^IsMember^&get_person_teacher^sFacultyLastNm" & DOUBLEDOLLAR
+    sDefn = sDefn & "NewLesson^Lesson^TFirstName^String^IsMember^&get_person_teacher^sFacultyFirstNm^^Entry" & DOUBLEDOLLAR
+    sDefn = sDefn & "NewLesson^Lesson^TLastName^String^IsMember^&get_person_teacher^sFacultyLastNm^^Entry" & DOUBLEDOLLAR
     ' attr : prep
-    sDefn = sDefn & "NewLesson^Lesson^Prep^Integer^IsValidPrep^^" & DOUBLEDOLLAR
+    sDefn = sDefn & "NewLesson^Lesson^Prep^Integer^IsValidPrep^^^^Entry" & DOUBLEDOLLAR
     ' table: new student ---------------------------------------------------------------
-    sDefn = sDefn & "NewStudent^person_student^sStudentFirstNm^String^^^" & DOUBLEDOLLAR
-    sDefn = sDefn & "NewStudent^person_student^sStudentLastNm^String^^^" & DOUBLEDOLLAR
-    sDefn = sDefn & "NewStudent^person_student^idStudent^Integer^^^" & DOUBLEDOLLAR
-    sDefn = sDefn & "NewStudent^person_student^idPrep^Integer^IsValidPrep^^" & DOUBLEDOLLAR
-    sDefn = sDefn & "NewStudent^person_student^sPrepNm^String^^^" & DOUBLEDOLLAR
+    sDefn = sDefn & "NewStudent^person_student^sStudentFirstNm^String^^^^^Entry" & DOUBLEDOLLAR
+    sDefn = sDefn & "NewStudent^person_student^sStudentLastNm^String^^^^^Entry" & DOUBLEDOLLAR
+    sDefn = sDefn & "NewStudent^person_student^idStudent^Integer^^^^^Entry" & DOUBLEDOLLAR
+    sDefn = sDefn & "NewStudent^person_student^idPrep^Integer^IsValidPrep^^^^Entry" & DOUBLEDOLLAR
+    sDefn = sDefn & "NewStudent^person_student^sPrepNm^String^^^^^Entry" & DOUBLEDOLLAR
     ' table: new teacher ---------------------------------------------------------------
-    sDefn = sDefn & "NewTeacher^person_teacher^sFacultyFirstNm^String^^^" & DOUBLEDOLLAR
-    sDefn = sDefn & "NewTeacher^person_teacher^sFacultyLastNm^String^^^" & DOUBLEDOLLAR
-    sDefn = sDefn & "NewTeacher^person_teacher^idFaculty^Integer^^^"
+    sDefn = sDefn & "NewTeacher^person_teacher^sFacultyFirstNm^String^^^^^Entry" & DOUBLEDOLLAR
+    sDefn = sDefn & "NewTeacher^person_teacher^sFacultyLastNm^String^^^^^Entry" & DOUBLEDOLLAR
+    sDefn = sDefn & "NewTeacher^person_teacher^idFaculty^Integer^^^^^Entry"
     
     vSource = Init2DStringArrayFromString(sDefn)
 
@@ -125,14 +126,14 @@ setup:
     sTargetSheetName = "NewLesson"
     Set wsTmp = CreateSheet(clsQuadRuntime.TemplateBook, sSheetName, bOverwrite:=True)
     
-    sDefn = "NewLesson^Lesson^SFirstName^String^IsMember^&get_person_student^sStudentFirstNm" & DOUBLEDOLLAR
-    sDefn = sDefn & "NewLesson^Lesson^LastName^String^IsMember^&get_person_student^sStudentLastNm" & DOUBLEDOLLAR
-    sDefn = sDefn & "NewLesson^Lesson^Prep^Integer^IsValidPrep^^" & DOUBLEDOLLAR
-    sDefn = sDefn & "NewStudent^person_student^sStudentFirstNm^String^^^" & DOUBLEDOLLAR
-    sDefn = sDefn & "NewStudent^person_student^sStudentLastNm^String^^^" & DOUBLEDOLLAR
-    sDefn = sDefn & "NewStudent^person_student^idStudent^Integer^^^" & DOUBLEDOLLAR
-    sDefn = sDefn & "NewStudent^person_student^idPrep^Integer^IsValidPrep^^" & DOUBLEDOLLAR
-    sDefn = sDefn & "NewStudent^person_student^sPrepNm^String^^^"
+    sDefn = "NewLesson^Lesson^SFirstName^String^IsMember^&get_person_student^sStudentFirstNm^^Entry" & DOUBLEDOLLAR
+    sDefn = sDefn & "NewLesson^Lesson^LastName^String^IsMember^&get_person_student^sStudentLastNm^^Entry" & DOUBLEDOLLAR
+    sDefn = sDefn & "NewLesson^Lesson^Prep^Integer^IsValidPrep^^^^Entry" & DOUBLEDOLLAR
+    sDefn = sDefn & "NewStudent^person_student^sStudentFirstNm^String^^^^^Entry" & DOUBLEDOLLAR
+    sDefn = sDefn & "NewStudent^person_student^sStudentLastNm^String^^^^^Entry" & DOUBLEDOLLAR
+    sDefn = sDefn & "NewStudent^person_student^idStudent^Integer^^^^^Entry" & DOUBLEDOLLAR
+    sDefn = sDefn & "NewStudent^person_student^idPrep^Integer^IsValidPrep^^^^Entry" & DOUBLEDOLLAR
+    sDefn = sDefn & "NewStudent^person_student^sPrepNm^String^^^^^Entry"
     
     vSource = Init2DStringArrayFromString(sDefn)
 
@@ -212,14 +213,14 @@ setup:
     sTargetSheetName = "NewLesson"
     Set wsTmp = CreateSheet(clsQuadRuntime.TemplateBook, sSheetName, bOverwrite:=True)
     
-    sDefn = "NewStudent^person_student^Name^String^^^" & DOUBLEDOLLAR
-    sDefn = sDefn & "NewStudent^person_student^Age^Integer^IsInteger^^" & DOUBLEDOLLAR
-    sDefn = sDefn & "NewStudent^person_student^Prep^Integer^IsValidPrep^^" & DOUBLEDOLLAR
-    sDefn = sDefn & "NewTeacher^person_teacher^Name^String^^^" & DOUBLEDOLLAR
-    sDefn = sDefn & "NewTeacher^person_teacher^Age^Integer^IsInteger^^" & DOUBLEDOLLAR
-    sDefn = sDefn & "NewTeacher^person_teacher^Prep^Integer^IsValidPrep^^" & DOUBLEDOLLAR
-    sDefn = sDefn & "NewLesson^Lesson^StudentName^String^IsMember^person_student^Name" & DOUBLEDOLLAR
-    sDefn = sDefn & "NewLesson^Lesson^TeacherName^String^IsMember^person_teacher^Name"
+    sDefn = "NewStudent^person_student^Name^String^^^^^Entry" & DOUBLEDOLLAR
+    sDefn = sDefn & "NewStudent^person_student^Age^Integer^IsInteger^^^^Entry" & DOUBLEDOLLAR
+    sDefn = sDefn & "NewStudent^person_student^Prep^Integer^IsValidPrep^^^^Entry" & DOUBLEDOLLAR
+    sDefn = sDefn & "NewTeacher^person_teacher^Name^String^^^^^Entry" & DOUBLEDOLLAR
+    sDefn = sDefn & "NewTeacher^person_teacher^Age^Integer^IsInteger^^^^Entry" & DOUBLEDOLLAR
+    sDefn = sDefn & "NewTeacher^person_teacher^Prep^Integer^IsValidPrep^^^^Entry" & DOUBLEDOLLAR
+    sDefn = sDefn & "NewLesson^Lesson^StudentName^String^IsMember^person_student^Name^^Entry" & DOUBLEDOLLAR
+    sDefn = sDefn & "NewLesson^Lesson^TeacherName^String^IsMember^person_teacher^Name^^Entry"
     vSource = Init2DStringArrayFromString(sDefn)
     
     Set rTarget = RangeFromStrArray(vSource, wsTmp, 0, 1)
@@ -297,6 +298,82 @@ setup:
     Set wsTmp = CreateSheet(clsQuadRuntime.TemplateBook, sSheetName, bOverwrite:=True)
     vSource = Init2DStringArray([{"NewStudent","Student","StudentAge","Integer","IsValidInteger";"NewStudent","Student","StudentPrep","IntegerRange","IsValidPrep"}])
     Set rTarget = RangeFromStrArray(vSource, wsTmp, 0, 1)
+    Set Entry_Utils.dDefinitions = LoadDefinitions(wsTmp, rSource:=rTarget, bIgnoreCellType:=True)
+
+main:
+
+    GenerateEntryForms clsQuadRuntime
+    
+    If SheetExists(clsQuadRuntime.EntryBook, sTargetSheetName) = False Then
+        eTestResult = TestResult.Failure
+        GoTo teardown
+    End If
+
+    With clsQuadRuntime.EntryBook.Sheets(sTargetSheetName)
+        Set rTarget = .Range(.Cells(2, 2), .Cells(2, 2))
+        rTarget = 123
+
+        Validate clsQuadRuntime.EntryBook, sTargetSheetName, rTarget
+
+        If GetBgColor(sTargetSheetName, rTarget).AsString <> "0,255,0" Then
+            eTestResult = TestResult.Failure
+            GoTo teardown
+        End If
+        
+        Set rTarget = .Range(.Cells(3, 2), .Cells(3, 2))
+        rTarget = 4
+        
+        Validate clsQuadRuntime.EntryBook, sTargetSheetName, rTarget
+        
+        If GetBgColor(sTargetSheetName, rTarget).AsString <> "0,255,0" Then
+            eTestResult = TestResult.Failure
+            GoTo teardown
+        End If
+        
+        IsRecordValid clsQuadRuntime.TemplateBook, clsQuadRuntime.EntryBook, "NewStudent", clsQuadRuntime.TemplateCellSheetName
+        
+        ' no buttons implemented so need to hardcode where the button will be on the screen
+        If GetBgColor(sTargetSheetName, clsQuadRuntime.EntryBook.Sheets(sTargetSheetName).Range("H2:H2")).AsString <> "51,204,51" Then
+            eTestResult = TestResult.Failure
+            GoTo teardown
+        End If
+
+    End With
+    eTestResult = TestResult.OK
+    GoTo teardown
+    
+err:
+    eTestResult = TestResult.Error
+    
+teardown:
+    TestGenerateEntryForms = eTestResult
+    DeleteEntryForms wbTmp:=clsQuadRuntime.EntryBook
+    DeleteSheet clsQuadRuntime.EntryBook, sSheetName
+    clsQuadRuntime.Delete
+End Function
+
+Function TestGenerateEntryFormsWithButtons() As TestResult
+' 1 entry form
+' test if cell validation works
+' test if form validation works
+Dim sFuncName As String, sSheetName As String, sResultStr As String, sExpectedResultStr As String, sTargetSheetName As String
+Dim vSource() As String
+Dim wsTmp As Worksheet
+Dim rTarget As Range
+Dim dDefinitions As Dictionary, dDefnDetails As Dictionary
+Dim eTestResult As TestResult
+Dim clsQuadRuntime As New Quad_Runtime
+
+setup:
+    'On Error GoTo err:
+    sFuncName = CsModuleName & "." & "GenerateEntryForms"
+    sTargetSheetName = "NewStudent"
+    ResetQuadRuntimeGlobal
+    clsQuadRuntime.InitProperties bInitializeCache:=True
+    sSheetName = "test"
+    Set wsTmp = CreateSheet(clsQuadRuntime.TemplateBook, sSheetName, bOverwrite:=True)
+    vSource = Init2DStringArray([{"NewStudent","Student","StudentAge","Integer","IsValidInteger","","","","Entry";"NewStudent","Student","StudentPrep","IntegerRange","IsValidPrep","","","","Entry";"NewStudent","","COMMIT","","","NewStudent","","","Button"}])
+    Set rTarget = RangeFromStrArray(vSource, wsTmp, 0, 1)
     Set Entry_Utils.dDefinitions = LoadDefinitions(wsTmp, rSource:=rTarget)
 
 main:
@@ -331,7 +408,7 @@ main:
         
         IsRecordValid clsQuadRuntime.TemplateBook, clsQuadRuntime.EntryBook, "NewStudent", clsQuadRuntime.TemplateCellSheetName
         
-        If GetBgColor(sTargetSheetName, clsQuadRuntime.EntryBook.Sheets(sTargetSheetName).Range("bNewStudent")).AsString <> "51,204,51" Then
+        If GetBgColor(sTargetSheetName, clsQuadRuntime.EntryBook.Sheets(sTargetSheetName).Range("H2:H2")).AsString <> "51,204,51" Then
             eTestResult = TestResult.Failure
             GoTo teardown
         End If
@@ -344,7 +421,7 @@ err:
     eTestResult = TestResult.Error
     
 teardown:
-    TestGenerateEntryForms = eTestResult
+    TestGenerateEntryFormsWithButtons = eTestResult
     DeleteEntryForms wbTmp:=clsQuadRuntime.EntryBook
     DeleteSheet clsQuadRuntime.EntryBook, sSheetName
     clsQuadRuntime.Delete
@@ -367,30 +444,42 @@ Dim dDefnDetail As Dictionary
 End Function
 
 
-Function TestGenerateEntryFormsMulti() As TestResult
+Function T_e_stGenerateMenuForm() As TestResult
 ' multiple entry forms
-Dim sFuncName As String
-Dim sSheetName As String
-Dim sResultStr As String
+Dim sSheetName As String, sResultStr As String, sFuncName As String, sDefn As String
 Dim sExpectedResultStr As String
 Dim vSource() As String
 Dim wsTmp As Worksheet
-Dim rTarget As Range
-Dim dDefinitions As Dictionary
-Dim dDefnDetails As Dictionary
+Dim rTarget As Range, rEntry As Range
+Dim dDefinitions As Dictionary, dDefnDetails As Dictionary
 Dim eTestResult As TestResult
-Dim rEntry As Range
 Dim clsQuadRuntime As New Quad_Runtime
 
 setup:
     clsQuadRuntime.InitProperties bInitializeCache:=True
     On Error GoTo err:
-    sFuncName = CsModuleName & "." & "GenerateEntryFormsMulti"
+    sFuncName = CsModuleName & "." & "TestGenerateMenuForm"
     sSheetName = "test"
     Set wsTmp = CreateSheet(clsQuadRuntime.TemplateBook, sSheetName, bOverwrite:=True)
-    vSource = Init2DStringArray([{"NewStudent","Student","StudentAge","Integer","IsValidInteger";"NewTeacher","Teacher","TeacherAge","Integer","IsValidInteger"}])
+    sDefn = "NewLesson^schedule_student^sStudentFirstNm^String^IsMember^&get_person_student^sStudentFirstNm^^Entry" & DOUBLEDOLLAR
+    sDefn = sDefn & "NewStudent^Student^StudentAge^Integer^IsValidInteger^^^^Entry"
+    sDefn = sDefn & "NewStudent^Student^StudentPrep^IntegerRange^IsValidPrep^^^^Entry"
+    sDefn = sDefn & "NewStudent^^COMMIT^^^NewStudent^^^Button"
+    sDefn = sDefn & "NewTeacher^Teacher^TeacherAge^Integer^IsValidInteger^^^^Entry"
+    sDefn = sDefn & "NewTeacher^Teacher^TeacherPrep^IntegerRange^IsValidPrep^^^^Entry"
+    sDefn = sDefn & "NewTeacher^^COMMIT^^^NewTeacher^^^Button"
+    sDefn = sDefn & "MainMenu^^Toggle Schedule Window^ToggleScheduleWindow^^^Button"
+    sDefn = sDefn & "MainMenu^^Toggle Entry Window^ToggleEntryWindow^^^Button"
+    sDefn = sDefn & "MainMenu^^Toggle Cache Window^ToggleCacheWindow^^^Button"
+    sDefn = sDefn & "MainMenu^^Show NewStudent^ShowNewStudent^^^Button"
+    sDefn = sDefn & "MainMenu^^Show NewTeacher^ShowNewTeacher^^^Button"
+    
+    vSource = Init2DStringArrayFromString(sDefn)
+
     Set rTarget = RangeFromStrArray(vSource, wsTmp, 0, 1)
+    CreateNamedRange clsQuadRuntime.TemplateBook, rTarget.Address, sSheetName, "Definitions", "True"
     Set Entry_Utils.dDefinitions = LoadDefinitions(wsTmp, rSource:=rTarget)
+
 
 main:
 
@@ -431,7 +520,7 @@ err:
     eTestResult = TestResult.Error
     
 teardown:
-    TestGenerateEntryFormsMulti = eTestResult
+    TestGenerateMenuForm = eTestResult
     DeleteEntryForms wbTmp:=clsQuadRuntime.EntryBook
     DeleteSheet clsQuadRuntime.EntryBook, sSheetName
     clsQuadRuntime.Delete
@@ -454,7 +543,7 @@ setup:
     sFuncName = CsModuleName & "." & "LoadDefinitions"
     sSheetName = "test"
     Set wsTmp = CreateSheet(ActiveWorkbook, sSheetName, bOverwrite:=True)
-    vSource = Init2DStringArray([{"NewStudent","Student","StudentName","List","foo";"NewStudent","Student","StudentPrep","IntegerRange","gt0_lt100"}])
+    vSource = Init2DStringArray([{"NewStudent","Student","StudentName","List","foo","","","","Entry";"NewStudent","Student","StudentPrep","IntegerRange","gt0_lt100","","","","Entry"}])
     Set rTarget = RangeFromStrArray(vSource, wsTmp, 0, 1)
 
 main:
@@ -501,6 +590,40 @@ teardown:
     DeleteSheet ActiveWorkbook, sSheetName
 End Function
 
+Function TxexsxtLoadDefinitionsFullSet() As TestResult
+Dim sFuncName As String, sSheetName As String, sResultStr As String, sExpectedResultStr As String
+Dim vSource() As String
+Dim wsTmp As Worksheet
+Dim rTarget As Range
+Dim dDefinitions As Dictionary, dDefnDetails As Dictionary
+Dim eTestResult As TestResult
+Dim clsQuadRuntime As New Quad_Runtime
+
+setup:
+    'On Error GoTo err:
+    sFuncName = CsModuleName & "." & "LoadDefinitions"
+    clsQuadRuntime.InitProperties
+    
+    sSheetName = "test"
+    Set wsTmp = clsQuadRuntime.TemplateBook.Sheets(clsQuadRuntime.DefinitionSheetName)
+    Set rTarget = wsTmp.Range("Definitions")
+main:
+
+    Set Entry_Utils.dDefinitions = LoadDefinitions(wsTmp, rSource:=rTarget)
+
+    DumpDefinitions
+    
+    
+    On Error GoTo 0
+    GoTo teardown
+    
+err:
+    eTestResult = TestResult.Error
+    
+teardown:
+    TestLoadDefinitionsFullSet = eTestResult
+    DeleteSheet ActiveWorkbook, sSheetName
+End Function
 
 Function TestIsValidInteger() As TestResult
 Dim sFuncName As String
@@ -602,7 +725,7 @@ setup:
     Set wsTmp = CreateSheet(clsQuadRuntime.EntryBook, sSheetName, bOverwrite:=True)
     vSource = Init2DStringArray([{"NewStudent","Student","StudentAge","Integer","IsValidInteger";"NewStudent","Student","StudentAge","Integer","IsValidInteger"}])
     Set rTarget = RangeFromStrArray(vSource, wsTmp, 0, 1)
-    Set Entry_Utils.dDefinitions = LoadDefinitions(wsTmp, rSource:=rTarget)
+    Set Entry_Utils.dDefinitions = LoadDefinitions(wsTmp, rSource:=rTarget, bIgnoreCellType:=True)
     
 main:
     With wsTmp
@@ -658,7 +781,7 @@ setup:
     Set rTarget = RangeFromStrArray(vSource, wsTmp, 0, 1)
     vRows = Init2DStringArray([{"Jon","43";"Quinton","6"}])
     vColNames = InitStringArray(Array("FooName", "FooAge"))
-    Set Entry_Utils.dDefinitions = LoadDefinitions(wsTmp, rSource:=rTarget)
+    Set Entry_Utils.dDefinitions = LoadDefinitions(wsTmp, rSource:=rTarget, bIgnoreCellType:=True)
     CreateTables clsQuadRuntime.CacheBook
     AddTableRecordAuto clsQuadRuntime.CacheBook, "foo", vColNames, vRows
     
@@ -703,7 +826,7 @@ setup:
     Set rTarget = RangeFromStrArray(vSource, wsTmp, 0, 1)
     vRows = Init2DStringArray([{"Jon","43";"Quinton","6"}])
     vColNames = InitStringArray(Array("FooName", "FooAge"))
-    Set Entry_Utils.dDefinitions = LoadDefinitions(wsTmp, rSource:=rTarget)
+    Set Entry_Utils.dDefinitions = LoadDefinitions(wsTmp, rSource:=rTarget, bIgnoreCellType:=True)
     CreateTables clsQuadRuntime.CacheBook
     AddTableRecordAuto clsQuadRuntime.CacheBook, "foo", vColNames, vRows
     
@@ -799,7 +922,7 @@ setup:
     Set wsTmp = CreateSheet(clsQuadRuntime.EntryBook, sSheetName, bOverwrite:=True)
     vSource = Init2DStringArray([{"TestNewStudent","Student","StudentAge","Integer","IsValidInteger";"TestNewStudent","Student","StudentName","Integer","IsValidInteger"}])
     Set rTarget = RangeFromStrArray(vSource, wsTmp, 0, 1)
-    Set Entry_Utils.dDefinitions = LoadDefinitions(wsTmp, rSource:=rTarget)
+    Set Entry_Utils.dDefinitions = LoadDefinitions(wsTmp, rSource:=rTarget, bIgnoreCellType:=True)
     
     sKey = "e" & sSheetName & "_" & sFieldName1
     GenerateEntry clsQuadRuntime, sSheetName, wbTmp:=clsQuadRuntime.EntryBook
@@ -881,7 +1004,7 @@ setup:
     
     sSheetName = "test"
     Set wsTmp = CreateSheet(clsQuadRuntime.TemplateBook, sSheetName, bOverwrite:=True)
-    vSource = Init2DStringArray([{"NewStudent","Student","StudentAge","Integer","IsValidInteger";"NewStudent","Student","StudentPrep","IntegerRange","IsValidPrep"}])
+    vSource = Init2DStringArray([{"NewStudent","Student","StudentAge","Integer","IsValidInteger","","","","Entry";"NewStudent","Student","StudentPrep","IntegerRange","IsValidPrep","","","","Entry"}])
     Set rTarget = RangeFromStrArray(vSource, wsTmp, 0, 1)
     Set Entry_Utils.dDefinitions = LoadDefinitions(wsTmp, rSource:=rTarget)
 
@@ -898,6 +1021,7 @@ main:
 
     CreateNamedRange clsQuadRuntime.TemplateBook, "B2:B2", "FormStyles", "fNewEntry1", "True"
     CreateNamedRange clsQuadRuntime.TemplateBook, "B3:C3", "FormStyles", "fNewEntry2", "True"
+    
     GenerateEntryForms clsQuadRuntime
     
     With clsQuadRuntime.EntryBook.Sheets("NewStudent")

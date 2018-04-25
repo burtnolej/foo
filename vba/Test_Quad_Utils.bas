@@ -18,11 +18,11 @@ setup:
     sDefnSheetName = "test_definition"
     Set wsTmp = CreateSheet(clsQuadRuntime.Book, sDefnSheetName, bOverwrite:=True)
         
-    sDefn = "new_person_student^person_student^sStudentFirstNm^AlphaNumeric^IsMember^Student" & DOUBLEDOLLAR
-    sDefn = sDefn & "new_person_student^person_student^sStudentLastNm^AlphaNumeric^IsMember^Student" & DOUBLEDOLLAR
-    sDefn = sDefn & "new_person_student^person_student^idStudent^AlphaNumeric^IsMember^Student" & DOUBLEDOLLAR
-    sDefn = sDefn & "new_person_student^person_student^idPrep^AlphaNumeric^IsMember^StudentLevel" & DOUBLEDOLLAR
-    sDefn = sDefn & "new_person_student^person_student^sPrepNm^AlphaNumeric^IsMember^PrepCode"
+    sDefn = "new_person_student^person_student^sStudentFirstNm^AlphaNumeric^IsMember^Student^^^Entry" & DOUBLEDOLLAR
+    sDefn = sDefn & "new_person_student^person_student^sStudentLastNm^AlphaNumeric^IsMember^Student^^^Entry" & DOUBLEDOLLAR
+    sDefn = sDefn & "new_person_student^person_student^idStudent^AlphaNumeric^IsMember^Student^^^Entry" & DOUBLEDOLLAR
+    sDefn = sDefn & "new_person_student^person_student^idPrep^AlphaNumeric^IsMember^StudentLevel^^^Entry" & DOUBLEDOLLAR
+    sDefn = sDefn & "new_person_student^person_student^sPrepNm^AlphaNumeric^IsMember^PrepCode^^^Entry"
            
     vSource = Init2DStringArrayFromString(sDefn)
     Set rTarget = RangeFromStrArray(vSource, wsTmp, 0, 1)
@@ -74,11 +74,11 @@ setup:
     'sDefn = sDefn & "NewLesson^Lesson^iFreq^AlphaNumeric^IsMember^Section" & DOUBLEDOLLAR
     'sDefn = sDefn & "NewLesson^Lesson^idClassLecture^AlphaNumeric^IsMember^ClassLecture"
     
-    sDefn = "new_person_student^person_student^sStudentFirstNm^AlphaNumeric^IsMember^Student" & DOUBLEDOLLAR
-    sDefn = sDefn & "new_person_student^person_student^sStudentLastNm^AlphaNumeric^IsMember^Student" & DOUBLEDOLLAR
-    sDefn = sDefn & "new_person_student^person_student^idStudent^AlphaNumeric^IsMember^Student" & DOUBLEDOLLAR
-    sDefn = sDefn & "new_person_student^person_student^idPrep^AlphaNumeric^IsMember^StudentLevel" & DOUBLEDOLLAR
-    sDefn = sDefn & "new_person_student^person_student^sPrepNm^AlphaNumeric^IsMember^PrepCode"
+    sDefn = "new_person_student^person_student^sStudentFirstNm^AlphaNumeric^IsMember^Student^^^Entry" & DOUBLEDOLLAR
+    sDefn = sDefn & "new_person_student^person_student^sStudentLastNm^AlphaNumeric^IsMember^Student^^^Entry" & DOUBLEDOLLAR
+    sDefn = sDefn & "new_person_student^person_student^idStudent^AlphaNumeric^IsMember^Student^^^Entry" & DOUBLEDOLLAR
+    sDefn = sDefn & "new_person_student^person_student^idPrep^AlphaNumeric^IsMember^StudentLevel^^^Entry" & DOUBLEDOLLAR
+    sDefn = sDefn & "new_person_student^person_student^sPrepNm^AlphaNumeric^IsMember^PrepCode^^^Entry"
            
     vSource = Init2DStringArrayFromString(sDefn)
     Set rTarget = RangeFromStrArray(vSource, wsTmp, 0, 1)

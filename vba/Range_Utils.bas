@@ -168,8 +168,13 @@ Public Function GetSheetNamedRanges(wbTmp As Workbook, sSheetName As String, Opt
 Dim aNames() As String
 Dim iCount As Integer
 Dim sTmp As String
+Dim sFuncName As String
 
+init:
+    sFuncName = CsModuleName & "." & "DeleteNamedRange"
     ReDim aNames(0 To 100)
+
+main:
     For Each name_ In wbTmp.Sheets(sSheetName).Names
         sTmp = Split(name_.Name, "!")(1)
         If Left(sTmp, Len(sStartsWith)) = sStartsWith Then
@@ -177,7 +182,14 @@ Dim sTmp As String
             iCount = iCount + 1
         End If
     Next name_
-    ReDim Preserve aNames(0 To iCount - 1)
+    
+    If iCount = 0 Then
+        FuncLogIt sFuncName, "no named ranges found [" & sSheetName & "] [sStartsWith=" & sStartsWith & "]", C_MODULE_NAME, LogMsgType.INFO
+        ReDim aNames(0)
+        'Set aNames = Empty
+    Else
+        ReDim Preserve aNames(0 To iCount - 1)
+    End If
     GetSheetNamedRanges = aNames
 End Function
 Public Function NamedRangeExists(wbTmp As Workbook, sSheetName As String, sRangeName As String) As Boolean

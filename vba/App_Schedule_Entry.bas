@@ -128,46 +128,48 @@ setup:
     ' table: new lesson
     ' --------------------------------------------------------------------------------
     ' attr : student name
-    sDefn = "NewLesson^schedule_student^sStudentFirstNm^String^IsMember^&get_person_student^sStudentFirstNm" & DOUBLEDOLLAR
-    sDefn = sDefn & "NewLesson^schedule_student^sStudentLastNm^String^IsMember^&get_person_student^sStudentLastNm" & DOUBLEDOLLAR
+    sDefn = "NewLesson^schedule_student^sStudentFirstNm^String^IsMember^&get_person_student^sStudentFirstNm^^Entry" & DOUBLEDOLLAR
+    sDefn = sDefn & "NewLesson^schedule_student^sStudentLastNm^String^IsMember^&get_person_student^sStudentLastNm^^Entry" & DOUBLEDOLLAR
     ' attr : teacher_name
-    sDefn = sDefn & "NewLesson^schedule_student^sFacultyFirstNm^String^IsMember^&get_person_teacher^sFacultyFirstNm" & DOUBLEDOLLAR
-    sDefn = sDefn & "NewLesson^schedule_student^sFacultyLastNm^String^IsMember^&get_person_teacher^sFacultyLastNm" & DOUBLEDOLLAR
+    sDefn = sDefn & "NewLesson^schedule_student^sFacultyFirstNm^String^IsMember^&get_person_teacher^sFacultyFirstNm^^Entry" & DOUBLEDOLLAR
+    sDefn = sDefn & "NewLesson^schedule_student^sFacultyLastNm^String^IsMember^&get_person_teacher^sFacultyLastNm^^Entry" & DOUBLEDOLLAR
     ' attr : ref data
-    sDefn = sDefn & "NewLesson^schedule_student^sCourseNm^Integer^IsMember^&get_courses_course^sCourseNm" & DOUBLEDOLLAR
-    sDefn = sDefn & "NewLesson^schedule_student^sSubjectLongDesc^Integer^IsMember^&get_courses_subject^sSubjectLongDesc" & DOUBLEDOLLAR
-    sDefn = sDefn & "NewLesson^schedule_student^idPrep^Integer^IsMember^&get_misc_prep^sPrepNm" & DOUBLEDOLLAR
-    sDefn = sDefn & "NewLesson^schedule_student^idTimePeriod^Integer^IsMember^&get_misc_timeperiod^idTimePeriod" & DOUBLEDOLLAR
-    sDefn = sDefn & "NewLesson^schedule_student^cdDay^Integer^IsMember^&get_misc_day^cdDay" & DOUBLEDOLLAR
+    sDefn = sDefn & "NewLesson^schedule_student^sCourseNm^Integer^IsMember^&get_courses_course^sCourseNm^^Entry" & DOUBLEDOLLAR
+    sDefn = sDefn & "NewLesson^schedule_student^sSubjectLongDesc^Integer^IsMember^&get_courses_subject^sSubjectLongDesc^^Entry" & DOUBLEDOLLAR
+    sDefn = sDefn & "NewLesson^schedule_student^idPrep^Integer^IsMember^&get_misc_prep^sPrepNm^^Entry" & DOUBLEDOLLAR
+    sDefn = sDefn & "NewLesson^schedule_student^idTimePeriod^Integer^IsMember^&get_misc_timeperiod^idTimePeriod^^Entry" & DOUBLEDOLLAR
+    sDefn = sDefn & "NewLesson^schedule_student^cdDay^Integer^IsMember^&get_misc_day^cdDay^^Entry" & DOUBLEDOLLAR
     
     ' new student
-    sDefn = sDefn & "NewStudent^person_student^sStudentFirstNm^String^^^" & DOUBLEDOLLAR
-    sDefn = sDefn & "NewStudent^person_student^sStudentLastNm^String^^^" & DOUBLEDOLLAR
-    sDefn = sDefn & "NewStudent^person_student^idStudent^Integer^^^" & DOUBLEDOLLAR
-    sDefn = sDefn & "NewStudent^person_student^idPrep^Integer^IsValidPrep^^" & DOUBLEDOLLAR
-    sDefn = sDefn & "NewStudent^person_student^sPrepNm^String^^^" & DOUBLEDOLLAR
+    sDefn = sDefn & "NewStudent^person_student^sStudentFirstNm^String^^^^^Entry" & DOUBLEDOLLAR
+    sDefn = sDefn & "NewStudent^person_student^sStudentLastNm^String^^^^^Entry" & DOUBLEDOLLAR
+    sDefn = sDefn & "NewStudent^person_student^idStudent^Integer^^^^^Entry" & DOUBLEDOLLAR
+    sDefn = sDefn & "NewStudent^person_student^idPrep^Integer^IsValidPrep^^^^Entry" & DOUBLEDOLLAR
+    sDefn = sDefn & "NewStudent^person_student^sPrepNm^String^^^^^Entry" & DOUBLEDOLLAR
     ' new teacher
-    sDefn = sDefn & "NewStudent^person_teacher^sFacultyFirstNm^String^^^" & DOUBLEDOLLAR
-    sDefn = sDefn & "NewStudent^person_teacher^sFacultyLastNm^String^^^" & DOUBLEDOLLAR
-    sDefn = sDefn & "NewStudent^person_teacher^idFaculty^Integer^^^" & DOUBLEDOLLAR
+    sDefn = sDefn & "NewStudent^person_teacher^sFacultyFirstNm^String^^^^^Entry" & DOUBLEDOLLAR
+    sDefn = sDefn & "NewStudent^person_teacher^sFacultyLastNm^String^^^^^Entry" & DOUBLEDOLLAR
+    sDefn = sDefn & "NewStudent^person_teacher^idFaculty^Integer^^^^^Entry" & DOUBLEDOLLAR
     ' table: new subject ---------------------------------------------------------------
-    sDefn = sDefn & "NewSubject^courses_subject^sSubjectLongDesc^String^^^" & DOUBLEDOLLAR
-    sDefn = sDefn & "NewSubject^courses_subject^idSubject^String^^^" & DOUBLEDOLLAR
+    sDefn = sDefn & "NewSubject^courses_subject^sSubjectLongDesc^String^^^^^Entry" & DOUBLEDOLLAR
+    sDefn = sDefn & "NewSubject^courses_subject^idSubject^String^^^^^Entry" & DOUBLEDOLLAR
     ' table: new course ---------------------------------------------------------------
-    sDefn = sDefn & "NewCourse^courses_course^sCourseNm^String^^^" & DOUBLEDOLLAR
-    sDefn = sDefn & "NewCourse^courses_course^idCourse^String^^^" & DOUBLEDOLLAR
-    sDefn = sDefn & "NewCourse^courses_course^idSubject^String^^^" & DOUBLEDOLLAR
+    sDefn = sDefn & "NewCourse^courses_course^sCourseNm^String^^^^^Entry" & DOUBLEDOLLAR
+    sDefn = sDefn & "NewCourse^courses_course^idCourse^String^^^^^Entry" & DOUBLEDOLLAR
+    sDefn = sDefn & "NewCourse^courses_course^idSubject^String^^^^^Entry" & DOUBLEDOLLAR
     ' table: new timeperiod ---------------------------------------------------------------
-    sDefn = sDefn & "NewTimePeriod^misc_timeperiod^idTimePeriod^String^^^" & DOUBLEDOLLAR
-    sDefn = sDefn & "NewTimePeriod^misc_timeperiod^dtPeriodStart^String^^^" & DOUBLEDOLLAR
-    sDefn = sDefn & "NewTimePeriod^misc_timeperiod^dtPeriodEnd^String^^^" & DOUBLEDOLLAR
+    sDefn = sDefn & "NewTimePeriod^misc_timeperiod^idTimePeriod^String^^^^^Entry" & DOUBLEDOLLAR
+    sDefn = sDefn & "NewTimePeriod^misc_timeperiod^dtPeriodStart^String^^^^^Entry" & DOUBLEDOLLAR
+    sDefn = sDefn & "NewTimePeriod^misc_timeperiod^dtPeriodEnd^String^^^^^Entry" & DOUBLEDOLLAR
     ' table: new prep ---------------------------------------------------------------
-    sDefn = sDefn & "NewPrep^misc_prep^idPrep^String^^^" & DOUBLEDOLLAR
-    sDefn = sDefn & "NewPrep^misc_prep^sPrepNm^String^^^" & DOUBLEDOLLAR
+    sDefn = sDefn & "NewPrep^misc_prep^idPrep^String^^^^^Entry" & DOUBLEDOLLAR
+    sDefn = sDefn & "NewPrep^misc_prep^sPrepNm^String^^^^^Entry" & DOUBLEDOLLAR
     ' table: new day ---------------------------------------------------------------
-    sDefn = sDefn & "NewDay^misc_day^idDay^String^^^" & DOUBLEDOLLAR
-    sDefn = sDefn & "NewDay^misc_day^sDayDesc^String^^^" & DOUBLEDOLLAR
-    sDefn = sDefn & "NewDay^misc_day^cdDay^String^^^"
+    sDefn = sDefn & "NewDay^misc_day^idDay^String^^^^^Entry" & DOUBLEDOLLAR
+    sDefn = sDefn & "NewDay^misc_day^sDayDesc^String^^^^^Entry" & DOUBLEDOLLAR
+    sDefn = sDefn & "NewDay^misc_day^cdDay^String^^^^^Entry" & DOUBLEDOLLAR
+    ' button: new lesson ---------------------------------------------------------------
+    sDefn = sDefn & "NewLesson^^COMMIT^^^NewLesson^^^Button"
     
     vSource = Init2DStringArrayFromString(sDefn)
 

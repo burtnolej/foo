@@ -25,7 +25,10 @@ setup:
     sFuncName = CsModuleName & "." & "AddTableRecordAuto"
     sSheetName = "test"
     Set wsTmp = CreateSheet(clsQuadRuntime.TemplateBook, sSheetName, bOverwrite:=True)
-    vSource = Init2DStringArray([{"NewFoo","Foo","FooName","List","IsMember";"NewFoo","Foo","FooAge","Integer","IsValidInteger";"NewBar","Bar","BarName","List","IsMember";"NewBar","Bar","BarAge","Integer","IsValidInteger"}])
+                                  
+    vSource = Init2DStringArray([{"NewFoo","Foo","FooName","List","IsMember","","","","Entry";"NewFoo","Foo","FooAge","Integer","IsValidInteger","","","","Entry";"NewBar","Bar","BarName","List","IsMember","","","","Entry"}])
+
+
     Set rTarget = RangeFromStrArray(vSource, wsTmp, 0, 1)
     vRows = Init2DStringArray([{"Jon","43";"Quinton","6"}])
     vColNames = InitStringArray(Array("FooName", "FooAge"))
@@ -96,7 +99,7 @@ setup:
     sFuncName = CsModuleName & "." & "AddTableRecordManual"
     sSheetName = "test"
     Set wsTmp = CreateSheet(ActiveWorkbook, sSheetName, bOverwrite:=True)
-    vSource = Init2DStringArray([{"NewFoo","Foo","FooName","List","IsMember";"NewFoo","Foo","FooAge","Integer","IsValidInteger";"NewBar","Bar","BarName","List","IsMember";"NewBar","Bar","BarAge","Integer","IsValidInteger"}])
+    vSource = Init2DStringArray([{"NewFoo","Foo","FooName","List","IsMember","","","","Entry";"NewFoo","Foo","FooAge","Integer","IsValidInteger","","","","Entry"}])
     Set rTarget = RangeFromStrArray(vSource, wsTmp, 0, 1)
 
 main:
@@ -169,7 +172,7 @@ setup:
     sFuncName = CsModuleName & "." & "CreateTables"
     sSheetName = "test"
     Set wsTmp = CreateSheet(ActiveWorkbook, sSheetName, bOverwrite:=True)
-    vSource = Init2DStringArray([{"NewFoo","Foo","FooName","List","IsMember";"NewFoo","Foo","FooAge","Integer","IsValidInteger";"NewBar","Bar","BarName","List","IsMember";"NewBar","Bar","BarAge","Integer","IsValidInteger"}])
+    vSource = Init2DStringArray([{"NewFoo","Foo","FooName","List","IsMember","","","","Entry";"NewFoo","Foo","FooAge","Integer","IsValidInteger","","","","Entry";"NewBar","Bar","BarName","List","IsMember","","","","Entry"}])
     Set rTarget = RangeFromStrArray(vSource, wsTmp, 0, 1)
 
 main:
@@ -240,11 +243,11 @@ Dim eTestResult As TestResult
 
     sTableName = "person_student"
    ' new student
-    sDefn = sDefn & "NewStudent^person_student^sStudentFirstNm^String^^^" & DOUBLEDOLLAR
-    sDefn = sDefn & "NewStudent^person_student^sStudentLastNm^String^^^" & DOUBLEDOLLAR
-    sDefn = sDefn & "NewStudent^person_student^idStudent^Integer^^^" & DOUBLEDOLLAR
-    sDefn = sDefn & "NewStudent^person_student^idPrep^Integer^IsValidPrep^^" & DOUBLEDOLLAR
-    sDefn = sDefn & "NewStudent^person_student^sPrepNm^String^^^"
+    sDefn = sDefn & "NewStudent^person_student^sStudentFirstNm^String^^^^^Entry" & DOUBLEDOLLAR
+    sDefn = sDefn & "NewStudent^person_student^sStudentLastNm^String^^^^^Entry" & DOUBLEDOLLAR
+    sDefn = sDefn & "NewStudent^person_student^idStudent^Integer^^^^^Entry" & DOUBLEDOLLAR
+    sDefn = sDefn & "NewStudent^person_student^idPrep^Integer^IsValidPrep^^^^Entry" & DOUBLEDOLLAR
+    sDefn = sDefn & "NewStudent^person_student^sPrepNm^String^^^^^Entry"
     vSource = Init2DStringArrayFromString(sDefn)
     
     Set rTarget = RangeFromStrArray(vSource, wsTmp, 0, 1)
@@ -295,7 +298,7 @@ setup:
     sFuncName = CsModuleName & "." & "TestAddTableMultipleRecordManual"
     sSheetName = "test"
     Set wsTmp = CreateSheet(ActiveWorkbook, sSheetName, bOverwrite:=True)
-    vSource = Init2DStringArray([{"NewFoo","Foo","FooName","List","IsMember";"NewFoo","Foo","FooAge","Integer","IsValidInteger";"NewBar","Bar","BarName","List","IsMember";"NewBar","Bar","BarAge","Integer","IsValidInteger"}])
+    vSource = Init2DStringArray([{"NewFoo","Foo","FooName","List","IsMember","","","","Entry";"NewFoo","Foo","FooAge","Integer","IsValidInteger","","","","Entry";"NewBar","Bar","BarName","List","IsMember","","","","Entry"}])
     Set rTarget = RangeFromStrArray(vSource, wsTmp, 0, 1)
 
 main:
@@ -393,7 +396,7 @@ setup:
     sFuncName = CsModuleName & "." & "TestAddTableMultipleRecordMultiTableManual"
     sSheetName = "test"
     Set wsTmp = CreateSheet(ActiveWorkbook, sSheetName, bOverwrite:=True)
-    vSource = Init2DStringArray([{"NewFoo","Foo","FooName","List","IsMember";"NewFoo","Foo","FooAge","Integer","IsValidInteger";"NewBar","Bar","BarName","List","IsMember";"NewBar","Bar","BarAge","Integer","IsValidInteger"}])
+    vSource = Init2DStringArray([{"NewFoo","Foo","FooName","List","IsMember","","","","Entry";"NewFoo","Foo","FooAge","Integer","IsValidInteger","","","","Entry";"NewBar","Bar","BarName","List","IsMember","","","","Entry"}])
     Set rTarget = RangeFromStrArray(vSource, wsTmp, 0, 1)
 
 main:
@@ -419,17 +422,14 @@ main:
     AddTableRecord "Foo", wbEntryBook:=clsQuadRuntime.EntryBook, wbCacheBook:=clsQuadRuntime.CacheBook
     
     ' Table Bar
-    SetEntryValue "NewBar", "BarAge", 123, wbTmp:=clsQuadRuntime.EntryBook
     SetEntryValue "NewBar", "BarName", "blahblah", wbTmp:=clsQuadRuntime.EntryBook
     
     AddTableRecord "Bar", wbEntryBook:=clsQuadRuntime.EntryBook, wbCacheBook:=clsQuadRuntime.CacheBook
     
-    SetEntryValue "NewBar", "BarAge", 666, wbTmp:=clsQuadRuntime.EntryBook
     SetEntryValue "NewBar", "BarName", "foofoo", wbTmp:=clsQuadRuntime.EntryBook
     
     AddTableRecord "Bar", wbEntryBook:=clsQuadRuntime.EntryBook, wbCacheBook:=clsQuadRuntime.CacheBook
     
-    SetEntryValue "NewBar", "BarAge", 444, wbTmp:=clsQuadRuntime.EntryBook
     SetEntryValue "NewBar", "BarName", "barbar", wbTmp:=clsQuadRuntime.EntryBook
     
     AddTableRecord "Bar", wbEntryBook:=clsQuadRuntime.EntryBook, wbCacheBook:=clsQuadRuntime.CacheBook
@@ -441,23 +441,14 @@ main:
         GoTo teardown
     End If
 
-    If dRecord.Item("FooAge") <> 444 Then
-        eTestResult = TestResult.Failure
-        GoTo teardown
-    End If
     
     Set dRecord = GetTableRecord("Bar", 3, wbTmp:=clsQuadRuntime.CacheBook)
     
-    If dRecord.Exists("BarAge") = False Then
+    If dRecord.Exists("BarName") = False Then
         eTestResult = TestResult.Failure
         GoTo teardown
     End If
 
-    If dRecord.Item("BarAge") <> 444 Then
-        eTestResult = TestResult.Failure
-    Else
-        eTestResult = TestResult.OK
-    End If
     On Error GoTo 0
     GoTo teardown
     
@@ -493,7 +484,7 @@ setup:
     sFuncName = CsModuleName & "." & "AddTableRecordFail"
     sSheetName = "test"
     Set wsTmp = CreateSheet(ActiveWorkbook, sSheetName, bOverwrite:=True)
-    vSource = Init2DStringArray([{"NewFoo","Foo","FooName","List","IsMember";"NewFoo","Foo","FooAge","Integer","IsValidInteger";"NewBar","Bar","BarName","List","IsMember";"NewBar","Bar","BarAge","Integer","IsValidInteger"}])
+    vSource = Init2DStringArray([{"NewFoo","Foo","FooName","List","IsMember","","","","Entry";"NewFoo","Foo","FooAge","Integer","IsValidInteger","","","","Entry";"NewBar","Bar","BarName","List","IsMember","","","","Entry"}])
     Set rTarget = RangeFromStrArray(vSource, wsTmp, 0, 1)
 
 main:

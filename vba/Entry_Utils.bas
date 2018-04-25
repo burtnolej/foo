@@ -270,22 +270,40 @@ err:
 End Function
 Public Sub DumpDefinitions(Optional bLog As Boolean = True)
 Dim sKey As Variant
-Dim sDetail As Variant
-Dim sFuncName As String
+Dim vDetail As Variant
+Dim sFuncName As String, sDetail As String
 Dim dDefnDetail As Dictionary
+Dim v
 
     sFuncName = C_MODULE_NAME & "." & "DumpDefinitions"
     
     For Each sKey In dDefinitions.Keys
-        FuncLogIt sFuncName, "Found defn for [" & sKey & "] definitions", C_MODULE_NAME, LogMsgType.INFO
         If sKey <> "actions" And sKey <> "tables" Then
             Set dDefnDetail = dDefinitions.Item(sKey)
-            For Each sDetail In dDefnDetail.Keys
-                FuncLogIt sFuncName, "Found detail for [" & sDetail & "] [ " & dDefnDetail.Item(sDetail) & "]", C_MODULE_NAME, LogMsgType.INFO
-            Next sDetail
+            Debug.Print vbNewLine
+            Debug.Print sKey
+            For Each vDetail In dDefnDetail.Keys
+                If MyVarType(dDefnDetail.Item(vDetail)) = 46 Then
+                    sDetail = "[" & Join(dDefnDetail.Item(CStr(vDetail)), COMMA) & "]"
+                Else
+                    sDetail = dDefnDetail.Item(vDetail)
+                End If
+                Debug.Print PadStr(CStr(vDetail), "left", 20, " ") & " = " & PadStr(sDetail, "right", 20, " ")
+            Next vDetail
         End If
     Next sKey
 End Sub
+Function GetKey(sSheetName As String, sFieldName As String, Optional eCellType As CellType = CellType.Entry) As String
+Dim sKeySuffix As String
+    If eCellType = CellType.Entry Then
+        eKeySuffix = "e"
+    ElseIf eCellType = CellType.Button Then
+        eKeySuffix = "b"
+    End If
+    
+    GetKey = eKeySuffix & sSheetName & "_" & sFieldName
+    
+End Function
 Function GetEntryKey(sSheetName As String, sFieldName As String) As String
 Dim sKey As String
 
@@ -339,27 +357,29 @@ err:
     err.Raise err.Number, err.Source, err.Description ' cannot recover from this
     
 End Function
-Public Sub GenerateEntry(clsQuadRuntime As Quad_Runtime, _
+
+Public Function GenerateEntry(clsQuadRuntime As Quad_Runtime, _
                               sAction As String, _
                      Optional dDefaultValues As Dictionary, _
-                     Optional wbTmp As Workbook)
+                     Optional wbTmp As Workbook, _
+                     Optional eCellType As CellType = CellType.Entry) As String()
 '<<<
 'purpose: given a set of definition (taken from the global variable dDefinitions, generate
 '       : all the entry widgets (labels and entry cells)
 'param  : clsQuadRuntime, Quad_Runtime; all config controlling names of books, sheets, ranges for
 '       :                 also contains any variables that need to be passed continually
 'param  : sAction, String; user action that entrys need to be generated for (like NewLesson)
+'rtype  : a list of the keys from the widgets that were created
 '>>>
-Dim sFuncName As String, sSheetName As String
+Dim sFuncName As String, sSheetName As String, sCellTypeSuffix As String
 Dim iRow As Integer, iCol As Integer, iEntryCount As Integer
 Dim rCell As Range, rFormat As Range
-Dim vDefinedEntryNamesRanges() As String
+Dim vDefinedEntryNamesRanges() As String, vKeySplits() As String, vGenerated() As String
 
 setup:
-    On Error GoTo err
+    'On Error GoTo err
     sFuncName = C_MODULE_NAME & "." & "GenerateEntry"
-    'iRow = 1
-    'iCol = 1
+    ReDim vGenerated(0 To 20)
     
     sSheetName = sAction  'assume the Sheet name is equal to the Action (like NewLesson)
     
@@ -368,55 +388,87 @@ setup:
     End If
     
 main:
-
     ' get location opf entry screens
-    vDefinedEntryNamesRanges = GetSheetNamedRanges(clsQuadRuntime.TemplateBook, "FormStyles", "fNewEntry")
+    vDefinedEntryNamesRanges = GetSheetNamedRanges(clsQuadRuntime.TemplateBook, "FormStyles", "fNew" & EnumCellType(eCellType))
     
+    If IsEmptyArray(vDefinedEntryNamesRanges) = True Then
+        FuncLogIt sFuncName, "No formats defined for [CellType" & EnumCellType(eCellType) & "]  [sAction=" & sAction & "]", C_MODULE_NAME, LogMsgType.Error
+        GoTo cleanup
+    End If
+
     ' for each entry in the definition generate a input field
     With wbTmp.Sheets(sSheetName)
         .Range(.Cells(1, 1), .Cells(1, 1)).value = UCase(sAction)
      
         For Each sKey In dDefinitions.Keys()
-            If Split(sKey, "_")(0) = "e" & sAction Then
+            vKeySplits = Split(sKey, "_")
+            sCellTypeSuffix = Left(vKeySplits(0), 1)
             
-                If iEntryCount > UBound(vDefinedEntryNamesRanges) Then
-                    err.Raise ErrorMsgType.FORMAT_NOT_DEFINED, Description:="cannot find a format for number [" & CStr(iEntryCount) * "]"
-                End If
+            If InArray(Array("actions", "tables"), sKey) Then
+                GoTo nextdefn
+            End If
+            
+            Set rFormat = clsQuadRuntime.TemplateSheet.Range(vDefinedEntryNamesRanges(iEntryCount))
+            iRow = rFormat.Row
+            iCol = rFormat.Column
+            
+            If iEntryCount > UBound(vDefinedEntryNamesRanges) Then
+                err.Raise ErrorMsgType.FORMAT_NOT_DEFINED, Description:="cannot find a format for number [" & CStr(iEntryCount) * "]"
+            End If
                 
-                Set rFormat = clsQuadRuntime.TemplateSheet.Range(vDefinedEntryNamesRanges(iEntryCount))
-                iRow = rFormat.Row
-                iCol = rFormat.Column
-                 
-                Set rCell = GenerateEntryCell(CStr(sKey), iRow, iCol, sAction, sSheetName, wbTmp:=wbTmp)
-                dDefinitions.Item(sKey).Add "address", rCell.Address
-                
-                If IsSet(dDefaultValues) = True Then ' add default value if one exists
-                    If dDefaultValues.Exists(sAction) = True Then
-                        sDBColName = Split(sKey, "_")(1)
-                        
-                        If dDefaultValues.Item(sAction).Exists(sDBColName) = True Then
-                            rCell.value = dDefaultValues.Item(sAction).Item(sDBColName)
+            ' if this defintion matches the CellType passed as an arg
+            If LCase(Left(EnumCellType(eCellType), 1)) = sCellTypeSuffix Then
+                If sCellTypeSuffix = "e" Then
+                    If Right(vKeySplits(0), Len(vKeySplits(0)) - 1) = sAction Then
+                        Set rCell = GenerateEntryCell(CStr(sKey), iRow, iCol, sAction, sSheetName, wbTmp:=wbTmp)
+                        FormatCell clsQuadRuntime.TemplateBook, clsQuadRuntime.EntryBook, CStr(sAction), rCell, CellState.Invalid, sSourceSheetName:=clsQuadRuntime.TemplateCellSheetName, eCellType:=CellType.Entry
+                        dDefinitions.Item(sKey).Add "address", rCell.Address
+                        If IsSet(dDefaultValues) = True Then ' add default value if one exists
+                            If dDefaultValues.Exists(sAction) = True Then
+                                sDBColName = Split(sKey, "_")(1)
+                                If dDefaultValues.Item(sAction).Exists(sDBColName) = True Then
+                                    rCell.value = dDefaultValues.Item(sAction).Item(sDBColName)
+                                End If
+                            End If
                         End If
+                    Else
+                        GoTo nextdefn
                     End If
+                ElseIf sCellTypeSuffix = "b" Then
+                    If Right(vKeySplits(0), Len(vKeySplits(0)) - 1) = sAction Then
+                        GenerateButton clsQuadRuntime.TemplateBook, clsQuadRuntime.EntryBook, _
+                                sAction, iRow, iCol, CellState.Invalid, _
+                                clsQuadRuntime.TemplateCellSheetName, CStr(sKey)
+                    Else
+                        GoTo nextdefn
+                    End If
+                Else
+                    err.Raise 999, Description:="CellType suffix [" & sCellTypeSuffix & "] not implemented"
                 End If
-
-                FormatCell clsQuadRuntime.TemplateBook, clsQuadRuntime.EntryBook, CStr(sAction), rCell, CellState.Invalid, _
-                            sSourceSheetName:=clsQuadRuntime.TemplateCellSheetName, eCellType:=CellType.Entry
-        
+                
+                ' will only get here if an entry has been added
+                vGenerated(iEntryCount) = sKey
                 iEntryCount = iEntryCount + 1
             End If
+nextdefn:
         Next sKey
      End With
 
 cleanup:
+    If iEntryCount = 0 Then
+        ReDim vGenerated(0)
+    Else
+        ReDim Preserve vGenerated(iEntryCount - 1)
+    End If
     On Error GoTo 0
-    Exit Sub
+    GenerateEntry = vGenerated
+    Exit Function
 
 err:
     FuncLogIt sFuncName, "Error [ " & err.Description & "]  [sKey=" & sKey & "] [sAction=" & sAction & "]", C_MODULE_NAME, LogMsgType.Error
     err.Raise err.Number, err.Source, err.Description ' cannot recover from this
     
-End Sub
+End Function
 Public Sub DeleteEntry(sSheetName As String, sKey As Variant, Optional wbTmp As Workbook)
 Dim sFuncName As String
 
@@ -433,12 +485,15 @@ End Sub
 
 Public Function GenerateButton(wbSourceBook As Workbook, wbTargetbook As Workbook, _
                                sSheetName As String, iRow As Integer, iCol As Integer, _
-                               eButtonState As CellState, sButtonFormatSheetName As String) As Range
+                               eButtonState As CellState, sButtonFormatSheetName As String, _
+                               sKey As String) As Range
 Dim sButtonRangeName As String
 
    With wbTargetbook.Sheets(sSheetName)
         Set rCell = .Range(.Cells(iRow, iCol), .Cells(iRow, iCol))
-        sButtonRangeName = "b" & sSheetName
+        'sButtonRangeName = "b" & sSheetName
+        ' 4/25/18 to accomodate multi and dynamically defined buttons
+        sButtonRangeName = sKey
         CreateNamedRange wbTargetbook, rCell.Address, sSheetName, sButtonRangeName, "True"
     End With
     
@@ -559,7 +614,6 @@ End Sub
 
 Function GetCallerModuleCode() As String
 ' add a caller module so can simulate change events more reliably
-
     GetCallerModuleCode = "Public Sub Invoke_Worksheet_SelectionChange(sSheetName As String, rTarget As Range)" & vbNewLine & _
                 "Dim ws As Worksheet" & vbNewLine & _
                 "set ws = Sheets(sSheetName)" & vbNewLine & _
@@ -578,14 +632,37 @@ Function GetEntryCallbackCode(clsQuadRuntime As Quad_Runtime, sAction As String)
             "Application.Run " & DOUBLEQUOTE & clsQuadRuntime.TemplateBook.Name & "!IsRecordValid" & DOUBLEQUOTE & ",wbSource,wbTarget," & DOUBLEQUOTE & sAction & DOUBLEQUOTE & "," & "sSourceSheetName" & vbNewLine & _
             "End Sub"
 End Function
+Function GenerateCallbackCode(clsQuadRuntime As Quad_Runtime, vButtons() As String, sActionName As String, _
+                Optional sCurrentCode As String, _
+                Optional wbTmp As Workbook) As String
+Dim i As Integer, iRow As Integer, iColumn As Integer
+Dim sCallback As String, sCallbackCode As String
+Dim dDetail As Dictionary
+Dim rButton As Range
 
-Function GetButtonCallbackCode(clsQuadRuntime As Quad_Runtime, sCode As String, iButtonCol As Integer, iButtonRow As Integer, sCallbackFunc As String)
-    GetButtonCallbackCode = sCode & vbNewLine & _
-                    "Public Sub Worksheet_SelectionChange(ByVal Target As Range)" & vbNewLine & _
+    If IsSet(wbTmp) = False Then
+        Set wbTmp = ActiveWorkbook
+    End If
+    
+    For i = 0 To UBound(vButtons)
+        Set dDetail = dDefinitions.Item(vButtons(i))
+        sCallback = dDetail.Item("validation_args")(0)
+        Set rButton = wbTmp.Sheets(sActionName).Range(vButtons(i))
+        sCallbackCode = GetButtonCallbackCode(clsQuadRuntime, rButton.Column, rButton.Row, sCallback)
+    Next i
+    
+    GenerateCallbackCode = sCurrentCode & vbNewLine & _
+         "Public Sub Worksheet_SelectionChange(ByVal Target As Range)" & vbNewLine & _
+         sCallbackCode & vbNewLine & _
+        "End Sub"
+
+End Function
+Function GetButtonCallbackCode(clsQuadRuntime As Quad_Runtime, _
+    iButtonCol As Integer, iButtonRow As Integer, sCallbackFunc As String) As String
+    GetButtonCallbackCode = _
                     "If Target.Column = " & CStr(iButtonCol) & " And Target.Row = " & CStr(iButtonRow) & " Then" & vbNewLine & _
                     "Application.Run " & DOUBLEQUOTE & clsQuadRuntime.TemplateBook.Name & "!" & sCallbackFunc & DOUBLEQUOTE & vbNewLine & _
-                    "End If" & vbNewLine & _
-                    "End Sub"
+                    "End If" & vbNewLine
 End Function
 Public Sub GenerateEntryForms(clsQuadRuntime As Quad_Runtime, _
                      Optional bLoadRefData As Boolean = False, _
@@ -607,6 +684,7 @@ Dim dActions As Dictionary, dDefnDetails As Dictionary
 Dim sAction As Variant, sKey As Variant
 Dim sCode As String, sFieldName As String, sFuncName As String, sCallbackFunc As String, sDBColName As String
 Dim rCell As Range, rButton As Range
+Dim vGenerated() As String
 
 setup:
     sFuncName = C_MODULE_NAME & "." & "GenerateEntryForms"
@@ -634,14 +712,19 @@ setup:
         ' create the entry sheet and add call back code
         Set wsTmp = CreateSheet(clsQuadRuntime.EntryBook, CStr(sAction), bOverwrite:=True)
         sCode = GetEntryCallbackCode(clsQuadRuntime, CStr(sAction))
-        sCode = GetButtonCallbackCode(clsQuadRuntime, sCode, C_GOBUTTON_COL, C_GOBUTTON_ROW, sCallbackFunc)
-        AddCode2Module clsQuadRuntime.EntryBook, wsTmp.CodeName, sCode
-    
+        
         ' Generate entry widgets
         FormatEntryForm clsQuadRuntime, CStr(sAction)
         GenerateEntry clsQuadRuntime, CStr(sAction), wbTmp:=clsQuadRuntime.EntryBook, dDefaultValues:=dDefaultValues
-        GenerateButton clsQuadRuntime.TemplateBook, clsQuadRuntime.EntryBook, CStr(sAction), C_GOBUTTON_ROW, C_GOBUTTON_COL, CellState.Invalid, clsQuadRuntime.TemplateCellSheetName
-
+        vGenerated = GenerateEntry(clsQuadRuntime, CStr(sAction), wbTmp:=clsQuadRuntime.EntryBook, dDefaultValues:=dDefaultValues, _
+                eCellType:=CellType.Button)
+        
+        If IsEmptyArray(vGenerated) = False Then
+            sCode = GenerateCallbackCode(clsQuadRuntime, vGenerated, CStr(sAction), sCurrentCode:=sCode, wbTmp:=clsQuadRuntime.EntryBook)
+        End If
+        
+        AddCode2Module clsQuadRuntime.EntryBook, wsTmp.CodeName, sCode
+        
         ' add a caller module so can simulate change events more reliably
         sCode = GetCallerModuleCode
         
@@ -655,12 +738,15 @@ setup:
 nextaction:
     Next sAction
 End Sub
-Public Function LoadDefinitions(wsTmp As Worksheet, Optional rSource As Range = Nothing) As Dictionary
+Public Function LoadDefinitions(wsTmp As Worksheet, _
+                       Optional rSource As Range = Nothing, _
+                       Optional bIgnoreCellType As Boolean = False) As Dictionary
 Dim dDefinitions As New Dictionary, dDefnDetail As Dictionary
 Dim dDefnActions As New Dictionary 'holds a discrete list of actions that have been defined
 Dim dDefnTables As New Dictionary 'holds a discrete list of tables that have been defined
 Dim rRow As Range
 Dim sTableName As String, sFieldName As String, sActionName As String, sValidationType As String
+Dim eCellType As CellType
 Dim sValidationParam As String, sFuncName As String, sKey As String
 Dim vValidationParams() As String
 Dim iCol As Integer, iValidationParamCount As Integer
@@ -682,6 +768,11 @@ main:
             sFieldName = rRow.Columns(3)
             sValidationType = rRow.Columns(4)
             sValidationParam = rRow.Columns(5)
+            If bIgnoreCellType = False Then
+                eCellType = GetCellTypeFromValue(rRow.Columns(9))
+            Else
+                eCellType = CellType.Entry
+            End If
             
             Set dDefnDetail = New Dictionary
             dDefnDetail.Add "validation_type", sValidationType
@@ -689,7 +780,7 @@ main:
             dDefnDetail.Add "db_table_name", sTableName
             dDefnDetail.Add "db_field_name", sFieldName
             
-            For iCol = 6 To 9
+            For iCol = 6 To 8
                 If rRow.Columns(iCol).value <> "" Then
                     vValidationParams(iValidationParamCount) = rRow.Columns(iCol).value
                     iValidationParamCount = iValidationParamCount + 1
@@ -701,7 +792,8 @@ main:
                 dDefnDetail.Add "validation_args", vValidationParams
             End If
             
-            sKey = "e" & sActionName & "_" & sFieldName
+            sKey = GetKey(sActionName, sFieldName, eCellType)
+            
             If dDefinitions.Exists(sKey) = True Then
                 FuncLogIt sFuncName, "definition for [" & sKey & "] already loaded", C_MODULE_NAME, LogMsgType.INFO
             Else
