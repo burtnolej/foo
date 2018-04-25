@@ -5,6 +5,7 @@ Const C_PREPS = "1,2,3,4,5"
 Const C_GOBUTTON_ROW = 2
 Const C_GOBUTTON_COL = 8
 
+
 Enum FieldType
     Number = 1
     NumberFormula = 2
@@ -362,7 +363,8 @@ Public Function GenerateEntry(clsQuadRuntime As Quad_Runtime, _
                               sAction As String, _
                      Optional dDefaultValues As Dictionary, _
                      Optional wbTmp As Workbook, _
-                     Optional eCellType As CellType = CellType.Entry) As String()
+                     Optional eCellType As CellType = CellType.Entry, _
+                     Optional sFormType As String = "New") As String()
 '<<<
 'purpose: given a set of definition (taken from the global variable dDefinitions, generate
 '       : all the entry widgets (labels and entry cells)
@@ -372,9 +374,10 @@ Public Function GenerateEntry(clsQuadRuntime As Quad_Runtime, _
 'rtype  : a list of the keys from the widgets that were created
 '>>>
 Dim sFuncName As String, sSheetName As String, sCellTypeSuffix As String
-Dim iRow As Integer, iCol As Integer, iEntryCount As Integer
+Dim iRow As Integer, iCol As Integer, iEntryCount As Integer, iParentRowOffset As Integer, iParentColOffset As Integer
 Dim rCell As Range, rFormat As Range
 Dim vDefinedEntryNamesRanges() As String, vKeySplits() As String, vGenerated() As String
+Dim wbTarget As Workbook
 
 setup:
     'On Error GoTo err
@@ -387,9 +390,21 @@ setup:
         Set wbTmp = ActiveWorkbook
     End If
     
+    If sFormType = "Menu" Then
+        Set wbTarget = clsQuadRuntime.MenuBook
+    Else
+        Set wbTarget = clsQuadRuntime.EntryBook
+    End If
+    
 main:
     ' get location opf entry screens
-    vDefinedEntryNamesRanges = GetSheetNamedRanges(clsQuadRuntime.TemplateBook, "FormStyles", "fNew" & EnumCellType(eCellType))
+    vDefinedEntryNamesRanges = GetSheetNamedRanges(clsQuadRuntime.TemplateBook, "FormStyles", "f" & sFormType & EnumCellType(eCellType))
+    
+    ' get location of parent format
+    With clsQuadRuntime.TemplateSheet.Range("f" & sFormType)
+        iParentRowOffset = .Rows(1).Row - 1
+        iParentColOffset = .Columns(1).Column - 1
+    End With
     
     If IsEmptyArray(vDefinedEntryNamesRanges) = True Then
         FuncLogIt sFuncName, "No formats defined for [CellType" & EnumCellType(eCellType) & "]  [sAction=" & sAction & "]", C_MODULE_NAME, LogMsgType.Error
@@ -409,8 +424,8 @@ main:
             End If
             
             Set rFormat = clsQuadRuntime.TemplateSheet.Range(vDefinedEntryNamesRanges(iEntryCount))
-            iRow = rFormat.Row
-            iCol = rFormat.Column
+            iRow = rFormat.Row - iParentRowOffset
+            iCol = rFormat.Column - iParentColOffset
             
             If iEntryCount > UBound(vDefinedEntryNamesRanges) Then
                 err.Raise ErrorMsgType.FORMAT_NOT_DEFINED, Description:="cannot find a format for number [" & CStr(iEntryCount) * "]"
@@ -421,7 +436,7 @@ main:
                 If sCellTypeSuffix = "e" Then
                     If Right(vKeySplits(0), Len(vKeySplits(0)) - 1) = sAction Then
                         Set rCell = GenerateEntryCell(CStr(sKey), iRow, iCol, sAction, sSheetName, wbTmp:=wbTmp)
-                        FormatCell clsQuadRuntime.TemplateBook, clsQuadRuntime.EntryBook, CStr(sAction), rCell, CellState.Invalid, sSourceSheetName:=clsQuadRuntime.TemplateCellSheetName, eCellType:=CellType.Entry
+                        FormatCell clsQuadRuntime.TemplateBook, wbTarget, CStr(sAction), rCell, CellState.Invalid, sSourceSheetName:=clsQuadRuntime.TemplateCellSheetName, eCellType:=CellType.Entry
                         dDefinitions.Item(sKey).Add "address", rCell.Address
                         If IsSet(dDefaultValues) = True Then ' add default value if one exists
                             If dDefaultValues.Exists(sAction) = True Then
@@ -436,7 +451,7 @@ main:
                     End If
                 ElseIf sCellTypeSuffix = "b" Then
                     If Right(vKeySplits(0), Len(vKeySplits(0)) - 1) = sAction Then
-                        GenerateButton clsQuadRuntime.TemplateBook, clsQuadRuntime.EntryBook, _
+                        GenerateButton clsQuadRuntime.TemplateBook, wbTarget, _
                                 sAction, iRow, iCol, CellState.Invalid, _
                                 clsQuadRuntime.TemplateCellSheetName, CStr(sKey)
                     Else
@@ -587,10 +602,17 @@ Dim sFormFormatRangeName As String
 Dim rFormFormatRange As Range, rFormFormatTargetRange As Range
 Dim iFormatWidth As Integer, iFormatHeight As Integer
 Dim wsForm As Worksheet
+Dim wbTarget As Workbook
 
     sFormFormatRangeName = "f" & sFormType
     
-    Set wsForm = clsQuadRuntime.EntryBook.Sheets(sTargetSheetName)
+    If sFormType = "Menu" Then
+        Set wbTarget = clsQuadRuntime.MenuBook
+    Else
+        Set wbTarget = clsQuadRuntime.EntryBook
+    End If
+    
+    Set wsForm = wbTarget.Sheets(sTargetSheetName)
     
     With clsQuadRuntime.TemplateSheet
         .Range(sFormFormatRangeName).Copy
@@ -608,7 +630,7 @@ Dim wsForm As Worksheet
                                                                                Transpose:=False
     End With
 
-    FormatColRowSize clsQuadRuntime.TemplateBook, clsQuadRuntime.EntryBook, _
+    FormatColRowSize clsQuadRuntime.TemplateBook, wbTarget, _
             wsForm.Name, clsQuadRuntime.TemplateSheetName, sFormFormatRangeName
 End Sub
 
@@ -621,12 +643,12 @@ Function GetCallerModuleCode() As String
                 "End Sub"
 End Function
         
-Function GetEntryCallbackCode(clsQuadRuntime As Quad_Runtime, sAction As String) As String
+Function GetEntryCallbackCode(clsQuadRuntime As Quad_Runtime, sAction As String, sTargetBookName As String) As String
     GetEntryCallbackCode = "Private Sub Worksheet_Change(ByVal Target As Range)" & vbNewLine & _
             "dim wbTarget as Workbook, wbSource as Workbook" & vbNewLine & _
             "dim sSourceSheetName as string" & vbNewLine & _
             "set wbSource= Workbooks(" & DOUBLEQUOTE & clsQuadRuntime.TemplateBookName & DOUBLEQUOTE & ")" & vbNewLine & _
-            "set wbTarget= Workbooks(" & DOUBLEQUOTE & clsQuadRuntime.EntryBookName & DOUBLEQUOTE & ")" & vbNewLine & _
+            "set wbTarget= Workbooks(" & DOUBLEQUOTE & sTargetBookName & DOUBLEQUOTE & ")" & vbNewLine & _
             "sSourceSheetName = " & DOUBLEQUOTE & clsQuadRuntime.TemplateCellSheetName & DOUBLEQUOTE & vbNewLine & _
             "Application.Run " & DOUBLEQUOTE & clsQuadRuntime.TemplateBook.Name & "!Validate" & DOUBLEQUOTE & ",Application.ActiveWorkbook, Application.ActiveSheet.Name, Target" & vbNewLine & _
             "Application.Run " & DOUBLEQUOTE & clsQuadRuntime.TemplateBook.Name & "!IsRecordValid" & DOUBLEQUOTE & ",wbSource,wbTarget," & DOUBLEQUOTE & sAction & DOUBLEQUOTE & "," & "sSourceSheetName" & vbNewLine & _
@@ -682,9 +704,11 @@ Public Sub GenerateEntryForms(clsQuadRuntime As Quad_Runtime, _
 '>>>
 Dim dActions As Dictionary, dDefnDetails As Dictionary
 Dim sAction As Variant, sKey As Variant
-Dim sCode As String, sFieldName As String, sFuncName As String, sCallbackFunc As String, sDBColName As String
+Dim sCode As String, sFieldName As String, sFuncName As String, sCallbackFunc As String, sDBColName As String, _
+        sFormType As String
 Dim rCell As Range, rButton As Range
 Dim vGenerated() As String
+Dim wbTmp As Workbook, wbTarget As Workbook
 
 setup:
     sFuncName = C_MODULE_NAME & "." & "GenerateEntryForms"
@@ -710,27 +734,41 @@ setup:
         End If
         
         ' create the entry sheet and add call back code
-        Set wsTmp = CreateSheet(clsQuadRuntime.EntryBook, CStr(sAction), bOverwrite:=True)
-        sCode = GetEntryCallbackCode(clsQuadRuntime, CStr(sAction))
+        
+        If CStr(sAction) Like "New*" Then
+            sFormType = "New"
+            Set wbTarget = clsQuadRuntime.EntryBook
+        ElseIf CStr(sAction) Like "Menu*" Then
+            sFormType = "Menu"
+            Set wbTarget = clsQuadRuntime.MenuBook
+        Else
+            FuncLogIt sFuncName, "invalid formtype  [" & CStr(sAction) & "]", C_MODULE_NAME, LogMsgType.Failure
+            GoTo nextaction
+            'err.Raise ErrorMsgType.INVALID_FORMTYPE, Description:="form type needs to be New or Menu"
+        End If
+    
+        Set wsTmp = CreateSheet(wbTarget, CStr(sAction), bOverwrite:=True)
+            
+        sCode = GetEntryCallbackCode(clsQuadRuntime, CStr(sAction), wbTarget.Name)
         
         ' Generate entry widgets
-        FormatEntryForm clsQuadRuntime, CStr(sAction)
-        GenerateEntry clsQuadRuntime, CStr(sAction), wbTmp:=clsQuadRuntime.EntryBook, dDefaultValues:=dDefaultValues
-        vGenerated = GenerateEntry(clsQuadRuntime, CStr(sAction), wbTmp:=clsQuadRuntime.EntryBook, dDefaultValues:=dDefaultValues, _
-                eCellType:=CellType.Button)
+        FormatEntryForm clsQuadRuntime, CStr(sAction), sFormType:=sFormType
+        GenerateEntry clsQuadRuntime, CStr(sAction), wbTmp:=wbTarget, dDefaultValues:=dDefaultValues
+        vGenerated = GenerateEntry(clsQuadRuntime, CStr(sAction), wbTmp:=wbTarget, dDefaultValues:=dDefaultValues, _
+                eCellType:=CellType.Button, sFormType:=sFormType)
         
         If IsEmptyArray(vGenerated) = False Then
-            sCode = GenerateCallbackCode(clsQuadRuntime, vGenerated, CStr(sAction), sCurrentCode:=sCode, wbTmp:=clsQuadRuntime.EntryBook)
+            sCode = GenerateCallbackCode(clsQuadRuntime, vGenerated, CStr(sAction), sCurrentCode:=sCode, wbTmp:=wbTarget)
         End If
         
-        AddCode2Module clsQuadRuntime.EntryBook, wsTmp.CodeName, sCode
+        AddCode2Module wbTarget, wsTmp.CodeName, sCode
         
         ' add a caller module so can simulate change events more reliably
         sCode = GetCallerModuleCode
         
         ' will already exist if more than 1 entry
-        If ModuleExists(clsQuadRuntime.EntryBook, "change_event_invoker") = False Then
-            CreateModule clsQuadRuntime.EntryBook, "change_event_invoker", sCode
+        If ModuleExists(wbTarget, "change_event_invoker") = False Then
+            CreateModule wbTarget, "change_event_invoker", sCode
         End If
         
         HideEntryForm CStr(sAction)
@@ -762,6 +800,7 @@ main:
     With wsTmp
         For Each rRow In rSource.Rows
             ReDim vValidationParams(0 To 3)
+            'rSource.Select
             iValidationParamCount = 0
             sActionName = rRow.Columns(1)
             sTableName = rRow.Columns(2)
@@ -801,6 +840,7 @@ main:
             End If
             
             If dDefnActions.Exists(sActionName) = False Then
+                'rRow.Select
                 dDefnActions.Add sActionName, Nothing
             End If
 

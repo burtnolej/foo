@@ -444,7 +444,7 @@ Dim dDefnDetail As Dictionary
 End Function
 
 
-Function T_e_stGenerateMenuForm() As TestResult
+Function Te___stGenerateMenuForm() As TestResult
 ' multiple entry forms
 Dim sSheetName As String, sResultStr As String, sFuncName As String, sDefn As String
 Dim sExpectedResultStr As String
@@ -457,22 +457,22 @@ Dim clsQuadRuntime As New Quad_Runtime
 
 setup:
     clsQuadRuntime.InitProperties bInitializeCache:=True
-    On Error GoTo err:
+    'On Error GoTo err:
     sFuncName = CsModuleName & "." & "TestGenerateMenuForm"
     sSheetName = "test"
     Set wsTmp = CreateSheet(clsQuadRuntime.TemplateBook, sSheetName, bOverwrite:=True)
     sDefn = "NewLesson^schedule_student^sStudentFirstNm^String^IsMember^&get_person_student^sStudentFirstNm^^Entry" & DOUBLEDOLLAR
-    sDefn = sDefn & "NewStudent^Student^StudentAge^Integer^IsValidInteger^^^^Entry"
-    sDefn = sDefn & "NewStudent^Student^StudentPrep^IntegerRange^IsValidPrep^^^^Entry"
-    sDefn = sDefn & "NewStudent^^COMMIT^^^NewStudent^^^Button"
-    sDefn = sDefn & "NewTeacher^Teacher^TeacherAge^Integer^IsValidInteger^^^^Entry"
-    sDefn = sDefn & "NewTeacher^Teacher^TeacherPrep^IntegerRange^IsValidPrep^^^^Entry"
-    sDefn = sDefn & "NewTeacher^^COMMIT^^^NewTeacher^^^Button"
-    sDefn = sDefn & "MainMenu^^Toggle Schedule Window^ToggleScheduleWindow^^^Button"
-    sDefn = sDefn & "MainMenu^^Toggle Entry Window^ToggleEntryWindow^^^Button"
-    sDefn = sDefn & "MainMenu^^Toggle Cache Window^ToggleCacheWindow^^^Button"
-    sDefn = sDefn & "MainMenu^^Show NewStudent^ShowNewStudent^^^Button"
-    sDefn = sDefn & "MainMenu^^Show NewTeacher^ShowNewTeacher^^^Button"
+    sDefn = sDefn & "NewStudent^Student^StudentAge^Integer^IsValidInteger^^^^Entry" & DOUBLEDOLLAR
+    sDefn = sDefn & "NewStudent^Student^StudentPrep^IntegerRange^IsValidPrep^^^^Entry" & DOUBLEDOLLAR
+    sDefn = sDefn & "NewStudent^^COMMIT^^^NewStudent^^^Button" & DOUBLEDOLLAR
+    sDefn = sDefn & "NewTeacher^Teacher^TeacherAge^Integer^IsValidInteger^^^^Entry" & DOUBLEDOLLAR
+    sDefn = sDefn & "NewTeacher^Teacher^TeacherPrep^IntegerRange^IsValidPrep^^^^Entry" & DOUBLEDOLLAR
+    sDefn = sDefn & "NewTeacher^^COMMIT^^^NewTeacher^^^Button" & DOUBLEDOLLAR
+    sDefn = sDefn & "MenuMain^^Toggle_Schedule_Window^^^ToggleScheduleWindow^^^Button" & DOUBLEDOLLAR
+    sDefn = sDefn & "MenuMain^^Toggle_Entry_Window^^^ToggleEntryWindow^^^Button" & DOUBLEDOLLAR
+    sDefn = sDefn & "MenuMain^^Toggle_Cache_Window^^^ToggleCacheWindow^^^Button" & DOUBLEDOLLAR
+    sDefn = sDefn & "MenuMain^^Show_NewStudent^^^ShowNewStudent^^^Button" & DOUBLEDOLLAR
+    sDefn = sDefn & "MenuMain^^Show_NewTeacher^^^ShowNewTeacher^^^Button"
     
     vSource = Init2DStringArrayFromString(sDefn)
 
