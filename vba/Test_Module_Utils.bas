@@ -2,6 +2,92 @@ Attribute VB_Name = "Test_Module_Utils"
 Option Explicit
 'Sub    TestExportModules()
 Const CsModuleName = "Test_Module_Utils"
+
+Function TestGetCode() As TestResult
+Dim VBProj As VBIDE.VBProject
+Dim VBComp As VBIDE.VBComponent
+Dim wbTmp As Workbook
+Dim sBookName As String, sRootDirectory As String, sExportModuleDir As String, sCode As String, sModuleCode As String, sModuleName As String, sFuncName As String, sParagraph As String
+Dim eTestResult As TestResult
+
+setup:
+    sFuncName = CsModuleName & "." & "GetCode"
+    sModuleName = "tmp1"
+    sRootDirectory = Environ("MYHOME")
+    sBookName = "tmp.xls"
+    Set wbTmp = CreateBook(sRootDirectory & "\" & sBookName)
+    sCode = "public function test() as String" & vbNewLine & _
+            "    test=" & """barfoo""" & vbNewLine & _
+            "end function"
+
+    sCode = "Option Explicit" & vbNewLine
+    sCode = sCode & "Private Sub Worksheet_Change(ByVal Target As Range)" & vbNewLine
+    sCode = sCode & "Dim wbTarget As Workbook, wbSource As Workbook" & vbNewLine
+    sCode = sCode & "Dim sSourceSheetName As String" & vbNewLine
+    sCode = sCode & "Set wbSource = Workbooks(""vba_source_new.xlsm"")" & vbNewLine
+    sCode = sCode & "Set wbTarget = Workbooks(""menu.xlsm"")" & vbNewLine
+    sCode = sCode & "sSourceSheetName = ""CellStyles""" & vbNewLine
+    sCode = sCode & "Application.Run ""vba_source_new.xlsm!Validate"", Application.ActiveWorkbook, Application.ActiveSheet.Name, Target" & vbNewLine
+    sCode = sCode & "Application.Run ""vba_source_new.xlsm!IsRecordValid"", wbSource, wbTarget, ""MenuMain"", sSourceSheetName" & vbNewLine
+    sCode = sCode & "End Sub" & vbNewLine
+    sCode = sCode & "Public Sub Worksheet_SelectionChange(ByVal Target As Range)" & vbNewLine
+    sCode = sCode & "If Target.Column = 2 And Target.Row = 2 Then" & vbNewLine
+    sCode = sCode & "Application.Run ""vba_source_new.xlsm!ToggleScheduleWindow"" & vbNewLine"
+    sCode = sCode & "End If" & vbNewLine
+    
+    sCode = sCode & "If Target.Column = 4 And Target.Row = 2 Then" & vbNewLine
+    sCode = sCode & "Application.Run ""vba_source_new.xlsm!ToggleEntryWindow"" & vbNewLine"
+    sCode = sCode & "End If" & vbNewLine
+    
+    sCode = sCode & "If Target.Column = 6 And Target.Row = 2 Then" & vbNewLine
+    sCode = sCode & "Application.Run ""vba_source_new.xlsm!ToggleCacheWindow"" & vbNewLine"
+    sCode = sCode & "End If" & vbNewLine
+    
+    sCode = sCode & "If Target.Column = 2 And Target.Row = 5 Then" & vbNewLine
+    sCode = sCode & "Application.Run ""vba_source_new.xlsm!ShowNewStudent"" & vbNewLine"
+    sCode = sCode & "End If" & vbNewLine
+    
+    sCode = sCode & "If Target.Column = 4 And Target.Row = 5 Then" & vbNewLine
+    sCode = sCode & "Application.Run ""vba_source_new.xlsm!ShowNewTeacher"" & vbNewLine"
+    sCode = sCode & "End If" & vbNewLine
+    
+    sCode = sCode & "End Sub" & vbNewLine
+
+    Set VBComp = CreateModule(wbTmp, sModuleName, sCode)
+    
+main:
+    sParagraph = "If Target.Column = 2 And Target.Row = 5 Then" & vbNewLine
+    sCode = sCode & "Application.Run ""vba_source_new.xlsm!ShowNewStudent"" & vbNewLine"
+    sCode = sCode & "End If" & vbNewLine
+
+    sModuleCode = GetProcCode(wbTmp, sModuleName, "Worksheet_SelectionChange")
+    
+    If InParagraph(sParagraph, sModuleCode) = False Then
+        eTestResult = TestResult.Failure
+    Else
+        eTestResult = TestResult.OK
+    End If
+    
+    If InParagraph("foobar", sModuleCode) = True Then
+        eTestResult = TestResult.Failure
+    Else
+        eTestResult = TestResult.OK
+    End If
+    
+    On Error GoTo 0
+    GoTo teardown
+    
+err:
+    eTestResult = TestResult.Error
+    
+teardown:
+    TestGetCode = eTestResult
+    Call DeleteModule(wbTmp, sModuleName)
+    Call CloseBook(wbTmp)
+    Call DeleteBook(sRootDirectory & "\" & sBookName)
+    
+End Function
+
 Function TestImportModules() As TestResult
 Dim VBProj As VBIDE.VBProject
 Dim VBComp As VBIDE.VBComponent

@@ -172,7 +172,7 @@ main:
         
         For i = 1 To VBComp.CodeModule.CountOfLines
             sProcName = VBComp.CodeModule.ProcOfLine(i, vbext_pk_Proc)
-            
+                       
             If bTestsOnly = True And Left(sProcName, 4) <> "Test" Then
                 GoTo nextproc
             End If
@@ -198,7 +198,29 @@ nextproc:
     Set GetProcsInModules = dProc
     
 End Function
+Public Function GetProcCode(wb As Workbook, sCompName As String, sProcName As String, _
+        Optional eProcType As vbext_ProcKind = vbext_ProcKind.vbext_pk_Proc) As String
+Dim VBProj As VBIDE.VBProject
+Dim VBComp As VBIDE.VBComponent
+Dim iProcLength As Integer, iProcStartLine As Integer
+Dim sCode As String, sFuncName As String
 
+setup:
+    On Error GoTo err
+    sFuncName = "GetProcCode"
+
+main:
+    Set VBProj = wb.VBProject
+    Set VBComp = VBProj.VBComponents(sCompName)
+    iProcLength = VBComp.CodeModule.ProcCountLines(sProcName, vbext_pk_Proc)
+    iProcStartLine = VBComp.CodeModule.ProcStartLine(sProcName, vbext_pk_Proc)
+    GetProcCode = VBComp.CodeModule.Lines(iProcStartLine, iProcLength)
+    Exit Function
+    
+err:
+    FuncLogIt sFuncName, "[" & err.Description & "] not retreieve code for [sCompName" & sCompName & "] [sProcName=" & sProcName & "]", C_MODULE_NAME, LogMsgType.Error
+    GetProcCode = "-1"
+End Function
 Public Function GetProcAnalysis(wb As Workbook, dProc As Dictionary) As Dictionary
 Dim sProcName As Variant
 Dim sModuleName As String

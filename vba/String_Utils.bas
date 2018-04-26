@@ -8,6 +8,13 @@ Public Const BLANK = ""
 Public Const QUOTE = "'"
 Public Const UNDERSCORE = "_"
 
+Function InParagraph(sSearchParagraphs As String, sSourceParagraph) As Boolean
+    InParagraph = True
+    If InStr(sSourceParagraph, sSearchParagraphs) = 0 Then
+        InParagraph = False
+    End If
+End Function
+
 
 Function PadStr(sInputStr As String, sDirection As String, iPadLength As Integer, sPadChar As String, _
         Optional bAsciiFlag As Boolean = False, Optional iAscii As Integer) As String

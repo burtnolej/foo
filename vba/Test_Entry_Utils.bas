@@ -444,10 +444,9 @@ Dim dDefnDetail As Dictionary
 End Function
 
 
-Function Te___stGenerateMenuForm() As TestResult
+Function TestGenerateMenuForm() As TestResult
 ' multiple entry forms
-Dim sSheetName As String, sResultStr As String, sFuncName As String, sDefn As String
-Dim sExpectedResultStr As String
+Dim sSheetName As String, sResultStr As String, sFuncName As String, sDefn As String, sSearchCode As String, sModuleCode As String, sExpectedResultStr As String
 Dim vSource() As String
 Dim wsTmp As Worksheet
 Dim rTarget As Range, rEntry As Range, rButton As Range
@@ -480,42 +479,40 @@ setup:
     CreateNamedRange clsQuadRuntime.TemplateBook, rTarget.Address, sSheetName, "Definitions", "True"
     Set Entry_Utils.dDefinitions = LoadDefinitions(wsTmp, rSource:=rTarget)
 
-
 main:
 
     GenerateEntryForms clsQuadRuntime
     
+    sSearchCode = "If Target.Column = 2 And Target.Row = 2 Then" & vbNewLine
+    sSearchCode = sSearchCode & "Application.Run ""vba_source_new.xlsm!ToggleScheduleWindow""" & vbNewLine
+    sSearchCode = sSearchCode & "End If"
+
+    sModuleCode = GetProcCode(clsQuadRuntime.MenuBook, "Sheet2", "Worksheet_SelectionChange")
+    
+    If InParagraph(sSearchCode, sModuleCode) = False Then
+        eTestResult = TestResult.Failure
+        GoTo teardown
+    End If
+    
+    sSearchCode = "If Target.Column = 4 And Target.Row = 5 Then" & vbNewLine
+    sSearchCode = sSearchCode & "Application.Run ""vba_source_new.xlsm!ShowNewTeacher""" & vbNewLine
+    sSearchCode = sSearchCode & "End If"
+
+    sModuleCode = GetProcCode(clsQuadRuntime.MenuBook, "Sheet2", "Worksheet_SelectionChange")
+    
+    If InParagraph(sSearchCode, sModuleCode) = False Then
+        eTestResult = TestResult.Failure
+        GoTo teardown
+    End If
+    
     Set rButton = clsQuadRuntime.MenuBook.Sheets("MenuMain").Range("D5:D5")
-    'Application.Run "menu.xlsm!Invoke_Worksheet_SelectionChange", rButton
     
-    If SheetExists(clsQuadRuntime.EntryBook, "NewStudent") = False Then
+    If rButton.Name.Name <> "MenuMain!bMenuMain_Show_NewTeacher" Then
         eTestResult = TestResult.Failure
         GoTo teardown
     End If
     
-    If SheetExists(clsQuadRuntime.EntryBook, "NewTeacher") = False Then
-        eTestResult = TestResult.Failure
-        GoTo teardown
-    End If
-    
-    Set rEntry = GetEntryCell("NewStudent", "StudentAge", wbTmp:=clsQuadRuntime.EntryBook)
-    rEntry.value = 123
-    Validate clsQuadRuntime.EntryBook, "NewStudent", rEntry
-    
-    If IsEntryValid("NewStudent", rEntry) = False Then
-        eTestResult = TestResult.Failure
-        GoTo teardown
-    End If
-    
-    Set rEntry = GetEntryCell("NewTeacher", "TeacherAge", wbTmp:=clsQuadRuntime.EntryBook)
-    rEntry.value = 666
-    Validate clsQuadRuntime.EntryBook, "NewTeacher", rEntry
-    
-    If IsEntryValid("NewTeacher", rEntry) = False Then
-        eTestResult = TestResult.Failure
-    Else
-        eTestResult = TestResult.OK
-    End If
+    eTestResult = TestResult.OK
     On Error GoTo 0
     GoTo teardown
     
