@@ -450,7 +450,7 @@ Dim sSheetName As String, sResultStr As String, sFuncName As String, sDefn As St
 Dim sExpectedResultStr As String
 Dim vSource() As String
 Dim wsTmp As Worksheet
-Dim rTarget As Range, rEntry As Range
+Dim rTarget As Range, rEntry As Range, rButton As Range
 Dim dDefinitions As Dictionary, dDefnDetails As Dictionary
 Dim eTestResult As TestResult
 Dim clsQuadRuntime As New Quad_Runtime
@@ -484,6 +484,9 @@ setup:
 main:
 
     GenerateEntryForms clsQuadRuntime
+    
+    Set rButton = clsQuadRuntime.MenuBook.Sheets("MenuMain").Range("D5:D5")
+    'Application.Run "menu.xlsm!Invoke_Worksheet_SelectionChange", rButton
     
     If SheetExists(clsQuadRuntime.EntryBook, "NewStudent") = False Then
         eTestResult = TestResult.Failure

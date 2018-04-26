@@ -670,7 +670,7 @@ Dim rButton As Range
         Set dDetail = dDefinitions.Item(vButtons(i))
         sCallback = dDetail.Item("validation_args")(0)
         Set rButton = wbTmp.Sheets(sActionName).Range(vButtons(i))
-        sCallbackCode = GetButtonCallbackCode(clsQuadRuntime, rButton.Column, rButton.Row, sCallback)
+        sCallbackCode = sCallbackCode & GetButtonCallbackCode(clsQuadRuntime, rButton.Column, rButton.Row, sCallback) & vbNewLine
     Next i
     
     GenerateCallbackCode = sCurrentCode & vbNewLine & _
