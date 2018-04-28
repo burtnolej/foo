@@ -765,7 +765,7 @@ End Function
 Function TestIsMemberOfTable() As TestResult
 Dim sFuncName As String, sSheetName As String, sTableName As String
 Dim eTestResult As TestResult
-Dim vSource() As String, vColNames() As String, vRows() As String
+Dim vSource() As String, vColNames() As String, vRows() As Variant
 Dim wsTmp As Worksheet
 Dim rTarget As Range, rInput As Range
 Dim bTestPassed As Boolean
@@ -779,11 +779,11 @@ setup:
     Set wsTmp = CreateSheet(clsQuadRuntime.AddBook, sSheetName, bOverwrite:=True)
     vSource = Init2DStringArray([{"AddFoo","Foo","FooName","List","IsMember";"AddFoo","Foo","FooAge","Integer","IsValidInteger";"AddBar","Bar","BarName","List","IsMember";"AddBar","Bar","BarAge","Integer","IsValidInteger"}])
     Set rTarget = RangeFromStrArray(vSource, wsTmp, 0, 1)
-    vRows = Init2DStringArray([{"Jon","43";"Quinton","6"}])
+    vRows = Init2DVariantArray([{"Jon","43";"Quinton","6"}])
     vColNames = InitStringArray(Array("FooName", "FooAge"))
     Set Add_Utils.dDefinitions = LoadDefinitions(wsTmp, rSource:=rTarget, bIgnoreCellType:=True)
     CreateTables clsQuadRuntime.CacheBook
-    AddTableRecordAuto clsQuadRuntime.CacheBook, "foo", vColNames, vRows
+    AddTableRecordAuto clsQuadRuntime.CacheBook, "foo", vColNames, vRows, bBulkLoad:=True
     
 main:
    

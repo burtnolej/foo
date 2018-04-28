@@ -198,7 +198,7 @@ setup:
     If sInitVal = BLANK Then
         err.Raise ErrorMsgType.BAD_ARGUMENT, Description:="init val cannot be BLANK"
     Else
-        FuncLogIt sFuncName, "init val cannot be BLANK", C_MODULE_NAME, LogMsgType.INFO
+        FuncLogIt sFuncName, "init val cannot be BLANK", C_MODULE_NAME, LogMsgType.Info
     End If
     ' END ASSERTIONS -------------------------------------
     
@@ -237,7 +237,7 @@ setup:
     If FileExists(sFilePath) = False Then
         err.Raise ErrorMsgType.BAD_ARGUMENT, Description:="file does not exist"
     Else
-        FuncLogIt sFuncName, "file [" & sFilePath & "] does not exist", C_MODULE_NAME, LogMsgType.INFO
+        FuncLogIt sFuncName, "file [" & sFilePath & "] does not exist", C_MODULE_NAME, LogMsgType.Info
     End If
     ' END ASSERTIONS -------------------------------------
 

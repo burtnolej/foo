@@ -73,7 +73,7 @@ main:
     Exit Function
     
 err:
-    FuncLogIt sFuncName, "could not get screnn DPI", C_MODULE_NAME, LogMsgType.INFO
+    FuncLogIt sFuncName, "could not get screnn DPI", C_MODULE_NAME, LogMsgType.Info
 
 End Function
 
@@ -101,7 +101,7 @@ main:
     Exit Function
     
 err:
-    FuncLogIt sFuncName, "could not create window sheet [" & sSheetName & "]", C_MODULE_NAME, LogMsgType.INFO
+    FuncLogIt sFuncName, "could not create window sheet [" & sSheetName & "]", C_MODULE_NAME, LogMsgType.Info
 
 
 End Function
@@ -136,7 +136,7 @@ main:
     Exit Function
     
 err:
-    FuncLogIt sFuncName, "could not set scroll area range not simplify window [wTmp=" & CStr(wTmp.index) & "] [rVisible=" & rVisible.Address & "]", C_MODULE_NAME, LogMsgType.INFO
+    FuncLogIt sFuncName, "could not set scroll area range not simplify window [wTmp=" & CStr(wTmp.index) & "] [rVisible=" & rVisible.Address & "]", C_MODULE_NAME, LogMsgType.Info
 
 End Function
 
@@ -167,7 +167,7 @@ main:
     Exit Sub
     
 err:
-    FuncLogIt sFuncName, "could not make label  [rLabel=" & rLabel.Address & "] [wbTmp=" & wbTmp.Name & "]", C_MODULE_NAME, LogMsgType.INFO
+    FuncLogIt sFuncName, "could not make label  [rLabel=" & rLabel.Address & "] [wbTmp=" & wbTmp.Name & "]", C_MODULE_NAME, LogMsgType.Info
     
 End Sub
 Public Sub SimplifyWindow(winsetTmp As Quad_WindowSettings, _
@@ -250,7 +250,7 @@ main:
     Exit Sub
     
 err:
-    FuncLogIt sFuncName, "could not simplify window [wbTmp=" & wbTmp.Name & "] [iWindowID=" & CStr(winsetTmp.WindowID) & "]", C_MODULE_NAME, LogMsgType.INFO
+    FuncLogIt sFuncName, "could not simplify window [wbTmp=" & wbTmp.Name & "] [iWindowID=" & CStr(winsetTmp.WindowID) & "]", C_MODULE_NAME, LogMsgType.Info
 
 End Sub
 Public Function GetScreenDimensions(ByRef lWidth As Long, ByRef lHeight As Long)
@@ -268,7 +268,7 @@ main:
     Exit Function
     
 err:
-    FuncLogIt sFuncName, "could not get screen dimensions", C_MODULE_NAME, LogMsgType.INFO
+    FuncLogIt sFuncName, "could not get screen dimensions", C_MODULE_NAME, LogMsgType.Info
 
 End Function
 Public Sub MinimumWindowState(Optional wbTmp As Workbook, Optional iWindowID As Integer = 1)

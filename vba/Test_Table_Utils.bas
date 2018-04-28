@@ -64,7 +64,7 @@ main:
 
     Set Add_Utils.dDefinitions = LoadDefinitions(wsTmp, rSource:=rTarget)
     CreateTables wbTmp:=clsQuadRuntime.CacheBook
-    AddTableRecordAuto clsQuadRuntime.CacheBook, "foo", vColNames, vRows
+    AddTableRecordAuto clsQuadRuntime.CacheBook, "foo", vColNames, vRows, bBulkLoad:=True
     
     'AddTableRecord
     
@@ -247,7 +247,7 @@ main:
     Set Add_Utils.dDefinitions = LoadDefinitions(wsTmp, rSource:=rTarget)
     CreateTables wbTmp:=clsQuadRuntime.CacheBook
         
-    AddTableRecordAuto clsQuadRuntime.CacheBook, "foo", vColNames, vRows
+    AddTableRecordAuto clsQuadRuntime.CacheBook, "foo", vColNames, vRows, bBulkLoad:=True
     
     Set dRecord = GetTableRecord("Foo", 2, wbTmp:=clsQuadRuntime.CacheBook)
     
@@ -585,7 +585,111 @@ teardown:
 End Function
 
 
+Function TestAddTableRecordManualOntoDBLoad() As TestResult
+' From a definition, create entry forms, fill out values for a record, manually call function
+' to add the single record (dont validate and use button) and then retreive the record
+Dim sFuncName As String, sSheetName As String, sResultStr As String, sExpectedResultStr As String
+Dim vSource() As String, vRows() As Variant, vColNames() As String
+Dim wsTmp As Worksheet
+Dim rTarget As Range
+Dim dDefinitions As Dictionary, dRecord As Dictionary
+Dim eTestResult As TestResult
+Dim clsQuadRuntime As New Quad_Runtime
 
+setup:
+    clsQuadRuntime.InitProperties bInitializeCache:=True
+    sFuncName = CsModuleName & "." & "TestAddTableRecordManualOntoDBLoad"
+    sSheetName = "test"
+    Set wsTmp = CreateSheet(ActiveWorkbook, sSheetName, bOverwrite:=True)
+    vSource = Init2DStringArray([{"AddFoo","Foo","FooName","List","IsMember","","","","Entry";"AddFoo","Foo","FooAge","Integer","IsValidInteger","","","","Entry";"AddBar","Bar","BarName","List","IsMember","","","","Entry"}])
+    Set rTarget = RangeFromStrArray(vSource, wsTmp, 0, 1)
+    vRows = Init2DVariantArray([{"Jon","43";"Quinton","6"}])
+    vColNames = InitStringArray(Array("FooName", "FooAge"))
+
+    Set Add_Utils.dDefinitions = LoadDefinitions(wsTmp, rSource:=rTarget)
+    CreateTables wbTmp:=clsQuadRuntime.CacheBook
+        
+    AddTableRecordAuto clsQuadRuntime.CacheBook, "foo", vColNames, vRows, bBulkLoad:=True
+main:
+
+    GenerateForms clsQuadRuntime
+        
+    SetEntryValue "AddFoo", "FooAge", 123, wbTmp:=clsQuadRuntime.AddBook
+    SetEntryValue "AddFoo", "FooName", "blahblah", wbTmp:=clsQuadRuntime.AddBook
+    
+    AddTableRecord "Foo", wbAddBook:=clsQuadRuntime.AddBook, wbCacheBook:=clsQuadRuntime.CacheBook
+    
+    SetEntryValue "AddFoo", "FooAge", 666, wbTmp:=clsQuadRuntime.AddBook
+    SetEntryValue "AddFoo", "FooName", "foofoo", wbTmp:=clsQuadRuntime.AddBook
+    
+    AddTableRecord "Foo", wbAddBook:=clsQuadRuntime.AddBook, wbCacheBook:=clsQuadRuntime.CacheBook
+    
+    SetEntryValue "AddFoo", "FooAge", 444, wbTmp:=clsQuadRuntime.AddBook
+    SetEntryValue "AddFoo", "FooName", "barbar", wbTmp:=clsQuadRuntime.AddBook
+    
+    AddTableRecord "Foo", wbAddBook:=clsQuadRuntime.AddBook, wbCacheBook:=clsQuadRuntime.CacheBook
+    
+    Set dRecord = GetTableRecord("Foo", 1, wbTmp:=clsQuadRuntime.CacheBook)
+    
+    If dRecord.Exists("FooAge") = False Then
+        eTestResult = TestResult.Failure
+        GoTo teardown
+    End If
+
+    If dRecord.Item("FooAge") <> 6 Then
+        eTestResult = TestResult.Failure
+        GoTo teardown
+    End If
+    
+    If clsQuadRuntime.CacheBook.Sheets("Foo").Range("dbFooSyncState").Rows(2) <> "DB" Then
+        eTestResult = TestResult.Failure
+        GoTo teardown
+    End If
+    
+    If clsQuadRuntime.CacheBook.Sheets("Foo").Range("dbFooSyncState").Rows(3) <> "User" Then
+        eTestResult = TestResult.Failure
+        GoTo teardown
+    End If
+    
+    Set dRecord = GetTableRecord("Foo", 3, wbTmp:=clsQuadRuntime.CacheBook)
+    
+    If dRecord.Exists("FooAge") = False Then
+        eTestResult = TestResult.Failure
+        GoTo teardown
+    End If
+
+    If dRecord.Item("FooAge") <> 666 Then
+        eTestResult = TestResult.Failure
+        GoTo teardown
+    End If
+    
+    Set dRecord = GetTableRecord("Foo", 4, wbTmp:=clsQuadRuntime.CacheBook)
+    
+    If dRecord.Exists("FooAge") = False Then
+        eTestResult = TestResult.Failure
+        GoTo teardown
+    End If
+
+    If dRecord.Item("FooAge") <> 444 Then
+        eTestResult = TestResult.Failure
+    Else
+        eTestResult = TestResult.OK
+    End If
+    On Error GoTo 0
+    GoTo teardown
+    
+err:
+    eTestResult = TestResult.Error
+    
+teardown:
+    TestAddTableRecordManualOntoDBLoad = eTestResult
+    DeleteSheet clsQuadRuntime.AddBook, sSheetName
+    DeleteSheet clsQuadRuntime.CacheBook, "Foo"
+    DeleteSheet clsQuadRuntime.CacheBook, "Bar"
+    DeleteForms wbTmp:=clsQuadRuntime.AddBook
+    clsQuadRuntime.Delete
+
+End Function
 Function TestAddTableMultipleRecordMultiTableManual() As TestResult
 ' From a definition, create entry forms, fill out values for a record, manually call function
 ' to add the single record (dont validate and use button) and then retreive the record

@@ -12,8 +12,22 @@ Attribute VB_Name = "Table_Utils"
 
 Option Explicit
 Const C_MODULE_NAME = "Table_Utils"
-
 Const C_DB_DEFAULT_FIELDS = "CreatedTime,LastUpdatedTime,ID,SyncState"
+
+Enum ColumnType
+    DB = 1
+    Info = 2
+End Enum
+
+Const C_COLUMN_TYPE = "DB,Info"
+
+Function EnumColumnType(i As Long) As String
+    EnumColumnType = Split(C_COLUMN_TYPE, COMMA)(i - 1)
+End Function
+Function GetColumnTypeEnumFromValue(sValue As String) As Long
+    GetColumnTypeEnumFromValue = IndexArray(C_COLUMN_TYPE, sValue)
+End Function
+
 Public Function CalcSyncState(sTableName As String, Optional wbTmp As Workbook) As String
     CalcSyncState = "User"
 End Function
@@ -43,13 +57,22 @@ Public Sub FormatCreatedTime(wsTmp As Worksheet, rCell As Range)
     MakeCellLongDate wsTmp, rCell
 End Sub
 
-Public Function GetDBColumnRange(ByVal sTableName, sFieldName) As String
+Public Function GetDBColumnRange(ByVal sTableName, sFieldName, _
+        Optional eColumnType As ColumnType = ColumnType.DB) As String
 Dim sLookUpTableName As String
+Dim sSuffix As String
+
     If Left(sTableName, 1) = "&" Then
         sTableName = Right(sTableName, Len(sTableName) - 5)
     End If
     
-    GetDBColumnRange = "db" & sTableName & sFieldName
+    If eColumnType = ColumnType.DB Then
+        sSuffix = "db"
+    ElseIf eColumnType = ColumnType.Info Then
+        sSuffix = "i"
+    End If
+    
+    GetDBColumnRange = sSuffix & sTableName & sFieldName
 End Function
 Public Function GetTableRecord(sTableName As String, iID As Integer, Optional wbTmp As Workbook) As Dictionary
 Dim sFuncName As String
@@ -110,7 +133,7 @@ Dim dDetail As Dictionary
 Dim iRowCount As Integer, iColCount As Integer, iNextFree As Integer, iDefaultFieldCount As Integer, iOrigWidth As Integer
 Dim iMaxRow As Integer, iMaxCol As Integer, i As Integer, j As Integer, iOrigLastCol As Integer
 Dim wsTable As Worksheet
-Dim rTarget As Range
+Dim rTarget As Range, rNextFree As Range
 Dim aDefaultFields() As String
 Dim aDefaultValues() As Variant
 
@@ -145,8 +168,12 @@ setup:
 main:
 
     If bBulkLoad = False Then
+        ' default to 1 if for some reason iNextFree is not readable
+        iNextFree = 2
+        On Error Resume Next
         iNextFree = wsTable.Range("i" & sTableName & "NextFree").value + 1
-            
+        On Error GoTo 0
+        
         For iRowCount = LBound(vRows) To UBound(vRows)
             For iColCount = LBound(vRows, 2) To UBound(vRows, 2)
                 sColRange = GetDBColumnRange(sTableName, vColNames(iColCount - LBound(vRows, 2)))
@@ -188,6 +215,9 @@ main:
                     vRows(i, j) = aDefaultValues(j - iOrigWidth - LBound(vRows, 2))
                 Next j
             Next i
+            
+            Set rNextFree = wsTable.Range("i" & sTableName & "NextFree")
+            rNextFree.value = UBound(vRows) - LBound(vRows) + 1
         End If
         
         iMaxRow = UBound(vRows) - LBound(vRows) + 1
@@ -213,7 +243,13 @@ setup:
     sFuncName = C_MODULE_NAME & "." & "AddTableRecordFromDict"
 
 main:
+
+    iNextFree = 2
+    On Error Resume Next
     iNextFree = wsTable.Range("i" & sTableName & "NextFree").value + 1
+    On Error GoTo 0
+    
+    'iNextFree = wsTable.Range("i" & sTableName & "NextFree").value + 1
     
     For Each sKey In dValues
         sColRange = GetDBColumnRange(sTableName, sKey)
@@ -251,7 +287,15 @@ setup:
     
 main:
     With wsAdd
+        ' default to 1 if for some reason iNextFree is not readable
+        
+
+        iNextFree = 2
+        On Error Resume Next
         iNextFree = wsTable.Range("i" & sTableName & "NextFree").value + 1
+        On Error GoTo 0
+        
+        'iNextFree = wsTable.Range("i" & sTableName & "NextFree").value + 1
         
         For Each sKey In dDefinitions.Keys()
             If dDefinitions.Item(sKey).Exists("db_table_name") = False Then
@@ -275,7 +319,7 @@ main:
         
         aDefaultFields = Split(C_DB_DEFAULT_FIELDS, ",")
         For i = 0 To UBound(aDefaultFields)
-            sColRange = GetDBColumnRange(sTableName, aDefaultFields(i))
+            sColRange = GetDBColumnRange(sTableName, aDefaultFields(i), ColumnType.Info)
             wsTable.Range(sColRange).Rows(iNextFree) = Application.Run("Calc" & aDefaultFields(i), sTableName, wbCacheBook)
         Next i
     End With
@@ -287,13 +331,20 @@ main:
 err:
     
 End Function
-Public Sub CreateTableColumn(wsTmp As Worksheet, iCol As Integer, sTableName As String, sFieldName As String, _
-                Optional wbTmp As Workbook, Optional vDataID As Variant)
+Public Sub CreateTableColumn(wsTmp As Worksheet, iCol As Integer, ByVal sTableName As String, sFieldName As String, _
+                Optional wbTmp As Workbook, Optional vDataID As Variant, Optional eColumnType As ColumnType = ColumnType.DB)
 Dim rColumn As Range
 Dim sRangeName As String
+Dim sSuffix As String
 
     If IsSet(wbTmp) = False Then
         Set wbTmp = ActiveWorkbook
+    End If
+    
+    If eColumnType = ColumnType.DB Then
+        sSuffix = "db"
+    ElseIf eColumnType = ColumnType.Info Then
+        sSuffix = "i"
     End If
     
     With wsTmp
@@ -305,7 +356,7 @@ Dim sRangeName As String
     If IsSet(vDataID) Then
         sTableName = sTableName & UNDERSCORE & CStr(vDataID)
     End If
-    sRangeName = "db" & sTableName & sFieldName
+    sRangeName = sSuffix & sTableName & sFieldName
         
     CreateNamedRange wbTmp, rColumn.Address, wsTmp.Name, sRangeName, "True"
 End Sub
@@ -339,20 +390,29 @@ setup:
 
     If dDefinitions Is Nothing Then
         ' when called from a callback and dDefinitons needs to be reconstituted
-        FuncLogIt sFuncName, "Definitions not loaded so reloading", C_MODULE_NAME, LogMsgType.INFO
+        FuncLogIt sFuncName, "Definitions not loaded so reloading", C_MODULE_NAME, LogMsgType.Info
         DoLoadDefinitions clsQuadRuntime:=clsQuadRuntime
     End If
-    
+
+    ' this is to account for sub tables that are filtered tables (like by personID)
+    vTableNameSplits = Split(sTableName, UNDERSCORE)
+    If UBound(vTableNameSplits) = 2 Then
+        sTableName = vTableNameSplits(0) & UNDERSCORE & vTableNameSplits(1)
+        vDataID = vTableNameSplits(2)
+    Else
+        Set vDataID = Nothing
+    End If
+            
     With wsTmp
         For Each sKey In dDefinitions.Keys()
             ' this is to account for sub tables that are filtered tables (like by personID)
-            vTableNameSplits = Split(sTableName, UNDERSCORE)
-            If UBound(vTableNameSplits) = 2 Then
-                sTableName = vTableNameSplits(0) & UNDERSCORE & vTableNameSplits(1)
-                vDataID = vTableNameSplits(2)
-            Else
-                Set vDataID = Nothing
-            End If
+            'vTableNameSplits = Split(sTableName, UNDERSCORE)
+            'If UBound(vTableNameSplits) = 2 Then
+            '    sTableName = vTableNameSplits(0) & UNDERSCORE & vTableNameSplits(1)
+            '    vDataID = vTableNameSplits(2)
+            'Else
+            '    'Set vDataID = Nothing
+            'End If
             
             If dDefinitions.Item(sKey).Item("db_table_name") = sTableName Then
                 Set dDefnDetail = dDefinitions.Item(sKey)
@@ -364,15 +424,17 @@ setup:
         iCol = iCol + 1
         For i = iCol To iCol + UBound(aDefaultFields)
             CreateTableColumn wsTmp, i, sTableName, aDefaultFields(i - iCol), _
-                wbTmp:=clsQuadRuntime.CacheBook
+                wbTmp:=clsQuadRuntime.CacheBook, vDataID:=vDataID, eColumnType:=ColumnType.Info
         Next i
 
         Set rTarget = .Range(.Cells(1, i + 1), .Cells(1, i + 1))
         rTarget.value = 1
         sRangeName = "i" & sTableName & "NextFree"
-        CreateNamedRange wbTmp, rTarget.Address, wsTmp.Name, sRangeName, "True"
-        
-        FuncLogIt sFuncName, "Created db table [" & sTableName & "] with [" & CStr(i + 1) & "] columns", C_MODULE_NAME, LogMsgType.INFO
+        'CreateNamedRange wbTmp, rTarget.Address, wsTmp.Name, sRangeName, "True"
+        CreateTableColumn wsTmp, i + 1, sTableName, "NextFree", wbTmp:=clsQuadRuntime.CacheBook, vDataID:=vDataID, _
+            eColumnType:=ColumnType.Info
+                
+        FuncLogIt sFuncName, "Created db table [" & sTableName & "] with [" & CStr(i + 1) & "] columns", C_MODULE_NAME, LogMsgType.Info
     End With
 
     Set CreateTable = wsTmp
@@ -405,6 +467,6 @@ setup:
         
     Next sTableName
 
-    FuncLogIt sFuncName, "Created [" & CStr(iCount) & "] tables", C_MODULE_NAME, LogMsgType.INFO
+    FuncLogIt sFuncName, "Created [" & CStr(iCount) & "] tables", C_MODULE_NAME, LogMsgType.Info
 
 End Sub

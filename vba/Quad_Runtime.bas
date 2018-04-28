@@ -32,9 +32,9 @@ Private pScheduleBook As Workbook
 Private pScheduleBookPath As String
 Private pScheduleBookName As String
 
-Private pEntryBook As Workbook
-Private pEntryBookPath As String
-Private pEntryBookName As String
+Private pAddBook As Workbook
+Private pAddBookPath As String
+Private pAddBookName As String
 
 Private pMenuBook As Workbook
 Private pMenuBookPath As String
@@ -76,8 +76,8 @@ Private cTemplateSheetName  As String
 Private cTemplateCellSheetName  As String
 Private cScheduleBookPath As String
 Private cScheduleBookName As String
-Private cEntryBookPath As String
-Private cEntryBookName As String
+Private cAddBookPath As String
+Private cAddBookName As String
 Private cMenuBookPath As String
 Private cMenuBookName As String
 Private cDefinitionSheetName   As String
@@ -411,46 +411,46 @@ End Property
 ' END Menu -------------------------------------
 
 
-' Entry -----------------------------------------
-Public Property Get EntryBook() As Workbook
-    Set EntryBook = pEntryBook
+' Add -----------------------------------------
+Public Property Get AddBook() As Workbook
+    Set AddBook = pAddBook
 End Property
-Public Property Let EntryBook(value As Workbook)
-    Set pEntryBook = value
+Public Property Let AddBook(value As Workbook)
+    Set pAddBook = value
 End Property
-Public Property Get EntryBookPath() As String
-    EntryBookPath = pEntryBookPath
+Public Property Get AddBookPath() As String
+    AddBookPath = pAddBookPath
 End Property
-Public Property Let EntryBookPath(value As String)
+Public Property Let AddBookPath(value As String)
 Dim sCachedValue As String, sOrigValue As String, sConstValue As String
 Dim sFuncName As String
 
 setup:
-    sFuncName = "EntryBookPath"
-    sConstValue = cEntryBookPath
+    sFuncName = "AddBookPath"
+    sConstValue = cAddBookPath
     
-    pEntryBookPath = GetUpdatedValue(sFuncName, sConstValue, value)
+    pAddBookPath = GetUpdatedValue(sFuncName, sConstValue, value)
     
     If DirExists(value) <> True Then
          err.Raise ErrorMsgType.BAD_ARGUMENT, Description:="workbook [" & value & "] does not exist"
     End If
     
 End Property
-Public Property Get EntryBookName() As String
+Public Property Get AddBookName() As String
     
-    EntryBookName = pEntryBookName
+    AddBookName = pAddBookName
 End Property
-Public Property Let EntryBookName(value As String)
+Public Property Let AddBookName(value As String)
 Dim sCachedValue As String, sOrigValue As String, sConstValue As String
 Dim sFuncName As String
 
 setup:
-    sFuncName = "EntryBookName"
-    sConstValue = cEntryBookName
+    sFuncName = "AddBookName"
+    sConstValue = cAddBookName
     
-    pEntryBookName = GetUpdatedValue(sFuncName, sConstValue, value)
+    pAddBookName = GetUpdatedValue(sFuncName, sConstValue, value)
 End Property
-' END Entry -------------------------------------
+' END Add -------------------------------------
 
 ' misc ---------------------------------------------
 Public Property Get DayEnum() As String
@@ -507,7 +507,7 @@ setup:
     pFileName = GetUpdatedValue(sFuncName, sConstValue, value)
     
     If FileExists(value) = False Then
-        FuncLogIt "Let_FileName", "file currently does not exist to [" & value & "]", C_MODULE_NAME, LogMsgType.INFO
+        FuncLogIt "Let_FileName", "file currently does not exist to [" & value & "]", C_MODULE_NAME, LogMsgType.Info
     End If
 main:
     
@@ -548,7 +548,7 @@ setup:
     pResultFileName = GetUpdatedValue(sFuncName, sConstValue, value)
     
     If FileExists(pResultFileName) = False Then
-        FuncLogIt "Let_ResultFileName", "file currently does not exist to [" & value & "]", C_MODULE_NAME, LogMsgType.INFO
+        FuncLogIt "Let_ResultFileName", "file currently does not exist to [" & value & "]", C_MODULE_NAME, LogMsgType.Info
     End If
 main:
     
@@ -603,7 +603,7 @@ setup:
     pRuntimeDir = GetUpdatedValue(sFuncName, sConstValue, value)
     
     If DirExists(value) = False Then
-        FuncLogIt "Let_RuntimeDir", "file currently does not exist to [" & value & "]", C_MODULE_NAME, LogMsgType.INFO
+        FuncLogIt "Let_RuntimeDir", "file currently does not exist to [" & value & "]", C_MODULE_NAME, LogMsgType.Info
     End If
 main:
     
@@ -622,7 +622,7 @@ setup:
     pExecPath = GetUpdatedValue(sFuncName, sConstValue, value)
     
     If DirExists(value) = False Then
-        FuncLogIt "Let_ExecPath", "file currently does not exist to [" & value & "]", C_MODULE_NAME, LogMsgType.INFO
+        FuncLogIt "Let_ExecPath", "file currently does not exist to [" & value & "]", C_MODULE_NAME, LogMsgType.Info
     End If
 main:
     
@@ -646,13 +646,13 @@ Dim sCachedValue As String, sOrigValue As String
     If sCachedValue <> " " Then
         sOrigValue = value
         value = sCachedValue
-        FuncLogIt "Let_" & sFuncName, "retreived value from overide cache file to [" & sCachedValue & "] instead of [" & sOrigValue & "]", C_MODULE_NAME, LogMsgType.INFO
+        FuncLogIt "Let_" & sFuncName, "retreived value from overide cache file to [" & sCachedValue & "] instead of [" & sOrigValue & "]", C_MODULE_NAME, LogMsgType.Info
     Else
         If value = "" Then
             'using default value
             value = sConstValue
         ElseIf value <> sConstValue Then
-            FuncLogIt "Let_" & sFuncName, "overidden to [" & value & "] default was [" & sConstValue & "]", C_MODULE_NAME, LogMsgType.INFO
+            FuncLogIt "Let_" & sFuncName, "overidden to [" & value & "] default was [" & sConstValue & "]", C_MODULE_NAME, LogMsgType.Info
             PersistOverride sFuncName, value
         End If
     End If
@@ -686,7 +686,7 @@ Dim sCurrentValue As String
     vCurrentState(iRow) = sValue
     WriteArray2File vCurrentState, Me.QuadRuntimeCacheFileName
 
-    FuncLogIt "PersistOverride", "updated QuadRuntime persist file [" & Me.QuadRuntimeCacheFileName & "] for [" & sFuncName & "] from [" & sCurrentValue & "] to [" & sValue & "]", C_MODULE_NAME, LogMsgType.INFO
+    FuncLogIt "PersistOverride", "updated QuadRuntime persist file [" & Me.QuadRuntimeCacheFileName & "] for [" & sFuncName & "] from [" & sCurrentValue & "] to [" & sValue & "]", C_MODULE_NAME, LogMsgType.Info
 
 End Sub
 
@@ -750,14 +750,14 @@ Sub SetDefaults()
     cMenuBookPath = cRuntimeDir
     cMenuBookName = "menu.xlsm"
     
-    cEntryBookPath = cRuntimeDir
-    cEntryBookName = "entry.xlsm"
+    cAddBookPath = cRuntimeDir
+    cAddBookName = "add.xlsm"
     
     cDefinitionSheetName = "Definitions"
     cDatabasePath = cAppDir & "app\quad\utils\excel\test_misc\QuadQA.db"
     cResultFileName = cRuntimeDir & "pyshell_results.txt"
     cFileName = cRuntimeDir & "uupyshell.args.txt"
-    cQuadRuntimeEnum = "BookPath,BookName,CacheBookName,CacheBookPath,CacheRangeName,TemplateBookPath,TemplateBookName,TemplateSheetName,TemplateCellSheetName,DatabasePath,ResultFileName,ExecPath,RuntimeDir,FileName,DayEnum,PeriodEnum,CurrentSheetSource,CurrentSheetColumns,QuadRuntimeCacheFileName,DefinitionSheetName,ScheduleBookPath,ScheduleBookName,EntryBookPath,EntryBookName,MenuBookPath,MenuBookName"
+    cQuadRuntimeEnum = "BookPath,BookName,CacheBookName,CacheBookPath,CacheRangeName,TemplateBookPath,TemplateBookName,TemplateSheetName,TemplateCellSheetName,DatabasePath,ResultFileName,ExecPath,RuntimeDir,FileName,DayEnum,PeriodEnum,CurrentSheetSource,CurrentSheetColumns,QuadRuntimeCacheFileName,DefinitionSheetName,ScheduleBookPath,ScheduleBookName,AddBookPath,AddBookName,MenuBookPath,MenuBookName"
     cDayEnum = "M,T,W,R,F"
     cPeriodEnum = "1,2,3,4,5,6,7,8,9,10,11"
     cQuadRuntimeCacheFileName = cHomeDir & "\quad_runtime_cache.txt"
@@ -774,7 +774,7 @@ Dim sBookName As Variant
     ReDim vWindowCol2(0 To 1)
     ReDim vWindow(0 To 1)
     
-    vWindowNames = Array(Me.BookName, Me.ScheduleBookName, Me.CacheBookName, Me.EntryBookName)
+    vWindowNames = Array(Me.BookName, Me.ScheduleBookName, Me.CacheBookName, Me.AddBookName)
     
     For Each sBookName In vWindowNames
         Set winsetTmp = New Quad_WindowSettings
@@ -787,7 +787,7 @@ Dim sBookName As Variant
     vWindowCol1(0) = Me.BookName
     vWindowCol1(1) = Me.ScheduleBookName
     vWindowCol2(0) = Me.CacheBookName
-    vWindowCol2(1) = Me.EntryBookName
+    vWindowCol2(1) = Me.AddBookName
     vWindow(0) = vWindowCol1 'row 1
     vWindow(1) = vWindowCol2 'row 1
     
@@ -804,7 +804,7 @@ Public Sub InitProperties( _
                  Optional sTemplateSheetName As String, Optional sTemplateCellSheetName As String, _
                  Optional sScheduleBookPath As String, Optional sScheduleBookName As String, _
                  Optional sMenuBookPath As String, Optional sMenuBookName As String, _
-                 Optional sEntryBookPath As String, Optional sEntryBookName As String, _
+                 Optional sAddBookPath As String, Optional sAddBookName As String, _
                  Optional sDatabasePath As String, _
                  Optional sResultFileName As String, _
                  Optional sExecPath As String, _
@@ -832,28 +832,28 @@ Public Sub InitProperties( _
     Me.CacheRangeName = sCacheRangeName
     Me.ScheduleBookPath = sScheduleBookPath
     Me.ScheduleBookName = sScheduleBookName
-    Me.EntryBookPath = sEntryBookPath
-    Me.EntryBookName = sEntryBookName
+    Me.AddBookPath = sAddBookPath
+    Me.AddBookName = sAddBookName
     Me.MenuBookPath = cMenuBookPath
     Me.MenuBookName = cMenuBookName
     
     If bInitializeCache = True Then
         FileCopy cCacheBookName, cNewBookPath, cRuntimeDir
         FileCopy cScheduleBookName, cNewBookPath, cRuntimeDir
-        FileCopy cEntryBookName, cNewBookPath, cRuntimeDir
+        FileCopy cAddBookName, cNewBookPath, cRuntimeDir
         FileCopy cMenuBookName, cNewBookPath, cRuntimeDir
     Else
         If BookExists(Me.CacheBookPath & "\" & Me.CacheBookName) = False Then
             FileCopy cCacheBookName, cNewBookPath, cRuntimeDir
             FileCopy cScheduleBookName, cNewBookPath, cRuntimeDir
-            FileCopy cEntryBookName, cNewBookPath, cRuntimeDir
+            FileCopy cAddBookName, cNewBookPath, cRuntimeDir
             FileCopy cMenuBookName, cNewBookPath, cRuntimeDir
         End If
     End If
     
     Me.CacheBook = OpenBook(Me.CacheBookName, sPath:=Me.CacheBookPath)
     Me.ScheduleBook = OpenBook(Me.ScheduleBookName, sPath:=Me.ScheduleBookPath)
-    Me.EntryBook = OpenBook(Me.EntryBookName, sPath:=Me.EntryBookPath)
+    Me.AddBook = OpenBook(Me.AddBookName, sPath:=Me.AddBookPath)
     Me.MenuBook = OpenBook(Me.MenuBookName, sPath:=Me.MenuBookPath)
     
     Me.BookPath = sBookPath
@@ -895,8 +895,8 @@ Public Sub CleanUpTmpBooks()
     DeleteBook Me.CacheBookName, Me.CacheBookPath
     CloseBook Me.ScheduleBook
     DeleteBook Me.ScheduleBookName, Me.ScheduleBookPath
-    CloseBook Me.EntryBook
-    DeleteBook Me.EntryBookName, Me.EntryBookPath
+    CloseBook Me.AddBook
+    DeleteBook Me.AddBookName, Me.AddBookPath
     CloseBook Me.MenuBook
     DeleteBook Me.MenuBookName, Me.MenuBookPath
 End Sub

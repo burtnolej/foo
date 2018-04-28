@@ -132,7 +132,7 @@ main:
             Set cRGB = GetBgColor(sSheetName, rEntryCell)
             If cRGB.AsString <> C_RGB_VALID Then
                 IsRecordValid = False
-                FuncLogIt sFuncName, "Cell named [" & name_ & "] not valid", C_MODULE_NAME, LogMsgType.INFO
+                FuncLogIt sFuncName, "Cell named [" & name_ & "] not valid", C_MODULE_NAME, LogMsgType.Info
 
                 ChangeButton wbSourceBook, wbTargetbook, sSheetName, C_GOBUTTON_ROW, C_GOBUTTON_COL, CellState.Invalid, sSourceSheetName, bTakeFocus:=False
 
@@ -141,7 +141,7 @@ main:
         End If
     Next name_
     IsRecordValid = True
-    FuncLogIt sFuncName, "Add Form  [" & sSheetName & "] is valid", C_MODULE_NAME, LogMsgType.INFO
+    FuncLogIt sFuncName, "Add Form  [" & sSheetName & "] is valid", C_MODULE_NAME, LogMsgType.Info
 
     ChangeButton wbSourceBook, wbTargetbook, sSheetName, C_GOBUTTON_ROW, C_GOBUTTON_COL, _
         CellState.Valid, sSourceSheetName, bTakeFocus:=True
@@ -785,7 +785,7 @@ setup:
         End If
         
         HideForm CStr(sAction)
-        FuncLogIt sFuncName, "Generated Form for action [" & sAction & "]", C_MODULE_NAME, LogMsgType.INFO
+        FuncLogIt sFuncName, "Generated Form for action [" & sAction & "]", C_MODULE_NAME, LogMsgType.Info
 nextaction:
     Next sAction
 End Sub
@@ -847,7 +847,7 @@ main:
             sKey = GetKey(sActionName, sFieldName, eCellType)
             
             If dDefinitions.Exists(sKey) = True Then
-                FuncLogIt sFuncName, "definition for [" & sKey & "] already loaded", C_MODULE_NAME, LogMsgType.INFO
+                FuncLogIt sFuncName, "definition for [" & sKey & "] already loaded", C_MODULE_NAME, LogMsgType.Info
             Else
                 dDefinitions.Add sKey, dDefnDetail
             End If
@@ -905,7 +905,7 @@ setup:
     
     If dDefinitions Is Nothing Then
         ' when called from a callback and dDefinitons needs to be reconstituted
-        FuncLogIt sFuncName, "Definitions not loaded so reloading", C_MODULE_NAME, LogMsgType.INFO
+        FuncLogIt sFuncName, "Definitions not loaded so reloading", C_MODULE_NAME, LogMsgType.Info
         DoLoadDefinitions clsQuadRuntime:=clsQuadRuntime
     End If
     

@@ -184,7 +184,7 @@ main:
     Next name_
     
     If iCount = 0 Then
-        FuncLogIt sFuncName, "no named ranges found [" & sSheetName & "] [sStartsWith=" & sStartsWith & "]", C_MODULE_NAME, LogMsgType.INFO
+        FuncLogIt sFuncName, "no named ranges found [" & sSheetName & "] [sStartsWith=" & sStartsWith & "]", C_MODULE_NAME, LogMsgType.Info
         ReDim aNames(0)
         'Set aNames = Empty
     Else

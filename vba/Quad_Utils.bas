@@ -82,7 +82,7 @@ Dim sFuncName As String
     End If
     
     Set clsQuadRuntimeGlobal = clsQuadRuntime
-    FuncLogIt sFuncName, "Setting GLOBAL Quad_Utils.clsQuadRuntimeGlobal", C_MODULE_NAME, LogMsgType.INFO
+    FuncLogIt sFuncName, "Setting GLOBAL Quad_Utils.clsQuadRuntimeGlobal", C_MODULE_NAME, LogMsgType.Info
 End Sub
 Public Function GetQuadRuntimeGlobal(Optional bInitFlag As Boolean = False, _
                                      Optional dQuadRuntimeValues As Dictionary) As Quad_Runtime
@@ -91,14 +91,14 @@ Dim sFuncName As String
     
     If IsSet(clsQuadRuntimeGlobal) Then
         Set GetQuadRuntimeGlobal = clsQuadRuntimeGlobal
-        FuncLogIt sFuncName, "GETTING GLOBAL Quad_Utils.clsQuadRuntimeGlobal", C_MODULE_NAME, LogMsgType.INFO
+        FuncLogIt sFuncName, "GETTING GLOBAL Quad_Utils.clsQuadRuntimeGlobal", C_MODULE_NAME, LogMsgType.Info
     Else
         If bInitFlag = True Then
             Set GetQuadRuntimeGlobal = InitQuadRuntimeGlobal(dQuadRuntimeValues:=dQuadRuntimeValues)
-            FuncLogIt sFuncName, "Initializating GLOBAL Quad_Utils.clsQuadRuntimeGlobal", C_MODULE_NAME, LogMsgType.INFO
+            FuncLogIt sFuncName, "Initializating GLOBAL Quad_Utils.clsQuadRuntimeGlobal", C_MODULE_NAME, LogMsgType.Info
         Else
             Set GetQuadRuntimeGlobal = Nothing
-            FuncLogIt sFuncName, "Cannot GET GLOBAL Quad_Utils.clsQuadRuntimeGlobal as its not set", C_MODULE_NAME, LogMsgType.INFO
+            FuncLogIt sFuncName, "Cannot GET GLOBAL Quad_Utils.clsQuadRuntimeGlobal as its not set", C_MODULE_NAME, LogMsgType.Info
         End If
     End If
 End Function
@@ -176,12 +176,12 @@ setup:
 main:
     If sCacheBookName = "" Then
         sCacheBookName = Quad_Utils.sCacheBookName
-        FuncLogIt sFuncName, "Cache workbook name not set so defaulting to [" & sCacheBookName & "]", C_MODULE_NAME, LogMsgType.INFO
+        FuncLogIt sFuncName, "Cache workbook name not set so defaulting to [" & sCacheBookName & "]", C_MODULE_NAME, LogMsgType.Info
     End If
     
     If sCacheBookPath = "" Then
         sCacheBookPath = Quad_Utils.sCacheBookPath
-        FuncLogIt sFuncName, "Cache workbook path not set so defaulting to [" & sCacheBookPath & "]", C_MODULE_NAME, LogMsgType.INFO
+        FuncLogIt sFuncName, "Cache workbook path not set so defaulting to [" & sCacheBookPath & "]", C_MODULE_NAME, LogMsgType.Info
     End If
 End Sub
 Public Sub SetBook(ByRef sBookName As String, ByRef sBookPath As String)
@@ -198,12 +198,12 @@ setup:
 main:
     If sBookName = "" Then
         sBookName = Quad_Utils.sBookName
-        FuncLogIt sFuncName, "main workbook name not set so defaulting to [" & sCacheBookName & "]", C_MODULE_NAME, LogMsgType.INFO
+        FuncLogIt sFuncName, "main workbook name not set so defaulting to [" & sCacheBookName & "]", C_MODULE_NAME, LogMsgType.Info
     End If
     
     If sBookPath = "" Then
         sBookPath = Quad_Utils.sBookPath
-        FuncLogIt sFuncName, "main workbook path not set so defaulting to [" & sBookPath & "]", C_MODULE_NAME, LogMsgType.INFO
+        FuncLogIt sFuncName, "main workbook path not set so defaulting to [" & sBookPath & "]", C_MODULE_NAME, LogMsgType.Info
     End If
 End Sub
 Public Sub CreateQuadArgsFile(clsQuadRuntime As Quad_Runtime, sSpName As String, _

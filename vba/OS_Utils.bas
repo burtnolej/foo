@@ -11,7 +11,7 @@ Dim iX As Integer
     
     ChDir sCwd & "/runtime"
 
-    FuncLogIt sFuncName, "running from directory [" & sCwd & "]", C_MODULE_NAME, LogMsgType.INFO
+    FuncLogIt sFuncName, "running from directory [" & sCwd & "]", C_MODULE_NAME, LogMsgType.Info
 
     On Error Resume Next 'in case running for first time and nothing to delete
     Call DeleteFile(sFileName)
@@ -39,7 +39,7 @@ Dim iX As Integer
     
     ChDir sCwd & "/runtime"
 
-    FuncLogIt sFuncName, "running from directory [" & sCwd & "]", C_MODULE_NAME, LogMsgType.INFO
+    FuncLogIt sFuncName, "running from directory [" & sCwd & "]", C_MODULE_NAME, LogMsgType.Info
     sCmd = "cmd /c " & Join(X(0), " ")
 
     'Run a shell command, returning the output as a string'

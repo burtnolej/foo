@@ -44,12 +44,12 @@ main:
 
     If InArray(vStudentIDs, CStr(iPersonID)) Then
         IsValidPersonID = True
-        FuncLogIt sFuncName, "Student ID [" & CStr(iPersonID) & "] is VALID", C_MODULE_NAME, LogMsgType.INFO
+        FuncLogIt sFuncName, "Student ID [" & CStr(iPersonID) & "] is VALID", C_MODULE_NAME, LogMsgType.Info
         Exit Function
     End If
     
     IsValidPersonID = False
-    FuncLogIt sFuncName, "Student ID [" & CStr(iPersonID) & "] is INVALID ", C_MODULE_NAME, LogMsgType.INFO
+    FuncLogIt sFuncName, "Student ID [" & CStr(iPersonID) & "] is INVALID ", C_MODULE_NAME, LogMsgType.Info
     
 cleanup:
     On Error GoTo 0
@@ -112,7 +112,7 @@ cleanup:
     Exit Function
 
 err:
-    FuncLogIt sFuncName, "Error raised", C_MODULE_NAME, LogMsgType.Error
+    FuncLogIt sFuncName, "[" & err.Description & "]  raised", C_MODULE_NAME, LogMsgType.Error
 
 End Function
 Public Sub GetPersonDataFromDB(clsQuadRuntime As Quad_Runtime, _

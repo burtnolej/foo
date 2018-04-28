@@ -5,7 +5,7 @@ Enum LogMsgType
     FATAL = 0
     Error = 1
     Failure = 2
-    INFO = 3
+    Info = 3
     OK = 4
     DEBUGGING = 7
     FAIL_TEST = 8

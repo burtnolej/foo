@@ -25,11 +25,11 @@ Dim iFormatWidth As Integer, iFormatHeight As Integer, iColWidthCount As Integer
 setup:
     sFuncName = C_MODULE_NAME & "." & "BuildSchedule"
     sTemplateRangeName = "f" & EnumQuadSubDataType(eQuadSubDataType) & "ScheduleCell"
-    FuncLogIt sFuncName, "Template range name not set so defaulting to  [" & sTemplateRangeName & "]", C_MODULE_NAME, LogMsgType.INFO
+    FuncLogIt sFuncName, "Template range name not set so defaulting to  [" & sTemplateRangeName & "]", C_MODULE_NAME, LogMsgType.Info
     
 main:
     If IsDataCached(clsQuadRuntime, QuadDataType.schedule, eQuadSubDataType, iPersonID) = False Then
-        FuncLogIt sFuncName, "Data cache NOT found for [" & EnumQuadSubDataType(eQuadSubDataType) & "_" & CStr(iPersonID) & "]", C_MODULE_NAME, LogMsgType.INFO
+        FuncLogIt sFuncName, "Data cache NOT found for [" & EnumQuadSubDataType(eQuadSubDataType) & "_" & CStr(iPersonID) & "]", C_MODULE_NAME, LogMsgType.Info
 
         ' get the raw data from the database and return the filename that holds the results
         GetScheduleDataFromDB clsQuadRuntime, iPersonID, eQuadSubDataType
@@ -40,7 +40,7 @@ main:
         sCacheSheetName = CacheData(clsQuadRuntime, aSchedule, QuadDataType.schedule, _
                             eQuadSubDataType, iPersonID, bInTable:=True)
     Else
-        FuncLogIt sFuncName, "Data cache found for [" & EnumQuadSubDataType(eQuadSubDataType) & "_" & CStr(iPersonID) & "]", C_MODULE_NAME, LogMsgType.INFO
+        FuncLogIt sFuncName, "Data cache found for [" & EnumQuadSubDataType(eQuadSubDataType) & "_" & CStr(iPersonID) & "]", C_MODULE_NAME, LogMsgType.Info
         sCacheSheetName = CacheData(clsQuadRuntime, aSchedule, QuadDataType.schedule, eQuadSubDataType, _
                             iPersonID, bCacheNameOnly:=True)
     End If
@@ -68,7 +68,7 @@ setup:
     
 main:
     If IsDataCached(clsQuadRuntime, QuadDataType.schedule, eQuadSubDataType, iPersonID) = False Then
-        FuncLogIt sFuncName, "Data cache NOT found for [" & EnumQuadSubDataType(eQuadSubDataType) & "_" & CStr(iPersonID) & "]", C_MODULE_NAME, LogMsgType.INFO
+        FuncLogIt sFuncName, "Data cache NOT found for [" & EnumQuadSubDataType(eQuadSubDataType) & "_" & CStr(iPersonID) & "]", C_MODULE_NAME, LogMsgType.Info
 
         ' get the raw data from the database and return the filename that holds the results
         GetScheduleDataFromDB clsQuadRuntime, iPersonID, eQuadSubDataType
@@ -79,7 +79,7 @@ main:
         sCacheSheetName = CacheData(clsQuadRuntime, aSchedule, QuadDataType.schedule, _
                             eQuadSubDataType, iDataID:=iPersonID, bInTable:=bInTable)
     Else
-        FuncLogIt sFuncName, "Data cache found for [" & EnumQuadSubDataType(eQuadSubDataType) & "_" & CStr(iPersonID) & "]", C_MODULE_NAME, LogMsgType.INFO
+        FuncLogIt sFuncName, "Data cache found for [" & EnumQuadSubDataType(eQuadSubDataType) & "_" & CStr(iPersonID) & "]", C_MODULE_NAME, LogMsgType.Info
         sCacheSheetName = CacheData(clsQuadRuntime, aSchedule, QuadDataType.schedule, eQuadSubDataType, _
                             iPersonID, bCacheNameOnly:=True, bInTable:=bInTable)
     End If
@@ -103,7 +103,7 @@ setup:
     If IsValidPersonID(clsQuadRuntime, sPersonId, eQuadSubDataType) = False Then
         err.Raise ErrorMsgType.BAD_ARGUMENT, Description:="not a valid person id"
     Else
-         FuncLogIt sFuncName, "[" & EnumQuadSubDataType(eQuadSubDataType) & "] id[" & CStr(sPersonId) & "] is VALID", C_MODULE_NAME, LogMsgType.INFO
+         FuncLogIt sFuncName, "[" & EnumQuadSubDataType(eQuadSubDataType) & "] id[" & CStr(sPersonId) & "] is VALID", C_MODULE_NAME, LogMsgType.Info
     End If
     ' END Assertions ----------------------------
 
@@ -115,16 +115,16 @@ main:
         sSpName = "teacher_schedule"
         dSpArgs.Add "teachers", InitVariantArray(Array(sPersonId))
     End If
-    FuncLogIt sFuncName, "schedule type is [" & EnumQuadSubDataType(eQuadSubDataType) & "] using sp [" & sSpName & "]", C_MODULE_NAME, LogMsgType.INFO
+    FuncLogIt sFuncName, "schedule type is [" & EnumQuadSubDataType(eQuadSubDataType) & "] using sp [" & sSpName & "]", C_MODULE_NAME, LogMsgType.Info
     
     If sPeriod <> "" Then
         dSpArgs.Add "periods", InitVariantArray(Split(sPeriod, ","))
-        FuncLogIt sFuncName, "Period WHERE clause specified  [" & sPeriod & "]", C_MODULE_NAME, LogMsgType.INFO
+        FuncLogIt sFuncName, "Period WHERE clause specified  [" & sPeriod & "]", C_MODULE_NAME, LogMsgType.Info
     End If
 
     If sDay <> "" Then
         dSpArgs.Add "days", InitVariantArray(Split(sDay, ","))
-        FuncLogIt sFuncName, "Day WHERE clause specified  [" & sDay & "]", C_MODULE_NAME, LogMsgType.INFO
+        FuncLogIt sFuncName, "Day WHERE clause specified  [" & sDay & "]", C_MODULE_NAME, LogMsgType.Info
     End If
     
     GetQuadDataFromDB clsQuadRuntime, sSpName, dSpArgs:=dSpArgs, bHeaderFlag:=True
