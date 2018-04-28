@@ -173,7 +173,8 @@ Dim vSplits() As String
 End Function
 Sub DoProjectTestRunner()
 Dim sIncModules As String
-
+    
+    MinimumWindowState
     'sIncModules = "Test_Macros"
     
     'ProjectTestRunner
@@ -181,13 +182,14 @@ Dim sIncModules As String
     'sIncModules = "Test_Window_Utils"
     'ProjectTestRunner sIncModules
     'Exit Sub
+    
     sIncModules = sIncModules & ",Test_App_Schedule"
-    sIncModules = sIncModules & ",Test_App_Schedule_Entry"
+    sIncModules = sIncModules & ",Test_App_Schedule_Add"
     sIncModules = sIncModules & ",Test_App_Person"
     sIncModules = sIncModules & ",Test_App_Courses"
     sIncModules = sIncModules & ",Test_Array_Utils"
     'sIncModules = sIncModules & ",Test_DB_Utils"
-    sIncModules = sIncModules & ",Test_Entry_Utils"
+    sIncModules = sIncModules & ",Test_Add_Utils"
     sIncModules = sIncModules & ",Test_Dict_Utils,Test_File_Utils"
     sIncModules = sIncModules & ",Test_Filter_Utils"
     sIncModules = sIncModules & ",Test_Format_Utils"
@@ -203,7 +205,7 @@ Dim sIncModules As String
     sIncModules = sIncModules & ",Test_XML_utils"
     sIncModules = sIncModules & ",Test_Window_Utils"
     ProjectTestRunner sIncModules
-    
+
 End Sub
 Sub ProjectTestRunner(Optional sIncModules As String)
 'Optional aIncModules As Variant,

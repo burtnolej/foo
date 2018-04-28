@@ -329,15 +329,15 @@ Dim sCacheSheetName As String
                     
 End Function
 
-Public Function ParseRawData(sData As String) As String()
+Public Function ParseRawData(sData As String) As Variant
 '"" take the unparsed output returned from python and put into a 2d array
 '   where 1 row is 1 day/period and so # periods * # days in total (55 in the beginning)
 '   and then columns containing subject,studentname,classtype,location
-    ParseRawData = Delim2Array(sData)
+    ParseRawData = Delim2Array(sData, bVariant:=True)
 End Function
 
 Public Function CacheData(clsQuadRuntime As Quad_Runtime, _
-                          aData() As String, _
+                          aData() As Variant, _
                           eQuadDataType As QuadDataType, _
                           eQuadSubDataType As QuadSubDataType, _
                  Optional iDataID As Integer, _

@@ -22,9 +22,13 @@ Option Explicit
 ' Function  | CreateSheet           | (wb As Workbook, sSheetName As String, Optional bOverwrite As Boolean) As Worksheet
 
 Const C_MODULE_NAME = "Workbook_Utils"
-Public Function OpenBook(ByVal sName As String, Optional sPath As String) As Workbook
+Public Function OpenBook(ByVal sName As String, Optional sPath As String, _
+    Optional bWindowStateMinimum As Boolean = True) As Workbook
+
 Dim w As Variant
 
+    DoEventsOff
+    
     For Each w In Workbooks
         If w.Name = sName Then
             Set OpenBook = w
@@ -34,12 +38,21 @@ Dim w As Variant
     If sPath <> "" Then
         sName = sPath & "\" & sName
     End If
+    
     Set OpenBook = Workbooks.Open(sName)
+    
+    If bWindowStateMinimum = True Then
+        MinimumWindowState OpenBook
+    End If
+    
+    DoEventsOn
+    
 End Function
 Public Function BookExists(sName As String) As Boolean
     BookExists = FileExists(sName)
 End Function
-Public Function CreateBook(sName As String, Optional sBookPath As String) As Workbook
+Public Function CreateBook(sName As String, Optional sBookPath As String, _
+    Optional bWindowStateMinimum As Boolean = True) As Workbook
 Dim sCwd As String
 Dim ffFileFormat As XlFileFormat
 
@@ -62,6 +75,10 @@ Dim ffFileFormat As XlFileFormat
     End If
     
     Set CreateBook = Workbooks.Add
+    
+    If bWindowStateMinimum = True Then
+        MinimumWindowState CreateBook
+    End If
     
     Application.DisplayAlerts = False
     CreateBook.SaveAs sName, FileFormat:=ffFileFormat

@@ -1,6 +1,85 @@
 Attribute VB_Name = "Test_Array_Utils"
 Const CsModuleName = "Test_Array_Utils"
 
+Public Function Test_Delim2Array_Variant() As TestResult
+Dim sFuncName As String
+Dim eTestResult As TestResult
+Dim sTmp As String
+Dim vTmp() As Variant
+
+setup:
+    On Error GoTo err:
+    sFuncName = CsModuleName & ".Init2DStringArray"
+    
+main:
+    sTmp = "a^b^c^d$$1^2^3^4$$5^6^7^8"
+    
+    vTmp = Delim2Array(sTmp, bVariant:=True)
+    
+    If UBound(vTmp) <> 2 Then
+        eTestResult = TestResult.Failure
+    End If
+    
+    If UBound(vTmp, 2) <> 3 Then
+        eTestResult = TestResult.Failure
+    End If
+    
+    If vTmp(2, 3) <> "8" Then
+        eTestResult = TestResult.Failure
+    Else
+        eTestResult = TestResult.OK
+    End If
+    On Error GoTo 0
+    GoTo teardown
+    
+err:
+    eTestResult = TestResult.Error
+    
+teardown:
+    Test_Delim2Array_Variant = eTestResult
+    
+End Function
+
+
+Public Function Test_Delim2Array() As TestResult
+Dim sFuncName As String
+Dim eTestResult As TestResult
+Dim sTmp As String
+Dim vTmp() As String
+
+setup:
+    On Error GoTo err:
+    sFuncName = CsModuleName & ".Init2DStringArray"
+    
+main:
+    sTmp = "a^b^c^d$$1^2^3^4$$5^6^7^8"
+    
+    vTmp = Delim2Array(sTmp)
+    
+    If UBound(vTmp) <> 2 Then
+        eTestResult = TestResult.Failure
+    End If
+    
+    If UBound(vTmp, 2) <> 3 Then
+        eTestResult = TestResult.Failure
+    End If
+    
+    If vTmp(2, 3) <> "8" Then
+        eTestResult = TestResult.Failure
+    Else
+        eTestResult = TestResult.OK
+    End If
+    On Error GoTo 0
+    GoTo teardown
+    
+err:
+    eTestResult = TestResult.Error
+    
+teardown:
+    Test_Delim2Array = eTestResult
+    
+End Function
+
 Public Function Test_Init2DStringArray() As TestResult
 Dim sFuncName As String
 Dim eTestResult As TestResult

@@ -21,14 +21,14 @@ setup:
     Set wsCache = CreateSheet(clsQuadRuntime.Book, sSheetName, bOverwrite:=True)
 
     ' table: new subject ---------------------------------------------------------------
-    sDefn = "NewSubject^courses_subject^Name^String^^^^^Entry" & DOUBLEDOLLAR
-    sDefn = sDefn & "NewSubject^courses_subject^ID^String^^^^^Entry"
+    sDefn = "AddSubject^courses_subject^Name^String^^^^^Entry" & DOUBLEDOLLAR
+    sDefn = sDefn & "AddSubject^courses_subject^ID^String^^^^^Entry"
 
     vSource = Init2DStringArrayFromString(sDefn)
 
     Set rTarget = RangeFromStrArray(vSource, wsCache, 0, 1)
     CreateNamedRange clsQuadRuntime.Book, rTarget.Address, sSheetName, "Definitions", "True"
-    Set Entry_Utils.dDefinitions = LoadDefinitions(wsCache, rSource:=rTarget)
+    Set Add_Utils.dDefinitions = LoadDefinitions(wsCache, rSource:=rTarget)
     
 main:
     Set wsCache = get_courses_subject(clsQuadRuntime)
@@ -65,15 +65,15 @@ setup:
     Set wsCache = CreateSheet(clsQuadRuntime.Book, sSheetName, bOverwrite:=True)
 
     ' table: new course ---------------------------------------------------------------
-    sDefn = "NewCourse^courses_course^Name^String^^^^^Entry" & DOUBLEDOLLAR
-    sDefn = sDefn & "NewCourse^courses_course^ID^String^^^^^Entry" & DOUBLEDOLLAR
-    sDefn = sDefn & "NewCourse^courses_course^SubjectID^String^^^^^Entry"
+    sDefn = "AddCourse^courses_course^Name^String^^^^^Entry" & DOUBLEDOLLAR
+    sDefn = sDefn & "AddCourse^courses_course^ID^String^^^^^Entry" & DOUBLEDOLLAR
+    sDefn = sDefn & "AddCourse^courses_course^SubjectID^String^^^^^Entry"
 
     vSource = Init2DStringArrayFromString(sDefn)
 
     Set rTarget = RangeFromStrArray(vSource, wsCache, 0, 1)
     CreateNamedRange clsQuadRuntime.Book, rTarget.Address, sSheetName, "Definitions", "True"
-    Set Entry_Utils.dDefinitions = LoadDefinitions(wsCache, rSource:=rTarget)
+    Set Add_Utils.dDefinitions = LoadDefinitions(wsCache, rSource:=rTarget)
     
 main:
     Set wsCache = get_courses_course(clsQuadRuntime)
@@ -109,20 +109,20 @@ setup:
     clsQuadRuntime.InitProperties bInitializeCache:=True, sDefinitionSheetName:=sSheetName
     Set wsCache = CreateSheet(clsQuadRuntime.Book, sSheetName, bOverwrite:=True)
 
-    ' table: new timeperiod ---------------------------------------------------------------
-    sDefn = "NewTimePeriod^misc_timeperiod^ID^String^^^^^Entry" & DOUBLEDOLLAR
-    sDefn = sDefn & "NewTimePeriod^misc_timeperiod^PeriodStart^String^^^^^Entry" & DOUBLEDOLLAR
-    sDefn = sDefn & "NewCourse^misc_timeperiod^SubjectID^PeriodEnd^^^^^Entry"
+    ' table: Add timeperiod ---------------------------------------------------------------
+    sDefn = "AddTimePeriod^misc_timeperiod^ID^String^^^^^Entry" & DOUBLEDOLLAR
+    sDefn = sDefn & "AddTimePeriod^misc_timeperiod^PeriodStart^String^^^^^Entry" & DOUBLEDOLLAR
+    sDefn = sDefn & "AddCourse^misc_timeperiod^SubjectID^PeriodEnd^^^^^Entry"
 
     vSource = Init2DStringArrayFromString(sDefn)
 
     Set rTarget = RangeFromStrArray(vSource, wsCache, 0, 1)
     CreateNamedRange clsQuadRuntime.Book, rTarget.Address, sSheetName, "Definitions", "True"
-    Set Entry_Utils.dDefinitions = LoadDefinitions(wsCache, rSource:=rTarget)
+    Set Add_Utils.dDefinitions = LoadDefinitions(wsCache, rSource:=rTarget)
     
 main:
     Set wsCache = get_misc_timeperiod(clsQuadRuntime)
-    If wsCache.Range("dbmisc_timeperiodPeriodStart").Rows(7) <> "11:36" Then
+    If Format(wsCache.Range("dbmisc_timeperiodPeriodStart").Rows(7), "h:mm") <> "11:36" Then
         eTestResult = TestResult.Failure
         GoTo teardown
     End If
@@ -154,15 +154,15 @@ setup:
     clsQuadRuntime.InitProperties bInitializeCache:=True, sDefinitionSheetName:=sSheetName
     Set wsCache = CreateSheet(clsQuadRuntime.Book, sSheetName, bOverwrite:=True)
 
-    ' table: new prep ---------------------------------------------------------------
-    sDefn = "NewPrep^misc_prep^ID^String^^^^^Entry" & DOUBLEDOLLAR
-    sDefn = sDefn & "NewPrep^misc_prep^Name^String^^^^^Entry"
+    ' table: Add prep ---------------------------------------------------------------
+    sDefn = "AddPrep^misc_prep^ID^String^^^^^Entry" & DOUBLEDOLLAR
+    sDefn = sDefn & "AddPrep^misc_prep^Name^String^^^^^Entry"
 
     vSource = Init2DStringArrayFromString(sDefn)
 
     Set rTarget = RangeFromStrArray(vSource, wsCache, 0, 1)
     CreateNamedRange clsQuadRuntime.Book, rTarget.Address, sSheetName, "Definitions", "True"
-    Set Entry_Utils.dDefinitions = LoadDefinitions(wsCache, rSource:=rTarget)
+    Set Add_Utils.dDefinitions = LoadDefinitions(wsCache, rSource:=rTarget)
     
 main:
     Set wsCache = get_misc_prep(clsQuadRuntime)
@@ -198,16 +198,16 @@ setup:
     clsQuadRuntime.InitProperties bInitializeCache:=True, sDefinitionSheetName:=sSheetName
     Set wsCache = CreateSheet(clsQuadRuntime.Book, sSheetName, bOverwrite:=True)
 
-    ' table: new day ---------------------------------------------------------------
-    sDefn = "NewDay^misc_day^ID^String^^^^^Entry" & DOUBLEDOLLAR
-    sDefn = sDefn & "NewDay^misc_day^LongDay^String^^^^^Entry" & DOUBLEDOLLAR
-    sDefn = sDefn & "NewDay^misc_day^ShortDay^String^^^^^Entry"
+    ' table: Add day ---------------------------------------------------------------
+    sDefn = "AddDay^misc_day^ID^String^^^^^Entry" & DOUBLEDOLLAR
+    sDefn = sDefn & "AddDay^misc_day^LongDay^String^^^^^Entry" & DOUBLEDOLLAR
+    sDefn = sDefn & "AddDay^misc_day^ShortDay^String^^^^^Entry"
     
     vSource = Init2DStringArrayFromString(sDefn)
 
     Set rTarget = RangeFromStrArray(vSource, wsCache, 0, 1)
     CreateNamedRange clsQuadRuntime.Book, rTarget.Address, sSheetName, "Definitions", "True"
-    Set Entry_Utils.dDefinitions = LoadDefinitions(wsCache, rSource:=rTarget)
+    Set Add_Utils.dDefinitions = LoadDefinitions(wsCache, rSource:=rTarget)
     
 main:
     Set wsCache = get_misc_day(clsQuadRuntime)

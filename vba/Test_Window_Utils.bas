@@ -106,7 +106,7 @@ setup:
     Set wbTmp2 = CreateBook(sBookName2, GetHomePath)
     sBookName3 = "tmp3.xls"
     Set wbTmp3 = CreateBook(sBookName3, GetHomePath)
- 
+    
 main:
     SetWindowLocation 0, 0, wbTmp:=wbTmp
     SetWindowLocation 100, 100, wbTmp:=wbTmp2
@@ -259,7 +259,7 @@ setup:
     winsetTmp.WindowTitle = "FOOBAR"
     
 main:
-    MakeLabel winsetTmp, rTmp, sSheetName
+    MakeLabel winsetTmp, rTmp, sSheetName, wbTmp:=wbTmp
     
     If wbTmp.Sheets(sSheetName).Range("A1:A1").MergeArea.Address <> sLabelAddress Then
         eTestResult = TestResult.Failure

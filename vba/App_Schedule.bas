@@ -18,7 +18,7 @@ Public Function BuildSchedule(clsQuadRuntime As Quad_Runtime, _
 'rtype:Worksheet, the sheet object where the schedule view has been written
 '"""
 Dim sResultFileName As String, sFuncName As String, sTemplateRangeName As String, sCacheSheetName As String
-Dim aSchedule() As String
+Dim aSchedule() As Variant
 Dim aColumnWidths() As Integer
 Dim iFormatWidth As Integer, iFormatHeight As Integer, iColWidthCount As Integer
 
@@ -61,7 +61,7 @@ Public Function GetScheduleData(clsQuadRuntime As Quad_Runtime, _
                      Optional bInTable As Boolean = False) As Worksheet
 
 Dim sCacheSheetName As String, sFuncName As String
-Dim aSchedule() As String
+Dim aSchedule() As Variant
 
 setup:
     sFuncName = C_MODULE_NAME & "." & "GetScheduleData"

@@ -273,7 +273,39 @@ teardown:
     DeleteSheet ActiveWorkbook, sSheetName
 End Function
 
+Function Test_RangeFromStrArray() As TestResult
+Dim sFuncName As String
+Dim wsTmp As Worksheet
+Dim sSheetName As String
+Dim eTestResult As TestResult
+Dim rTarget As Range
+Dim vSource() As Variant
+Dim vResult() As Variant
 
+setup:
+    'ReDim vResult(0 To 0, 0 To 2)
+    sFuncName = CsModuleName & "." & "ListFromRange"
+    sSheetName = "test"
+    Set wsTmp = CreateSheet(ActiveWorkbook, sSheetName, bOverwrite:=True)
+    vSource = Init2DVariantArray([{"A", "=A1&Row()";"",""}])
+    Set rTarget = RangeFromStrArray(vSource, wsTmp, 0, 0)
+
+    If rTarget.Cells(1, 2) <> "A1" Then
+        eTestResult = TestResult.Failure
+    Else
+        eTestResult = TestResult.OK
+    End If
+    On Error GoTo 0
+    GoTo teardown
+        
+err:
+    eTestResult = TestResult.Error
+    
+teardown:
+    Test_RangeFromStrArray = eTestResult
+    DeleteSheet ActiveWorkbook, sSheetName
+    
+End Function
 Function Test_ListFromRow() As TestResult
 Dim sFuncName As String
 Dim wsTmp As Worksheet

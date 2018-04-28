@@ -19,12 +19,20 @@ Sub SetTopLeftAlignOn(rTargetRange As Range)
         .VerticalAlignment = xlTop
     End With
 End Sub
-Sub SetCenterAlignOn(rTargetRange As Range)
+Sub SetCenterAlignOn(rTargetRange As Range, Optional wbTmp As Workbook, Optional sSheetName As String)
+    On Error GoTo err
     With rTargetRange
         .Select
         .HorizontalAlignment = xlCenter
         .VerticalAlignment = xlCenter
     End With
+    
+err:
+    If IsSet(wbTmp) And sSheetName <> "" Then
+        wbTmp.Sheets(sSheetName).Range(rTargetRange.Address).HorizontalAlignment = xlCenter
+        wbTmp.Sheets(sSheetName).Range(rTargetRange.Address).VerticalAlignment = xlCenter
+    End If
+        
 End Sub
 Sub SetColumnWidth(iColIdx As Integer, iColWidth As Integer, sSheetName As String)
 Dim rColumn As Range
@@ -121,8 +129,14 @@ Sub SetFgColorByRGB(sSheetName As String, sRange As String, rgbClr As RGBColor, 
         End With
     End With
 End Sub
-Sub SetFont(sSheetName As String, sRange As String, sName As String, iSize As Integer, sStyle As String)
-    With GetSheet(Application.ActiveWorkbook, sSheetName)
+Sub SetFont(sSheetName As String, sRange As String, sName As String, iSize As Integer, sStyle As String, _
+    Optional wbTmp As Workbook)
+    
+    If IsSet(wbTmp) = False Then
+        Set wbTmp = ActiveWorkbook
+    End If
+    
+    With GetSheet(wbTmp, sSheetName)
         With .Range(sRange).Font
             .Name = sName
             .FontStyle = sStyle

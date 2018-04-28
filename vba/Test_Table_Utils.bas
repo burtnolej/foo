@@ -9,11 +9,139 @@ Attribute VB_Name = "Test_Table_Utils"
 Option Explicit
 Const CsModuleName = "Test_Table_Utils"
 
-Function TestAddTableRecordAuto() As TestResult
-Dim sFuncName As String, sSheetName As String, sResultStr As String, sExpectedResultStr As String, sColumns As String
-Dim vSource() As String, vRows() As String, vColNames() As String
+Sub cleanup_workbooks()
+Dim wbTmp As Workbook
+Dim sBookNames As String, sCacheFilePath As String
+Dim sCacheBook As Variant
+
+    sBookNames = "cache.xlsm,schedule.xlsm,add.xlsm,menu.xlsm"
+    sCacheFilePath = GetHomePath & "\quad_runtime_cache"
+    For Each sCacheBook In Split(sBookNames, COMMA)
+        On Error Resume Next
+        Set wbTmp = Workbooks(sCacheBook)
+        CloseBook wbTmp
+        DeleteBook CStr(sCacheBook)
+        DeleteFile sCacheFilePath
+        On Error GoTo 0
+    Next sCacheBook
+    
+End Sub
+Function T_e_stInsertTableRecords() As TestResult
+Dim sFuncName As String, sSheetName As String, sResultStr As String, sExpectedResultStr As String, sColumns As String, sExecPath As String, sDatabaseName As String, _
+    sTableName As String, sFileName As String, sResults As String, sResultFileName As String
+Dim vSource() As String, vRows() As Variant, vColNames() As String, aColumnDefns() As Variant, aRows() As Variant, aColumns() As String, aArgs() As String
 Dim wsTmp As Worksheet
 Dim rTarget As Range
+Dim dDefinitions As Dictionary, dRecord As Dictionary
+Dim eTestResult As TestResult
+Dim clsQuadRuntime As New Quad_Runtime
+Dim bDeleteFlag As Boolean, bDecodeFlag As Boolean
+
+setup:
+    clsQuadRuntime.InitProperties bInitializeCache:=True
+    
+    sFuncName = CsModuleName & "." & "InsertTableRecords"
+    sSheetName = "test"
+    Set wsTmp = CreateSheet(clsQuadRuntime.TemplateBook, sSheetName, bOverwrite:=True)
+    
+    sDatabaseName = "foobar"
+    sTableName = "foobar"
+    bDeleteFlag = False
+    bDecodeFlag = True
+    aColumnDefns = Init2DVariantArray([{"FooName","Text";"FooAge","Integer";"FooID","Integer"}])
+    'aColumns = InitStringArray(Array("colA", "colB", "colC"))
+    'aRows = Init2DVariantArray([{"valA","valB","valC";"valA1","valB2","valC2";"valA3","valB3","valC3"}])
+    sFileName = Environ("MYHOME") & "\\uufoo.txt"
+    sExecPath = Environ("MYHOME") & "\GitHub\quadviewer\utils\excel\"
+    sResultFileName = Environ("MYHOME") & "\\uufoo.txt_result"
+    
+    vSource = Init2DStringArray([{"AddFoo","Foo","FooName","List","IsMember","","","","Entry";"AddFoo","Foo","FooAge","Integer","IsValidInteger","","","","Entry";"AddFoo","Foo","FooID","Integer","IsValidInteger","","","","Entry"}])
+
+    Set rTarget = RangeFromStrArray(vSource, wsTmp, 0, 1)
+    vRows = Init2DVariantArray([{"Jon","43","1";"Quinton","6","2"}])
+    vColNames = InitStringArray(Array("FooName", "FooAge", "FooID"))
+main:
+
+    Set Add_Utils.dDefinitions = LoadDefinitions(wsTmp, rSource:=rTarget)
+    CreateTables wbTmp:=clsQuadRuntime.CacheBook
+    AddTableRecordAuto clsQuadRuntime.CacheBook, "foo", vColNames, vRows
+    
+    'AddTableRecord
+    
+    'GetTableRecords bDirty:=True
+    
+    ' create the database and table
+    CreatePySqliteArgsFile sDatabaseName, _
+                            sTableName, _
+                            bDeleteFlag:=bDeleteFlag, _
+                            aColumns:=vColNames, _
+                            aColumnDefns:=aColumnDefns, _
+                            aRows:=vRows, _
+                            sFileName:=sFileName
+                            
+    aArgs = InitStringArray(Array("python", _
+            sExecPath & "excel_database_util.py", _
+            "--access_type create", _
+            "--input_filename " & sFileName))
+
+    sResults = ShellRun(aArgs)
+    
+    ' insert rows
+    aArgs = InitStringArray(Array("python", _
+            sExecPath & "excel_database_util.py", _
+            "--access_type insert", _
+            "--input_filename " & sFileName))
+
+    sResults = ShellRun(aArgs)
+
+    ' query results and change the delete flag status as need to cleanup after test
+    Call DeleteFile(sFileName)
+
+    CreatePySqliteArgsFile sDatabaseName, _
+                            sTableName, _
+                            bDeleteFlag:=True, _
+                            sQryStr:="select * from foobar", _
+                            sFileName:=sFileName, _
+                            sEncoding:="uu", _
+                            sResultFileName:=sResultFileName
+                            
+    aArgs = InitStringArray(Array("python", _
+            sExecPath & "excel_database_util.py", _
+            "--access_type query", _
+            "--input_filename " & sFileName))
+
+    ShellRun (aArgs)
+    
+    If FileExists(sResultFileName) Then
+        sResultStr = ReadFile(sResultFileName)
+    Else
+        eTestResult = TestResult.Failure
+        GoTo teardown
+    End If
+    
+    If sResultStr <> "Jon^43^1$$Quinton^6^2" Then
+        eTestResult = TestResult.Failure
+    Else
+        eTestResult = TestResult.OK
+    End If
+    On Error GoTo 0
+    GoTo teardown
+    
+err:
+    eTestResult = TestResult.Error
+    
+teardown:
+    TestInsertTableRecords = eTestResult
+    Call DeleteFile(sFileName)
+    Call DeleteFile(sResultFileName)
+    clsQuadRuntime.Delete
+    
+End Function
+Function TestAddTableRecordAutoBulk() As TestResult
+Dim sFuncName As String, sSheetName As String, sResultStr As String, sExpectedResultStr As String, sColumns As String
+Dim vSource() As String, vRows() As Variant, vColNames() As String
+Dim wsTmp As Worksheet
+Dim rTarget As Range, rTable As Range
 Dim dDefinitions As Dictionary
 Dim dRecord As Dictionary
 Dim eTestResult As TestResult
@@ -26,15 +154,97 @@ setup:
     sSheetName = "test"
     Set wsTmp = CreateSheet(clsQuadRuntime.TemplateBook, sSheetName, bOverwrite:=True)
                                   
-    vSource = Init2DStringArray([{"NewFoo","Foo","FooName","List","IsMember","","","","Entry";"NewFoo","Foo","FooAge","Integer","IsValidInteger","","","","Entry";"NewBar","Bar","BarName","List","IsMember","","","","Entry"}])
-
+    vSource = Init2DStringArray([{"AddFoo","Foo","FooName","List","IsMember","","","","Entry";"AddFoo","Foo","FooAge","Integer","IsValidInteger","","","","Entry";"AddBar","Bar","BarName","List","IsMember","","","","Entry"}])
 
     Set rTarget = RangeFromStrArray(vSource, wsTmp, 0, 1)
-    vRows = Init2DStringArray([{"Jon","43";"Quinton","6"}])
+    vRows = Init2DVariantArray([{"Name","Age";"Jon","43";"Quinton","6";"NanNan","70";"GranPops","69";"Nancy","46"}])
     vColNames = InitStringArray(Array("FooName", "FooAge"))
 main:
 
-    Set Entry_Utils.dDefinitions = LoadDefinitions(wsTmp, rSource:=rTarget)
+    Set Add_Utils.dDefinitions = LoadDefinitions(wsTmp, rSource:=rTarget)
+    CreateTables wbTmp:=clsQuadRuntime.CacheBook
+    
+    Set rTable = AddTableRecordAuto(clsQuadRuntime.CacheBook, "foo", vColNames, vRows, bBulkLoad:=True, bAddDefaultFields:=True)
+    
+    If rTable.Rows(1).Columns(6) <> "SyncState" Then
+         eTestResult = TestResult.Failure
+         GoTo teardown
+    End If
+    
+    If rTable.Rows(3).Columns(5) <> "3" Then
+         eTestResult = TestResult.Failure
+         GoTo teardown
+    End If
+    
+    If rTable.Rows.Count <> 6 Then
+         eTestResult = TestResult.Failure
+         GoTo teardown
+    End If
+    
+    Set dRecord = GetTableRecord("Foo", 2, wbTmp:=clsQuadRuntime.CacheBook)
+    
+    If dRecord.Exists("FooAge") = False Then
+         eTestResult = TestResult.Failure
+         GoTo teardown
+    End If
+    
+    If dRecord.Exists("FooName") = False Then
+         eTestResult = TestResult.Failure
+         GoTo teardown
+    End If
+    
+    If dRecord.Item("FooName") <> "Quinton" Then
+         eTestResult = TestResult.Failure
+         GoTo teardown
+    End If
+    
+    If dRecord.Item("FooAge") <> "6" Then
+        eTestResult = TestResult.Failure
+    Else
+        eTestResult = TestResult.OK
+    End If
+
+
+    On Error GoTo 0
+    GoTo teardown
+    
+err:
+    eTestResult = TestResult.Error
+    
+teardown:
+    TestAddTableRecordAutoBulk = eTestResult
+    DeleteSheet clsQuadRuntime.CacheBook, sSheetName
+    DeleteSheet clsQuadRuntime.CacheBook, "Foo"
+    DeleteSheet clsQuadRuntime.CacheBook, "Bar"
+    clsQuadRuntime.Delete
+
+End Function
+Function TestAddTableRecordAuto() As TestResult
+Dim sFuncName As String, sSheetName As String, sResultStr As String, sExpectedResultStr As String, sColumns As String
+Dim vSource() As String, vRows() As Variant, vColNames() As String
+Dim wsTmp As Worksheet
+Dim rTarget As Range, rTable As Range
+Dim dDefinitions As Dictionary
+Dim dRecord As Dictionary
+Dim eTestResult As TestResult
+Dim clsQuadRuntime As New Quad_Runtime
+
+setup:
+    clsQuadRuntime.InitProperties bInitializeCache:=True
+    
+    sFuncName = CsModuleName & "." & "AddTableRecordAuto"
+    sSheetName = "test"
+    Set wsTmp = CreateSheet(clsQuadRuntime.TemplateBook, sSheetName, bOverwrite:=True)
+                                  
+    vSource = Init2DStringArray([{"AddFoo","Foo","FooName","List","IsMember","","","","Entry";"AddFoo","Foo","FooAge","Integer","IsValidInteger","","","","Entry";"AddBar","Bar","BarName","List","IsMember","","","","Entry"}])
+
+
+    Set rTarget = RangeFromStrArray(vSource, wsTmp, 0, 1)
+    vRows = Init2DVariantArray([{"Jon","43";"Quinton","6"}])
+    vColNames = InitStringArray(Array("FooName", "FooAge"))
+main:
+
+    Set Add_Utils.dDefinitions = LoadDefinitions(wsTmp, rSource:=rTarget)
     CreateTables wbTmp:=clsQuadRuntime.CacheBook
         
     AddTableRecordAuto clsQuadRuntime.CacheBook, "foo", vColNames, vRows
@@ -99,20 +309,20 @@ setup:
     sFuncName = CsModuleName & "." & "AddTableRecordManual"
     sSheetName = "test"
     Set wsTmp = CreateSheet(ActiveWorkbook, sSheetName, bOverwrite:=True)
-    vSource = Init2DStringArray([{"NewFoo","Foo","FooName","List","IsMember","","","","Entry";"NewFoo","Foo","FooAge","Integer","IsValidInteger","","","","Entry"}])
+    vSource = Init2DStringArray([{"AddFoo","Foo","FooName","List","IsMember","","","","Entry";"AddFoo","Foo","FooAge","Integer","IsValidInteger","","","","Entry"}])
     Set rTarget = RangeFromStrArray(vSource, wsTmp, 0, 1)
 
 main:
 
-    Set Entry_Utils.dDefinitions = LoadDefinitions(wsTmp, rSource:=rTarget)
+    Set Add_Utils.dDefinitions = LoadDefinitions(wsTmp, rSource:=rTarget)
     CreateTables clsQuadRuntime.CacheBook
     
-    GenerateEntryForms clsQuadRuntime
+    GenerateForms clsQuadRuntime
     
-    SetEntryValue "NewFoo", "FooAge", 123, wbTmp:=clsQuadRuntime.EntryBook
-    SetEntryValue "NewFoo", "FooName", "blahblah", wbTmp:=clsQuadRuntime.EntryBook
+    SetEntryValue "AddFoo", "FooAge", 123, wbTmp:=clsQuadRuntime.AddBook
+    SetEntryValue "AddFoo", "FooName", "blahblah", wbTmp:=clsQuadRuntime.AddBook
     
-    AddTableRecord "Foo", wbEntryBook:=clsQuadRuntime.EntryBook, _
+    AddTableRecord "Foo", wbAddBook:=clsQuadRuntime.AddBook, _
         wbCacheBook:=clsQuadRuntime.CacheBook
     
     Set dRecord = GetTableRecord("Foo", 1, wbTmp:=clsQuadRuntime.CacheBook)
@@ -145,10 +355,10 @@ err:
     
 teardown:
     TestAddTableRecordManual = eTestResult
-    DeleteSheet clsQuadRuntime.EntryBook, sSheetName
+    DeleteSheet clsQuadRuntime.AddBook, sSheetName
     DeleteSheet clsQuadRuntime.CacheBook, "Foo"
     DeleteSheet clsQuadRuntime.CacheBook, "Bar"
-    DeleteEntryForms wbTmp:=clsQuadRuntime.EntryBook
+    DeleteForms wbTmp:=clsQuadRuntime.AddBook
     clsQuadRuntime.Delete
 
 End Function
@@ -172,12 +382,12 @@ setup:
     sFuncName = CsModuleName & "." & "CreateTables"
     sSheetName = "test"
     Set wsTmp = CreateSheet(ActiveWorkbook, sSheetName, bOverwrite:=True)
-    vSource = Init2DStringArray([{"NewFoo","Foo","FooName","List","IsMember","","","","Entry";"NewFoo","Foo","FooAge","Integer","IsValidInteger","","","","Entry";"NewBar","Bar","BarName","List","IsMember","","","","Entry"}])
+    vSource = Init2DStringArray([{"AddFoo","Foo","FooName","List","IsMember","","","","Entry";"AddFoo","Foo","FooAge","Integer","IsValidInteger","","","","Entry";"AddBar","Bar","BarName","List","IsMember","","","","Entry"}])
     Set rTarget = RangeFromStrArray(vSource, wsTmp, 0, 1)
 
 main:
 
-    Set Entry_Utils.dDefinitions = LoadDefinitions(wsTmp, rSource:=rTarget)
+    Set Add_Utils.dDefinitions = LoadDefinitions(wsTmp, rSource:=rTarget)
   
     CreateTables clsQuadRuntime.CacheBook
     
@@ -243,16 +453,16 @@ Dim eTestResult As TestResult
 
     sTableName = "person_student"
    ' new student
-    sDefn = sDefn & "NewStudent^person_student^sStudentFirstNm^String^^^^^Entry" & DOUBLEDOLLAR
-    sDefn = sDefn & "NewStudent^person_student^sStudentLastNm^String^^^^^Entry" & DOUBLEDOLLAR
-    sDefn = sDefn & "NewStudent^person_student^idStudent^Integer^^^^^Entry" & DOUBLEDOLLAR
-    sDefn = sDefn & "NewStudent^person_student^idPrep^Integer^IsValidPrep^^^^Entry" & DOUBLEDOLLAR
-    sDefn = sDefn & "NewStudent^person_student^sPrepNm^String^^^^^Entry"
+    sDefn = sDefn & "AddStudent^person_student^sStudentFirstNm^String^^^^^Entry" & DOUBLEDOLLAR
+    sDefn = sDefn & "AddStudent^person_student^sStudentLastNm^String^^^^^Entry" & DOUBLEDOLLAR
+    sDefn = sDefn & "AddStudent^person_student^idStudent^Integer^^^^^Entry" & DOUBLEDOLLAR
+    sDefn = sDefn & "AddStudent^person_student^idPrep^Integer^IsValidPrep^^^^Entry" & DOUBLEDOLLAR
+    sDefn = sDefn & "AddStudent^person_student^sPrepNm^String^^^^^Entry"
     vSource = Init2DStringArrayFromString(sDefn)
     
     Set rTarget = RangeFromStrArray(vSource, wsTmp, 0, 1)
 
-    Set Entry_Utils.dDefinitions = LoadDefinitions(wsTmp, rSource:=rTarget)
+    Set Add_Utils.dDefinitions = LoadDefinitions(wsTmp, rSource:=rTarget)
     Set wsTable = CreateTable(sTableName, wbTmp:=clsQuadRuntime.CacheBook)
     
 main:
@@ -298,29 +508,29 @@ setup:
     sFuncName = CsModuleName & "." & "TestAddTableMultipleRecordManual"
     sSheetName = "test"
     Set wsTmp = CreateSheet(ActiveWorkbook, sSheetName, bOverwrite:=True)
-    vSource = Init2DStringArray([{"NewFoo","Foo","FooName","List","IsMember","","","","Entry";"NewFoo","Foo","FooAge","Integer","IsValidInteger","","","","Entry";"NewBar","Bar","BarName","List","IsMember","","","","Entry"}])
+    vSource = Init2DStringArray([{"AddFoo","Foo","FooName","List","IsMember","","","","Entry";"AddFoo","Foo","FooAge","Integer","IsValidInteger","","","","Entry";"AddBar","Bar","BarName","List","IsMember","","","","Entry"}])
     Set rTarget = RangeFromStrArray(vSource, wsTmp, 0, 1)
 
 main:
 
-    Set Entry_Utils.dDefinitions = LoadDefinitions(wsTmp, rSource:=rTarget)
+    Set Add_Utils.dDefinitions = LoadDefinitions(wsTmp, rSource:=rTarget)
     CreateTables clsQuadRuntime.CacheBook
-    GenerateEntryForms clsQuadRuntime
+    GenerateForms clsQuadRuntime
         
-    SetEntryValue "NewFoo", "FooAge", 123, wbTmp:=clsQuadRuntime.EntryBook
-    SetEntryValue "NewFoo", "FooName", "blahblah", wbTmp:=clsQuadRuntime.EntryBook
+    SetEntryValue "AddFoo", "FooAge", 123, wbTmp:=clsQuadRuntime.AddBook
+    SetEntryValue "AddFoo", "FooName", "blahblah", wbTmp:=clsQuadRuntime.AddBook
     
-    AddTableRecord "Foo", wbEntryBook:=clsQuadRuntime.EntryBook, wbCacheBook:=clsQuadRuntime.CacheBook
+    AddTableRecord "Foo", wbAddBook:=clsQuadRuntime.AddBook, wbCacheBook:=clsQuadRuntime.CacheBook
     
-    SetEntryValue "NewFoo", "FooAge", 666, wbTmp:=clsQuadRuntime.EntryBook
-    SetEntryValue "NewFoo", "FooName", "foofoo", wbTmp:=clsQuadRuntime.EntryBook
+    SetEntryValue "AddFoo", "FooAge", 666, wbTmp:=clsQuadRuntime.AddBook
+    SetEntryValue "AddFoo", "FooName", "foofoo", wbTmp:=clsQuadRuntime.AddBook
     
-    AddTableRecord "Foo", wbEntryBook:=clsQuadRuntime.EntryBook, wbCacheBook:=clsQuadRuntime.CacheBook
+    AddTableRecord "Foo", wbAddBook:=clsQuadRuntime.AddBook, wbCacheBook:=clsQuadRuntime.CacheBook
     
-    SetEntryValue "NewFoo", "FooAge", 444, wbTmp:=clsQuadRuntime.EntryBook
-    SetEntryValue "NewFoo", "FooName", "barbar", wbTmp:=clsQuadRuntime.EntryBook
+    SetEntryValue "AddFoo", "FooAge", 444, wbTmp:=clsQuadRuntime.AddBook
+    SetEntryValue "AddFoo", "FooName", "barbar", wbTmp:=clsQuadRuntime.AddBook
     
-    AddTableRecord "Foo", wbEntryBook:=clsQuadRuntime.EntryBook, wbCacheBook:=clsQuadRuntime.CacheBook
+    AddTableRecord "Foo", wbAddBook:=clsQuadRuntime.AddBook, wbCacheBook:=clsQuadRuntime.CacheBook
     
     Set dRecord = GetTableRecord("Foo", 1, wbTmp:=clsQuadRuntime.CacheBook)
     
@@ -366,10 +576,10 @@ err:
     
 teardown:
     TestAddTableMultipleRecordManual = eTestResult
-    DeleteSheet clsQuadRuntime.EntryBook, sSheetName
+    DeleteSheet clsQuadRuntime.AddBook, sSheetName
     DeleteSheet clsQuadRuntime.CacheBook, "Foo"
     DeleteSheet clsQuadRuntime.CacheBook, "Bar"
-    DeleteEntryForms wbTmp:=clsQuadRuntime.EntryBook
+    DeleteForms wbTmp:=clsQuadRuntime.AddBook
     clsQuadRuntime.Delete
 
 End Function
@@ -396,43 +606,43 @@ setup:
     sFuncName = CsModuleName & "." & "TestAddTableMultipleRecordMultiTableManual"
     sSheetName = "test"
     Set wsTmp = CreateSheet(ActiveWorkbook, sSheetName, bOverwrite:=True)
-    vSource = Init2DStringArray([{"NewFoo","Foo","FooName","List","IsMember","","","","Entry";"NewFoo","Foo","FooAge","Integer","IsValidInteger","","","","Entry";"NewBar","Bar","BarName","List","IsMember","","","","Entry"}])
+    vSource = Init2DStringArray([{"AddFoo","Foo","FooName","List","IsMember","","","","Entry";"AddFoo","Foo","FooAge","Integer","IsValidInteger","","","","Entry";"AddBar","Bar","BarName","List","IsMember","","","","Entry"}])
     Set rTarget = RangeFromStrArray(vSource, wsTmp, 0, 1)
 
 main:
 
-    Set Entry_Utils.dDefinitions = LoadDefinitions(wsTmp, rSource:=rTarget)
+    Set Add_Utils.dDefinitions = LoadDefinitions(wsTmp, rSource:=rTarget)
     CreateTables clsQuadRuntime.CacheBook
-    GenerateEntryForms clsQuadRuntime
+    GenerateForms clsQuadRuntime
     
     ' Table Foo
-    SetEntryValue "NewFoo", "FooAge", 123, wbTmp:=clsQuadRuntime.EntryBook
-    SetEntryValue "NewFoo", "FooName", "blahblah", wbTmp:=clsQuadRuntime.EntryBook
+    SetEntryValue "AddFoo", "FooAge", 123, wbTmp:=clsQuadRuntime.AddBook
+    SetEntryValue "AddFoo", "FooName", "blahblah", wbTmp:=clsQuadRuntime.AddBook
     
-    AddTableRecord "Foo", wbEntryBook:=clsQuadRuntime.EntryBook, wbCacheBook:=clsQuadRuntime.CacheBook
+    AddTableRecord "Foo", wbAddBook:=clsQuadRuntime.AddBook, wbCacheBook:=clsQuadRuntime.CacheBook
     
-    SetEntryValue "NewFoo", "FooAge", 666, wbTmp:=clsQuadRuntime.EntryBook
-    SetEntryValue "NewFoo", "FooName", "foofoo", wbTmp:=clsQuadRuntime.EntryBook
+    SetEntryValue "AddFoo", "FooAge", 666, wbTmp:=clsQuadRuntime.AddBook
+    SetEntryValue "AddFoo", "FooName", "foofoo", wbTmp:=clsQuadRuntime.AddBook
     
-    AddTableRecord "Foo", wbEntryBook:=clsQuadRuntime.EntryBook, wbCacheBook:=clsQuadRuntime.CacheBook
+    AddTableRecord "Foo", wbAddBook:=clsQuadRuntime.AddBook, wbCacheBook:=clsQuadRuntime.CacheBook
     
-    SetEntryValue "NewFoo", "FooAge", 444, wbTmp:=clsQuadRuntime.EntryBook
-    SetEntryValue "NewFoo", "FooName", "barbar", wbTmp:=clsQuadRuntime.EntryBook
+    SetEntryValue "AddFoo", "FooAge", 444, wbTmp:=clsQuadRuntime.AddBook
+    SetEntryValue "AddFoo", "FooName", "barbar", wbTmp:=clsQuadRuntime.AddBook
     
-    AddTableRecord "Foo", wbEntryBook:=clsQuadRuntime.EntryBook, wbCacheBook:=clsQuadRuntime.CacheBook
+    AddTableRecord "Foo", wbAddBook:=clsQuadRuntime.AddBook, wbCacheBook:=clsQuadRuntime.CacheBook
     
     ' Table Bar
-    SetEntryValue "NewBar", "BarName", "blahblah", wbTmp:=clsQuadRuntime.EntryBook
+    SetEntryValue "AddBar", "BarName", "blahblah", wbTmp:=clsQuadRuntime.AddBook
     
-    AddTableRecord "Bar", wbEntryBook:=clsQuadRuntime.EntryBook, wbCacheBook:=clsQuadRuntime.CacheBook
+    AddTableRecord "Bar", wbAddBook:=clsQuadRuntime.AddBook, wbCacheBook:=clsQuadRuntime.CacheBook
     
-    SetEntryValue "NewBar", "BarName", "foofoo", wbTmp:=clsQuadRuntime.EntryBook
+    SetEntryValue "AddBar", "BarName", "foofoo", wbTmp:=clsQuadRuntime.AddBook
     
-    AddTableRecord "Bar", wbEntryBook:=clsQuadRuntime.EntryBook, wbCacheBook:=clsQuadRuntime.CacheBook
+    AddTableRecord "Bar", wbAddBook:=clsQuadRuntime.AddBook, wbCacheBook:=clsQuadRuntime.CacheBook
     
-    SetEntryValue "NewBar", "BarName", "barbar", wbTmp:=clsQuadRuntime.EntryBook
+    SetEntryValue "AddBar", "BarName", "barbar", wbTmp:=clsQuadRuntime.AddBook
     
-    AddTableRecord "Bar", wbEntryBook:=clsQuadRuntime.EntryBook, wbCacheBook:=clsQuadRuntime.CacheBook
+    AddTableRecord "Bar", wbAddBook:=clsQuadRuntime.AddBook, wbCacheBook:=clsQuadRuntime.CacheBook
     
     Set dRecord = GetTableRecord("Foo", 3, wbTmp:=clsQuadRuntime.CacheBook)
     
@@ -457,14 +667,15 @@ err:
     
 teardown:
     TestAddTableMultipleRecordMultiTableManual = eTestResult
-    DeleteSheet clsQuadRuntime.EntryBook, sSheetName
+    DeleteSheet clsQuadRuntime.AddBook, sSheetName
     DeleteSheet clsQuadRuntime.CacheBook, "Foo"
     DeleteSheet clsQuadRuntime.CacheBook, "Bar"
-    DeleteEntryForms wbTmp:=clsQuadRuntime.EntryBook
+    DeleteForms wbTmp:=clsQuadRuntime.AddBook
     clsQuadRuntime.Delete
 
 End Function
 
+    
 Function TestAddTableRecordFail() As TestResult
 Dim sFuncName As String
 Dim sSheetName As String
@@ -484,16 +695,16 @@ setup:
     sFuncName = CsModuleName & "." & "AddTableRecordFail"
     sSheetName = "test"
     Set wsTmp = CreateSheet(ActiveWorkbook, sSheetName, bOverwrite:=True)
-    vSource = Init2DStringArray([{"NewFoo","Foo","FooName","List","IsMember","","","","Entry";"NewFoo","Foo","FooAge","Integer","IsValidInteger","","","","Entry";"NewBar","Bar","BarName","List","IsMember","","","","Entry"}])
+    vSource = Init2DStringArray([{"AddFoo","Foo","FooName","List","IsMember","","","","Entry";"AddFoo","Foo","FooAge","Integer","IsValidInteger","","","","Entry";"AddBar","Bar","BarName","List","IsMember","","","","Entry"}])
     Set rTarget = RangeFromStrArray(vSource, wsTmp, 0, 1)
 
 main:
 
-    Set Entry_Utils.dDefinitions = LoadDefinitions(wsTmp, rSource:=rTarget)
+    Set Add_Utils.dDefinitions = LoadDefinitions(wsTmp, rSource:=rTarget)
     CreateTables clsQuadRuntime.CacheBook
-    GenerateEntryForms clsQuadRuntime
+    GenerateForms clsQuadRuntime
     
-    iResultCode = SetEntryValue("NewFoo", "BadFieldName", 123, wbTmp:=clsQuadRuntime.EntryBook)
+    iResultCode = SetEntryValue("AddFoo", "BadFieldName", 123, wbTmp:=clsQuadRuntime.AddBook)
     
     If iResultCode <> -1 Then
         eTestResult = TestResult.Failure
@@ -508,10 +719,10 @@ err:
     
 teardown:
     TestAddTableRecordFail = eTestResult
-    DeleteSheet clsQuadRuntime.EntryBook, sSheetName
+    DeleteSheet clsQuadRuntime.AddBook, sSheetName
     DeleteSheet clsQuadRuntime.CacheBook, "Foo"
     DeleteSheet clsQuadRuntime.CacheBook, "Bar"
-    DeleteEntryForms wbTmp:=clsQuadRuntime.EntryBook
+    DeleteForms wbTmp:=clsQuadRuntime.AddBook
     clsQuadRuntime.Delete
 
     

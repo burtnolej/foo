@@ -13,20 +13,25 @@ Attribute VB_Name = "Table_Utils"
 Option Explicit
 Const C_MODULE_NAME = "Table_Utils"
 
-Const C_DB_DEFAULT_FIELDS = "CreatedTime,LastUpdatedTime,ID"
-
+Const C_DB_DEFAULT_FIELDS = "CreatedTime,LastUpdatedTime,ID,SyncState"
+Public Function CalcSyncState(sTableName As String, Optional wbTmp As Workbook) As String
+    CalcSyncState = "User"
+End Function
 Public Function CalcCreatedTime(sTableName As String, Optional wbTmp As Workbook) As Date
     CalcCreatedTime = Now()
 End Function
 Public Function CalcLastUpdatedTime(sTableName As String, Optional wbTmp As Workbook) As Date
     CalcLastUpdatedTime = Now()
 End Function
-Public Function CalcID(sTableName As String, Optional wbTmp As Workbook) As Integer
+Public Function CalcID(sTableName As String, Optional wbTmp As Workbook) As String
     If IsSet(wbTmp) = False Then
         Set wbTmp = ActiveWorkbook
     End If
     
-    CalcID = wbTmp.Sheets(sTableName).Range("i" & sTableName & "NextFree").value
+    CalcID = "=Row()"
+               
+    'CalcID = wbTmp.Sheets(sTableName).Range("i" & sTableName & "NextFree").value
+
 End Function
 Public Sub FormatID(wsTmp As Worksheet, rCell As Range)
     MakeCellInteger wsTmp, rCell
@@ -89,11 +94,11 @@ main:
     Set GetTableRecord = dRecord
 End Function
 Public Function AddTableRecordAuto(wbTmp As Workbook, sTableName As String, _
-        vColNames() As String, vRows() As String, _
+        vColNames() As String, vRows As Variant, _
         Optional bAddDefaultFields As Boolean = True, _
         Optional bBulkLoad As Boolean = False, _
-        Optional vTableFilterID As Variant) As Integer
-' add 1 or more records to a "table"; used for bulk load from db or for creating tests
+        Optional vTableFilterID As Variant) As Range
+' add 1 or more records to a "table"; used for bulk load from DB or for creating tests
 ' assumes records are "valid", all values need to be passed in as arguments
 ' can provide a database table as the source
 ' also flag that allows assumption columns are in the same order as the table so can be written to sheet in 1 write
@@ -102,11 +107,12 @@ Public Function AddTableRecordAuto(wbTmp As Workbook, sTableName As String, _
 ' param: sTableName, String; can derive the sheet that the rows need to be added to
 Dim sKey As Variant, sDetailKey As Variant, sSheetName As String, sColRange As String, sFuncName As String
 Dim dDetail As Dictionary
-Dim iRowCount As Integer, iColCount As Integer, iNextFree As Integer, iDefaultFieldCount As Integer
-Dim iMaxRow As Integer, iMaxCol As Integer
+Dim iRowCount As Integer, iColCount As Integer, iNextFree As Integer, iDefaultFieldCount As Integer, iOrigWidth As Integer
+Dim iMaxRow As Integer, iMaxCol As Integer, i As Integer, j As Integer, iOrigLastCol As Integer
 Dim wsTable As Worksheet
 Dim rTarget As Range
 Dim aDefaultFields() As String
+Dim aDefaultValues() As Variant
 
     ' ASSERTIONS ---------------------------------------------------------
 
@@ -118,7 +124,7 @@ Dim aDefaultFields() As String
         err.Raise ErrorMsgType.BAD_ARGUMENT, Description:="arg is not of type string array"
     End If
 
-    If UBound(vColNames) <> UBound(vRows, 2) Then
+    If UBound(vColNames) <> UBound(vRows, 2) - LBound(vRows, 2) Then
         err.Raise ErrorMsgType.BAD_ARGUMENT, Description:="col description array must have 1 item per column in rows array"
     End If
     ' END ASSERTIONS ------------------------------------------------------
@@ -141,9 +147,9 @@ main:
     If bBulkLoad = False Then
         iNextFree = wsTable.Range("i" & sTableName & "NextFree").value + 1
             
-        For iRowCount = 0 To UBound(vRows)
-            For iColCount = 0 To UBound(vRows, 2)
-                sColRange = GetDBColumnRange(sTableName, vColNames(iColCount))
+        For iRowCount = LBound(vRows) To UBound(vRows)
+            For iColCount = LBound(vRows, 2) To UBound(vRows, 2)
+                sColRange = GetDBColumnRange(sTableName, vColNames(iColCount - LBound(vRows, 2)))
                 wsTable.Range(sColRange).Rows(iNextFree) = vRows(iRowCount, iColCount)
             Next iColCount
     
@@ -158,17 +164,42 @@ main:
     Else
         If bAddDefaultFields = True Then
             ' add default columns to array and calc values
+            'aDefaultFields = Split(C_DB_DEFAULT_FIELDS, ",")
+            ReDim aDefaultValues(0 To 3)
+            iOrigWidth = UBound(vRows, 2) + 1 - LBound(vRows)
+            iOrigLastCol = UBound(vRows, 2)
+            vRows = ReDim2DArray(vRows, UBound(vRows) - LBound(vRows) + 1, iOrigWidth + UBound(aDefaultFields) + 1, bExpand:=True, _
+            iStartCol:=LBound(vRows, 2), iStartRow:=LBound(vRows), bVariant:=True)
+            ReDim Preserve vColNames(0 To UBound(vColNames))
+            
+            vRows(LBound(vRows), iOrigLastCol + 1) = aDefaultFields(0)
+            vRows(LBound(vRows), iOrigLastCol + 2) = aDefaultFields(1)
+            vRows(LBound(vRows), iOrigLastCol + 3) = aDefaultFields(2)
+            vRows(LBound(vRows), iOrigLastCol + 4) = aDefaultFields(3)
+            
+            aDefaultValues(0) = Application.Run("Calc" & aDefaultFields(0), sTableName, wbTmp)
+            aDefaultValues(1) = Application.Run("Calc" & aDefaultFields(1), sTableName, wbTmp)
+            aDefaultValues(2) = "=Row()"
+            aDefaultValues(3) = "DB"
+            
+            ' fill down (assume 1st row is headings)
+            For i = LBound(vRows) + 1 To UBound(vRows)
+                For j = LBound(vRows, 2) + iOrigWidth To LBound(vRows, 2) + iOrigWidth + UBound(aDefaultValues)
+                    vRows(i, j) = aDefaultValues(j - iOrigWidth - LBound(vRows, 2))
+                Next j
+            Next i
         End If
-        iMaxRow = UBound(vRows)
-        iMaxCol = UBound(vColNames)
+        
+        iMaxRow = UBound(vRows) - LBound(vRows) + 1
+        iMaxCol = UBound(vColNames) + 1 + UBound(aDefaultFields) + 1
         With wsTable
-            Set rTarget = .Range(.Cells(1, 1), .Cells(iMaxRow + 1, iMaxCol + 1))
+            Set rTarget = .Range(.Cells(1, 1), .Cells(iMaxRow, iMaxCol))
             rTarget = vRows
             rTarget.Name = "data"
         End With
         
+        Set AddTableRecordAuto = rTarget
     End If
-    
 End Function
 
 Public Function AddTableRecordFromDict(wsTable As Worksheet, _
@@ -194,11 +225,12 @@ main:
     AddTableRecordFromDict = iNextFree
 End Function
 Public Function AddTableRecord(sTableName As String, _
-                      Optional wbEntryBook As Workbook, _
+                      Optional wbAddBook As Workbook, _
                       Optional wbCacheBook As Workbook) As Integer
+' used for inserting rows from a user add screen
 Dim sKey As Variant
 Dim dDefnDetails As Dictionary
-Dim wsEntry As Worksheet, wsTable As Worksheet
+Dim wsAdd As Worksheet, wsTable As Worksheet
 Dim iNextFree As Integer, i As Integer
 Dim sColRange As String, sFuncName As String
 Dim aDefaultFields() As String
@@ -206,19 +238,19 @@ Dim aDefaultFields() As String
 setup:
     sFuncName = C_MODULE_NAME & "." & "AddTableRecord"
     
-    If IsSet(wbEntryBook) = False Then
-        Set wbEntryBook = ActiveWorkbook
+    If IsSet(wbAddBook) = False Then
+        Set wbAddBook = ActiveWorkbook
     End If
     
     If IsSet(wbCacheBook) = False Then
         Set wbCacheBook = ActiveWorkbook
     End If
     
-    Set wsEntry = GetSheet(wbEntryBook, "New" & sTableName)
+    Set wsAdd = GetSheet(wbAddBook, "Add" & sTableName)
     Set wsTable = GetSheet(wbCacheBook, sTableName)
     
 main:
-    With wsEntry
+    With wsAdd
         iNextFree = wsTable.Range("i" & sTableName & "NextFree").value + 1
         
         For Each sKey In dDefinitions.Keys()

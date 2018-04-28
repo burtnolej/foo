@@ -13,8 +13,10 @@ Function ReDim2DArray(aInput As Variant, _
                       iTargetLength As Integer, _
                       iTargetWidth As Integer, _
                       Optional iStartRow As Integer = 0, _
-                      Optional iStartCol As Integer = 0) As Variant
-Dim aTmp() As String
+                      Optional iStartCol As Integer = 0, _
+                      Optional bExpand = False, _
+                      Optional bVariant As Boolean = False) As Variant
+Dim aTmp As Variant
 Dim iOrigWidth As Integer
 Dim iOrigLength As Integer
 
@@ -24,14 +26,22 @@ Dim iOrigLength As Integer
     iOrigLength = UBound(aInput)
     iOrigWidth = UBound(aInput, 2)
     
-    'ReDim aTmp(0 To iTargetLength - 1, 0 To iTargetWidth - 1)
-    
-    ReDim aTmp(iStartRow To iTargetLength + iStartRow - 1, _
-            iStartCol To iTargetWidth + iStartCol - 1)
+    If bVariant = False Then
+        ReDim aTmp(iStartRow To iTargetLength + iStartRow - 1, iStartCol To iTargetWidth + iStartCol - 1) As String
+    Else
+        ReDim aTmp(iStartRow To iTargetLength + iStartRow - 1, iStartCol To iTargetWidth + iStartCol - 1) As Variant
+    End If
     
     For i = iStartRow To iTargetLength + iStartRow - 1
         For j = iStartCol To iTargetWidth + iStartCol - 1
+            If bExpand = True Then
+                If i > iOrigLength Or j > iOrigWidth Then
+                    aTmp(i, j) = ""
+                    GoTo nextitem
+                End If
+            End If
             aTmp(i, j) = aInput(i, j)
+nextitem:
         Next j
     Next i
     ReDim2DArray = aTmp
@@ -178,7 +188,9 @@ End Function
 Function IsEmptyArray(aTmp As Variant) As Boolean
 
     IsEmptyArray = False
-    If UBound(aTmp) = 0 And aTmp(0) = "" Then
+    If IsEmpty(aTmp) Then
+        IsEmptyArray = True
+    ElseIf UBound(aTmp) = 0 And aTmp(0) = "" Then
         IsEmptyArray = True
     End If
 End Function
@@ -326,17 +338,21 @@ Dim sPadChar As String
     Array2String = sResult
 End Function
 
-Public Function Delim2Array(sScheduleStr As String) As String()
+Public Function Delim2Array(sScheduleStr As String, Optional bVariant As Boolean = False) As Variant
 Dim iNumRows As Integer, iNumCols As Integer, i As Integer, j As Integer
 Dim vRows As Variant
 Dim vFields As Variant
-Dim aSchedule() As String
+Dim aSchedule As Variant
 
     vRows = Split(sScheduleStr, DOUBLEDOLLAR)
     iNumRows = UBound(vRows)
     iNumCols = UBound(Split(vRows(0), HAT))
     
-    ReDim aSchedule(0 To iNumRows, 0 To iNumCols)
+    If bVariant = False Then
+        ReDim aSchedule(0 To iNumRows, 0 To iNumCols) As String
+    Else
+        ReDim aSchedule(0 To iNumRows, 0 To iNumCols) As Variant
+    End If
     
     For i = 0 To iNumRows
         vFields = Split(vRows(i), HAT)
@@ -348,10 +364,17 @@ Dim aSchedule() As String
     
     Delim2Array = aSchedule
 End Function
-Public Function Init2DStringArrayFromString(sInitVals As String) As String()
+'Public Function Init2DStringArrayFromString(sInitVals As String) As String()
+Public Function Init2DStringArrayFromString(sInitVals As String, Optional bVariant As Boolean = False) As Variant
 ' allows a 2d string array to be instantiated from a $$/^ delimied string
 ' this makes it easier to read when setting up in a test
-    Init2DStringArrayFromString = Init2DStringArray(Delim2Array(sInitVals))
+
+    If bVariant = True Then
+        Init2DStringArrayFromString = Init2DVariantArray(Delim2Array(sInitVals, bVariant:=bVariant))
+    Else
+        Init2DStringArrayFromString = Init2DStringArray(Delim2Array(sInitVals))
+    End If
+
 End Function
 Public Function Init2DStringArray(aInitVals As Variant) As String()
 Dim iTmp() As String

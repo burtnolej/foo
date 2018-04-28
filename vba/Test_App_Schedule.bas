@@ -71,10 +71,10 @@ setup:
     sFuncName = C_MODULE_NAME & "." & "BuildScheduleHeaders"
     sSheetName = "test"
     clsQuadRuntime.InitProperties bInitializeCache:=True, sDefinitionSheetName:=sSheetName
-    sTargetSheetName = "NewLesson"
+    sTargetSheetName = "AddLesson"
     
 main:
-    GenerateScheduleEntry clsQuadRuntime
+    GenerateScheduleAdd clsQuadRuntime
     
     sFuncName = C_MODULE_NAME & "." & "BuildScheduleCell"
     
@@ -312,7 +312,7 @@ Public Function Test_BuildSchedule_Student_Cached() As TestResult
 '""
 Dim sTemplateBookName As String, sCacheBookName As String, sTemplateBookPath As String, sResultFileName As String, sCacheSheetName As String
 Dim eTestResult As TestResult
-Dim aSchedule() As String
+Dim aSchedule() As Variant
 Dim rResult As Range
 Dim wsSchedule As Worksheet
 Dim aColumnWidths() As Integer
@@ -369,7 +369,7 @@ Public Function Test_CacheData_Schedule() As TestResult
 Dim sResultStr As String, sExpectedResult As String, sCacheSheetName As String
 Dim iPersonID As Integer
 Dim eTestResult As TestResult
-Dim aSchedule() As String
+Dim aSchedule() As Variant
 Dim clsQuadRuntime As New Quad_Runtime
 
 setup:
@@ -404,7 +404,7 @@ Public Function Test_ParseRawData() As TestResult
 Dim sResultStr As String, sExpectedResult As String
 Dim iPersonID As Integer
 Dim eTestResult As TestResult
-Dim aSchedule() As String
+Dim aSchedule() As Variant
 Dim clsQuadRuntime As New Quad_Runtime
 
 setup:

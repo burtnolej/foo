@@ -86,7 +86,7 @@ Public Function GetPersonData(clsQuadRuntime As Quad_Runtime, _
 ' returns: Worksheet; containing the data
 '>>>
 Dim sCacheSheetName As String, sFuncName As String
-Dim aSchedule() As String
+Dim aSchedule() As Variant
 
 setup:
     sFuncName = C_MODULE_NAME & "." & "GetPersonData"

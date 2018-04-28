@@ -132,7 +132,7 @@ Public Function IsNonBlankCell(rCell As Range) As Boolean
         IsNonBlankCell = False
     End If
 End Function
-Public Function RangeFromStrArray(vSource() As String, wsTarget As Worksheet, _
+Public Function RangeFromStrArray(vSource As Variant, wsTarget As Worksheet, _
             iRowOffset As Integer, iColOffset As Integer) As Range
             
 Dim wsTmp As Worksheet
@@ -140,8 +140,8 @@ Dim rRange As Range
 Dim iRows As Integer
 Dim iCols As Integer
 
-    iRows = iRowOffset + UBound(vSource) + 1
-    iCols = iColOffset + UBound(vSource, 2) + 1
+    iRows = iRowOffset + UBound(vSource) + 1 - LBound(vSource)
+    iCols = iColOffset + UBound(vSource, 2) + 1 - LBound(vSource, 2)
     
     With wsTarget
         Set rRange = .Range(.Cells(1 + iRowOffset, 1 + iColOffset), .Cells(iRows, iCols))

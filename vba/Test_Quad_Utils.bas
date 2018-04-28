@@ -18,15 +18,15 @@ setup:
     sDefnSheetName = "test_definition"
     Set wsTmp = CreateSheet(clsQuadRuntime.Book, sDefnSheetName, bOverwrite:=True)
         
-    sDefn = "new_person_student^person_student^sStudentFirstNm^AlphaNumeric^IsMember^Student^^^Entry" & DOUBLEDOLLAR
-    sDefn = sDefn & "new_person_student^person_student^sStudentLastNm^AlphaNumeric^IsMember^Student^^^Entry" & DOUBLEDOLLAR
-    sDefn = sDefn & "new_person_student^person_student^idStudent^AlphaNumeric^IsMember^Student^^^Entry" & DOUBLEDOLLAR
-    sDefn = sDefn & "new_person_student^person_student^idPrep^AlphaNumeric^IsMember^StudentLevel^^^Entry" & DOUBLEDOLLAR
-    sDefn = sDefn & "new_person_student^person_student^sPrepNm^AlphaNumeric^IsMember^PrepCode^^^Entry"
+    sDefn = "Add_person_student^person_student^sStudentFirstNm^AlphaNumeric^IsMember^Student^^^Entry" & DOUBLEDOLLAR
+    sDefn = sDefn & "Add_person_student^person_student^sStudentLastNm^AlphaNumeric^IsMember^Student^^^Entry" & DOUBLEDOLLAR
+    sDefn = sDefn & "Add_person_student^person_student^idStudent^AlphaNumeric^IsMember^Student^^^Entry" & DOUBLEDOLLAR
+    sDefn = sDefn & "Add_person_student^person_student^idPrep^AlphaNumeric^IsMember^StudentLevel^^^Entry" & DOUBLEDOLLAR
+    sDefn = sDefn & "Add_person_student^person_student^sPrepNm^AlphaNumeric^IsMember^PrepCode^^^Entry"
            
     vSource = Init2DStringArrayFromString(sDefn)
     Set rTarget = RangeFromStrArray(vSource, wsTmp, 0, 1)
-    Set Entry_Utils.dDefinitions = LoadDefinitions(wsTmp, rSource:=rTarget)
+    Set Add_Utils.dDefinitions = LoadDefinitions(wsTmp, rSource:=rTarget)
     
     If CrossRefQuadData(clsQuadRuntime, QuadDataType.person, _
                     QuadSubDataType.Student, "idStudent", 1, "sStudentLastNm") <> "Gromek" Then
@@ -52,7 +52,7 @@ Public Function Test_CacheData_Table() As TestResult
 Dim sResultStr As String, sExpectedResult As String, sCacheSheetName As String, sDefnSheetName As String, sDefn As String
 Dim iPersonID As Integer
 Dim eTestResult As TestResult
-Dim aPersonData() As String, vSource() As String
+Dim aPersonData() As Variant, vSource() As String
 Dim clsQuadRuntime As New Quad_Runtime
 Dim wsTmp As Worksheet
 Dim rTarget As Range
@@ -62,27 +62,27 @@ setup:
     sDefnSheetName = "test_definition"
     Set wsTmp = CreateSheet(clsQuadRuntime.Book, sDefnSheetName, bOverwrite:=True)
     
-    'sDefn = "NewLesson^Lesson^sSubjectLongDesc^AlphaNumeric^IsMember^Subject" & DOUBLEDOLLAR
-    'sDefn = sDefn & "NewLesson^Lesson^sCourseNm^AlphaNumeric^IsMember^Course" & DOUBLEDOLLAR
-    'sDefn = sDefn & "NewLesson^Lesson^sClassFocusArea^AlphaNumeric^IsMember^Course" & DOUBLEDOLLAR
-    'sDefn = sDefn & "NewLesson^Lesson^sFacultyFirstNm^AlphaNumeric^IsMember^Faculty" & DOUBLEDOLLAR
-    'sDefn = sDefn & "NewLesson^Lesson^cdDay^AlphaNumeric^IsMember^DayCode" & DOUBLEDOLLAR
-    'sDefn = sDefn & "NewLesson^Lesson^idTimePeriod^AlphaNumeric^IsMember^ClassLecture" & DOUBLEDOLLAR
-    'sDefn = sDefn & "NewLesson^Lesson^idLocation^AlphaNumeric^IsMember^ClassLecture" & DOUBLEDOLLAR
-    'sDefn = sDefn & "NewLesson^Lesson^idSection^AlphaNumeric^IsMember^ClassLecture" & DOUBLEDOLLAR
-    'sDefn = sDefn & "NewLesson^Lesson^cdClassType^AlphaNumeric^IsMember^ClassTypeCode" & DOUBLEDOLLAR
-    'sDefn = sDefn & "NewLesson^Lesson^iFreq^AlphaNumeric^IsMember^Section" & DOUBLEDOLLAR
-    'sDefn = sDefn & "NewLesson^Lesson^idClassLecture^AlphaNumeric^IsMember^ClassLecture"
+    'sDefn = "AddLesson^Lesson^sSubjectLongDesc^AlphaNumeric^IsMember^Subject" & DOUBLEDOLLAR
+    'sDefn = sDefn & "AddLesson^Lesson^sCourseNm^AlphaNumeric^IsMember^Course" & DOUBLEDOLLAR
+    'sDefn = sDefn & "AddLesson^Lesson^sClassFocusArea^AlphaNumeric^IsMember^Course" & DOUBLEDOLLAR
+    'sDefn = sDefn & "AddLesson^Lesson^sFacultyFirstNm^AlphaNumeric^IsMember^Faculty" & DOUBLEDOLLAR
+    'sDefn = sDefn & "AddLesson^Lesson^cdDay^AlphaNumeric^IsMember^DayCode" & DOUBLEDOLLAR
+    'sDefn = sDefn & "AddLesson^Lesson^idTimePeriod^AlphaNumeric^IsMember^ClassLecture" & DOUBLEDOLLAR
+    'sDefn = sDefn & "AddLesson^Lesson^idLocation^AlphaNumeric^IsMember^ClassLecture" & DOUBLEDOLLAR
+    'sDefn = sDefn & "AddLesson^Lesson^idSection^AlphaNumeric^IsMember^ClassLecture" & DOUBLEDOLLAR
+    'sDefn = sDefn & "AddLesson^Lesson^cdClassType^AlphaNumeric^IsMember^ClassTypeCode" & DOUBLEDOLLAR
+    'sDefn = sDefn & "AddLesson^Lesson^iFreq^AlphaNumeric^IsMember^Section" & DOUBLEDOLLAR
+    'sDefn = sDefn & "AddLesson^Lesson^idClassLecture^AlphaNumeric^IsMember^ClassLecture"
     
-    sDefn = "new_person_student^person_student^sStudentFirstNm^AlphaNumeric^IsMember^Student^^^Entry" & DOUBLEDOLLAR
-    sDefn = sDefn & "new_person_student^person_student^sStudentLastNm^AlphaNumeric^IsMember^Student^^^Entry" & DOUBLEDOLLAR
-    sDefn = sDefn & "new_person_student^person_student^idStudent^AlphaNumeric^IsMember^Student^^^Entry" & DOUBLEDOLLAR
-    sDefn = sDefn & "new_person_student^person_student^idPrep^AlphaNumeric^IsMember^StudentLevel^^^Entry" & DOUBLEDOLLAR
-    sDefn = sDefn & "new_person_student^person_student^sPrepNm^AlphaNumeric^IsMember^PrepCode^^^Entry"
+    sDefn = "Add_person_student^person_student^sStudentFirstNm^AlphaNumeric^IsMember^Student^^^Entry" & DOUBLEDOLLAR
+    sDefn = sDefn & "Add_person_student^person_student^sStudentLastNm^AlphaNumeric^IsMember^Student^^^Entry" & DOUBLEDOLLAR
+    sDefn = sDefn & "Add_person_student^person_student^idStudent^AlphaNumeric^IsMember^Student^^^Entry" & DOUBLEDOLLAR
+    sDefn = sDefn & "Add_person_student^person_student^idPrep^AlphaNumeric^IsMember^StudentLevel^^^Entry" & DOUBLEDOLLAR
+    sDefn = sDefn & "Add_person_student^person_student^sPrepNm^AlphaNumeric^IsMember^PrepCode^^^Entry"
            
     vSource = Init2DStringArrayFromString(sDefn)
     Set rTarget = RangeFromStrArray(vSource, wsTmp, 0, 1)
-    Set Entry_Utils.dDefinitions = LoadDefinitions(wsTmp, rSource:=rTarget)
+    Set Add_Utils.dDefinitions = LoadDefinitions(wsTmp, rSource:=rTarget)
     
     GetPersonDataFromDB clsQuadRuntime, QuadSubDataType.Student, eQuadScope:=QuadScope.all
     aPersonData = ParseRawData(ReadFile(clsQuadRuntime.ResultFileName))

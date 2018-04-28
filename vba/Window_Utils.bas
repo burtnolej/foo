@@ -93,7 +93,7 @@ main:
     End If
     
     Set wsTmp = CreateSheet(wbTmp, sSheetName)
-    SetScrollAreaToVisibleRange sSheetName:=sSheetName, wTmp:=wbTmp.Windows(wID)
+    SetScrollAreaToVisibleRange sSheetName:=sSheetName, wbTmp:=wbTmp
     
     Set CreateWindowSheet = wsTmp
 
@@ -106,24 +106,29 @@ err:
 
 End Function
 
-Public Function SetScrollAreaToVisibleRange(Optional wTmp As Window, Optional sSheetName As String) As Range
+Public Function SetScrollAreaToVisibleRange(Optional sSheetName As String, _
+                Optional wbTmp As Workbook, Optional wID As Integer = 1) As Range
 Dim iVisibleCols As Integer, iVisibleRows As Integer
 Dim rVisible As Range
 Dim sFuncName As String
+Dim wTmp As Window
 
 setup:
     sFuncName = C_MODULE_NAME & "." & "SetScrollAreaToVisibleRange"
 
 main:
-    If IsSet(wTmp) = False Then
-        Set wTmp = ActiveWindow
+
+    If IsSet(wbTmp) = False Then
+        Set wbTmp = ActiveWorkbook
     End If
     
+    Set wTmp = wbTmp.Windows(wID)
+
     If sSheetName = "" Then
         sSheetName = "Sheet1"
     End If
 
-    Set rVisible = ActiveWindow.VisibleRange
+    Set rVisible = wTmp.VisibleRange
     Sheets(sSheetName).ScrollArea = rVisible.Address
 
     Set SetScrollAreaToVisibleRange = rVisible
@@ -153,10 +158,10 @@ main:
     rLabel.Merge
     SetBgColorByRGB sSheetName, rLabel, winsetTmp.rgbBg, wbTmp:=wbTmp
     SetFgColorByRGB sSheetName, rLabel.Address, winsetTmp.rgbFg, wbTmp:=wbTmp
-    SetCenterAlignOn rLabel
+    SetCenterAlignOn rLabel, wbTmp:=wbTmp, sSheetName:=sSheetName
     rLabel.value = winsetTmp.WindowTitle
     SetFont sSheetName, rLabel.Address, winsetTmp.Font, winsetTmp.FontSize, _
-            winsetTmp.FontStyle
+            winsetTmp.FontStyle, wbTmp:=wbTmp
     
     On Error GoTo 0
     Exit Sub
@@ -186,6 +191,8 @@ main:
     ShowCaption bReset
     
     wbTmp.Activate
+    NormalWindowState wbTmp
+    
     Application.ExecuteExcel4Macro "SHOW.TOOLBAR(""Ribbon""," & CStr(bReset) & ")"
     Set wTmp = wbTmp.Windows(winsetTmp.WindowID)
     wTmp.DisplayHorizontalScrollBar = bReset
@@ -209,7 +216,7 @@ main:
                 winsetTmp.WindowTitle = "[" & wsTmp.Name & "]"
             End If
         
-            Set rVisible = SetScrollAreaToVisibleRange(wTmp:=wbTmp.Windows(winsetTmp.WindowID), sSheetName:=wsTmp.Name)
+            Set rVisible = SetScrollAreaToVisibleRange(wbTmp:=wbTmp, sSheetName:=wsTmp.Name)
             
             ' top label
             Set rTopRow = rVisible.Rows(1).Resize(2)
@@ -218,6 +225,7 @@ main:
             
             ' bottom label
             iLabelWidth = rTopRow.Columns.Count - 2
+
             Set rBottomRow = rVisible.Rows(rVisible.Rows.Count).Offset(-1).Resize(2, iLabelWidth)
             winsetTmp.WindowTitle = "STATUS BAR"
             MakeLabel winsetTmp, rBottomRow, wsTmp.Name
@@ -263,6 +271,49 @@ err:
     FuncLogIt sFuncName, "could not get screen dimensions", C_MODULE_NAME, LogMsgType.INFO
 
 End Function
+Public Sub MinimumWindowState(Optional wbTmp As Workbook, Optional iWindowID As Integer = 1)
+Dim sFuncName As String
+
+setup:
+    sFuncName = C_MODULE_NAME & "." & "MinimizeWindow"
+
+main:
+    On Error GoTo err
+    If IsSet(wbTmp) = False Then
+        Set wbTmp = ActiveWorkbook
+    End If
+
+    wbTmp.Windows(iWindowID).WindowState = xlMinimized
+
+    On Error GoTo 0
+    Exit Sub
+    
+err:
+    FuncLogIt sFuncName, "could not set  window state to normal [wbTmp=" & wbTmp.Name & "] [iWindowID=" & CStr(iWindowID) & "]", C_MODULE_NAME, LogMsgType.Error
+
+End Sub
+
+Public Sub NormalWindowState(Optional wbTmp As Workbook, Optional iWindowID As Integer = 1)
+Dim sFuncName As String
+
+setup:
+    sFuncName = C_MODULE_NAME & "." & "MinimizeWindow"
+
+main:
+    On Error GoTo err
+    If IsSet(wbTmp) = False Then
+        Set wbTmp = ActiveWorkbook
+    End If
+
+    wbTmp.Windows(iWindowID).WindowState = xlNormal
+
+    On Error GoTo 0
+    Exit Sub
+    
+err:
+    FuncLogIt sFuncName, "could not set  window state to normal [wbTmp=" & wbTmp.Name & "] [iWindowID=" & CStr(iWindowID) & "]", C_MODULE_NAME, LogMsgType.Error
+
+End Sub
 Public Sub SetWindowLocation(lTop As Long, lLeft As Long, _
                            Optional wbTmp As Workbook, Optional iWindowID As Integer = 1)
 Dim sFuncName As String
@@ -275,6 +326,9 @@ main:
     If IsSet(wbTmp) = False Then
         Set wbTmp = ActiveWorkbook
     End If
+
+    ' window cannot move if maximized or minimized
+    NormalWindowState wbTmp:=wbTmp
     
     wbTmp.Windows(iWindowID).Top = lTop
     wbTmp.Windows(iWindowID).Left = lLeft
@@ -321,6 +375,9 @@ main:
     If IsSet(wbTmp) = False Then
         Set wbTmp = ActiveWorkbook
     End If
+
+    ' window cannot move if maximized or minimized
+    NormalWindowState wbTmp:=wbTmp
     
     wbTmp.Windows(iWindowID).Width = lWidth
     wbTmp.Windows(iWindowID).Height = lHeight
