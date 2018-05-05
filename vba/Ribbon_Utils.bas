@@ -78,7 +78,7 @@ Dim iControlCount As Integer
     
     Set GetControlValues = dControlValues
 End Function
-Public Sub OnChange(control As IRibbonControl, text As Variant, Optional sControlID As String)
+Public Sub OnChange(control As IRibbonControl, Text As Variant, Optional sControlID As String)
 Dim dReturnVal As Double
 Dim iIndex As Integer
 Dim vControls() As Variant
@@ -98,14 +98,14 @@ Dim rRibValues As Range
     
     iIndex = IndexArray(vControls, sControlID)
     
-    If text = " False" Then
+    If Text = " False" Then
             rRibValues.Rows(iIndex + 1).value = "False"
-    ElseIf text = " True" Then
+    ElseIf Text = " True" Then
             rRibValues.Rows(iIndex + 1).value = "True"
-    ElseIf text = "False" Then
+    ElseIf Text = "False" Then
             rRibValues.Rows(iIndex + 1).value = "True"
     Else
-            rRibValues.Rows(iIndex + 1).value = text
+            rRibValues.Rows(iIndex + 1).value = Text
     End If
 End Sub
 
@@ -170,22 +170,23 @@ setup:
              
     ElseIf control.id = "GenerateEntryForm" Then
         Set clsQuadRuntime = GetQuadRuntimeGlobal(bInitFlag:=True)
-        GenerateEntryForms clsQuadRuntime
+        GenerateForms clsQuadRuntime
     ElseIf control.id = "DeleteEntryForm" Then
-        DeleteEntryForms
+        DeleteForms
     ElseIf control.id = "Student" Then
-        HideAllEntryForms
-        ShowEntryForm "Student"
+        HideForms
+        ShowForm "Student"
     ElseIf control.id = "Teacher" Then
-        HideAllEntryForms
-        ShowEntryForm "Teacher"
+        HideForms
+        ShowForm "Teacher"
     ElseIf control.id = "FormStyles" Then
         ToggleSheet ActiveWorkbook, "FormStyles"
     ElseIf control.id = "Definitions" Then
         ToggleSheet ActiveWorkbook, "Definitions"
     ElseIf control.id = "CellStyles" Then
         ToggleSheet ActiveWorkbook, "CellStyles"
-        
+    ElseIf control.id = "CloseWindows" Then
+        cleanup_workbooks
     ' Tab: Admin
     ElseIf control.id = "DoBackups" Then
         BackupModules

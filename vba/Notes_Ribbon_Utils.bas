@@ -38,7 +38,7 @@ Dim dControlValues As Dictionary
     returnedVal = dControlValues.Item(control.id)
 
 End Sub
-Public Sub xxxOnChange(control As IRibbonControl, text As Variant)
+Public Sub xxxOnChange(control As IRibbonControl, Text As Variant)
 Dim dReturnVal As Double
 Dim iIndex As Integer
 Dim vControls() As Variant
@@ -54,15 +54,15 @@ Dim rRibValues As Range
     iIndex = Application.Run("VBASource.xlsm!IndexArray", vControls, control.id)
     
     If control.id = "SetStartDate" Then
-        rRibValues.Rows(iIndex + 1).value = Application.Run("VBASource.xlsm!GetSecsFromOrigin", text, dReturnVal)
-    ElseIf text = " False" Then
+        rRibValues.Rows(iIndex + 1).value = Application.Run("VBASource.xlsm!GetSecsFromOrigin", Text, dReturnVal)
+    ElseIf Text = " False" Then
             rRibValues.Rows(iIndex + 1).value = "False"
-    ElseIf text = "True" Then
+    ElseIf Text = "True" Then
             rRibValues.Rows(iIndex + 1).value = "True"
-    ElseIf text = "False" Then
+    ElseIf Text = "False" Then
             rRibValues.Rows(iIndex + 1).value = "True"
     Else
-            rRibValues.Rows(iIndex + 1).value = text
+            rRibValues.Rows(iIndex + 1).value = Text
     End If
 End Sub
 

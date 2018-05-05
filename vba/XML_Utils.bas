@@ -15,12 +15,12 @@ Dim xRoot As IXMLDOMElement, xChild As IXMLDOMElement
     For Each vKey In dTmp.Keys
         If IsInstance(dTmp.Item(vKey), vbVariantArray, bAssert:=False) = False Then
             Set xChild = XMLDOC.createElement(vKey)
-            xChild.text = dTmp.Item(vKey)
+            xChild.Text = dTmp.Item(vKey)
             xRoot.appendChild xChild
         Else
             For Each vElement In dTmp.Item(vKey)
                 Set xChild = XMLDOC.createElement(vKey)
-                xChild.text = vElement
+                xChild.Text = vElement
                 xRoot.appendChild xChild
             Next vElement
         End If
@@ -90,7 +90,7 @@ main:
     For i = 0 To iNumElements
 
         Set xChild = XMLDOC.createElement(aXMLElement(i, 0))
-        xChild.text = aXMLElement(i, 1)
+        xChild.Text = aXMLElement(i, 1)
         
         If iMaxNumAttributes <> -1 Then
             For j = 0 To iMaxNumAttributes Step 2

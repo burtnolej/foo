@@ -36,6 +36,10 @@ Private pAddBook As Workbook
 Private pAddBookPath As String
 Private pAddBookName As String
 
+Private pViewBook As Workbook
+Private pViewBookPath As String
+Private pViewBookName As String
+
 Private pMenuBook As Workbook
 Private pMenuBookPath As String
 Private pMenuBookName As String
@@ -48,6 +52,8 @@ Private pRuntimeDir As String
 Private pFileName As String
 Private pDayEnum As String
 Private pPeriodEnum As String
+Private pBookEnum As String
+Private pNewBookPath As String
 
 Private pCurrentSheetSource As Variant
 Private pCurrentSheetColumns As Variant
@@ -78,6 +84,8 @@ Private cScheduleBookPath As String
 Private cScheduleBookName As String
 Private cAddBookPath As String
 Private cAddBookName As String
+Private cViewBookPath As String
+Private cViewBookName As String
 Private cMenuBookPath As String
 Private cMenuBookName As String
 Private cDefinitionSheetName   As String
@@ -88,6 +96,7 @@ Private cQuadRuntimeEnum  As String
 Private cDayEnum  As String
 Private cPeriodEnum  As String
 Private cQuadRuntimeCacheFileName  As String
+Private cBookEnum As String
 
 ' Book -----------------------
 Public Property Get Book() As Workbook
@@ -118,6 +127,28 @@ End Property
 Public Property Get BookName() As String
     BookName = pBookName
 End Property
+
+Public Property Get NewBookPath() As String
+    NewBookPath = pNewBookPath
+End Property
+Public Property Let NewBookPath(value As String)
+Dim sCachedValue As String, sOrigValue As String, sConstValue As String
+Dim sFuncName As String
+
+setup:
+    sFuncName = "NewBookPath"
+    sConstValue = cNewBookPath
+    
+main:
+    pNewBookPath = GetUpdatedValue(sFuncName, sConstValue, value)
+    
+    If DirExists(value) <> True Then
+         err.Raise ErrorMsgType.BAD_ARGUMENT, Description:="workbook [" & value & "] does not exist"
+    End If
+    
+End Property
+
+
 Public Property Let BookName(value As String)
 Dim sCachedValue As String, sOrigValue As String, sConstValue As String
 Dim sFuncName As String
@@ -353,7 +384,6 @@ setup:
     
 End Property
 Public Property Get ScheduleBookName() As String
-    
     ScheduleBookName = pScheduleBookName
 End Property
 Public Property Let ScheduleBookName(value As String)
@@ -368,6 +398,46 @@ setup:
 End Property
 ' END schedule -------------------------------------
 
+
+' View -----------------------------------------
+Public Property Get ViewBook() As Workbook
+    Set ViewBook = pViewBook
+End Property
+Public Property Let ViewBook(value As Workbook)
+    Set pViewBook = value
+End Property
+Public Property Get ViewBookPath() As String
+    ViewBookPath = pViewBookPath
+End Property
+Public Property Let ViewBookPath(value As String)
+Dim sCachedValue As String, sOrigValue As String, sConstValue As String
+Dim sFuncName As String
+
+setup:
+    sFuncName = "ViewBookPath"
+    sConstValue = cViewBookPath
+    
+    pViewBookPath = GetUpdatedValue(sFuncName, sConstValue, value)
+    
+    If DirExists(value) <> True Then
+         err.Raise ErrorMsgType.BAD_ARGUMENT, Description:="workbook [" & value & "] does not exist"
+    End If
+    
+End Property
+Public Property Get ViewBookName() As String
+    ViewBookName = pViewBookName
+End Property
+Public Property Let ViewBookName(value As String)
+Dim sCachedValue As String, sOrigValue As String, sConstValue As String
+Dim sFuncName As String
+
+setup:
+    sFuncName = "ViewBookName"
+    sConstValue = cViewBookName
+    
+    pViewBookName = GetUpdatedValue(sFuncName, sConstValue, value)
+End Property
+' END View -------------------------------------
 
 ' Menu -----------------------------------------
 Public Property Get MenuBook() As Workbook
@@ -453,6 +523,19 @@ End Property
 ' END Add -------------------------------------
 
 ' misc ---------------------------------------------
+Public Property Get BookEnum() As String
+    BookEnum = pBookEnum
+End Property
+Public Property Let BookEnum(value As String)
+Dim sCachedValue As String, sOrigValue As String, sConstValue As String
+Dim sFuncName As String
+
+setup:
+    sFuncName = "BookEnum"
+    sConstValue = cBookEnum
+main:
+    pBookEnum = GetUpdatedValue(sFuncName, sConstValue, value)
+End Property
 Public Property Get DayEnum() As String
     DayEnum = pDayEnum
 End Property
@@ -753,14 +836,19 @@ Sub SetDefaults()
     cAddBookPath = cRuntimeDir
     cAddBookName = "add.xlsm"
     
+    cViewBookPath = cRuntimeDir
+    cViewBookName = "view.xlsm"
+    
     cDefinitionSheetName = "Definitions"
     cDatabasePath = cAppDir & "app\quad\utils\excel\test_misc\QuadQA.db"
     cResultFileName = cRuntimeDir & "pyshell_results.txt"
     cFileName = cRuntimeDir & "uupyshell.args.txt"
-    cQuadRuntimeEnum = "BookPath,BookName,CacheBookName,CacheBookPath,CacheRangeName,TemplateBookPath,TemplateBookName,TemplateSheetName,TemplateCellSheetName,DatabasePath,ResultFileName,ExecPath,RuntimeDir,FileName,DayEnum,PeriodEnum,CurrentSheetSource,CurrentSheetColumns,QuadRuntimeCacheFileName,DefinitionSheetName,ScheduleBookPath,ScheduleBookName,AddBookPath,AddBookName,MenuBookPath,MenuBookName"
+    cQuadRuntimeEnum = "BookPath,BookName,CacheBookName,CacheBookPath,CacheRangeName,TemplateBookPath,TemplateBookName,TemplateSheetName,TemplateCellSheetName,DatabasePath,ResultFileName,ExecPath,RuntimeDir,FileName,DayEnum,PeriodEnum,CurrentSheetSource,CurrentSheetColumns,QuadRuntimeCacheFileName,DefinitionSheetName,ScheduleBookPath,ScheduleBookName,AddBookPath,AddBookName,MenuBookPath,MenuBookName,ViewBookPath,ViewBookName,BookEnum,NewBookPath"
     cDayEnum = "M,T,W,R,F"
     cPeriodEnum = "1,2,3,4,5,6,7,8,9,10,11"
     cQuadRuntimeCacheFileName = cHomeDir & "\quad_runtime_cache.txt"
+    cBookEnum = Join(Array(cCacheBookName, cScheduleBookName, cMenuBookName, cAddBookName, cViewBookName), COMMA)
+    
 End Sub
 
 Sub SetWindows()
@@ -805,15 +893,12 @@ Public Sub InitProperties( _
                  Optional sScheduleBookPath As String, Optional sScheduleBookName As String, _
                  Optional sMenuBookPath As String, Optional sMenuBookName As String, _
                  Optional sAddBookPath As String, Optional sAddBookName As String, _
-                 Optional sDatabasePath As String, _
-                 Optional sResultFileName As String, _
-                 Optional sExecPath As String, _
-                 Optional sRuntimeDir As String, _
-                 Optional sFileName As String, _
-                 Optional sDayEnum As String, _
-                 Optional sPeriodEnum As String, _
-                 Optional sDefinitionSheetName As String, _
-                 Optional sQuadRuntimeCacheFileName As String, _
+                 Optional sViewBookPath As String, Optional sViewBookName As String, _
+                 Optional sNewBookPath As String, Optional sDatabasePath As String, _
+                 Optional sResultFileName As String, Optional sExecPath As String, Optional sRuntimeDir As String, _
+                 Optional sFileName As String, Optional sDayEnum As String, Optional sPeriodEnum As String, _
+                 Optional sBookEnum As String, _
+                 Optional sDefinitionSheetName As String, Optional sQuadRuntimeCacheFileName As String, _
                  Optional bInitializeCache As Boolean = True, _
                  Optional bInitializeOveride As Boolean = True, _
                  Optional bHydrateFromCache As Boolean = False, _
@@ -836,18 +921,27 @@ Public Sub InitProperties( _
     Me.AddBookName = sAddBookName
     Me.MenuBookPath = cMenuBookPath
     Me.MenuBookName = cMenuBookName
+    Me.ViewBookName = cViewBookName
+    Me.ViewBookPath = cViewBookPath
+    
+    Me.BookEnum = sBookEnum
+    Me.RuntimeDir = sRuntimeDir
+
+    Me.NewBookPath = sNewBookPath
     
     If bInitializeCache = True Then
-        FileCopy cCacheBookName, cNewBookPath, cRuntimeDir
-        FileCopy cScheduleBookName, cNewBookPath, cRuntimeDir
-        FileCopy cAddBookName, cNewBookPath, cRuntimeDir
-        FileCopy cMenuBookName, cNewBookPath, cRuntimeDir
+        Me.OpenBooks
+        'FileCopy cCacheBookName, cNewBookPath, cRuntimeDir
+        'FileCopy cScheduleBookName, cNewBookPath, cRuntimeDir
+        'FileCopy cAddBookName, cNewBookPath, cRuntimeDir
+        'FileCopy cMenuBookName, cNewBookPath, cRuntimeDir
     Else
         If BookExists(Me.CacheBookPath & "\" & Me.CacheBookName) = False Then
-            FileCopy cCacheBookName, cNewBookPath, cRuntimeDir
-            FileCopy cScheduleBookName, cNewBookPath, cRuntimeDir
-            FileCopy cAddBookName, cNewBookPath, cRuntimeDir
-            FileCopy cMenuBookName, cNewBookPath, cRuntimeDir
+            Me.OpenBooks
+            'FileCopy cCacheBookName, cNewBookPath, cRuntimeDir
+            'FileCopy cScheduleBookName, cNewBookPath, cRuntimeDir
+            'FileCopy cAddBookName, cNewBookPath, cRuntimeDir
+            'FileCopy cMenuBookName, cNewBookPath, cRuntimeDir
         End If
     End If
     
@@ -855,6 +949,7 @@ Public Sub InitProperties( _
     Me.ScheduleBook = OpenBook(Me.ScheduleBookName, sPath:=Me.ScheduleBookPath)
     Me.AddBook = OpenBook(Me.AddBookName, sPath:=Me.AddBookPath)
     Me.MenuBook = OpenBook(Me.MenuBookName, sPath:=Me.MenuBookPath)
+    Me.ViewBook = OpenBook(Me.ViewBookName, sPath:=Me.ViewBookPath)
     
     Me.BookPath = sBookPath
     Me.BookName = sBookName
@@ -869,10 +964,11 @@ Public Sub InitProperties( _
     Me.DatabasePath = sDatabasePath
     Me.ResultFileName = sResultFileName
     Me.ExecPath = sExecPath
-    Me.RuntimeDir = sRuntimeDir
+
     Me.FileName = sFileName
     Me.DayEnum = sDayEnum
     Me.PeriodEnum = sPeriodEnum
+
     
     If bSetWindows = True Then
         SetWindows
@@ -891,20 +987,33 @@ Dim oFile As Object
     On Error GoTo 0
 End Sub
 Public Sub CleanUpTmpBooks()
-    CloseBook Me.CacheBook
-    DeleteBook Me.CacheBookName, Me.CacheBookPath
-    CloseBook Me.ScheduleBook
-    DeleteBook Me.ScheduleBookName, Me.ScheduleBookPath
-    CloseBook Me.AddBook
-    DeleteBook Me.AddBookName, Me.AddBookPath
-    CloseBook Me.MenuBook
-    DeleteBook Me.MenuBookName, Me.MenuBookPath
+Dim sBook As Variant
+Dim wbTmp As Workbook
+Dim sBookName As String, sBookPath As String
+
+    For Each sBook In Split(Me.BookEnum, COMMA)
+        sBook = Split(sBook, PERIOD)(0)
+        sBook = UCase(Left(sBook, 1)) & Right(sBook, Len(sBook) - 1)
+        Set wbTmp = CallByName(Me, sBook & "Book", VbGet)
+        CloseBook wbTmp
+        sBookName = CallByName(Me, sBook & "BookName", VbGet)
+        sBookPath = CallByName(Me, sBook & "BookPath", VbGet)
+        DeleteBook sBookName, sBookPath
+    Next sBook
+    
 End Sub
 Public Sub Delete()
     Me.CloseRuntimeCacheFile
     DeleteFile Me.QuadRuntimeCacheFileName
     Me.CleanUpTmpBooks
 End Sub
-
+Public Sub OpenBooks()
+Dim sBook As Variant
+    For Each sBook In Split(Me.BookEnum, COMMA)
+        sBook = Split(sBook, PERIOD)(0)
+        sBook = UCase(Left(sBook, 1)) & Right(sBook, Len(sBook) - 1)
+        FileCopy CallByName(Me, sBook & "BookName", VbGet), CallByName(Me, "NewBookPath", VbGet), Me.RuntimeDir
+    Next sBook
+End Sub
 
 

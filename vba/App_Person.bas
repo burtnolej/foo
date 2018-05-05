@@ -115,6 +115,45 @@ err:
     FuncLogIt sFuncName, "[" & err.Description & "]  raised", C_MODULE_NAME, LogMsgType.Error
 
 End Function
+
+Public Sub UpdatePersonDataInDB(clsQuadRuntime As Quad_Runtime, _
+                               eQuadSubDataType As QuadSubDataType, _
+                               sFieldName As String, sFieldVal As Variant, _
+                               sPredName As String, sPredVal As Variant)
+Dim sSpName As String
+Dim vRow() As Variant
+
+    vRow = Array(sFieldName, sFieldVal, sPredName, sPredVal)
+    sSpName = "update_basic_" & EnumQuadSubDataType(eQuadSubDataType) & "_info"
+    UpdateQuadDataInDB clsQuadRuntime, sSpName, bHeaderFlag:=True, vRow:=vRow
+                               
+End Sub
+
+Public Sub InsertPersonDataToDB(clsQuadRuntime As Quad_Runtime, _
+                               eQuadSubDataType As QuadSubDataType, _
+                               vRows() As Variant, _
+                               vColumns() As Variant)
+                               
+Dim sSpName As String
+
+    sSpName = "insert_basic_" & EnumQuadSubDataType(eQuadSubDataType) & "_info"
+    InsertQuadDataToDB clsQuadRuntime, sSpName, bHeaderFlag:=True, vRows:=vRows, vColumns:=vColumns
+                               
+End Sub
+Public Sub DeletePersonDataFromDB(clsQuadRuntime As Quad_Runtime, _
+                               eQuadSubDataType As QuadSubDataType, _
+                               iPersonID As String)
+'<<<
+'>>>
+Dim sDatabasePath As String, sSpName As String, sResults As String
+Dim dSpArgs As New Dictionary
+
+    sSpName = "delete_basic_" & EnumQuadSubDataType(eQuadSubDataType) & "_info"
+    dSpArgs.Add EnumQuadSubDataType(eQuadSubDataType) & "s", InitVariantArray(Array(iPersonID))
+
+    GetQuadDataFromDB clsQuadRuntime, sSpName, bHeaderFlag:=True, dSpArgs:=dSpArgs
+
+End Sub
 Public Sub GetPersonDataFromDB(clsQuadRuntime As Quad_Runtime, _
                                eQuadSubDataType As QuadSubDataType, _
                       Optional eQuadScope = QuadScope.specified, _

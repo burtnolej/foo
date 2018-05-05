@@ -13,10 +13,14 @@ Sub cleanup_workbooks()
 Dim wbTmp As Workbook
 Dim sBookNames As String, sCacheFilePath As String
 Dim sCacheBook As Variant
+Dim clsQuadRuntime As New Quad_Runtime
 
-    sBookNames = "cache.xlsm,schedule.xlsm,add.xlsm,menu.xlsm"
+setup:
+    clsQuadRuntime.InitProperties bInitializeCache:=True
+    
+    'sBookNames = "cache.xlsm,schedule.xlsm,add.xlsm,menu.xlsm"
     sCacheFilePath = GetHomePath & "\quad_runtime_cache"
-    For Each sCacheBook In Split(sBookNames, COMMA)
+    For Each sCacheBook In Split(clsQuadRuntime.BookEnum, COMMA)
         On Error Resume Next
         Set wbTmp = Workbooks(sCacheBook)
         CloseBook wbTmp
@@ -26,10 +30,11 @@ Dim sCacheBook As Variant
     Next sCacheBook
     
 End Sub
-Function T_e_stInsertTableRecords() As TestResult
+Function TestGetDirtyTableRecords() As TestResult
 Dim sFuncName As String, sSheetName As String, sResultStr As String, sExpectedResultStr As String, sColumns As String, sExecPath As String, sDatabaseName As String, _
     sTableName As String, sFileName As String, sResults As String, sResultFileName As String
-Dim vSource() As String, vRows() As Variant, vColNames() As String, aColumnDefns() As Variant, aRows() As Variant, aColumns() As String, aArgs() As String
+Dim vSource() As String, vRows() As Variant, vColNames() As String, aColumnDefns() As Variant, aRows() As Variant, aColumns() As String, aArgs() As String, vDBRows() As Variant
+Dim vDirtyRows() As String
 Dim wsTmp As Worksheet
 Dim rTarget As Range
 Dim dDefinitions As Dictionary, dRecord As Dictionary
@@ -40,7 +45,7 @@ Dim bDeleteFlag As Boolean, bDecodeFlag As Boolean
 setup:
     clsQuadRuntime.InitProperties bInitializeCache:=True
     
-    sFuncName = CsModuleName & "." & "InsertTableRecords"
+    sFuncName = CsModuleName & "." & "GetDirtyTableRecords"
     sSheetName = "test"
     Set wsTmp = CreateSheet(clsQuadRuntime.TemplateBook, sSheetName, bOverwrite:=True)
     
@@ -49,8 +54,6 @@ setup:
     bDeleteFlag = False
     bDecodeFlag = True
     aColumnDefns = Init2DVariantArray([{"FooName","Text";"FooAge","Integer";"FooID","Integer"}])
-    'aColumns = InitStringArray(Array("colA", "colB", "colC"))
-    'aRows = Init2DVariantArray([{"valA","valB","valC";"valA1","valB2","valC2";"valA3","valB3","valC3"}])
     sFileName = Environ("MYHOME") & "\\uufoo.txt"
     sExecPath = Environ("MYHOME") & "\GitHub\quadviewer\utils\excel\"
     sResultFileName = Environ("MYHOME") & "\\uufoo.txt_result"
@@ -58,72 +61,59 @@ setup:
     vSource = Init2DStringArray([{"AddFoo","Foo","FooName","List","IsMember","","","","Entry";"AddFoo","Foo","FooAge","Integer","IsValidInteger","","","","Entry";"AddFoo","Foo","FooID","Integer","IsValidInteger","","","","Entry"}])
 
     Set rTarget = RangeFromStrArray(vSource, wsTmp, 0, 1)
-    vRows = Init2DVariantArray([{"Jon","43","1";"Quinton","6","2"}])
-    vColNames = InitStringArray(Array("FooName", "FooAge", "FooID"))
+    vRows = Init2DVariantArray([{"FooName","FooAge","FooID";"Jon","43","1";"Quinton","6","2"}])
+    vDBRows = Init2DVariantArray([{"Jon","43","1";"Quinton","6","2"}])
+    vColNames = InitStringArray(Array("FooName", "FooAge", "FooID")) ' db does not want the column headers
 main:
 
     Set Add_Utils.dDefinitions = LoadDefinitions(wsTmp, rSource:=rTarget)
     CreateTables wbTmp:=clsQuadRuntime.CacheBook
     AddTableRecordAuto clsQuadRuntime.CacheBook, "foo", vColNames, vRows, bBulkLoad:=True
     
-    'AddTableRecord
+    GenerateForms clsQuadRuntime
+        
+    SetEntryValue "AddFoo", "FooAge", 123, wbTmp:=clsQuadRuntime.AddBook
+    SetEntryValue "AddFoo", "FooName", "blahblah", wbTmp:=clsQuadRuntime.AddBook
+    SetEntryValue "AddFoo", "FooID", "1", wbTmp:=clsQuadRuntime.AddBook
     
-    'GetTableRecords bDirty:=True
+    AddTableRecord "Foo", wbAddBook:=clsQuadRuntime.AddBook, wbCacheBook:=clsQuadRuntime.CacheBook
     
-    ' create the database and table
-    CreatePySqliteArgsFile sDatabaseName, _
-                            sTableName, _
-                            bDeleteFlag:=bDeleteFlag, _
-                            aColumns:=vColNames, _
-                            aColumnDefns:=aColumnDefns, _
-                            aRows:=vRows, _
-                            sFileName:=sFileName
-                            
-    aArgs = InitStringArray(Array("python", _
-            sExecPath & "excel_database_util.py", _
-            "--access_type create", _
-            "--input_filename " & sFileName))
-
-    sResults = ShellRun(aArgs)
+    SetEntryValue "AddFoo", "FooAge", 666, wbTmp:=clsQuadRuntime.AddBook
+    SetEntryValue "AddFoo", "FooName", "foofoo", wbTmp:=clsQuadRuntime.AddBook
+    SetEntryValue "AddFoo", "FooID", "2", wbTmp:=clsQuadRuntime.AddBook
     
-    ' insert rows
-    aArgs = InitStringArray(Array("python", _
-            sExecPath & "excel_database_util.py", _
-            "--access_type insert", _
-            "--input_filename " & sFileName))
-
-    sResults = ShellRun(aArgs)
-
-    ' query results and change the delete flag status as need to cleanup after test
-    Call DeleteFile(sFileName)
-
-    CreatePySqliteArgsFile sDatabaseName, _
-                            sTableName, _
-                            bDeleteFlag:=True, _
-                            sQryStr:="select * from foobar", _
-                            sFileName:=sFileName, _
-                            sEncoding:="uu", _
-                            sResultFileName:=sResultFileName
-                            
-    aArgs = InitStringArray(Array("python", _
-            sExecPath & "excel_database_util.py", _
-            "--access_type query", _
-            "--input_filename " & sFileName))
-
-    ShellRun (aArgs)
+    AddTableRecord "Foo", wbAddBook:=clsQuadRuntime.AddBook, wbCacheBook:=clsQuadRuntime.CacheBook
     
-    If FileExists(sResultFileName) Then
-        sResultStr = ReadFile(sResultFileName)
-    Else
+    SetEntryValue "AddFoo", "FooAge", 444, wbTmp:=clsQuadRuntime.AddBook
+    SetEntryValue "AddFoo", "FooName", "barbar", wbTmp:=clsQuadRuntime.AddBook
+    SetEntryValue "AddFoo", "FooID", "3", wbTmp:=clsQuadRuntime.AddBook
+    
+    AddTableRecord "Foo", wbAddBook:=clsQuadRuntime.AddBook, wbCacheBook:=clsQuadRuntime.CacheBook
+    
+    ReDim vDirtyRows(0 To 1000, 0 To 2)
+    GetDirtyTableRecords vDirtyRows, "Foo", wbTmp:=clsQuadRuntime.CacheBook
+    
+    If UBound(vDirtyRows) <> 2 Then
         eTestResult = TestResult.Failure
         GoTo teardown
     End If
     
-    If sResultStr <> "Jon^43^1$$Quinton^6^2" Then
+    If vDirtyRows(2, 0) <> "barbar" Then
         eTestResult = TestResult.Failure
-    Else
-        eTestResult = TestResult.OK
+        GoTo teardown
     End If
+    
+    If vDirtyRows(2, 1) <> "444" Then
+        eTestResult = TestResult.Failure
+        GoTo teardown
+    End If
+    
+    If vDirtyRows(2, 2) <> "3" Then
+        eTestResult = TestResult.Failure
+        GoTo teardown
+    End If
+
+    eTestResult = TestResult.OK
     On Error GoTo 0
     GoTo teardown
     
@@ -131,7 +121,7 @@ err:
     eTestResult = TestResult.Error
     
 teardown:
-    TestInsertTableRecords = eTestResult
+    TestGetDirtyTableRecords = eTestResult
     Call DeleteFile(sFileName)
     Call DeleteFile(sResultFileName)
     clsQuadRuntime.Delete
@@ -240,7 +230,7 @@ setup:
 
 
     Set rTarget = RangeFromStrArray(vSource, wsTmp, 0, 1)
-    vRows = Init2DVariantArray([{"Jon","43";"Quinton","6"}])
+    vRows = Init2DVariantArray([{"FooName","FooAge";"Jon","43";"Quinton","6"}])
     vColNames = InitStringArray(Array("FooName", "FooAge"))
 main:
 
@@ -603,7 +593,7 @@ setup:
     Set wsTmp = CreateSheet(ActiveWorkbook, sSheetName, bOverwrite:=True)
     vSource = Init2DStringArray([{"AddFoo","Foo","FooName","List","IsMember","","","","Entry";"AddFoo","Foo","FooAge","Integer","IsValidInteger","","","","Entry";"AddBar","Bar","BarName","List","IsMember","","","","Entry"}])
     Set rTarget = RangeFromStrArray(vSource, wsTmp, 0, 1)
-    vRows = Init2DVariantArray([{"Jon","43";"Quinton","6"}])
+    vRows = Init2DVariantArray([{"FooName","FooAge";"Jon","43";"Quinton","6"}])
     vColNames = InitStringArray(Array("FooName", "FooAge"))
 
     Set Add_Utils.dDefinitions = LoadDefinitions(wsTmp, rSource:=rTarget)
@@ -636,22 +626,22 @@ main:
         GoTo teardown
     End If
 
-    If dRecord.Item("FooAge") <> 6 Then
+    If dRecord.Item("FooAge") <> 43 Then
         eTestResult = TestResult.Failure
         GoTo teardown
     End If
     
-    If clsQuadRuntime.CacheBook.Sheets("Foo").Range("dbFooSyncState").Rows(2) <> "DB" Then
+    If clsQuadRuntime.CacheBook.Sheets("Foo").Range("iFooSyncState").Rows(2) <> "DB" Then
         eTestResult = TestResult.Failure
         GoTo teardown
     End If
     
-    If clsQuadRuntime.CacheBook.Sheets("Foo").Range("dbFooSyncState").Rows(3) <> "User" Then
+    If clsQuadRuntime.CacheBook.Sheets("Foo").Range("iFooSyncState").Rows(4) <> "User" Then
         eTestResult = TestResult.Failure
         GoTo teardown
     End If
     
-    Set dRecord = GetTableRecord("Foo", 3, wbTmp:=clsQuadRuntime.CacheBook)
+    Set dRecord = GetTableRecord("Foo", 4, wbTmp:=clsQuadRuntime.CacheBook)
     
     If dRecord.Exists("FooAge") = False Then
         eTestResult = TestResult.Failure
@@ -663,7 +653,7 @@ main:
         GoTo teardown
     End If
     
-    Set dRecord = GetTableRecord("Foo", 4, wbTmp:=clsQuadRuntime.CacheBook)
+    Set dRecord = GetTableRecord("Foo", 5, wbTmp:=clsQuadRuntime.CacheBook)
     
     If dRecord.Exists("FooAge") = False Then
         eTestResult = TestResult.Failure

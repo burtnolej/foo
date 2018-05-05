@@ -21,16 +21,18 @@ Const C_CELL_STATE = "Invalid,Pressed,Valid"
 Enum CellType
     Button = 1
     Entry = 2
+    Text = 3
+    ListText = 4
 End Enum
 
-Const C_CELL_TYPE = "Button,Entry"
+Const C_CELL_TYPE = "Button,Entry,Text,ListText"
 
 Enum CellDimension
     Hz = 1
     Vz = 2
 End Enum
 
-Const C_CELL_TYPE_STATE = "Entry,Button"
+Const C_CELL_TYPE_STATE = "Entry,Button,Text"
 
 Function EnumCellType(i As Long) As String
     EnumCellType = Split(C_CELL_TYPE, COMMA)(i - 1)
@@ -155,3 +157,20 @@ Dim wsTemplateSheet As Worksheet, wsTargetSheet As Worksheet
         rTargetRange.Columns(iCol).EntireColumn.ColumnWidth = aColumnWidths(iCol - 1)
     Next iCol
 End Sub
+
+
+Sub CreateComboBox1()
+    With ActiveSheet.OLEObjects.Add(ClassType:="Forms.ComboBox.1", _
+                Link:=False, DisplayAsIcon:=False, Left:=50, Top:=80, Width:=100, _
+                Height:=15)
+        With .Object
+            .AddItem "Date"
+            .AddItem "Dart"
+            .AddItem "Player"
+            .AddItem "Team"
+            .AddItem "Goals"
+            .AddItem "Number"
+        End With
+    End With
+End Sub
+

@@ -8,7 +8,7 @@ Const C_GOBUTTON_COL = 8
 Enum FieldType
     Number = 1
     NumberFormula = 2
-    text = 3
+    Text = 3
     List = 4
 End Enum
 
@@ -30,13 +30,15 @@ End Enum
 Enum FormType
     Add = 1
     Menu = 2
+    View = 3
+    ViewList = 4
 End Enum
 
 Const C_RGB_VALID = "0,255,0"
 Const C_RGB_INVALID = "255,0,0"
 Const C_RGB_ERROR = "242,242,242"
 
-Const C_FORM_TYPE = "Add,Menu"
+Const C_FORM_TYPE = "Add,Menu,View,ViewList"
 Public dDefinitions As Dictionary
 
 Function EnumFormType(i As Long) As String
@@ -318,6 +320,10 @@ Dim sKeySuffix As String
         eKeySuffix = "e"
     ElseIf eCellType = CellType.Button Then
         eKeySuffix = "b"
+    ElseIf eCellType = CellType.Text Then
+        eKeySuffix = "t"
+    ElseIf eCellType = CellType.ListText Then
+        eKeySuffix = "l"
     End If
     
     GetKey = eKeySuffix & sSheetName & "_" & sFieldName
@@ -380,6 +386,7 @@ End Function
 Public Function GenerateWidget(clsQuadRuntime As Quad_Runtime, _
                               sAction As String, _
                      Optional dDefaultValues As Dictionary, _
+                     Optional vValues As Variant, _
                      Optional wbTmp As Workbook, _
                      Optional eCellType As CellType = CellType.Entry, _
                      Optional sFormType As String = "Add") As String()
@@ -392,8 +399,8 @@ Public Function GenerateWidget(clsQuadRuntime As Quad_Runtime, _
 'rtype  : a list of the keys from the widgets that were created
 '>>>
 Dim sFuncName As String, sSheetName As String, sCellTypeSuffix As String
-Dim iRow As Integer, iCol As Integer, iEntryCount As Integer, iParentRowOffset As Integer, iParentColOffset As Integer
-Dim rCell As Range, rFormat As Range
+Dim iRow As Integer, iCol As Integer, iWidth As Integer, iHeight As Integer, iEntryCount As Integer, iParentRowOffset As Integer, iParentColOffset As Integer, iListWidth As Integer
+Dim rCell As Range, rFormat As Range, rListHeader As Range, rListRow As Range, rListColumn As Range
 Dim vDefinedEntryNamesRanges() As String, vKeySplits() As String, vGenerated() As String
 Dim wbTarget As Workbook
 
@@ -408,10 +415,15 @@ setup:
         Set wbTmp = ActiveWorkbook
     End If
         
-    Set wbTarget = CallByName(clsQuadRuntime, sFormType & "Book", VbGet)
-
+    If sFormType = "ViewList" Then
+        Set wbTarget = CallByName(clsQuadRuntime, "ViewBook", VbGet)
+    Else
+        Set wbTarget = CallByName(clsQuadRuntime, sFormType & "Book", VbGet)
+    End If
+    
 main:
     ' get location opf entry screens
+        
     vDefinedAddNamesRanges = GetSheetNamedRanges(clsQuadRuntime.TemplateBook, "FormStyles", "f" & sFormType & EnumCellType(eCellType))
     
     ' get location of parent format
@@ -440,6 +452,8 @@ main:
             Set rFormat = clsQuadRuntime.TemplateSheet.Range(vDefinedAddNamesRanges(iEntryCount))
             iRow = rFormat.Row - iParentRowOffset
             iCol = rFormat.Column - iParentColOffset
+            iWidth = rFormat.Columns.Count
+            iHeight = rFormat.Rows.Count
             
             If iEntryCount > UBound(vDefinedAddNamesRanges) Then
                 err.Raise ErrorMsgType.FORMAT_NOT_DEFINED, Description:="cannot find a format for number [" & CStr(iEntryCount) * "]"
@@ -471,6 +485,39 @@ main:
                     Else
                         GoTo nextdefn
                     End If
+                ElseIf sCellTypeSuffix = "t" Then
+                    If Right(vKeySplits(0), Len(vKeySplits(0)) - 1) = sAction Then
+                        Set rCell = GenerateView(clsQuadRuntime.TemplateBook, wbTarget, _
+                                sAction, iRow, iCol, _
+                                clsQuadRuntime.TemplateCellSheetName, CStr(sKey))
+                                
+                        dDefinitions.Item(sKey).Add "address", rCell.Address
+                        If IsSet(dDefaultValues) = True Then ' add default value if one exists
+                            If dDefaultValues.Exists(sAction) = True Then
+                                sDBColName = Split(sKey, "_")(1)
+                                If dDefaultValues.Item(sAction).Exists(sDBColName) = True Then
+                                    rCell.value = dDefaultValues.Item(sAction).Item(sDBColName)
+                                End If
+                            End If
+                        End If
+                    Else
+                        GoTo nextdefn
+                    End If
+                ElseIf sCellTypeSuffix = "l" Then
+                
+                    'Debug.Print sKey
+                    'Debug.Print rFormat.Address
+                    Set rListColumn = GenerateViewList(clsQuadRuntime.TemplateBook, wbTarget, _
+                                    sAction, iRow, iCol, _
+                                    clsQuadRuntime.TemplateCellSheetName, CStr(sKey), _
+                                    iHeight:=iHeight)
+
+                    For iRow = 1 To UBound(vValues)
+                            On Error Resume Next
+                            rListColumn.Rows(iRow).value = vValues(iRow, iEntryCount)
+                            On Error GoTo 0
+                    Next iRow
+
                 Else
                     err.Raise 999, Description:="CellType suffix [" & sCellTypeSuffix & "] not implemented"
                 End If
@@ -512,6 +559,58 @@ Dim sFuncName As String
         
 End Sub
 
+Public Function GenerateViewList(wbSourceBook As Workbook, wbTargetbook As Workbook, _
+                               sSheetName As String, iRow As Integer, iCol As Integer, _
+                               sViewFormatSheetName As String, _
+                               sKey As String, _
+                         Optional iEntryRowOffset As Integer = 0, _
+                         Optional iEntryColOffset As Integer = -1, _
+                         Optional iHeight As Integer = 0) As Range
+Dim sViewRangeName As String, sFieldName As String
+
+   With wbTargetbook.Sheets(sSheetName)
+        Set rCell = .Range(.Cells(iRow, iCol), .Cells(iRow + iHeight, iCol))
+        sViewRangeName = sKey
+        CreateNamedRange wbTargetbook, rCell.Address, sSheetName, sViewRangeName, "True"
+        
+        'Set rLabel = rCell.Offset(iEntryRowOffset, iEntryColOffset)
+        'sFieldName = Split(sKey, "_")(1)
+        'rLabel.value = sFieldName
+        
+    End With
+    
+    Set GenerateViewList = rCell
+    
+    FormatCell wbSourceBook, wbTargetbook, sSheetName, GenerateViewList, CellState.Invalid, sViewFormatSheetName, _
+        CellType.ListText
+    
+End Function
+Public Function GenerateView(wbSourceBook As Workbook, wbTargetbook As Workbook, _
+                               sSheetName As String, iRow As Integer, iCol As Integer, _
+                               sViewFormatSheetName As String, _
+                               sKey As String, _
+                         Optional iEntryRowOffset As Integer = 0, _
+                         Optional iEntryColOffset As Integer = -1) As Range
+Dim sViewRangeName As String, sFieldName As String
+
+   With wbTargetbook.Sheets(sSheetName)
+        Set rCell = .Range(.Cells(iRow, iCol), .Cells(iRow, iCol))
+        sViewRangeName = sKey
+        CreateNamedRange wbTargetbook, rCell.Address, sSheetName, sViewRangeName, "True"
+        
+        Set rLabel = rCell.Offset(iEntryRowOffset, iEntryColOffset)
+        sFieldName = Split(sKey, "_")(1)
+        rLabel.value = sFieldName
+        
+    End With
+    
+    Set GenerateView = rCell
+    
+    FormatCell wbSourceBook, wbTargetbook, sSheetName, GenerateView, CellState.Invalid, sViewFormatSheetName, _
+        CellType.Text
+    
+End Function
+
 Public Function GenerateButton(wbSourceBook As Workbook, wbTargetbook As Workbook, _
                                sSheetName As String, iRow As Integer, iCol As Integer, _
                                eButtonState As CellState, sButtonFormatSheetName As String, _
@@ -524,6 +623,9 @@ Dim sButtonRangeName As String
         ' 4/25/18 to accomodate multi and dynamically defined buttons
         sButtonRangeName = sKey
         CreateNamedRange wbTargetbook, rCell.Address, sSheetName, sButtonRangeName, "True"
+        
+
+        
     End With
     
     Set GenerateButton = rCell
@@ -619,12 +721,18 @@ Dim wsForm As Worksheet
 Dim wbTarget As Workbook
 
     sFormFormatRangeName = "f" & sFormType
-    
-    If sFormType = "Menu" Then
-        Set wbTarget = clsQuadRuntime.MenuBook
+    If sFormType = "ViewList" Then
+        Set wbTarget = CallByName(clsQuadRuntime, "ViewBook", VbGet)
     Else
-        Set wbTarget = clsQuadRuntime.AddBook
+        Set wbTarget = CallByName(clsQuadRuntime, sFormType & "Book", VbGet)
     End If
+    'If sFormType = "Menu" Then
+    '    Set wbTarget = clsQuadRuntime.MenuBook
+    'ElseIf sFormType = "View" Then
+    '    Set wbTarget = clsQuadRuntime.ViewBook
+    'Else
+    '    Set wbTarget = clsQuadRuntime.AddBook
+    'End If
     
     Set wsForm = wbTarget.Sheets(sTargetSheetName)
     
@@ -705,6 +813,7 @@ Public Sub GenerateForms(clsQuadRuntime As Quad_Runtime, _
                      Optional sOverideButtonCallback As String, _
                      Optional sFormName As String, _
                      Optional dDefaultValues As Dictionary, _
+                     Optional vValues As Variant, _
                      Optional bSetAsValid As Boolean = False)
 '<<<
 'purpose: based on Definitions, create a set of sheets that serve as entry screens;
@@ -749,8 +858,13 @@ setup:
         ' create the Add sheet and add call back code
         For Each vFormType In Split(C_FORM_TYPE, COMMA)
             If CStr(sAction) Like vFormType & ASTERISK Then
-                Set wbTarget = CallByName(clsQuadRuntime, vFormType & "Book", VbGet)
+                If vFormType = "ViewList" Then
+                    Set wbTarget = CallByName(clsQuadRuntime, "ViewBook", VbGet)
+                Else
+                    Set wbTarget = CallByName(clsQuadRuntime, vFormType & "Book", VbGet)
+                End If
                 sFormType = CStr(vFormType)
+                
             End If
         Next vFormType
         
@@ -766,22 +880,29 @@ setup:
         
         ' Generate entry widgets
         FormatAddForm clsQuadRuntime, CStr(sAction), sFormType:=sFormType
-        GenerateWidget clsQuadRuntime, CStr(sAction), wbTmp:=wbTarget, dDefaultValues:=dDefaultValues
-        vGenerated = GenerateWidget(clsQuadRuntime, CStr(sAction), wbTmp:=wbTarget, dDefaultValues:=dDefaultValues, _
+        If sFormType = "ViewList" Then
+            GenerateWidget clsQuadRuntime, CStr(sAction), wbTmp:=wbTarget, vValues:=vValues, _
+                eCellType:=CellType.ListText, sFormType:=sFormType
+        Else
+            GenerateWidget clsQuadRuntime, CStr(sAction), wbTmp:=wbTarget, dDefaultValues:=dDefaultValues
+            GenerateWidget clsQuadRuntime, CStr(sAction), wbTmp:=wbTarget, dDefaultValues:=dDefaultValues, _
+                eCellType:=CellType.Text, sFormType:=sFormType
+            vGenerated = GenerateWidget(clsQuadRuntime, CStr(sAction), wbTmp:=wbTarget, dDefaultValues:=dDefaultValues, _
                 eCellType:=CellType.Button, sFormType:=sFormType)
-        
-        If IsEmptyArray(vGenerated) = False Then
-            sCode = GenerateCallbackCode(clsQuadRuntime, vGenerated, CStr(sAction), sCurrentCode:=sCode, wbTmp:=wbTarget)
-        End If
-        
-        AddCode2Module wbTarget, wsTmp.CodeName, sCode
-        
-        ' add a caller module so can simulate change events more reliably
-        sCode = GetCallerModuleCode
-        
-        ' will already exist if more than 1 entry
-        If ModuleExists(wbTarget, "change_event_invoker") = False Then
-            CreateModule wbTarget, "change_event_invoker", sCode
+
+            If IsEmptyArray(vGenerated) = False Then
+                sCode = GenerateCallbackCode(clsQuadRuntime, vGenerated, CStr(sAction), sCurrentCode:=sCode, wbTmp:=wbTarget)
+            End If
+            
+            AddCode2Module wbTarget, wsTmp.CodeName, sCode
+            
+            ' add a caller module so can simulate change events more reliably
+            sCode = GetCallerModuleCode
+            
+            ' will already exist if more than 1 entry
+            If ModuleExists(wbTarget, "change_event_invoker") = False Then
+                CreateModule wbTarget, "change_event_invoker", sCode
+            End If
         End If
         
         HideForm CStr(sAction)

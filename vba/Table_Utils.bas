@@ -74,16 +74,53 @@ Dim sSuffix As String
     
     GetDBColumnRange = sSuffix & sTableName & sFieldName
 End Function
-Public Function GetTableRecord(sTableName As String, iID As Integer, Optional wbTmp As Workbook) As Dictionary
-Dim sFuncName As String
-Dim i As Integer
+
+Public Sub GetDirtyTableRecords(ByRef vRows() As String, sTableName As String, Optional wbTmp As Workbook)
+Dim sFuncName As String, sFieldName As String, sFieldValue As String, sColRange As String
 Dim wsTable As Worksheet
 Dim sKey As Variant
 Dim dDefnDetails As Dictionary
-Dim sColRange As String
-Dim dRecord As New Dictionary
-Dim sFieldName As String
-Dim sFieldValue As String
+Dim rSyncState As Range
+Dim iNextFree As Integer, iRow As Integer, iNumDirtyRows As Integer, i As Integer
+Dim vValues() As String
+
+setup:
+
+    If IsSet(wbTmp) = False Then
+        Set wbTmp = ActiveWorkbook
+    End If
+    
+    sFuncName = C_MODULE_NAME & "." & "GetDirtyTableRecords"
+    Set wsTable = GetSheet(wbTmp, sTableName)
+    
+    sColRange = GetDBColumnRange(sTableName, "NextFree", eColumnType:=ColumnType.Info)
+    iNextFree = CInt(wsTable.Range(sColRange).Rows(1).value)
+    
+    sColRange = GetDBColumnRange(sTableName, "SyncState", eColumnType:=ColumnType.Info)
+    Set rSyncState = wsTable.Range(sColRange)
+    
+    For iRow = 2 To iNextFree
+        If rSyncState.Rows(iRow).value = "User" Then
+            ReDim vValues(0)
+            GetTableRecord sTableName, iRow - 1, wbTmp:=wbTmp, vValues:=vValues
+            
+            For i = 0 To UBound(vValues)
+                vRows(iNumDirtyRows, i) = vValues(i)
+            Next i
+
+            iNumDirtyRows = iNumDirtyRows + 1
+        End If
+    Next iRow
+    vRows = ReDim2DArray(vRows, iNumDirtyRows, UBound(vRows, 2) + 1)
+    
+End Sub
+Public Function GetTableRecord(sTableName As String, iID As Integer, Optional wbTmp As Workbook, _
+                Optional vValues As Variant) As Dictionary
+Dim sFuncName As String, sColRange As String, sFieldName As String, sFieldValue As String
+Dim i As Integer, iNumValues As Integer
+Dim wsTable As Worksheet
+Dim sKey As Variant
+Dim dDefnDetails As Dictionary, dRecord As New Dictionary
 
 setup:
 
@@ -101,23 +138,31 @@ main:
                 FuncLogIt sFuncName, "entry [" & sKey & "] does not have a \'db_table_name\' record", C_MODULE_NAME, LogMsgType.Error
                 Exit Function
             End If
-            
+
             If dDefinitions.Item(sKey).Item("db_table_name") = sTableName Then
                 Set dDefnDetails = dDefinitions.Item(sKey)
                 sFieldName = dDefnDetails.Item("db_field_name")
                 sColRange = GetDBColumnRange(sTableName, sFieldName)
                 sFieldValue = wsTable.Range(sColRange).Rows(iID + 1)
                 dRecord.Add sFieldName, sFieldValue
+                iNumValues = iNumValues + 1
             End If
         Next sKey
     End With
 
+    If IsSet(vValues) = True Then
+        ReDim vValues(0 To iNumValues - 1)
+        For i = 0 To UBound(dRecord.Keys)
+            vValues(i) = dRecord.Item(dRecord.Keys(i))
+        Next i
+    End If
+    
     FuncLogIt sFuncName, "retreived [" & CStr(UBound(dRecord.Keys()) + 1) & "] fields from id [" & CStr(iID) & "] from table [" & sTableName & "]", C_MODULE_NAME, LogMsgType.OK
     
     Set GetTableRecord = dRecord
 End Function
 Public Function AddTableRecordAuto(wbTmp As Workbook, sTableName As String, _
-        vColNames() As String, vRows As Variant, _
+        vColNames() As String, ByVal vRows As Variant, _
         Optional bAddDefaultFields As Boolean = True, _
         Optional bBulkLoad As Boolean = False, _
         Optional vTableFilterID As Variant) As Range
@@ -292,7 +337,7 @@ main:
 
         iNextFree = 2
         On Error Resume Next
-        iNextFree = wsTable.Range("i" & sTableName & "NextFree").value + 1
+        iNextFree = wsTable.Range("i" & sTableName & "NextFree").Rows(1).value + 1
         On Error GoTo 0
         
         'iNextFree = wsTable.Range("i" & sTableName & "NextFree").value + 1

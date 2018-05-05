@@ -114,8 +114,6 @@ Dim sTmp As String
             Call AppendFile(sFileName, "result_file:" & Encode(sResultFileName, sEncoding) & vbCrLf)
         End If
         
-        
-
     End If
     
     If Not IsMissing(aColumnDefns) Then

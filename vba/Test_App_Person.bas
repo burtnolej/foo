@@ -118,6 +118,7 @@ Public Function Test_GetAllPersonDataFromDB() As TestResult
 Dim sResultStr As String
 Dim eTestResult As TestResult
 Dim clsQuadRuntime As New Quad_Runtime
+Dim vRows() As String
 
 setup:
     On Error GoTo err
@@ -149,6 +150,141 @@ teardown:
     clsQuadRuntime.Delete
     
 End Function
+
+Public Function Test_DeletePersonDataToDB() As TestResult
+Dim eTestResult As TestResult
+Dim clsQuadRuntime As New Quad_Runtime
+Dim vRows() As Variant, vColumns() As Variant
+Dim sResultStr As String
+
+setup:
+    On Error GoTo err
+    clsQuadRuntime.InitProperties bInitializeCache:=True
+    vRows = Init2DVariantArray([{666,"foo","bar",2,6;667,"blah","blah",3,6}])
+    vColumns = InitVariantArray(Array("idStudent", "sStudentFirstNm", "sStudentLastNm", "idPrep", "iGradeLevel"))
+    InsertPersonDataToDB clsQuadRuntime, QuadSubDataType.Student, vRows, vColumns
+    
+main:
+    
+    DeletePersonDataFromDB clsQuadRuntime, QuadSubDataType.Student, iPersonID:="666"
+    DeletePersonDataFromDB clsQuadRuntime, QuadSubDataType.Student, iPersonID:="667"
+    
+    GetPersonDataFromDB clsQuadRuntime, QuadSubDataType.Student, eQuadScope:=QuadScope.all
+    
+    If FileExists(clsQuadRuntime.ResultFileName) Then
+        sResultStr = ReadFile(clsQuadRuntime.ResultFileName)
+    Else
+        eTestResult = TestResult.Failure
+        GoTo teardown
+    End If
+    
+    If UBound(Split(sResultStr, "$$")) <> 82 Then
+        eTestResult = TestResult.Failure
+        GoTo teardown
+    End If
+    
+    eTestResult = TestResult.OK
+    GoTo teardown
+
+err:
+    eTestResult = TestResult.Error
+    
+teardown:
+    Test_DeletePersonDataToDB = eTestResult
+    clsQuadRuntime.Delete
+    
+End Function
+
+Public Function Test_UpdatePersonDataInDB() As TestResult
+Dim eTestResult As TestResult
+Dim clsQuadRuntime As New Quad_Runtime
+Dim vRows() As Variant, vColumns() As Variant
+Dim sResultStr As String
+
+setup:
+    On Error GoTo err
+    clsQuadRuntime.InitProperties bInitializeCache:=True
+    vRows = Init2DVariantArray([{666,"foo","bar",2,6;667,"blah","blah",3,6}])
+    vColumns = InitVariantArray(Array("idStudent", "sStudentFirstNm", "sStudentLastNm", "idPrep", "iGradeLevel"))
+     
+main:
+    
+    InsertPersonDataToDB clsQuadRuntime, QuadSubDataType.Student, vRows, vColumns
+    UpdatePersonDataInDB clsQuadRuntime, QuadSubDataType.Student, "idPrep", 2, "idStudent", 667
+    GetPersonDataFromDB clsQuadRuntime, QuadSubDataType.Student, eQuadScope:=QuadScope.specified, iPersonID:="667"
+
+    If FileExists(clsQuadRuntime.ResultFileName) Then
+        sResultStr = ReadFile(clsQuadRuntime.ResultFileName)
+    Else
+        eTestResult = TestResult.Failure
+        GoTo teardown
+    End If
+     
+    Debug.Print sResultStr
+    
+    If sResultStr <> "sStudentFirstNm^sStudentLastNm^idStudent^idPrep^sPrepNm$$blah^blah^667^2^Luna" Then
+        eTestResult = TestResult.Failure
+        GoTo teardown
+    End If
+    
+    eTestResult = TestResult.OK
+    GoTo teardown
+
+err:
+    eTestResult = TestResult.Error
+    
+teardown:
+    Test_UpdatePersonDataInDB = eTestResult
+    clsQuadRuntime.Delete
+    DeletePersonDataFromDB clsQuadRuntime, QuadSubDataType.Student, iPersonID:="666"
+    DeletePersonDataFromDB clsQuadRuntime, QuadSubDataType.Student, iPersonID:="667"
+    
+End Function
+
+Public Function Test_InsertPersonDataToDB() As TestResult
+Dim eTestResult As TestResult
+Dim clsQuadRuntime As New Quad_Runtime
+Dim vRows() As Variant, vColumns() As Variant
+Dim sResultStr As String
+
+setup:
+    On Error GoTo err
+    clsQuadRuntime.InitProperties bInitializeCache:=True
+    vRows = Init2DVariantArray([{666,"foo","bar",2,6;667,"blah","blah",3,6}])
+    vColumns = InitVariantArray(Array("idStudent", "sStudentFirstNm", "sStudentLastNm", "idPrep", "iGradeLevel"))
+     
+main:
+    
+    InsertPersonDataToDB clsQuadRuntime, QuadSubDataType.Student, vRows, vColumns
+    
+    GetPersonDataFromDB clsQuadRuntime, QuadSubDataType.Student, eQuadScope:=QuadScope.specified, iPersonID:="666"
+
+    If FileExists(clsQuadRuntime.ResultFileName) Then
+        sResultStr = ReadFile(clsQuadRuntime.ResultFileName)
+    Else
+        eTestResult = TestResult.Failure
+        GoTo teardown
+    End If
+        
+    If sResultStr <> "sStudentFirstNm^sStudentLastNm^idStudent^idPrep^sPrepNm$$foo^bar^666^2^Luna" Then
+        eTestResult = TestResult.Failure
+        GoTo teardown
+    End If
+    
+    eTestResult = TestResult.OK
+    GoTo teardown
+
+err:
+    eTestResult = TestResult.Error
+    
+teardown:
+    Test_InsertPersonDataToDB = eTestResult
+    clsQuadRuntime.Delete
+    DeletePersonDataFromDB clsQuadRuntime, QuadSubDataType.Student, iPersonID:="666"
+    DeletePersonDataFromDB clsQuadRuntime, QuadSubDataType.Student, iPersonID:="667"
+    
+End Function
+
 Public Function Test_GetPersonDataFromDB() As TestResult
 Dim sResultStr As String
 Dim eTestResult As TestResult

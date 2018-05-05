@@ -7,6 +7,8 @@ Public Const SPACE = " "
 Public Const BLANK = ""
 Public Const QUOTE = "'"
 Public Const UNDERSCORE = "_"
+Public Const ASTERISK = "*"
+Public Const PERIOD = "."
 
 Function InParagraph(sSearchParagraphs As String, sSourceParagraph) As Boolean
     InParagraph = True

@@ -199,18 +199,18 @@ Dim sRe As String
     sRe = "^([A-Za-z0-9+/]{4})*([A-Za-z0-9+/]{4}|[A-Za-z0-9+/]{3}=|[A-Za-z0-9+/]{2}==)$"
     IsBase64 = DoRegEx(sText, sRe)
 End Function
-Public Function EncodeBase64(text As String) As String
+Public Function EncodeBase64(Text As String) As String
 Dim arrData() As Byte
 Dim objXML As MSXML2.DOMDocument
 Dim objNode As MSXML2.IXMLDOMElement
   
-  arrData = StrConv(text, vbFromUnicode)
+  arrData = StrConv(Text, vbFromUnicode)
   Set objXML = New MSXML2.DOMDocument
   Set objNode = objXML.createElement("b64")
 
   objNode.DataType = "bin.base64"
   objNode.nodeTypedValue = arrData
-  EncodeBase64 = objNode.text
+  EncodeBase64 = objNode.Text
 
   Set objNode = Nothing
   Set objXML = Nothing
@@ -223,7 +223,7 @@ Dim objNode As MSXML2.IXMLDOMElement
     Set objXML = New MSXML2.DOMDocument
     Set objNode = objXML.createElement("b64")
     objNode.DataType = "bin.base64"
-    objNode.text = strData
+    objNode.Text = strData
     DecodeBase64 = objNode.nodeTypedValue
     
     ' thanks, bye

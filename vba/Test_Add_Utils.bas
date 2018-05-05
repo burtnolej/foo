@@ -526,6 +526,151 @@ teardown:
     clsQuadRuntime.Delete
 
 End Function
+
+
+Function TestGenerateViewForm() As TestResult
+' multiple Add forms
+Dim sSheetName As String, sResultStr As String, sFuncName As String, sDefn As String, sSearchCode As String, sModuleCode As String, sExpectedResultStr As String
+Dim vSource() As String
+Dim wsTmp As Worksheet
+Dim rTarget As Range, rAdd As Range, rButton As Range
+Dim dDefinitions As Dictionary, dDefnDetails As Dictionary, dDefaultValues As New Dictionary, dTmp As New Dictionary
+Dim eTestResult As TestResult
+Dim clsQuadRuntime As New Quad_Runtime
+
+setup:
+    clsQuadRuntime.InitProperties bInitializeCache:=True
+    'On Error GoTo err:
+    sFuncName = CsModuleName & "." & "TestGenerateMenuForm"
+    sSheetName = "test"
+    Set wsTmp = CreateSheet(clsQuadRuntime.TemplateBook, sSheetName, bOverwrite:=True)
+    sDefn = "AddLesson^schedule_student^sStudentFirstNm^String^IsMember^&get_person_student^sStudentFirstNm^^Entry" & DOUBLEDOLLAR
+    sDefn = sDefn & "AddStudent^Student^StudentAge^Integer^IsValidInteger^^^^Entry" & DOUBLEDOLLAR
+    sDefn = sDefn & "AddStudent^Student^StudentPrep^IntegerRange^IsValidPrep^^^^Entry" & DOUBLEDOLLAR
+    sDefn = sDefn & "AddStudent^^COMMIT^^^AddStudent^^^Button" & DOUBLEDOLLAR
+    sDefn = sDefn & "ViewStudent^^sStudentFirstNm^^^^^^Text" & DOUBLEDOLLAR
+    sDefn = sDefn & "ViewStudent^^StudentAge^^^^^^Text" & DOUBLEDOLLAR
+    sDefn = sDefn & "ViewStudent^^StudentPrep^^^^^^Text"
+     
+    vSource = Init2DStringArrayFromString(sDefn)
+
+    Set rTarget = RangeFromStrArray(vSource, wsTmp, 0, 1)
+    CreateNamedRange clsQuadRuntime.TemplateBook, rTarget.Address, sSheetName, "Definitions", "True"
+    Set Add_Utils.dDefinitions = LoadDefinitions(wsTmp, rSource:=rTarget)
+
+    dTmp.Add "sStudentFirstNm", "Jon"
+    dTmp.Add "StudentAge", "46"
+    dTmp.Add "StudentPrep", "3"
+    dDefaultValues.Add "ViewStudent", dTmp
+    
+main:
+
+    GenerateForms clsQuadRuntime, dDefaultValues:=dDefaultValues
+    
+    Set rText = clsQuadRuntime.ViewBook.Sheets("ViewStudent").Range("C3:C3")
+    
+    If rText.Name.Name <> "ViewStudent!tViewStudent_sStudentFirstNm" Then
+        eTestResult = TestResult.Failure
+        GoTo teardown
+    End If
+    
+    If rText.value <> "Jon" Then
+        eTestResult = TestResult.Failure
+        GoTo teardown
+    End If
+    
+    eTestResult = TestResult.OK
+    On Error GoTo 0
+    GoTo teardown
+    
+err:
+    eTestResult = TestResult.Error
+    
+teardown:
+    TestGenerateViewForm = eTestResult
+    DeleteForms wbTmp:=clsQuadRuntime.AddBook
+    DeleteSheet clsQuadRuntime.AddBook, sSheetName
+    clsQuadRuntime.Delete
+
+End Function
+
+
+
+Function TestGenerateViewListForm() As TestResult
+' multiple Add forms
+Dim sSheetName As String, sResultStr As String, sFuncName As String, sDefn As String, sSearchCode As String, sModuleCode As String, sExpectedResultStr As String
+Dim vSource() As String, vValues() As String
+Dim wsTmp As Worksheet
+Dim rTarget As Range, rAdd As Range, rButton As Range, rColumn As Range
+Dim dDefinitions As Dictionary, dDefnDetails As Dictionary, dDefaultValues As New Dictionary, dTmp As New Dictionary
+Dim eTestResult As TestResult
+Dim clsQuadRuntime As New Quad_Runtime
+
+setup:
+    clsQuadRuntime.InitProperties bInitializeCache:=True
+    'On Error GoTo err:
+    sFuncName = CsModuleName & "." & "TestGenerateViewListForm"
+    sSheetName = "test"
+    Set wsTmp = CreateSheet(clsQuadRuntime.TemplateBook, sSheetName, bOverwrite:=True)
+    sDefn = "AddLesson^schedule_student^sStudentFirstNm^String^IsMember^&get_person_student^sStudentFirstNm^^Entry" & DOUBLEDOLLAR
+    sDefn = sDefn & "AddStudent^Student^StudentAge^Integer^IsValidInteger^^^^Entry" & DOUBLEDOLLAR
+    sDefn = sDefn & "AddStudent^Student^StudentPrep^IntegerRange^IsValidPrep^^^^Entry" & DOUBLEDOLLAR
+    sDefn = sDefn & "AddStudent^^COMMIT^^^AddStudent^^^Button" & DOUBLEDOLLAR
+    sDefn = sDefn & "ViewListStudents^^sStudentFirstNm^^^^^^ListText" & DOUBLEDOLLAR
+    sDefn = sDefn & "ViewListStudents^^StudentAge^^^^^^ListText" & DOUBLEDOLLAR
+    sDefn = sDefn & "ViewListStudents^^StudentPrep^^^^^^ListText"
+     
+    vSource = Init2DStringArrayFromString(sDefn)
+
+    Set rTarget = RangeFromStrArray(vSource, wsTmp, 0, 1)
+    CreateNamedRange clsQuadRuntime.TemplateBook, rTarget.Address, sSheetName, "Definitions", "True"
+    Set Add_Utils.dDefinitions = LoadDefinitions(wsTmp, rSource:=rTarget)
+
+    vValues = Init2DStringArray([{"sStudentFirstNm","StudentAge","StudentPrep";"Jon", "46", "3";"Nancy", "47", "2";"Quinton", "6.5", "4"}])
+    
+main:
+
+    GenerateForms clsQuadRuntime, vValues:=vValues
+
+    Set rColumn = clsQuadRuntime.ViewBook.Sheets("ViewListStudents").Range("lViewListStudents_sStudentFirstNm")
+    
+    If rColumn.Rows(1).value <> "Jon" Then
+        eTestResult = TestResult.Failure
+        GoTo teardown
+    End If
+    If rColumn.Rows(3).value <> "Quinton" Then
+        eTestResult = TestResult.Failure
+        GoTo teardown
+    End If
+    
+    Set rColumn = clsQuadRuntime.ViewBook.Sheets("ViewListStudents").Range("lViewListStudents_StudentPrep")
+
+    If rColumn.Rows(1).value <> "3" Then
+        eTestResult = TestResult.Failure
+        GoTo teardown
+    End If
+    If rColumn.Rows(3).value <> "4" Then
+        eTestResult = TestResult.Failure
+        GoTo teardown
+    End If
+    
+    
+    eTestResult = TestResult.OK
+    On Error GoTo 0
+    GoTo teardown
+    
+err:
+    eTestResult = TestResult.Error
+    
+teardown:
+    TestGenerateViewListForm = eTestResult
+    DeleteForms wbTmp:=clsQuadRuntime.AddBook
+    DeleteSheet clsQuadRuntime.AddBook, sSheetName
+    clsQuadRuntime.Delete
+
+End Function
+
+
 Function TestLoadDefinitions() As TestResult
 Dim sFuncName As String
 Dim sSheetName As String

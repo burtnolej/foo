@@ -208,8 +208,12 @@ main:
 End Sub
 Public Sub CreateQuadArgsFile(clsQuadRuntime As Quad_Runtime, sSpName As String, _
         Optional dSpArgs As Dictionary, _
+        Optional vRows As Variant, _
+        Optional vColumns As Variant, _
+        Optional vColumnDefns As Variant, _
+        Optional vRow As Variant, _
         Optional bHeaderFlag As Boolean = False)
-
+        
 Dim PYTHONPATH As String, xSpArgs As String, sTmp As String
 
     PYTHONPATH = LCase(Environ("PYTHONPATH"))
@@ -235,6 +239,32 @@ Dim PYTHONPATH As String, xSpArgs As String, sTmp As String
     
     If clsQuadRuntime.ResultFileName <> "" Then
         Call AppendFile(clsQuadRuntime.FileName, "result_file:" & UUEncode(clsQuadRuntime.ResultFileName) & vbCrLf)
+    End If
+
+    If IsSet(vColumnDefns) = True Then
+        Call AppendFile(clsQuadRuntime.FileName, "column_defns:" & ArrayNDtoString(vColumnDefns, bUUEncode:=True) & vbCrLf)
+    End If
+    
+    If IsSet(vColumns) = True Then
+        Call AppendFile(clsQuadRuntime.FileName, "columns:" & ArrayNDtoString(vColumns, bUUEncode:=True) & vbCrLf)
+    End If
+    
+    If IsSet(vRow) = True Then
+        Call AppendFile(clsQuadRuntime.FileName, "row:" & ArrayNDtoString(vRow, bUUEncode:=True) & vbCrLf)
+    End If
+    
+    If IsSet(vRows) = True Then
+        
+        sTmp = ArrayNDtoString(vRows, bUUEncode:=True)
+        
+        If bDecodeFlag = True Then
+            sTmp = AsciiReplace(sTmp, 10, 43, iToCount:=3)
+        Else
+            sTmp = Replace(sTmp, "'", "")
+        End If
+
+        Call AppendFile(clsQuadRuntime.FileName, "rows:" & sTmp & vbCrLf)
+    
     End If
     
 End Sub
@@ -293,6 +323,27 @@ Dim vLookUpByValues() As String, vLookUpValues() As String
     
 End Function
 
+Public Sub UpdateQuadDataInDB(clsQuadRuntime As Quad_Runtime, sSpName As String, vRow() As Variant, _
+                    Optional bHeaderFlag As Boolean = False)
+                
+    CreateQuadArgsFile clsQuadRuntime, sSpName, vRow:=vRow, bHeaderFlag:=bHeaderFlag
+    aArgs = InitStringArray(Array("python", clsQuadRuntime.ExecPath & "excel_data_utils.py", "--input_file", clsQuadRuntime.FileName))
+                    
+    ShellRun aArgs
+  
+End Sub
+
+Public Sub InsertQuadDataToDB(clsQuadRuntime As Quad_Runtime, sSpName As String, _
+                              vRows() As Variant, vColumns() As Variant, _
+                    Optional bHeaderFlag As Boolean = False)
+                
+    CreateQuadArgsFile clsQuadRuntime, sSpName, vRows:=vRows, vColumns:=vColumns, bHeaderFlag:=bHeaderFlag
+    aArgs = InitStringArray(Array("python", clsQuadRuntime.ExecPath & "excel_data_utils.py", "--input_file", clsQuadRuntime.FileName))
+                    
+    ShellRun aArgs
+  
+End Sub
+    
 Public Sub GetQuadDataFromDB(clsQuadRuntime As Quad_Runtime, sSpName As String, _
                         Optional dSpArgs As Dictionary, _
                         Optional bHeaderFlag As Boolean = False)
