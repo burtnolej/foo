@@ -167,7 +167,7 @@ setup:
     SheetIsVisible = False
     On Error GoTo err
     With wb.Sheets(sSheetName)
-        SheetIsVisible = ActiveWorkbook.Sheets(sSheetName).Visible
+        SheetIsVisible = wb.Sheets(sSheetName).Visible
     End With
     On Error GoTo 0
     Exit Function
@@ -255,11 +255,11 @@ main:
         If SheetExists(wb, sSheetName) = True Then
             For Each wsTmp In wb.Sheets
                 If wsTmp.Name = sSheetName Then
-                    wsTmp.Visible = True
+                    'wsTmp.Visible = True
+                    wsTmp.Visible = xlSheetVisible
                     wsTmp.Delete
                 End If
             Next wsTmp
-            'wb.Sheets(sSheetName).Delete
         Else
             FuncLogIt sFuncName, "Trying to delete a sheet that does not exist [" & sSheetName & "]", C_MODULE_NAME, LogMsgType.Failure
         End If

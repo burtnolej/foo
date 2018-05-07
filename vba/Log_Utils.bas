@@ -5,7 +5,7 @@ Enum LogMsgType
     FATAL = 0
     Error = 1
     Failure = 2
-    Info = 3
+    INFO = 3
     OK = 4
     DEBUGGING = 7
     FAIL_TEST = 8
@@ -18,11 +18,97 @@ Const C_LOG_MSG_TYPE = "FATAL,Error,Failure,INFO,OK,,,DEBUGGING,FAIL_TEST,PASS_T
 
 Private clsQuadRuntimeGlobal As Quad_Runtime
 Public LogFilter As String
+Public StartTick As Long
 
 Function EnumLogMsgType(i As Long) As String
     EnumLogMsgType = Split(C_LOG_MSG_TYPE, COMMA)(i)
 End Function
 
+Public Sub PurgeLogs()
+'<<<
+'purpose: remove any log files from the runtime directory. a log is a file that ends in _log
+'>>>
+Dim sLogPath As String, sFuncName As String, sSheetName As String
+Dim vFileNames() As String
+
+setup:
+    sFuncName = CsModuleName & "." & "DoPurgeLogs"
+    sSheetName = "Logs"
+    sLogPath = Environ("MYHOME") & "\runtime\"
+    On Error GoTo err
+        
+    If SheetExists(ActiveWorkbook, sSheetName) = True Then
+        DeleteSheet ActiveWorkbook, sSheetName
+    End If
+
+main:
+    
+    GetLogFile
+    CloseLogFile
+    vFileNames = GetFolderFiles(sLogPath)
+
+    For Each sFileName In vFileNames
+        If InStr(sFileName, "_log") <> 0 Then
+            DeleteFile sLogPath & CStr(sFileName)
+        End If
+    Next sFileName
+    Exit Sub
+    
+err:
+    FuncLogIt sFuncName, "Error [ " & err.Description & "]", C_MODULE_NAME, LogMsgType.Error
+End Sub
+Public Sub ViewLogs()
+Dim vFileNames() As String
+Dim sLogPath As String, sFuncName As String, sSheetName As String
+Dim sFileName As Variant, iColWidth As Variant
+Dim iCount As Integer, iRowNum As Integer
+Dim vFile() As String, aColWidths() As Integer
+Dim wsTmp As Worksheet
+Dim rSource As Range
+
+    aColWidths = InitIntArray(Array(10, 10, 10, 15, 20, 60, 10))
+    
+    sFuncName = CsModuleName & "." & "DoViewLogs"
+    sSheetName = "Logs"
+    
+    sLogPath = Environ("MYHOME") & "\runtime\"
+    
+    vFileNames = GetFolderFiles(sLogPath)
+    
+    iRowNum = 1
+    
+    If SheetExists(ActiveWorkbook, sSheetName) = True Then
+        DeleteSheet ActiveWorkbook, sSheetName
+    End If
+    
+    Set wsTmp = CreateSheet(Application.ActiveWorkbook, sSheetName)
+    
+    For Each sFileName In vFileNames
+        If InStr(sFileName, "_log") <> 0 Then
+            FuncLogIt sFuncName, "Found log [" & sFileName & "] loading", C_MODULE_NAME, LogMsgType.OK
+            
+            vFile = ReadFile2Array(sLogPath & sFileName, sFieldDelim:="|")
+            
+            Set rSource = RangeFromStrArray(vFile, wsTmp, iRowNum, 0)
+            Set rSource = rSource.Resize(, 1).Offset(, 3)
+            rSource.value = sFileName
+            
+            iRowNum = iRowNum + UBound(vFile) + 1
+        End If
+    Next sFileName
+    
+    iCount = 1
+    For Each iColWidth In aColWidths
+        SetColumnWidth iCount, CInt(iColWidth), sSheetName
+        iCount = iCount + 1
+    Next iColWidth
+    
+    With wsTmp
+        Set rSource = .Range(.Cells(1, 1), .Cells(iRowNum, 7))
+        
+        RangeSort sSheetName, rSource, aSortColumns:=InitIntArray(Array(1, 2))
+    End With
+End Sub
 
 Public Sub FuncLogIt(sFuncName As String, sLogMsg As String, sModuleName, eLogMsgType As LogMsgType, Optional sKey As String)
 Dim aLogVals() As String
@@ -42,8 +128,8 @@ Dim aLogFilter() As String
         sNowDate = GetDateString(Now(), "ddmmyy")
 
         ' take the calling function, a message and some id and write a formatted record to the log
-        aLogVals = InitStringArray(Array(sNowTime, EnumLogMsgType(eLogMsgType), BLANK, BLANK, sFuncName, sLogMsg, sNowDate))
-        aLogWidths = InitIntArray(Array(10, 8, 1, 1, 40, 60, 10))
+        aLogVals = InitStringArray(Array(sNowTime, GetTicks() - StartTick, EnumLogMsgType(eLogMsgType), BLANK, BLANK, sFuncName, sLogMsg, sNowDate))
+        aLogWidths = InitIntArray(Array(10, 5, 8, 1, 1, 40, 60, 10))
         Call WriteToLog(aLogVals, aLogWidths)
     End If
 End Sub
@@ -62,6 +148,8 @@ Function GetLogFile(Optional sLogFileName As String = "excel_log.txt") As Object
         End If
     End If
     
+    StartTick = GetTicks
+        
     Set GetLogFile = fLogFile
 End Function
 Public Sub CloseLogFile()

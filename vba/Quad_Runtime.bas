@@ -590,7 +590,7 @@ setup:
     pFileName = GetUpdatedValue(sFuncName, sConstValue, value)
     
     If FileExists(value) = False Then
-        FuncLogIt "Let_FileName", "file currently does not exist to [" & value & "]", C_MODULE_NAME, LogMsgType.Info
+        FuncLogIt "Let_FileName", "file currently does not exist to [" & value & "]", C_MODULE_NAME, LogMsgType.INFO
     End If
 main:
     
@@ -631,7 +631,7 @@ setup:
     pResultFileName = GetUpdatedValue(sFuncName, sConstValue, value)
     
     If FileExists(pResultFileName) = False Then
-        FuncLogIt "Let_ResultFileName", "file currently does not exist to [" & value & "]", C_MODULE_NAME, LogMsgType.Info
+        FuncLogIt "Let_ResultFileName", "file currently does not exist to [" & value & "]", C_MODULE_NAME, LogMsgType.INFO
     End If
 main:
     
@@ -686,7 +686,7 @@ setup:
     pRuntimeDir = GetUpdatedValue(sFuncName, sConstValue, value)
     
     If DirExists(value) = False Then
-        FuncLogIt "Let_RuntimeDir", "file currently does not exist to [" & value & "]", C_MODULE_NAME, LogMsgType.Info
+        FuncLogIt "Let_RuntimeDir", "file currently does not exist to [" & value & "]", C_MODULE_NAME, LogMsgType.INFO
     End If
 main:
     
@@ -705,7 +705,7 @@ setup:
     pExecPath = GetUpdatedValue(sFuncName, sConstValue, value)
     
     If DirExists(value) = False Then
-        FuncLogIt "Let_ExecPath", "file currently does not exist to [" & value & "]", C_MODULE_NAME, LogMsgType.Info
+        FuncLogIt "Let_ExecPath", "file currently does not exist to [" & value & "]", C_MODULE_NAME, LogMsgType.INFO
     End If
 main:
     
@@ -729,13 +729,13 @@ Dim sCachedValue As String, sOrigValue As String
     If sCachedValue <> " " Then
         sOrigValue = value
         value = sCachedValue
-        FuncLogIt "Let_" & sFuncName, "retreived value from overide cache file to [" & sCachedValue & "] instead of [" & sOrigValue & "]", C_MODULE_NAME, LogMsgType.Info
+        FuncLogIt "Let_" & sFuncName, "retreived value from overide cache file to [" & sCachedValue & "] instead of [" & sOrigValue & "]", C_MODULE_NAME, LogMsgType.INFO
     Else
         If value = "" Then
             'using default value
             value = sConstValue
         ElseIf value <> sConstValue Then
-            FuncLogIt "Let_" & sFuncName, "overidden to [" & value & "] default was [" & sConstValue & "]", C_MODULE_NAME, LogMsgType.Info
+            FuncLogIt "Let_" & sFuncName, "overidden to [" & value & "] default was [" & sConstValue & "]", C_MODULE_NAME, LogMsgType.INFO
             PersistOverride sFuncName, value
         End If
     End If
@@ -769,7 +769,7 @@ Dim sCurrentValue As String
     vCurrentState(iRow) = sValue
     WriteArray2File vCurrentState, Me.QuadRuntimeCacheFileName
 
-    FuncLogIt "PersistOverride", "updated QuadRuntime persist file [" & Me.QuadRuntimeCacheFileName & "] for [" & sFuncName & "] from [" & sCurrentValue & "] to [" & sValue & "]", C_MODULE_NAME, LogMsgType.Info
+    FuncLogIt "PersistOverride", "updated QuadRuntime persist file [" & Me.QuadRuntimeCacheFileName & "] for [" & sFuncName & "] from [" & sCurrentValue & "] to [" & sValue & "]", C_MODULE_NAME, LogMsgType.INFO
 
 End Sub
 
@@ -904,6 +904,8 @@ Public Sub InitProperties( _
                  Optional bHydrateFromCache As Boolean = False, _
                  Optional bSetWindows = False)
 
+    FuncLogIt "Quad_Runtime.InitProperties", "", C_MODULE_NAME, LogMsgType.INFUNC
+    
     SetDefaults
     
     If bInitializeOveride = True Then
@@ -931,17 +933,9 @@ Public Sub InitProperties( _
     
     If bInitializeCache = True Then
         Me.OpenBooks
-        'FileCopy cCacheBookName, cNewBookPath, cRuntimeDir
-        'FileCopy cScheduleBookName, cNewBookPath, cRuntimeDir
-        'FileCopy cAddBookName, cNewBookPath, cRuntimeDir
-        'FileCopy cMenuBookName, cNewBookPath, cRuntimeDir
     Else
         If BookExists(Me.CacheBookPath & "\" & Me.CacheBookName) = False Then
             Me.OpenBooks
-            'FileCopy cCacheBookName, cNewBookPath, cRuntimeDir
-            'FileCopy cScheduleBookName, cNewBookPath, cRuntimeDir
-            'FileCopy cAddBookName, cNewBookPath, cRuntimeDir
-            'FileCopy cMenuBookName, cNewBookPath, cRuntimeDir
         End If
     End If
     
@@ -969,7 +963,6 @@ Public Sub InitProperties( _
     Me.DayEnum = sDayEnum
     Me.PeriodEnum = sPeriodEnum
 
-    
     If bSetWindows = True Then
         SetWindows
     End If

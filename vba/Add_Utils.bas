@@ -134,7 +134,7 @@ main:
             Set cRGB = GetBgColor(sSheetName, rEntryCell)
             If cRGB.AsString <> C_RGB_VALID Then
                 IsRecordValid = False
-                FuncLogIt sFuncName, "Cell named [" & name_ & "] not valid", C_MODULE_NAME, LogMsgType.Info
+                FuncLogIt sFuncName, "Cell named [" & name_ & "] not valid", C_MODULE_NAME, LogMsgType.INFO
 
                 ChangeButton wbSourceBook, wbTargetbook, sSheetName, C_GOBUTTON_ROW, C_GOBUTTON_COL, CellState.Invalid, sSourceSheetName, bTakeFocus:=False
 
@@ -143,7 +143,7 @@ main:
         End If
     Next name_
     IsRecordValid = True
-    FuncLogIt sFuncName, "Add Form  [" & sSheetName & "] is valid", C_MODULE_NAME, LogMsgType.Info
+    FuncLogIt sFuncName, "Add Form  [" & sSheetName & "] is valid", C_MODULE_NAME, LogMsgType.INFO
 
     ChangeButton wbSourceBook, wbTargetbook, sSheetName, C_GOBUTTON_ROW, C_GOBUTTON_COL, _
         CellState.Valid, sSourceSheetName, bTakeFocus:=True
@@ -249,6 +249,9 @@ Dim rTarget As Range
             rTarget.value = dValues.Item(sFieldName)
         End If
     Next sKey
+    
+    EventsToggle True
+    clsQuadRuntime.ViewBook.Activate
     
 End Function
 Public Function IsMember(ParamArray args()) As Boolean
@@ -476,7 +479,7 @@ main:
     End With
     
     If IsEmptyArray(vDefinedAddNamesRanges) = True Then
-        FuncLogIt sFuncName, "No formats defined for [CellType" & EnumCellType(eCellType) & "]  [sAction=" & sAction & "]", C_MODULE_NAME, LogMsgType.Error
+        'FuncLogIt sFuncName, "No formats defined for [CellType" & EnumCellType(eCellType) & "]  [sAction=" & sAction & "]", C_MODULE_NAME, LogMsgType.Error
         GoTo cleanup
     End If
 
@@ -695,10 +698,14 @@ Dim wsTmp As Worksheet
     wsTmp.Activate
 End Sub
 
-Public Sub HideForm(sSheetName As String)
+Public Sub HideForm(sSheetName As String, Optional wbTmp As Workbook)
 
-    If SheetIsVisible(ActiveWorkbook, sSheetName) = True Then
-        HideSheet ActiveWorkbook, sSheetName
+    If IsSet(wbTmp) = False Then
+        Set wbTmp = ActiveWorkbook
+    End If
+    
+    If SheetIsVisible(wbTmp, sSheetName) = True Then
+        HideSheet wbTmp, sSheetName
     End If
     
 End Sub
@@ -884,15 +891,16 @@ setup:
     For Each sAction In dActions.Keys()
     
         If sFormName <> "" Then
+            FuncLogIt sFuncName, "Generating for [sFormName=" & sFormName & "]", C_MODULE_NAME, LogMsgType.INFO
             If sAction <> sFormName Then
                 GoTo nextaction
             End If
         End If
                 
         If sOverideButtonCallback <> "" Then
+            FuncLogIt sFuncName, "Overiding [sOverideButtonCallback=" & sOverideButtonCallback & "]", C_MODULE_NAME, LogMsgType.INFO
             sCallbackFunc = sOverideButtonCallback
         Else
-            'sCallbackFunc = "Add" & sAction
             sCallbackFunc = sAction
         End If
         
@@ -909,10 +917,11 @@ setup:
             End If
         Next vFormType
         
+        FuncLogIt sFuncName, "Creating Form [Form Type=" & sFormType & "] [Target Workbook=" & wbTarget.Name & "] [Action = " & sAction & "]", C_MODULE_NAME, LogMsgType.INFO
+        
         If IsSet(wbTarget) = False Then
             FuncLogIt sFuncName, "invalid formtype  [" & CStr(sAction) & "]", C_MODULE_NAME, LogMsgType.Failure
             GoTo nextaction
-            'err.Raise ErrorMsgType.INVALID_FORMTYPE, Description:="form type needs to be New or Menu"
         End If
     
         Set wsTmp = CreateSheet(wbTarget, CStr(sAction), bOverwrite:=True)
@@ -947,8 +956,8 @@ setup:
                 End If
             End If
         Next i
-        HideForm CStr(sAction)
-        FuncLogIt sFuncName, "Generated Form for action [" & sAction & "]", C_MODULE_NAME, LogMsgType.Info
+        HideForm CStr(sAction), wbTmp:=wbTarget
+
 nextaction:
     Next sAction
 End Sub
@@ -1014,7 +1023,7 @@ main:
             sKey = GetKey(sActionName, sFieldName, eCellType)
             
             If dDefinitions.Exists(sKey) = True Then
-                FuncLogIt sFuncName, "definition for [" & sKey & "] already loaded", C_MODULE_NAME, LogMsgType.Info
+                FuncLogIt sFuncName, "definition for [" & sKey & "] already loaded", C_MODULE_NAME, LogMsgType.INFO
             Else
                 dDefinitions.Add sKey, dDefnDetail
             End If
@@ -1036,7 +1045,7 @@ main:
     
 exitfunc:
     Set LoadDefinitions = dDefinitions
-    FuncLogIt sFuncName, "Loaded in [" & CStr(UBound(dDefinitions.Keys())) & "] definitions", C_MODULE_NAME, LogMsgType.OK
+    'FuncLogIt sFuncName, "Loaded in [" & CStr(UBound(dDefinitions.Keys())) & "] definitions", C_MODULE_NAME, LogMsgType.OK
     Exit Function
 
 err:
@@ -1070,7 +1079,7 @@ setup:
     
     If dDefinitions Is Nothing Then
         ' when called from a callback and dDefinitons needs to be reconstituted
-        FuncLogIt sFuncName, "Definitions not loaded so reloading", C_MODULE_NAME, LogMsgType.Info
+        FuncLogIt sFuncName, "Definitions not loaded so reloading", C_MODULE_NAME, LogMsgType.INFO
         DoLoadDefinitions clsQuadRuntime:=clsQuadRuntime
     End If
     

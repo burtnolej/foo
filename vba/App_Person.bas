@@ -7,6 +7,43 @@ Const C_MODULE_NAME = "App_Person"
 Const cTeacherLookUpCol = "idFaculty"
 Const cStudentLookUpCol = "idStudent"
 
+Public Sub GeneratePersonView(clsQuadRuntime As Quad_Runtime)
+Dim sFuncName As String, sSheetName As String
+Dim sDefn As String
+Dim vSource() As String
+Dim wsTmp As Worksheet, wsView As Worksheet
+Dim rTarget As Range
+Dim eTestResult As TestResult
+
+setup:
+    
+    sFuncName = C_MODULE_NAME & "." & "GeneratePersonView"
+    sSheetName = "test"
+    Set wsTmp = CreateSheet(clsQuadRuntime.TemplateBook, sSheetName, bOverwrite:=True)
+
+    sDefn = "ViewStudent^^sStudentFirstNm^String^IsMember^&get_person_student^sStudentFirstNm^&UpdateForm^Selector" & DOUBLEDOLLAR
+    sDefn = sDefn & "ViewStudent^^sStudentFirstNm^^^^^^Text" & DOUBLEDOLLAR
+    sDefn = sDefn & "ViewStudent^^idStudent^^^^^^Text" & DOUBLEDOLLAR
+    sDefn = sDefn & "ViewStudent^^idPrep^^^^^^Text" & DOUBLEDOLLAR
+    sDefn = sDefn & "AddStudent^person_student^sStudentFirstNm^String^^^^^Entry" & DOUBLEDOLLAR
+    sDefn = sDefn & "AddStudent^person_student^sStudentLastNm^String^^^^^Entry" & DOUBLEDOLLAR
+    sDefn = sDefn & "AddStudent^person_student^idStudent^Integer^^^^^Entry" & DOUBLEDOLLAR
+    sDefn = sDefn & "AddStudent^person_student^idPrep^Integer^IsValidPrep^^^^Entry" & DOUBLEDOLLAR
+    sDefn = sDefn & "AddStudent^person_student^sPrepNm^String^^^^^Entry"
+    
+    vSource = Init2DStringArrayFromString(sDefn)
+
+    Set rTarget = RangeFromStrArray(vSource, wsTmp, 0, 1)
+    CreateNamedRange clsQuadRuntime.TemplateBook, rTarget.Address, sSheetName, "Definitions", "True"
+    Set Add_Utils.dDefinitions = LoadDefinitions(wsTmp, rSource:=rTarget)
+
+main:
+    GenerateForms clsQuadRuntime, bLoadRefData:=True
+
+    
+End Sub
+
+
 Public Function IsValidPersonID(clsQuadRuntime As Quad_Runtime, _
                                 iPersonID As Integer, _
                                 eQuadSubDataType As QuadSubDataType) As Boolean
@@ -44,12 +81,12 @@ main:
 
     If InArray(vStudentIDs, CStr(iPersonID)) Then
         IsValidPersonID = True
-        FuncLogIt sFuncName, "Student ID [" & CStr(iPersonID) & "] is VALID", C_MODULE_NAME, LogMsgType.Info
+        FuncLogIt sFuncName, "Student ID [" & CStr(iPersonID) & "] is VALID", C_MODULE_NAME, LogMsgType.INFO
         Exit Function
     End If
     
     IsValidPersonID = False
-    FuncLogIt sFuncName, "Student ID [" & CStr(iPersonID) & "] is INVALID ", C_MODULE_NAME, LogMsgType.Info
+    FuncLogIt sFuncName, "Student ID [" & CStr(iPersonID) & "] is INVALID ", C_MODULE_NAME, LogMsgType.INFO
     
 cleanup:
     On Error GoTo 0

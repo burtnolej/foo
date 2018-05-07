@@ -118,9 +118,9 @@ Dim sFuncName As String
         vIgnoreModules = Split(sIgnoreModules, ",")
         If InArray(vIgnoreModules, sModuleName) = False Then
             If ModuleExists(xlwb, sModuleName) = True And bOverwrite = False Then
-                FuncLogIt sFuncName, "skipping " & sModuleName & " as exists and bOverwrite = False", C_MODULE_NAME, LogMsgType.Info
+                FuncLogIt sFuncName, "skipping " & sModuleName & " as exists and bOverwrite = False", C_MODULE_NAME, LogMsgType.INFO
             ElseIf ModuleExists(xlwb, sModuleName) = True And bOverwrite = True Then
-                FuncLogIt sFuncName, "deleting [" & sModuleName & "] as exists but overwrite=True", C_MODULE_NAME, LogMsgType.Info
+                FuncLogIt sFuncName, "deleting [" & sModuleName & "] as exists but overwrite=True", C_MODULE_NAME, LogMsgType.INFO
                 If bDryRun = False Then
                     DeleteModule xlwb, sModuleName
                     VBComps.Import sDirectory & "/" & sFile
@@ -131,11 +131,11 @@ Dim sFuncName As String
                     VBComps.Import sDirectory & "/" & sFile
                 End If
                 iCount = iCount + 1
-                FuncLogIt sFuncName, "importing [" & sModuleName & "]", C_MODULE_NAME, LogMsgType.Info
+                FuncLogIt sFuncName, "importing [" & sModuleName & "]", C_MODULE_NAME, LogMsgType.INFO
                 On Error GoTo 0
             End If
         Else
-            FuncLogIt sFuncName, "skipping [" & sFile & "] as in ignore list", C_MODULE_NAME, LogMsgType.Info
+            FuncLogIt sFuncName, "skipping [" & sFile & "] as in ignore list", C_MODULE_NAME, LogMsgType.INFO
         End If
     Next sFile
     ImportModules = iCount

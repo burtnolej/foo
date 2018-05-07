@@ -16,7 +16,7 @@ Const C_DB_DEFAULT_FIELDS = "CreatedTime,LastUpdatedTime,ID,SyncState"
 
 Enum ColumnType
     DB = 1
-    Info = 2
+    INFO = 2
 End Enum
 
 Const C_COLUMN_TYPE = "DB,Info"
@@ -67,12 +67,12 @@ Dim sSuffix As String
     End If
 
     If sFieldName = "ID" Or sFieldName = "SyncState" Or sFieldName = "CreatedTime" Or sFieldName = "LastUpdatedTime" Then
-        eColumnType = ColumnType.Info
+        eColumnType = ColumnType.INFO
     End If
     
     If eColumnType = ColumnType.DB Then
         sSuffix = "db"
-    ElseIf eColumnType = ColumnType.Info Then
+    ElseIf eColumnType = ColumnType.INFO Then
         sSuffix = "i"
     End If
     
@@ -97,10 +97,10 @@ setup:
     sFuncName = C_MODULE_NAME & "." & "GetDirtyTableRecords"
     Set wsTable = GetSheet(wbTmp, sTableName)
     
-    sColRange = GetDBColumnRange(sTableName, "NextFree", eColumnType:=ColumnType.Info)
+    sColRange = GetDBColumnRange(sTableName, "NextFree", eColumnType:=ColumnType.INFO)
     iNextFree = CInt(wsTable.Range(sColRange).Rows(1).value)
     
-    sColRange = GetDBColumnRange(sTableName, "SyncState", eColumnType:=ColumnType.Info)
+    sColRange = GetDBColumnRange(sTableName, "SyncState", eColumnType:=ColumnType.INFO)
     Set rSyncState = wsTable.Range(sColRange)
     
     For iRow = 2 To iNextFree
@@ -365,7 +365,7 @@ main:
         
         aDefaultFields = Split(C_DB_DEFAULT_FIELDS, ",")
         For i = 0 To UBound(aDefaultFields)
-            sColRange = GetDBColumnRange(sTableName, aDefaultFields(i), ColumnType.Info)
+            sColRange = GetDBColumnRange(sTableName, aDefaultFields(i), ColumnType.INFO)
             wsTable.Range(sColRange).Rows(iNextFree) = Application.Run("Calc" & aDefaultFields(i), sTableName, wbCacheBook)
         Next i
     End With
@@ -392,7 +392,7 @@ Dim sSuffix As String
     
     If eColumnType = ColumnType.DB Then
         sSuffix = "db"
-    ElseIf eColumnType = ColumnType.Info Then
+    ElseIf eColumnType = ColumnType.INFO Then
         sSuffix = "i"
     End If
     
@@ -443,7 +443,7 @@ setup:
 
     If dDefinitions Is Nothing Then
         ' when called from a callback and dDefinitons needs to be reconstituted
-        FuncLogIt sFuncName, "Definitions not loaded so reloading", C_MODULE_NAME, LogMsgType.Info
+        FuncLogIt sFuncName, "Definitions not loaded so reloading", C_MODULE_NAME, LogMsgType.INFO
         DoLoadDefinitions clsQuadRuntime:=clsQuadRuntime
     End If
 
@@ -467,16 +467,16 @@ setup:
         iCol = iCol + 1
         For i = iCol To iCol + UBound(aDefaultFields)
             CreateTableColumn wsTmp, i, sTableName, aDefaultFields(i - iCol), _
-                wbTmp:=clsQuadRuntime.CacheBook, vDataID:=vDataID, eColumnType:=ColumnType.Info
+                wbTmp:=clsQuadRuntime.CacheBook, vDataID:=vDataID, eColumnType:=ColumnType.INFO
         Next i
 
         ' create the range that stored the NextFree row
         Set rTarget = .Range(.Cells(1, i + 1), .Cells(1, i + 1))
         rTarget.value = 1
         sRangeName = "i" & sTableName & "NextFree"
-        CreateTableColumn wsTmp, i + 1, sTableName, "NextFree", wbTmp:=clsQuadRuntime.CacheBook, vDataID:=vDataID, eColumnType:=ColumnType.Info
+        CreateTableColumn wsTmp, i + 1, sTableName, "NextFree", wbTmp:=clsQuadRuntime.CacheBook, vDataID:=vDataID, eColumnType:=ColumnType.INFO
                 
-        FuncLogIt sFuncName, "Created db table [" & sTableName & "] with [" & CStr(i + 1) & "] columns", C_MODULE_NAME, LogMsgType.Info
+        FuncLogIt sFuncName, "Created db table [" & sTableName & "] with [" & CStr(i + 1) & "] columns", C_MODULE_NAME, LogMsgType.INFO
     End With
 
     Set CreateTable = wsTmp
@@ -510,6 +510,6 @@ setup:
         
     Next sTableName
 
-    FuncLogIt sFuncName, "Created [" & CStr(iCount) & "] tables", C_MODULE_NAME, LogMsgType.Info
+    FuncLogIt sFuncName, "Created [" & CStr(iCount) & "] tables", C_MODULE_NAME, LogMsgType.INFO
 
 End Sub

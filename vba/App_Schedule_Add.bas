@@ -98,6 +98,7 @@ Dim rTemplateSource As Range
     clsQuadRuntime.ScheduleBook.Windows(1).Visible = True
 End Function
 Public Sub GenerateScheduleAdd(clsQuadRuntime As Quad_Runtime)
+
 Dim sFuncName As String, sSheetName As String
 Dim sDefn As String
 Dim vSource() As String

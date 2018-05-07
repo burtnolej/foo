@@ -51,7 +51,7 @@ Dim sSourceFilePath As String, sTargetFilePath As String
     On Error GoTo err
     objFSO.CopyFile sSourceFilePath, sTargetFilePath
     On Error GoTo 0
-    FuncLogIt sFuncName, "Copied from  [" & sSourceFilePath & "] to [" & sTargetFilePath & "]", C_MODULE_NAME, LogMsgType.Failure
+    'FuncLogIt sFuncName, "Copied from  [" & sSourceFilePath & "] to [" & sTargetFilePath & "]", C_MODULE_NAME, LogMsgType.Failure
     Exit Sub
 err:
     FuncLogIt sFuncName, "Failed to copy [" & sSourceFilePath & "] to  [" & sTargetFilePath & "]", C_MODULE_NAME, LogMsgType.Failure
@@ -143,9 +143,9 @@ Dim iCol As Integer, iRow As Integer
 Dim aTmpRow() As String, aTmp() As String
 
     If bSingleCol = True Then
-        ReDim aTmp(0 To 10000)
+        ReDim aTmp(0 To 30000)
     Else
-        ReDim aTmp(0 To 10000, 0 To 100)
+        ReDim aTmp(0 To 30000, 0 To 100)
     End If
     
     Set oFile = OpenFile(sPath, 1)
@@ -198,7 +198,7 @@ setup:
     If sInitVal = BLANK Then
         err.Raise ErrorMsgType.BAD_ARGUMENT, Description:="init val cannot be BLANK"
     Else
-        FuncLogIt sFuncName, "init val cannot be BLANK", C_MODULE_NAME, LogMsgType.Info
+        FuncLogIt sFuncName, "init val cannot be BLANK", C_MODULE_NAME, LogMsgType.INFO
     End If
     ' END ASSERTIONS -------------------------------------
     
@@ -237,7 +237,7 @@ setup:
     If FileExists(sFilePath) = False Then
         err.Raise ErrorMsgType.BAD_ARGUMENT, Description:="file does not exist"
     Else
-        FuncLogIt sFuncName, "file [" & sFilePath & "] does not exist", C_MODULE_NAME, LogMsgType.Info
+        FuncLogIt sFuncName, "file [" & sFilePath & "] does not exist", C_MODULE_NAME, LogMsgType.INFO
     End If
     ' END ASSERTIONS -------------------------------------
 

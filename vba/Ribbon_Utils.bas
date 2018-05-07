@@ -193,7 +193,9 @@ setup:
     ElseIf control.id = "GetProcs" Then
         DumpProcs
     ElseIf control.id = "ViewLogs" Then
-        DoViewLogs
+        ViewLogs
+    ElseIf control.id = "PurgeLogs" Then
+        PurgeLogs
     ElseIf control.id = "RefreshRibbon" Then
         RefreshRibbon
     ElseIf control.id = "EventsOn" Then
