@@ -56,6 +56,17 @@ Dim vKey As Variant
     GetDictVals = aResult
 
 End Function
+
+Sub DumpDict(dDict As Dictionary)
+Dim vKey As Variant
+
+    ReDim aResult(0 To 1000)
+    For Each vKey In dDict.Keys
+        Debug.Print CStr(vKey) & "=" & dDict.Item(vKey)
+    Next
+
+End Sub
+
 Function InitDict(aKeys() As String, aValues As Variant) As Dictionary
 Dim dResult As New Dictionary
     

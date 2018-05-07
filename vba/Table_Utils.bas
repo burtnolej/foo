@@ -65,6 +65,10 @@ Dim sSuffix As String
     If Left(sTableName, 1) = "&" Then
         sTableName = Right(sTableName, Len(sTableName) - 5)
     End If
+
+    If sFieldName = "ID" Or sFieldName = "SyncState" Or sFieldName = "CreatedTime" Or sFieldName = "LastUpdatedTime" Then
+        eColumnType = ColumnType.Info
+    End If
     
     If eColumnType = ColumnType.DB Then
         sSuffix = "db"
@@ -136,7 +140,7 @@ main:
         For Each sKey In dDefinitions.Keys()
             If dDefinitions.Item(sKey).Exists("db_table_name") = False Then
                 FuncLogIt sFuncName, "entry [" & sKey & "] does not have a \'db_table_name\' record", C_MODULE_NAME, LogMsgType.Error
-                Exit Function
+                'Exit Function
             End If
 
             If dDefinitions.Item(sKey).Item("db_table_name") = sTableName Then
@@ -144,6 +148,7 @@ main:
                 sFieldName = dDefnDetails.Item("db_field_name")
                 sColRange = GetDBColumnRange(sTableName, sFieldName)
                 sFieldValue = wsTable.Range(sColRange).Rows(iID + 1)
+                'sFieldValue = wsTable.Range(sColRange).Rows(iID)
                 dRecord.Add sFieldName, sFieldValue
                 iNumValues = iNumValues + 1
             End If
@@ -332,16 +337,12 @@ setup:
     
 main:
     With wsAdd
-        ' default to 1 if for some reason iNextFree is not readable
         
-
         iNextFree = 2
         On Error Resume Next
         iNextFree = wsTable.Range("i" & sTableName & "NextFree").Rows(1).value + 1
         On Error GoTo 0
-        
-        'iNextFree = wsTable.Range("i" & sTableName & "NextFree").value + 1
-        
+
         For Each sKey In dDefinitions.Keys()
             If dDefinitions.Item(sKey).Exists("db_table_name") = False Then
                 FuncLogIt sFuncName, "entry [" & sKey & "] does not have a \'db_table_name\' record", C_MODULE_NAME, LogMsgType.Error
@@ -377,7 +378,10 @@ err:
     
 End Function
 Public Sub CreateTableColumn(wsTmp As Worksheet, iCol As Integer, ByVal sTableName As String, sFieldName As String, _
-                Optional wbTmp As Workbook, Optional vDataID As Variant, Optional eColumnType As ColumnType = ColumnType.DB)
+                Optional wbTmp As Workbook, _
+                Optional vDataID As Variant, _
+                Optional eColumnType As ColumnType = ColumnType.DB, _
+                Optional iFirstDataLine As Integer = 2)
 Dim rColumn As Range
 Dim sRangeName As String
 Dim sSuffix As String
@@ -392,8 +396,10 @@ Dim sSuffix As String
         sSuffix = "i"
     End If
     
+    
     With wsTmp
-        .Range(.Cells(1, iCol), .Cells(1, iCol)).value = sFieldName
+        .Range(.Cells(1, iCol), .Cells(1, iCol)).value = sFieldName ' draw headings
+        'Set rColumn = .Range(.Cells(iFirstDataLine, iCol), .Cells(10000, iCol))
         Set rColumn = .Range(.Cells(1, iCol), .Cells(10000, iCol))
     End With
     
@@ -405,7 +411,9 @@ Dim sSuffix As String
         
     CreateNamedRange wbTmp, rColumn.Address, wsTmp.Name, sRangeName, "True"
 End Sub
-Public Function CreateTable(sTableName As String, Optional wbTmp As Workbook) As Worksheet
+Public Function CreateTable(sTableName As String, _
+                   Optional wbTmp As Workbook, _
+                   Optional bShowFilter As Boolean = False) As Worksheet
 Dim iCol As Integer
 Dim dDefnDetail As Dictionary
 Dim vSource() As String, vTableNameSplits() As String
@@ -450,20 +458,10 @@ setup:
             
     With wsTmp
         For Each sKey In dDefinitions.Keys()
-            ' this is to account for sub tables that are filtered tables (like by personID)
-            'vTableNameSplits = Split(sTableName, UNDERSCORE)
-            'If UBound(vTableNameSplits) = 2 Then
-            '    sTableName = vTableNameSplits(0) & UNDERSCORE & vTableNameSplits(1)
-            '    vDataID = vTableNameSplits(2)
-            'Else
-            '    'Set vDataID = Nothing
-            'End If
-            
             If dDefinitions.Item(sKey).Item("db_table_name") = sTableName Then
                 Set dDefnDetail = dDefinitions.Item(sKey)
                 iCol = iCol + 1
-                CreateTableColumn wsTmp, iCol, sTableName, dDefinitions.Item(sKey).Item("db_field_name"), _
-                    wbTmp:=clsQuadRuntime.CacheBook, vDataID:=vDataID
+                CreateTableColumn wsTmp, iCol, sTableName, dDefinitions.Item(sKey).Item("db_field_name"), wbTmp:=clsQuadRuntime.CacheBook, vDataID:=vDataID
             End If
         Next sKey
         iCol = iCol + 1
@@ -472,12 +470,11 @@ setup:
                 wbTmp:=clsQuadRuntime.CacheBook, vDataID:=vDataID, eColumnType:=ColumnType.Info
         Next i
 
+        ' create the range that stored the NextFree row
         Set rTarget = .Range(.Cells(1, i + 1), .Cells(1, i + 1))
         rTarget.value = 1
         sRangeName = "i" & sTableName & "NextFree"
-        'CreateNamedRange wbTmp, rTarget.Address, wsTmp.Name, sRangeName, "True"
-        CreateTableColumn wsTmp, i + 1, sTableName, "NextFree", wbTmp:=clsQuadRuntime.CacheBook, vDataID:=vDataID, _
-            eColumnType:=ColumnType.Info
+        CreateTableColumn wsTmp, i + 1, sTableName, "NextFree", wbTmp:=clsQuadRuntime.CacheBook, vDataID:=vDataID, eColumnType:=ColumnType.Info
                 
         FuncLogIt sFuncName, "Created db table [" & sTableName & "] with [" & CStr(i + 1) & "] columns", C_MODULE_NAME, LogMsgType.Info
     End With
@@ -486,7 +483,8 @@ setup:
                 
 End Function
 
-Public Sub CreateTables(Optional wbTmp As Workbook)
+Public Sub CreateTables(Optional wbTmp As Workbook, _
+                        Optional bShowFilter As Boolean = False)
 
 Dim dTables As Dictionary
 Dim sTableName As Variant
@@ -508,7 +506,7 @@ setup:
     Set dTables = dDefinitions.Item("tables")
     For Each sTableName In dTables.Keys()
         iCount = iCount + 1
-        CreateTable CStr(sTableName), wbTmp:=wbTmp
+        CreateTable CStr(sTableName), wbTmp:=wbTmp, bShowFilter:=bShowFilter
         
     Next sTableName
 

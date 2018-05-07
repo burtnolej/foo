@@ -62,7 +62,7 @@ main:
     
         Set rTarget = .Range(.Cells(4, 2), .Cells(4, 2))
         rTarget = "David"
-        Validate ActiveWorkbook, sTargetSheetName, rTarget
+        Validate clsQuadRuntime.AddBook, sTargetSheetName, rTarget
         'Validate clsQuadRuntime.AddBook, sTargetSheetName, rTarget
     
         If GetBgColor(sTargetSheetName, rTarget).AsString <> "0,255,0" Then
@@ -81,7 +81,7 @@ main:
 
         Set rTarget = .Range(.Cells(2, 2), .Cells(2, 2))
         rTarget = "Bruno"
-        Validate ActiveWorkbook, sTargetSheetName, rTarget
+        Validate clsQuadRuntime.AddBook, sTargetSheetName, rTarget
         'Validate clsQuadRuntime.AddBook, sTargetSheetName, rTarget
     
         If GetBgColor(sTargetSheetName, rTarget).AsString <> "0,255,0" Then
@@ -153,7 +153,7 @@ main:
     
         Set rTarget = .Range(.Cells(2, 2), .Cells(2, 2))
         rTarget = "Bruno"
-        Validate ActiveWorkbook, sTargetSheetName, rTarget
+        Validate clsQuadRuntime.AddBook, sTargetSheetName, rTarget
     
         If GetBgColor(sTargetSheetName, rTarget).AsString <> "0,255,0" Then
             eTestResult = TestResult.Failure
@@ -567,7 +567,7 @@ main:
 
     GenerateForms clsQuadRuntime, dDefaultValues:=dDefaultValues
     
-    Set rText = clsQuadRuntime.ViewBook.Sheets("ViewStudent").Range("C3:C3")
+    Set rText = clsQuadRuntime.ViewBook.Sheets("ViewStudent").Range("C4:C4")
     
     If rText.Name.Name <> "ViewStudent!tViewStudent_sStudentFirstNm" Then
         eTestResult = TestResult.Failure
@@ -593,7 +593,80 @@ teardown:
     clsQuadRuntime.Delete
 
 End Function
+Function TestGenerateViewSelectForm() As TestResult
+' multiple Add forms
+Dim sSheetName As String, sResultStr As String, sFuncName As String, sDefn As String, sSearchCode As String, sModuleCode As String, sExpectedResultStr As String
+Dim vSource() As String
+Dim wsTmp As Worksheet
+Dim rTarget As Range, rAdd As Range, rButton As Range
+Dim dDefinitions As Dictionary, dDefnDetails As Dictionary, dDefaultValues As New Dictionary, dTmp As New Dictionary
+Dim eTestResult As TestResult
+Dim clsQuadRuntime As New Quad_Runtime
 
+setup:
+    clsQuadRuntime.InitProperties bInitializeCache:=True
+    'On Error GoTo err:
+    sFuncName = CsModuleName & "." & "TestGenerateMenuForm"
+    sSheetName = "test"
+    Set wsTmp = CreateSheet(clsQuadRuntime.TemplateBook, sSheetName, bOverwrite:=True)
+    sDefn = "ViewStudent^^sStudentFirstNm^String^IsMember^&get_person_student^sStudentFirstNm^&UpdateForm^Selector" & DOUBLEDOLLAR
+    sDefn = sDefn & "ViewStudent^^sStudentFirstNm^^^^^^Text" & DOUBLEDOLLAR
+    sDefn = sDefn & "ViewStudent^^idStudent^^^^^^Text" & DOUBLEDOLLAR
+    sDefn = sDefn & "ViewStudent^^idPrep^^^^^^Text" & DOUBLEDOLLAR
+    sDefn = sDefn & "AddStudent^person_student^sStudentFirstNm^String^^^^^Entry" & DOUBLEDOLLAR
+    sDefn = sDefn & "AddStudent^person_student^sStudentLastNm^String^^^^^Entry" & DOUBLEDOLLAR
+    sDefn = sDefn & "AddStudent^person_student^idStudent^Integer^^^^^Entry" & DOUBLEDOLLAR
+    sDefn = sDefn & "AddStudent^person_student^idPrep^Integer^IsValidPrep^^^^Entry" & DOUBLEDOLLAR
+    sDefn = sDefn & "AddStudent^person_student^sPrepNm^String^^^^^Entry"
+     
+    vSource = Init2DStringArrayFromString(sDefn)
+
+    Set rTarget = RangeFromStrArray(vSource, wsTmp, 0, 1)
+    CreateNamedRange clsQuadRuntime.TemplateBook, rTarget.Address, sSheetName, "Definitions", "True"
+    Set Add_Utils.dDefinitions = LoadDefinitions(wsTmp, rSource:=rTarget)
+
+    dTmp.Add "sStudentFirstNm", "Jon"
+    dTmp.Add "idStudent", "666"
+    dTmp.Add "idPrep", "3"
+    dDefaultValues.Add "ViewStudent", dTmp
+    
+main:
+
+    GenerateForms clsQuadRuntime, dDefaultValues:=dDefaultValues
+    
+    EventsToggle True
+    With clsQuadRuntime.ViewBook.Sheets("ViewStudent")
+        Set rTarget = .Range(.Cells(2, 3), .Cells(2, 3))
+        rTarget = "Bruno"
+        Validate clsQuadRuntime.ViewBook, "ViewStudent", rTarget
+    End With
+
+    Set rText = clsQuadRuntime.ViewBook.Sheets("ViewStudent").Range("C4:C4")
+    
+    If rText.Name.Name <> "ViewStudent!tViewStudent_sStudentFirstNm" Then
+        eTestResult = TestResult.Failure
+        GoTo teardown
+    End If
+    
+    If rText.value <> "Bruno" Then
+        eTestResult = TestResult.Failure
+        GoTo teardown
+    End If
+    
+    eTestResult = TestResult.OK
+    On Error GoTo 0
+    GoTo teardown
+    
+err:
+    eTestResult = TestResult.Error
+    
+teardown:
+    TestGenerateViewSelectForm = eTestResult
+    DeleteForms wbTmp:=clsQuadRuntime.AddBook
+    DeleteSheet clsQuadRuntime.AddBook, sSheetName
+    clsQuadRuntime.Delete
+
+End Function
 
 
 Function TestGenerateViewListForm() As TestResult
@@ -1070,7 +1143,7 @@ setup:
     Set Add_Utils.dDefinitions = LoadDefinitions(wsTmp, rSource:=rTarget, bIgnoreCellType:=True)
     
     sKey = "e" & sSheetName & "_" & sFieldName1
-    GenerateWidget clsQuadRuntime, sSheetName, wbTmp:=clsQuadRuntime.AddBook
+    GenerateForm clsQuadRuntime, sSheetName, wbTmp:=clsQuadRuntime.AddBook
     Set rInput = wsTmp.Range(sKey)
     rInput.value = 123
     bResult = Validate(clsQuadRuntime.AddBook, sSheetName, rInput)
