@@ -604,10 +604,11 @@ Dim eTestResult As TestResult
 Dim clsQuadRuntime As New Quad_Runtime
 
 setup:
-    clsQuadRuntime.InitProperties bInitializeCache:=True
+    sSheetName = "test"
+    clsQuadRuntime.InitProperties bInitializeCache:=True, sDefinitionSheetName:=sSheetName
     'On Error GoTo err:
     sFuncName = CsModuleName & "." & "TestGenerateMenuForm"
-    sSheetName = "test"
+    
     Set wsTmp = CreateSheet(clsQuadRuntime.TemplateBook, sSheetName, bOverwrite:=True)
     sDefn = "ViewStudent^^sStudentFirstNm^String^IsMember^&get_person_student^sStudentFirstNm^&UpdateForm^Selector" & DOUBLEDOLLAR
     sDefn = sDefn & "ViewStudent^^sStudentFirstNm^^^^^^Text" & DOUBLEDOLLAR

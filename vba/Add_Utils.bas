@@ -871,6 +871,7 @@ Dim sCode As String, sFieldName As String, sFuncName As String, sCallbackFunc As
 Dim rCell As Range, rButton As Range
 Dim vGenerated() As String
 Dim wbTmp As Workbook, wbTarget As Workbook
+Dim eCellType As CellType
 
 setup:
     sFuncName = C_MODULE_NAME & "." & "GenerateForms"
@@ -915,35 +916,37 @@ setup:
         End If
     
         Set wsTmp = CreateSheet(wbTarget, CStr(sAction), bOverwrite:=True)
-            
-        sCode = GetEntryCallbackCode(clsQuadRuntime, CStr(sAction), wbTarget.Name)
         
-        ' Generate entry widgets
-        FormatAddForm clsQuadRuntime, CStr(sAction), sFormType:=sFormType
-        If sFormType = "ViewList" Then
-            GenerateForm clsQuadRuntime, CStr(sAction), wbTmp:=wbTarget, vValues:=vValues, _
-                eCellType:=CellType.ListText, sFormType:=sFormType
-        Else
-            GenerateForm clsQuadRuntime, CStr(sAction), wbTmp:=wbTarget, dDefaultValues:=dDefaultValues
-            GenerateForm clsQuadRuntime, CStr(sAction), wbTmp:=wbTarget, dDefaultValues:=dDefaultValues, eCellType:=CellType.Text, sFormType:=sFormType
-            vGenerated = GenerateForm(clsQuadRuntime, CStr(sAction), wbTmp:=wbTarget, dDefaultValues:=dDefaultValues, eCellType:=CellType.Button, sFormType:=sFormType)
-            GenerateForm clsQuadRuntime, CStr(sAction), wbTmp:=wbTarget, dDefaultValues:=dDefaultValues, eCellType:=CellType.Selector, sFormType:=sFormType
+        For i = 1 To UBound(Split(C_CELL_TYPE, COMMA)) + 1
+            eCellType = i
 
-            If IsEmptyArray(vGenerated) = False Then
-                sCode = GenerateCallbackCode(clsQuadRuntime, vGenerated, CStr(sAction), sCurrentCode:=sCode, wbTmp:=wbTarget)
+            sCode = GetEntryCallbackCode(clsQuadRuntime, CStr(sAction), wbTarget.Name, eCellType:=eCellType)
+            FormatAddForm clsQuadRuntime, CStr(sAction), sFormType:=sFormType
+            
+            If eCellType = CellType.ListText Then
+                GenerateForm clsQuadRuntime, CStr(sAction), wbTmp:=wbTarget, vValues:=vValues, eCellType:=eCellType, sFormType:=sFormType
+            ElseIf eCellType = CellType.Text Then
+                GenerateForm clsQuadRuntime, CStr(sAction), wbTmp:=wbTarget, dDefaultValues:=dDefaultValues, eCellType:=eCellType, sFormType:=sFormType
+            ElseIf eCellType = CellType.Button Then
+                vGenerated = GenerateForm(clsQuadRuntime, CStr(sAction), wbTmp:=wbTarget, dDefaultValues:=dDefaultValues, eCellType:=eCellType, sFormType:=sFormType)
+                If IsEmptyArray(vGenerated) = False Then
+                    sCode = GenerateCallbackCode(clsQuadRuntime, vGenerated, CStr(sAction), sCurrentCode:=sCode, wbTmp:=wbTarget)
+                End If
+                AddCode2Module wbTarget, wsTmp.CodeName, sCode
+            ElseIf eCellType = CellType.Selector Then
+                GenerateForm clsQuadRuntime, CStr(sAction), wbTmp:=wbTarget, dDefaultValues:=dDefaultValues, eCellType:=eCellType, sFormType:=sFormType
+            ElseIf eCellType = CellType.Entry Then
+                GenerateForm clsQuadRuntime, CStr(sAction), wbTmp:=wbTarget, dDefaultValues:=dDefaultValues
             End If
             
-            AddCode2Module wbTarget, wsTmp.CodeName, sCode
-            
-            ' add a caller module so can simulate change events more reliably
-            sCode = GetCallerModuleCode
-            
-            ' will already exist if more than 1 entry
-            If ModuleExists(wbTarget, "change_event_invoker") = False Then
-                CreateModule wbTarget, "change_event_invoker", sCode
+            If eCellType = CellType.Button Or eCellType = CellType.Entry Then
+                sCode = GetCallerModuleCode
+                ' will already exist if more than 1 entry
+                If ModuleExists(wbTarget, "change_event_invoker") = False Then
+                    CreateModule wbTarget, "change_event_invoker", sCode
+                End If
             End If
-        End If
-        
+        Next i
         HideForm CStr(sAction)
         FuncLogIt sFuncName, "Generated Form for action [" & sAction & "]", C_MODULE_NAME, LogMsgType.Info
 nextaction:

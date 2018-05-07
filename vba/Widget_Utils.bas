@@ -26,7 +26,7 @@ Enum CellType
     Selector = 5
 End Enum
 
-Const C_CELL_TYPE = "Button,Entry,Text,ListText,Selector"
+Public Const C_CELL_TYPE = "Button,Entry,Text,ListText,Selector"
 
 Enum CellDimension
     Hz = 1
@@ -34,7 +34,6 @@ Enum CellDimension
 End Enum
 
 Const C_CELL_TYPE_STATE = "Entry,Button,Text,ListText,Selector"
-
 Function EnumCellType(i As Long) As String
     EnumCellType = Split(C_CELL_TYPE, COMMA)(i - 1)
 End Function
