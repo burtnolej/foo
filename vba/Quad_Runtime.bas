@@ -113,7 +113,7 @@ Dim sCachedValue As String, sOrigValue As String, sConstValue As String
 Dim sFuncName As String
 
 setup:
-    sFuncName = "BookPath"
+    sFuncName = C_MODULE_NAME & "." & "BookPath"
     sConstValue = cBookPath
     
 main:
@@ -154,7 +154,7 @@ Dim sCachedValue As String, sOrigValue As String, sConstValue As String
 Dim sFuncName As String
 
 setup:
-    sFuncName = "BookName"
+    sFuncName = C_MODULE_NAME & "." & "BookName"
     sConstValue = cBookName
 
 main:
@@ -191,7 +191,7 @@ Dim sCachedValue As String, sOrigValue As String, sConstValue As String
 Dim sFuncName As String
 
 setup:
-    sFuncName = "CacheBookPath"
+    sFuncName = C_MODULE_NAME & "." & "CacheBookPath"
     sConstValue = cCacheBookPath
     
     'If DirExists(value) <> True Then
@@ -215,19 +215,10 @@ Dim sCachedValue As String, sOrigValue As String, sConstValue As String
 Dim sFuncName As String
 
 setup:
-    sFuncName = "CacheBookName"
+    sFuncName = C_MODULE_NAME & "." & "CacheBookName"
     sConstValue = cCacheBookName
     
-    'If Me.CacheBookPath = "" Then
-    '     err.Raise ErrorMsgType.DEPENDENT_ATTR_NOT_SET, Description:="CacheBookPath needs to be set before CacheBookName"
-    'End If
-    
-    'If FileExists(Me.CacheBookPath & "\\" & value) = False Then
-    '    err.Raise ErrorMsgType.BAD_ARGUMENT, Description:="CacheBookName file does not exist [" & value & "]"
-    'End If
     pCacheBookName = GetUpdatedValue(sFuncName, sConstValue, value)
-    
-    'Me.CacheBook = OpenBook(Me.CacheBookName, sPath:=Me.CacheBookPath)
     
 End Property
 Public Property Get CacheRangeName() As String
@@ -238,7 +229,7 @@ Dim sCachedValue As String, sOrigValue As String, sConstValue As String
 Dim sFuncName As String
 
 setup:
-    sFuncName = "CacheRangeName"
+    sFuncName = C_MODULE_NAME & "." & "CacheRangeName"
     sConstValue = cCacheRangeName
     
     pCacheRangeName = GetUpdatedValue(sFuncName, sConstValue, value)
@@ -246,8 +237,6 @@ setup:
     If Me.CacheBookName = "" Then
          err.Raise ErrorMsgType.DEPENDENT_ATTR_NOT_SET, Description:="CacheBookName needs to be set before CacheBookRangeName"
     End If
-    
-    
     
 End Property
 ' END Cache ------------------
@@ -279,7 +268,7 @@ Dim sCachedValue As String, sOrigValue As String, sConstValue As String
 Dim sFuncName As String
 
 setup:
-    sFuncName = "TemplateBookPath"
+    sFuncName = C_MODULE_NAME & "." & "TemplateBookPath"
     sConstValue = cTemplateBookPath
     
     pTemplateBookPath = GetUpdatedValue(sFuncName, sConstValue, value)
@@ -299,7 +288,7 @@ Dim sCachedValue As String, sOrigValue As String, sConstValue As String
 Dim sFuncName As String
 
 setup:
-    sFuncName = "TemplateBookName"
+    sFuncName = C_MODULE_NAME & "." & "TemplateBookName"
     sConstValue = cTemplateBookName
     
     pTemplateBookName = GetUpdatedValue(sFuncName, sConstValue, value)
@@ -324,7 +313,7 @@ Dim sCachedValue As String, sOrigValue As String, sConstValue As String
 Dim sFuncName As String
 
 setup:
-    sFuncName = "TemplateSheetName"
+    sFuncName = C_MODULE_NAME & "." & "TemplateSheetName"
     sConstValue = cTemplateSheetName
     
     If Me.TemplateBookName = "" Then
@@ -344,7 +333,7 @@ Dim sCachedValue As String, sOrigValue As String, sConstValue As String
 Dim sFuncName As String
 
 setup:
-    sFuncName = "TemplateCellSheetName"
+    sFuncName = C_MODULE_NAME & "." & "TemplateCellSheetName"
     sConstValue = cTemplateCellSheetName
     
     If Me.TemplateBookName = "" Then
@@ -373,7 +362,7 @@ Dim sCachedValue As String, sOrigValue As String, sConstValue As String
 Dim sFuncName As String
 
 setup:
-    sFuncName = "ScheduleBookPath"
+    sFuncName = C_MODULE_NAME & "." & "ScheduleBookPath"
     sConstValue = cScheduleBookPath
     
     pScheduleBookPath = GetUpdatedValue(sFuncName, sConstValue, value)
@@ -391,7 +380,7 @@ Dim sCachedValue As String, sOrigValue As String, sConstValue As String
 Dim sFuncName As String
 
 setup:
-    sFuncName = "ScheduleBookName"
+    sFuncName = C_MODULE_NAME & "." & "ScheduleBookName"
     sConstValue = cScheduleBookName
     
     pScheduleBookName = GetUpdatedValue(sFuncName, sConstValue, value)
@@ -414,7 +403,7 @@ Dim sCachedValue As String, sOrigValue As String, sConstValue As String
 Dim sFuncName As String
 
 setup:
-    sFuncName = "ViewBookPath"
+    sFuncName = C_MODULE_NAME & "." & "ViewBookPath"
     sConstValue = cViewBookPath
     
     pViewBookPath = GetUpdatedValue(sFuncName, sConstValue, value)
@@ -432,7 +421,7 @@ Dim sCachedValue As String, sOrigValue As String, sConstValue As String
 Dim sFuncName As String
 
 setup:
-    sFuncName = "ViewBookName"
+    sFuncName = C_MODULE_NAME & "." & "ViewBookName"
     sConstValue = cViewBookName
     
     pViewBookName = GetUpdatedValue(sFuncName, sConstValue, value)
@@ -454,7 +443,7 @@ Dim sCachedValue As String, sOrigValue As String, sConstValue As String
 Dim sFuncName As String
 
 setup:
-    sFuncName = "MenuBookPath"
+    sFuncName = C_MODULE_NAME & "." & "MenuBookPath"
     sConstValue = cMenuBookPath
     
     pMenuBookPath = GetUpdatedValue(sFuncName, sConstValue, value)
@@ -473,7 +462,7 @@ Dim sCachedValue As String, sOrigValue As String, sConstValue As String
 Dim sFuncName As String
 
 setup:
-    sFuncName = "MenuBookName"
+    sFuncName = C_MODULE_NAME & "." & "MenuBookName"
     sConstValue = cMenuBookName
     
     pMenuBookName = GetUpdatedValue(sFuncName, sConstValue, value)
@@ -496,7 +485,7 @@ Dim sCachedValue As String, sOrigValue As String, sConstValue As String
 Dim sFuncName As String
 
 setup:
-    sFuncName = "AddBookPath"
+    sFuncName = C_MODULE_NAME & "." & "AddBookPath"
     sConstValue = cAddBookPath
     
     pAddBookPath = GetUpdatedValue(sFuncName, sConstValue, value)
@@ -515,7 +504,7 @@ Dim sCachedValue As String, sOrigValue As String, sConstValue As String
 Dim sFuncName As String
 
 setup:
-    sFuncName = "AddBookName"
+    sFuncName = C_MODULE_NAME & "." & "AddBookName"
     sConstValue = cAddBookName
     
     pAddBookName = GetUpdatedValue(sFuncName, sConstValue, value)
@@ -531,7 +520,7 @@ Dim sCachedValue As String, sOrigValue As String, sConstValue As String
 Dim sFuncName As String
 
 setup:
-    sFuncName = "BookEnum"
+    sFuncName = C_MODULE_NAME & "." & "BookEnum"
     sConstValue = cBookEnum
 main:
     pBookEnum = GetUpdatedValue(sFuncName, sConstValue, value)
@@ -544,7 +533,7 @@ Dim sCachedValue As String, sOrigValue As String, sConstValue As String
 Dim sFuncName As String
 
 setup:
-    sFuncName = "DayEnum"
+    sFuncName = C_MODULE_NAME & "." & "DayEnum"
     sConstValue = cDayEnum
 main:
     pDayEnum = GetUpdatedValue(sFuncName, sConstValue, value)
@@ -557,7 +546,7 @@ Dim sCachedValue As String, sOrigValue As String, sConstValue As String
 Dim sFuncName As String
 
 setup:
-    sFuncName = "PeriodEnum"
+    sFuncName = C_MODULE_NAME & "." & "PeriodEnum"
     sConstValue = cPeriodEnum
 main:
     pPeriodEnum = GetUpdatedValue(sFuncName, sConstValue, value)
@@ -570,7 +559,7 @@ Dim sCachedValue As String, sOrigValue As String, sConstValue As String
 Dim sFuncName As String
 
 setup:
-    sFuncName = "DefinitionSheetName"
+    sFuncName = C_MODULE_NAME & "." & "DefinitionSheetName"
     sConstValue = cDefinitionSheetName
     
 main:
@@ -584,7 +573,7 @@ Dim sCachedValue As String, sOrigValue As String, sConstValue As String
 Dim sFuncName As String
 
 setup:
-    sFuncName = "FileName"
+    sFuncName = C_MODULE_NAME & "." & "FileName"
     sConstValue = cFileName
     
     pFileName = GetUpdatedValue(sFuncName, sConstValue, value)
@@ -603,7 +592,7 @@ Dim sCachedValue As String, sOrigValue As String, sConstValue As String, sTmpVal
 Dim sFuncName As String
 
 setup:
-    sFuncName = "DatabasePath"
+    sFuncName = C_MODULE_NAME & "." & "DatabasePath"
     sConstValue = cDatabasePath
     
     pDatabasePath = GetUpdatedValue(sFuncName, sConstValue, value)
@@ -625,7 +614,7 @@ Public Property Let ResultFileName(value As String)
 Dim sCachedValue As String, sOrigValue As String, sConstValue As String, sTmpValue As String
 Dim sFuncName As String
 setup:
-    sFuncName = "ResultFileName"
+    sFuncName = C_MODULE_NAME & "." & "ResultFileName"
     sConstValue = cResultFileName
     
     pResultFileName = GetUpdatedValue(sFuncName, sConstValue, value)
@@ -643,7 +632,7 @@ Public Property Let QuadRuntimeCacheFileName(value As String)
 Dim sCachedValue As String, sOrigValue As String, sConstValue As String, sTmpValue As String
 Dim sFuncName As String
 setup:
-    sFuncName = "QuadRuntimeCacheFileName"
+    sFuncName = C_MODULE_NAME & "." & "QuadRuntimeCacheFileName"
     sConstValue = cQuadRuntimeCacheFileName
 main:
     pQuadRuntimeCacheFileName = GetUpdatedValue(sFuncName, sConstValue, value)
@@ -680,7 +669,7 @@ Public Property Let RuntimeDir(value As String)
 Dim sCachedValue As String, sOrigValue As String, sConstValue As String, sTmpValue As String
 Dim sFuncName As String
 setup:
-    sFuncName = "RuntimeDir"
+    sFuncName = C_MODULE_NAME & "." & "RuntimeDir"
     sConstValue = cRuntimeDir
     
     pRuntimeDir = GetUpdatedValue(sFuncName, sConstValue, value)
@@ -699,7 +688,7 @@ Public Property Let ExecPath(value As String)
 Dim sCachedValue As String, sOrigValue As String, sConstValue As String, sTmpValue As String
 Dim sFuncName As String
 setup:
-    sFuncName = "ExecPath"
+    sFuncName = C_MODULE_NAME & "." & "ExecPath"
     sConstValue = cExecPath
     
     pExecPath = GetUpdatedValue(sFuncName, sConstValue, value)
@@ -729,13 +718,13 @@ Dim sCachedValue As String, sOrigValue As String
     If sCachedValue <> " " Then
         sOrigValue = value
         value = sCachedValue
-        FuncLogIt "Let_" & sFuncName, "retreived value from overide cache file to [" & sCachedValue & "] instead of [" & sOrigValue & "]", C_MODULE_NAME, LogMsgType.INFO
+        FuncLogIt sFuncName, "retreived value from overide cache file to [" & sCachedValue & "] instead of [" & sOrigValue & "]", C_MODULE_NAME, LogMsgType.INFO
     Else
         If value = "" Then
             'using default value
             value = sConstValue
         ElseIf value <> sConstValue Then
-            FuncLogIt "Let_" & sFuncName, "overidden to [" & value & "] default was [" & sConstValue & "]", C_MODULE_NAME, LogMsgType.INFO
+            FuncLogIt sFuncName, "overidden to [" & value & "] default was [" & sConstValue & "]", C_MODULE_NAME, LogMsgType.INFO
             PersistOverride sFuncName, value
         End If
     End If
@@ -763,6 +752,10 @@ Dim iRow As Integer
 Dim vCurrentState() As String
 Dim sCurrentValue As String
 
+    If UBound(Split(sFuncName, PERIOD)) > 0 Then ' funcname can be of form Module.FuncName or just FuncName
+        sFuncName = Split(sFuncName, PERIOD)(1)
+    End If
+    
     iRow = GetAttrEnum(sFuncName)
     vCurrentState = ReadFile2Array(Me.QuadRuntimeCacheFileName, bSingleCol:=True)
     sCurrentValue = vCurrentState(iRow)
@@ -777,10 +770,13 @@ End Sub
 'then put into each Letter
 'then create a rehydrate option for QuadRuntime
 'then call rehydrate from validate
-Function RetreiveOverride(sFuncName As String) As String
+Function RetreiveOverride(ByVal sFuncName As String) As String
 Dim iRow As Integer
 Dim vResults() As String
 
+    If UBound(Split(sFuncName, PERIOD)) > 0 Then ' funcname can be of form Module.FuncName or just FuncName
+        sFuncName = Split(sFuncName, PERIOD)(1)
+    End If
     iRow = GetAttrEnum(sFuncName)
     vResults = Me.QuadRuntimeCacheFileArray
     RetreiveOverride = vResults(iRow)

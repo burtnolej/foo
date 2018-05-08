@@ -208,6 +208,14 @@ err:
 
 End Function
 
+Function Is2DStringArray(aTmp As Variant) As Boolean
+    Is2DStringArray = True
+    If EnumVarType(MyVarType(aTmp)) <> "vb2DStringArray2Columns" Then
+        Is2DStringArray = False
+        Exit Function
+    End If
+End Function
+
 Function NumColumns(aTmp As Variant, Optional bAssert = True) As Integer
 '''determine how many columns a 2 dimension array has. throw an exception if in array is not passed _
 :param aTmp: array, 2D array of any type _

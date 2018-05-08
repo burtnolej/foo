@@ -4,7 +4,7 @@ Const C_MODULE_NAME = "Module_Utils"
 Public Function CreateModule(xlwb As Workbook, sModuleName As String, sCode As String) As VBComponent
 Dim module As VBComponent
     Set module = xlwb.VBProject.VBComponents.Add(vbext_ct_StdModule)
-    module.Name = sModuleName
+    module.name = sModuleName
     module.CodeModule.AddFromString sCode
     Set CreateModule = module
 End Function
@@ -74,7 +74,7 @@ ReDim vModulesNames(0 To 100)
     Else
         Set VBProj = xlwb.VBProject
         For Each VBComp In VBProj.VBComponents
-            vModulesNames(iCount) = VBComp.Name
+            vModulesNames(iCount) = VBComp.name
             iCount = iCount + 1
         Next VBComp
     End If
@@ -286,7 +286,7 @@ main:
 
     Set VBProj = wb.VBProject
     For Each VBComp In VBProj.VBComponents
-        vModuleNames(iCount) = VBComp.Name
+        vModuleNames(iCount) = VBComp.name
         iCount = iCount + 1
     Next VBComp
 

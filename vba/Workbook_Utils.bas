@@ -30,7 +30,7 @@ Dim w As Variant
     DoEventsOff
     
     For Each w In Workbooks
-        If w.Name = sName Then
+        If w.name = sName Then
             Set OpenBook = w
             Exit Function
         End If
@@ -142,7 +142,7 @@ Dim wsSheet As Worksheet
     iMaxSheets = wb.Sheets.Count
     ReDim aSheets(0 To iMaxSheets - 1)
     For iCount = 1 To iMaxSheets
-        aSheets(iCount - 1) = wb.Sheets(iCount).Name
+        aSheets(iCount - 1) = wb.Sheets(iCount).name
     Next iCount
     GetSheets = aSheets
 End Function
@@ -156,7 +156,7 @@ Public Function CreateSheet(wb As Workbook, sSheetName As String, Optional bOver
     End If
     
     Set CreateSheet = wb.Sheets.Add()
-    CreateSheet.Name = sSheetName
+    CreateSheet.name = sSheetName
 End Function
 Public Function SheetIsVisible(wb As Workbook, sSheetName As String) As Boolean
 Dim sFuncName As String
@@ -254,7 +254,7 @@ main:
     Else
         If SheetExists(wb, sSheetName) = True Then
             For Each wsTmp In wb.Sheets
-                If wsTmp.Name = sSheetName Then
+                If wsTmp.name = sSheetName Then
                     'wsTmp.Visible = True
                     wsTmp.Visible = xlSheetVisible
                     wsTmp.Delete

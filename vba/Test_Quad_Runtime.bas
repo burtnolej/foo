@@ -84,7 +84,7 @@ main:
         eTestResult = TestResult.Failure
     End If
     
-    If clsQuadRuntime.BookName <> wbTmp.Name Then
+    If clsQuadRuntime.BookName <> wbTmp.name Then
         eTestResult = TestResult.Failure
     Else
         eTestResult = TestResult.OK
@@ -184,7 +184,7 @@ setup:
     sFilePath = Environ("MYHOME") & "\\quad_runtime_cache.txt"
     
 main:
-    clsQuadRuntime.InitProperties sBookPath:=sTmpBookPath, sBookName:=wbTmp.Name
+    clsQuadRuntime.InitProperties sBookPath:=sTmpBookPath, sBookName:=wbTmp.name
     If clsQuadRuntime.BookPath <> wbTmp.Path Then
         eTestResult = TestResult.Failure
     Else
@@ -248,7 +248,7 @@ setup:
     
 main:
     clsQuadRuntime.InitProperties sBookPath:=sBookPath, sBookName:=sBookName
-    If clsQuadRuntime.BookName <> ActiveWorkbook.Name Then
+    If clsQuadRuntime.BookName <> ActiveWorkbook.name Then
         eTestResult = TestResult.Failure
     Else
         eTestResult = TestResult.OK

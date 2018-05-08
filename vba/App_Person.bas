@@ -35,7 +35,7 @@ setup:
 
     Set rTarget = RangeFromStrArray(vSource, wsTmp, 0, 1)
     CreateNamedRange clsQuadRuntime.TemplateBook, rTarget.Address, sSheetName, "Definitions", "True"
-    Set Add_Utils.dDefinitions = LoadDefinitions(wsTmp, rSource:=rTarget)
+    Set Form_Utils.dDefinitions = LoadDefinitions(wsTmp, rSource:=rTarget)
 
 main:
     GenerateForms clsQuadRuntime, bLoadRefData:=True

@@ -171,7 +171,7 @@ Dim aHeaderWidths() As Integer
     
     If sCaller <> "" Then
         sTimestamp = GetDateString(Now(), "ddmmyyHHSS")
-        sBookName = ActiveWorkbook.Name
+        sBookName = ActiveWorkbook.name
         aHeaderVals = InitStringArray(Array(sTimestamp, sBookName, sCaller))
         aHeaderWidths = InitIntArray(Array(14, 10, 20))
         sLogStr = Array2String(aHeaderVals, aWidths:=aHeaderWidths, sDelim:=sDelim) & sDelim

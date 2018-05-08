@@ -16,7 +16,7 @@ Dim clsQuadRuntime As New Quad_Runtime
 
     clsQuadRuntime.InitProperties bInitializeCache:=False
 
-    Set Add_Utils.dDefinitions = LoadDefinitions(clsQuadRuntime.TemplateBook.Sheets("Definitions"), _
+    Set Form_Utils.dDefinitions = LoadDefinitions(clsQuadRuntime.TemplateBook.Sheets("Definitions"), _
                 rSource:=clsQuadRuntime.TemplateBook.Sheets("Definitions").Range("Definitions"))
                 
     Set wsCache = GetScheduleData(clsQuadRuntime, iPersonID, QuadDataType.schedule, eQuadSubDataType, bInTable:=True)
@@ -176,7 +176,7 @@ setup:
 
     Set rTarget = RangeFromStrArray(vSource, wsTmp, 0, 1)
     CreateNamedRange clsQuadRuntime.TemplateBook, rTarget.Address, sSheetName, "Definitions", "True"
-    Set Add_Utils.dDefinitions = LoadDefinitions(wsTmp, rSource:=rTarget)
+    Set Form_Utils.dDefinitions = LoadDefinitions(wsTmp, rSource:=rTarget)
 
 main:
     GenerateForms clsQuadRuntime, bLoadRefData:=True

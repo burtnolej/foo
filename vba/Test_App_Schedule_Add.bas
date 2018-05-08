@@ -47,7 +47,7 @@ main:
     GenerateScheduleAdd clsQuadRuntime
     
     EventsToggle True
-    Set Add_Utils.dDefinitions = Nothing
+    Set Form_Utils.dDefinitions = Nothing
     clsQuadRuntime.CloseRuntimeCacheFile
     
     With clsQuadRuntime.AddBook.Sheets(sTargetSheetName)
@@ -122,7 +122,7 @@ main:
     GenerateScheduleAdd clsQuadRuntime
     
     EventsToggle True
-    Set Add_Utils.dDefinitions = Nothing
+    Set Form_Utils.dDefinitions = Nothing
     clsQuadRuntime.CloseRuntimeCacheFile
 
     With clsQuadRuntime.AddBook.Sheets(sTargetSheetName)
@@ -280,7 +280,7 @@ main:
     GenerateScheduleAdd clsQuadRuntime
     
     EventsToggle True
-    Set Add_Utils.dDefinitions = Nothing
+    Set Form_Utils.dDefinitions = Nothing
     clsQuadRuntime.CloseRuntimeCacheFile
     
     'need to test that the extra row has been added
@@ -432,7 +432,7 @@ setup:
     
 main:
     ' force using "Definitions" not "test"
-    Set Add_Utils.dDefinitions = LoadDefinitions(ActiveWorkbook.Sheets("Definitions"), _
+    Set Form_Utils.dDefinitions = LoadDefinitions(ActiveWorkbook.Sheets("Definitions"), _
                 rSource:=ActiveWorkbook.Sheets("Definitions").Range("Definitions"))
 
     EditLesson 70, "M", 1

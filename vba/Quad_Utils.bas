@@ -8,6 +8,13 @@ Attribute VB_Name = "Quad_Utils"
 'Public Function SheetTableLookup()
 Const C_MODULE_NAME = "Quad_Utils"
 
+Public Const C_PREPS = "1,2,3,4,5"
+
+Enum ListType
+    Students = 1
+    Teachers = 2
+End Enum
+
 Enum QuadDataType
     schedule = 1
     person = 2
@@ -288,7 +295,7 @@ main:
     Else
         Set wsCache = GetPersonData(clsQuadRuntime, eQuadDataType, eQuadSubDataType, QuadScope.all, bInTable:=True)
     End If
-    sLookUpRangeName = GetDBColumnRange(wsCache.Name, sLookUpColName)
+    sLookUpRangeName = GetDBColumnRange(wsCache.name, sLookUpColName)
     GetColumnValues = ListFromRange(wsCache, sLookUpRangeName)
                        
 endfunc:
@@ -312,8 +319,8 @@ Dim vLookUpByValues() As String, vLookUpValues() As String
     Set wsCache = GetPersonData(clsQuadRuntime, eQuadDataType, eQuadSubDataType, QuadScope.all, _
                                     bInTable:=True)
             
-    sLookUpByRangeName = GetDBColumnRange(wsCache.Name, sLookUpByColName)
-    sLookUpRangeName = GetDBColumnRange(wsCache.Name, sLookUpColName)
+    sLookUpByRangeName = GetDBColumnRange(wsCache.name, sLookUpByColName)
+    sLookUpRangeName = GetDBColumnRange(wsCache.name, sLookUpColName)
     
     vLookUpByValues = ListFromRange(wsCache, sLookUpByRangeName)
     vLookUpValues = ListFromRange(wsCache, sLookUpRangeName)
@@ -411,7 +418,7 @@ Dim wbCache As Workbook
 Dim wsCache As Worksheet
 Dim iNumRows As Integer, iNumCols As Integer, iColCount As Integer
 Dim rTarget As Range
-Dim nData As Name
+Dim nData As name
 Dim sCacheSheetName As String
 Dim vColNames() As String
 Dim wsCurrentFocus As Worksheet

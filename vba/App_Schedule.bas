@@ -218,7 +218,7 @@ Dim sFormatTemplateRange As String
         
         rScheduleFormatTargetRange.PasteSpecial Paste:=xlPasteAll, operation:=xlNone, SkipBlanks:=False, Transpose:=False
         FormatColRowSize clsQuadRuntime.TemplateBook, clsQuadRuntime.ScheduleBook, _
-                wsSchedule.Name, clsQuadRuntime.TemplateSheetName, sFormatTemplateRange, _
+                wsSchedule.name, clsQuadRuntime.TemplateSheetName, sFormatTemplateRange, _
                 iTargetFirstRow:=iScheduleCurrentRow, iTargetFirstCol:=iScheduleCurrentCol
         
         ' evaluate the data functions to get the content
@@ -308,7 +308,7 @@ Dim vEnumValues() As String
             rScheduleFormatTargetRange.PasteSpecial Paste:=xlPasteAll, operation:=xlNone, SkipBlanks:=False, Transpose:=False
             
             FormatColRowSize clsQuadRuntime.TemplateBook, clsQuadRuntime.ScheduleBook, _
-                    wsSchedule.Name, clsQuadRuntime.TemplateSheetName, sFormatTemplateRange, _
+                    wsSchedule.name, clsQuadRuntime.TemplateSheetName, sFormatTemplateRange, _
                     iTargetFirstRow:=iScheduleCurrentRow, iTargetFirstCol:=iScheduleCurrentCol
         
             ' evaluate the data functions to get the content
@@ -325,7 +325,7 @@ Dim vEnumValues() As String
                 Set rMarker = wsSchedule.Range(.Cells(1, iScheduleCurrentCol), .Cells(1, iScheduleCurrentCol + iFormatWidth - 1))
             End If
             rMarker.value = vEnumValues(i - 1)
-            SetFgColor wsSchedule.Name, rMarker.Address, 255, 255, 255, wbTmp:=clsQuadRuntime.ScheduleBook
+            SetFgColor wsSchedule.name, rMarker.Address, 255, 255, 255, wbTmp:=clsQuadRuntime.ScheduleBook
         Next i
     End With
     

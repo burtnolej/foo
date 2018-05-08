@@ -138,7 +138,7 @@ Sub SetFont(sSheetName As String, sRange As String, sName As String, iSize As In
     
     With GetSheet(wbTmp, sSheetName)
         With .Range(sRange).Font
-            .Name = sName
+            .name = sName
             .FontStyle = sStyle
             .Size = iSize
             '.Underline = xlUnderlineStyleNone

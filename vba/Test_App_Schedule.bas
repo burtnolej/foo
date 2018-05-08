@@ -50,7 +50,7 @@ err:
     
 teardown:
     Test_BuildSchedule_Student_OverideScheduleBook = eTestResult
-    DeleteSheet clsQuadRuntime.CacheBook, wsSchedule.Name
+    DeleteSheet clsQuadRuntime.CacheBook, wsSchedule.name
     clsQuadRuntime.Delete
 
 End Function
@@ -186,7 +186,7 @@ err:
     
 teardown:
     DeleteSheet clsQuadRuntime.CacheBook, "schedule_" & EnumQuadSubDataType(QuadSubDataType.Student) & "_" & CStr(iPersonID)
-    DeleteSheet clsQuadRuntime.CacheBook, wsSchedule.Name
+    DeleteSheet clsQuadRuntime.CacheBook, wsSchedule.name
     clsQuadRuntime.Delete
     
 End Function
@@ -300,7 +300,7 @@ err:
     
 teardown:
     Test_BuildSchedule_Student_NotCached = eTestResult
-    DeleteSheet clsQuadRuntime.CacheBook, wsSchedule.Name
+    DeleteSheet clsQuadRuntime.CacheBook, wsSchedule.name
     clsQuadRuntime.Delete
     
 End Function
@@ -357,7 +357,7 @@ err:
     
 teardown:
     Test_BuildSchedule_Student_Cached = eTestResult
-    DeleteSheet clsQuadRuntime.ScheduleBook, wsSchedule.Name
+    DeleteSheet clsQuadRuntime.ScheduleBook, wsSchedule.name
     clsQuadRuntime.Delete
     
 End Function

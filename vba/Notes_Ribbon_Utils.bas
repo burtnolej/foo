@@ -126,20 +126,20 @@ Dim dControlValues As Dictionary
         Application.Run "VBASource.xlsm!DoLookupInDB", dControlValues.Item("SetDBDatabaseName"), dControlValues.Item("SetDBTableName"), _
                                                         dControlValues.Item("SetDBRange"), dControlValues.Item("SetDBSheet")
     ElseIf control.id = "Export2File" Then
-        Application.Run "VBASource.xlsm!DoRange2File", ActiveWorkbook.ActiveSheet.Name, ActiveWorkbook.Name, Selection.Address, Selection.Column, Selection.Rows.Count, _
+        Application.Run "VBASource.xlsm!DoRange2File", ActiveWorkbook.ActiveSheet.name, ActiveWorkbook.name, Selection.Address, Selection.Column, Selection.Rows.Count, _
             CBool(dControlValues.Item("sheetUtils_SetEncode")), dControlValues.Item("sheetUtils_SetFileName"), dControlValues.Item("sheetUtils_SetDelim")
     ElseIf control.id = "SetEncode" Then
         OnChange control, str(bCheckbox)
     ElseIf control.id = "sheetUtils_SetEncode" Then
         OnChange control, str(bCheckbox)
     ElseIf control.id = "GotoBottom" Then
-        Application.Run "VBASource.xlsm!ChangeFocus", "bottom", ActiveWorkbook.ActiveSheet.Name
+        Application.Run "VBASource.xlsm!ChangeFocus", "bottom", ActiveWorkbook.ActiveSheet.name
     ElseIf control.id = "ScrollUp" Then
-        Application.Run "VBASource.xlsm!ScrollWindow", "up", ActiveWorkbook.ActiveSheet.Name
+        Application.Run "VBASource.xlsm!ScrollWindow", "up", ActiveWorkbook.ActiveSheet.name
     ElseIf control.id = "ScrollDown" Then
-        Application.Run "VBASource.xlsm!ScrollWindow", "down", ActiveWorkbook.ActiveSheet.Name
+        Application.Run "VBASource.xlsm!ScrollWindow", "down", ActiveWorkbook.ActiveSheet.name
     ElseIf control.id = "ClearBelow" Then
-        Application.Run "VBASource.xlsm!ClearContentsBelow", Selection, ActiveWorkbook.ActiveSheet.Name
+        Application.Run "VBASource.xlsm!ClearContentsBelow", Selection, ActiveWorkbook.ActiveSheet.name
     ElseIf control.id = "ViewLogDir" Then
         Application.Run "VBASource.xlsm!LoadDirToRange", dControlValues.Item("SetDirName"), dControlValues.Item("SetLogSheet")
     End If

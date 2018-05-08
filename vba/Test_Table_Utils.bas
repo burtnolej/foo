@@ -66,7 +66,7 @@ setup:
     vColNames = InitStringArray(Array("FooName", "FooAge", "FooID")) ' db does not want the column headers
 main:
 
-    Set Add_Utils.dDefinitions = LoadDefinitions(wsTmp, rSource:=rTarget)
+    Set Form_Utils.dDefinitions = LoadDefinitions(wsTmp, rSource:=rTarget)
     CreateTables wbTmp:=clsQuadRuntime.CacheBook
     AddTableRecordAuto clsQuadRuntime.CacheBook, "foo", vColNames, vRows, bBulkLoad:=True
     
@@ -151,7 +151,7 @@ setup:
     vColNames = InitStringArray(Array("FooName", "FooAge"))
 main:
 
-    Set Add_Utils.dDefinitions = LoadDefinitions(wsTmp, rSource:=rTarget)
+    Set Form_Utils.dDefinitions = LoadDefinitions(wsTmp, rSource:=rTarget)
     CreateTables wbTmp:=clsQuadRuntime.CacheBook
     
     Set rTable = AddTableRecordAuto(clsQuadRuntime.CacheBook, "foo", vColNames, vRows, bBulkLoad:=True, bAddDefaultFields:=True)
@@ -234,7 +234,7 @@ setup:
     vColNames = InitStringArray(Array("FooName", "FooAge"))
 main:
 
-    Set Add_Utils.dDefinitions = LoadDefinitions(wsTmp, rSource:=rTarget)
+    Set Form_Utils.dDefinitions = LoadDefinitions(wsTmp, rSource:=rTarget)
     CreateTables wbTmp:=clsQuadRuntime.CacheBook
         
     AddTableRecordAuto clsQuadRuntime.CacheBook, "foo", vColNames, vRows, bBulkLoad:=True
@@ -304,7 +304,7 @@ setup:
 
 main:
 
-    Set Add_Utils.dDefinitions = LoadDefinitions(wsTmp, rSource:=rTarget)
+    Set Form_Utils.dDefinitions = LoadDefinitions(wsTmp, rSource:=rTarget)
     CreateTables clsQuadRuntime.CacheBook
     
     GenerateForms clsQuadRuntime
@@ -377,7 +377,7 @@ setup:
 
 main:
 
-    Set Add_Utils.dDefinitions = LoadDefinitions(wsTmp, rSource:=rTarget)
+    Set Form_Utils.dDefinitions = LoadDefinitions(wsTmp, rSource:=rTarget)
   
     CreateTables clsQuadRuntime.CacheBook
     
@@ -452,7 +452,7 @@ Dim eTestResult As TestResult
     
     Set rTarget = RangeFromStrArray(vSource, wsTmp, 0, 1)
 
-    Set Add_Utils.dDefinitions = LoadDefinitions(wsTmp, rSource:=rTarget)
+    Set Form_Utils.dDefinitions = LoadDefinitions(wsTmp, rSource:=rTarget)
     Set wsTable = CreateTable(sTableName, wbTmp:=clsQuadRuntime.CacheBook)
     
 main:
@@ -503,7 +503,7 @@ setup:
 
 main:
 
-    Set Add_Utils.dDefinitions = LoadDefinitions(wsTmp, rSource:=rTarget)
+    Set Form_Utils.dDefinitions = LoadDefinitions(wsTmp, rSource:=rTarget)
     CreateTables clsQuadRuntime.CacheBook
     GenerateForms clsQuadRuntime
         
@@ -596,7 +596,7 @@ setup:
     vRows = Init2DVariantArray([{"FooName","FooAge";"Jon","43";"Quinton","6"}])
     vColNames = InitStringArray(Array("FooName", "FooAge"))
 
-    Set Add_Utils.dDefinitions = LoadDefinitions(wsTmp, rSource:=rTarget)
+    Set Form_Utils.dDefinitions = LoadDefinitions(wsTmp, rSource:=rTarget)
     CreateTables wbTmp:=clsQuadRuntime.CacheBook
         
     AddTableRecordAuto clsQuadRuntime.CacheBook, "foo", vColNames, vRows, bBulkLoad:=True
@@ -705,7 +705,7 @@ setup:
 
 main:
 
-    Set Add_Utils.dDefinitions = LoadDefinitions(wsTmp, rSource:=rTarget)
+    Set Form_Utils.dDefinitions = LoadDefinitions(wsTmp, rSource:=rTarget)
     CreateTables clsQuadRuntime.CacheBook
     GenerateForms clsQuadRuntime
     
@@ -794,7 +794,7 @@ setup:
 
 main:
 
-    Set Add_Utils.dDefinitions = LoadDefinitions(wsTmp, rSource:=rTarget)
+    Set Form_Utils.dDefinitions = LoadDefinitions(wsTmp, rSource:=rTarget)
     CreateTables clsQuadRuntime.CacheBook
     GenerateForms clsQuadRuntime
     

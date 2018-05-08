@@ -25,8 +25,8 @@ setup:
         Set rSource = .Range(.Cells(2, 1), .Cells(2, 1))
     End With
     
-    rTarget.Name = "target"
-    rSource.Name = "source"
+    rTarget.name = "target"
+    rSource.name = "source"
 
     SetBgColor sSheetName, rSource, 255, 255, 0, wbTmp:=clsQuadRuntime.CacheBook
     CopyFormat clsQuadRuntime.Book, clsQuadRuntime.Book, _

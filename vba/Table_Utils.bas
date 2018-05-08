@@ -275,7 +275,7 @@ main:
         With wsTable
             Set rTarget = .Range(.Cells(1, 1), .Cells(iMaxRow, iMaxCol))
             rTarget = vRows
-            rTarget.Name = "data"
+            rTarget.name = "data"
         End With
         
         Set AddTableRecordAuto = rTarget
@@ -409,7 +409,7 @@ Dim sSuffix As String
     End If
     sRangeName = sSuffix & sTableName & sFieldName
         
-    CreateNamedRange wbTmp, rColumn.Address, wsTmp.Name, sRangeName, "True"
+    CreateNamedRange wbTmp, rColumn.Address, wsTmp.name, sRangeName, "True"
 End Sub
 Public Function CreateTable(sTableName As String, _
                    Optional wbTmp As Workbook, _

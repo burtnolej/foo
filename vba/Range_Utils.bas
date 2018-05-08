@@ -37,7 +37,7 @@ Public Function GetRange(sBookName As String, sSheetName As String, sAddress As 
 Dim wbTmp As Workbook
 Dim wsTmp As Worksheet
 Dim sFuncName As String, sDebugStr As String
-Dim nName As Name
+Dim nName As name
 
 setup:
     sFuncName = CsModuleName & "." & "GetRange"
@@ -70,11 +70,11 @@ Dim sFuncName As String
 
 setup:
     sFuncName = CsModuleName & "." & "ListFromRange"
-    FuncLogIt sFuncName, "[wsTmp=" & wsTmp.Name & "] [sSourceAddress=" & sSourceAddress & "]", C_MODULE_NAME, LogMsgType.INFUNC
+    FuncLogIt sFuncName, "[wsTmp=" & wsTmp.name & "] [sSourceAddress=" & sSourceAddress & "]", C_MODULE_NAME, LogMsgType.INFUNC
     On Error GoTo errorhandler
     
 main:
-    vTmpRange = GetRange(wsTmp.Parent.Name, wsTmp.Name, sSourceAddress, bNamedRange:=bNamedRange)
+    vTmpRange = GetRange(wsTmp.Parent.name, wsTmp.name, sSourceAddress, bNamedRange:=bNamedRange)
     
     For i = 1 To UBound(vTmpRange)
         If vTmpRange(i, 1) = "" Then
@@ -176,7 +176,7 @@ init:
 
 main:
     For Each name_ In wbTmp.Sheets(sSheetName).Names
-        sTmp = Split(name_.Name, "!")(1)
+        sTmp = Split(name_.name, "!")(1)
         If Left(sTmp, Len(sStartsWith)) = sStartsWith Then
             aNames(iCount) = sTmp
             iCount = iCount + 1
@@ -192,7 +192,7 @@ main:
     GetSheetNamedRanges = aNames
 End Function
 Public Function NamedRangeExists(wbTmp As Workbook, sSheetName As String, sRangeName As String) As Boolean
-Dim nTmp As Name
+Dim nTmp As name
 
     With wbTmp.Sheets(sSheetName)
         On Error GoTo err
@@ -206,7 +206,7 @@ err:
 
 End Function
 Public Sub DeleteNamedRange(wbTmp As Workbook, sSheetName As String, sRangeName As String)
-Dim nTmp As Name
+Dim nTmp As name
 Dim sFuncName As String
 
 init:
@@ -232,7 +232,7 @@ err:
 End Sub
 Public Sub CreateNamedRange(wbTmp As Workbook, sAddress As String, sSheetName As String, sRangeName As String, sLocalScope As String)
 Dim rData As Range
-Dim nrTmp As Name
+Dim nrTmp As name
 Dim sFuncName As String
 Dim sLogMsg As String
 
@@ -253,7 +253,7 @@ main:
         On Error GoTo 0
         
         If nrTmp Is Nothing Then
-            wbTmp.Sheets(sSheetName).Names.Add Name:=sRangeName, RefersTo:=rData
+            wbTmp.Sheets(sSheetName).Names.Add name:=sRangeName, RefersTo:=rData
             Exit Sub
         End If
         
@@ -261,7 +261,7 @@ main:
             nrTmp.RefersTo = rData
         End If
     Else:
-        wbTmp.Names.Update Name:=sRangeName, RefersTo:=rData
+        wbTmp.Names.Update name:=sRangeName, RefersTo:=rData
     End If
     
     FuncLogIt sFuncName, "Create range named [" & sAddress & "] in [" & sSheetName & "]", C_MODULE_NAME, LogMsgType.Error

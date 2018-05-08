@@ -310,7 +310,7 @@ Dim wsTmp As Worksheet
         sRowLabel = .Range(.Cells(iSelectionRowId, 1), .Cells(iSelectionRowId, 1)).value
         sColLabel = .Range(.Cells(1, iSelectionColId), .Cells(1, iSelectionColId)).value
     End With
-    sSheetName = wsTmp.Name
+    sSheetName = wsTmp.name
     
     On Error Resume Next
     sQuadSubDataType = Split(sSheetName, UNDERSCORE)(1)

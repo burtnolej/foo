@@ -354,7 +354,7 @@ err:
     
 teardown:
     Test_GetPersonData_Cached = eTestResult
-    DeleteSheet clsQuadRuntime.CacheBook, wsCache.Name
+    DeleteSheet clsQuadRuntime.CacheBook, wsCache.name
     clsQuadRuntime.Delete
     
 End Function
@@ -389,7 +389,7 @@ err:
     
 teardown:
     Test_GetPersonData_NotCached = eTestResult
-    DeleteSheet clsQuadRuntime.CacheBook, wsCache.Name
+    DeleteSheet clsQuadRuntime.CacheBook, wsCache.name
     clsQuadRuntime.Delete
 
 End Function

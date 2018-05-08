@@ -26,7 +26,7 @@ setup:
            
     vSource = Init2DStringArrayFromString(sDefn)
     Set rTarget = RangeFromStrArray(vSource, wsTmp, 0, 1)
-    Set Add_Utils.dDefinitions = LoadDefinitions(wsTmp, rSource:=rTarget)
+    Set Form_Utils.dDefinitions = LoadDefinitions(wsTmp, rSource:=rTarget)
     
     If CrossRefQuadData(clsQuadRuntime, QuadDataType.person, _
                     QuadSubDataType.Student, "idStudent", 1, "sStudentLastNm") <> "Gromek" Then
@@ -82,7 +82,7 @@ setup:
            
     vSource = Init2DStringArrayFromString(sDefn)
     Set rTarget = RangeFromStrArray(vSource, wsTmp, 0, 1)
-    Set Add_Utils.dDefinitions = LoadDefinitions(wsTmp, rSource:=rTarget)
+    Set Form_Utils.dDefinitions = LoadDefinitions(wsTmp, rSource:=rTarget)
     
     GetPersonDataFromDB clsQuadRuntime, QuadSubDataType.Student, eQuadScope:=QuadScope.all
     aPersonData = ParseRawData(ReadFile(clsQuadRuntime.ResultFileName))
