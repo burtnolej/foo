@@ -1,9 +1,9 @@
 Attribute VB_Name = "Workbook_Utils"
 Option Explicit
 
-' Sub       | MakeCellInteger       | (wsTmp As Worksheet, rCell As Range, Optional sTakeFocus As Boolean = False)
+' Sub       | MakeWidgetInteger       | (wsTmp As Worksheet, rWidget As Range, Optional sTakeFocus As Boolean = False)
 ' ----------------------------------------------------------------------------------------------
-' Make the format of cell [rCell] a number format of integer (so no decimal places)
+' Make the format of Widget [rWidget] a number format of integer (so no decimal places)
 
 ' Sub       | MakeCellLongDate      | (wsTmp As Worksheet, rCell As Range, Optional sTakeFocus As Boolean = False)
 ' ----------------------------------------------------------------------------------------------
@@ -93,23 +93,23 @@ Sub DeleteBook(sName As String, Optional sPath As String)
     Call DeleteFile(sName, sPath:=sPath)
     'Application.DisplayAlerts = True
 End Sub
-Public Sub MakeCellInteger(wsTmp As Worksheet, rCell As Range, Optional sTakeFocus As Boolean = False)
-Dim rCurrentCell As Range
+Public Sub MakeCellInteger(wsTmp As Worksheet, rWidget As Range, Optional sTakeFocus As Boolean = False)
+Dim rCurrentWidget As Range
 Dim wsCurrent As Worksheet
 
-    Set rCurrentCell = Selection
-    Set wsCurrent = rCurrentCell.Worksheet
+    Set rCurrentWidget = Selection
+    Set wsCurrent = rCurrentWidget.Worksheet
     
     With wsTmp
         .Activate
-        .Range(rCell.Address).Select
+        .Range(rWidget.Address).Select
         Selection.NumberFormat = "0"
     End With
     
     If sTakeFocus = False Then
         With wsCurrent
             .Activate
-            .Range(rCurrentCell.Address).Select
+            .Range(rCurrentWidget.Address).Select
         End With
     End If
 End Sub
@@ -150,13 +150,30 @@ Public Function GetSheet(wb As Workbook, sSheetName As String, Optional bOverwri
     Set GetSheet = wb.Sheets(sSheetName)
 End Function
 Public Function CreateSheet(wb As Workbook, sSheetName As String, Optional bOverwrite As Boolean) As Worksheet
+'<<<
+'purpose: create a new worksheet
+'param  : wb,Workbook; parent workbook
+'param  : sSheetName, string; name to give new sheet
+'param  : bOverwrite, boolean; delete sheet and recreate
+'rtype  : Worksheet
+'>>>
+Dim sFuncName As String
 
+setup:
+    sFuncName = C_MODULE_NAME & "." & "CreateSheet"
+    FuncLogIt sFuncName, "", C_MODULE_NAME, LogMsgType.INFUNC
+
+main:
     If SheetExists(wb, sSheetName) = True And bOverwrite = True Then
         Call DeleteSheet(wb, sSheetName)
     End If
     
     Set CreateSheet = wb.Sheets.Add()
     CreateSheet.name = sSheetName
+    
+cleanup:
+    FuncLogIt sFuncName, "[sSheetName=" & sSheetName & "] [wb=" & wb.name & "] [bOverwrite=" & CStr(bOverwrite) & "]", C_MODULE_NAME, LogMsgType.DEBUGGING2
+    FuncLogIt sFuncName, "", C_MODULE_NAME, LogMsgType.OUTFUNC
 End Function
 Public Function SheetIsVisible(wb As Workbook, sSheetName As String) As Boolean
 Dim sFuncName As String

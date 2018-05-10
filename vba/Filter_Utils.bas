@@ -35,7 +35,7 @@ Dim sText As String, sRangeName As String, sFilterCountName As String
     sFilterCountName = sSheetName & "_" & "VZFilterCount"
     
     CreateNamedRange ActiveWorkbook, rFilter.Address, sSheetName, sRangeName, "True"
-    CreateNamedRange ActiveWorkbook, "G1:G1", sSheetName, sFilterCountName, "True"
+    CreateNamedRange ActiveWorkbook, "Z1:Z1", sSheetName, sFilterCountName, "True"
     
     Call AddCode2Module(Application.ActiveWorkbook, wsTmp.CodeName, sText)
     
@@ -45,7 +45,7 @@ Dim sText As String, sRangeName As String, sFilterCountName As String
 End Sub
 Public Sub DoFilter(wbTmp As Workbook, sSheetName As String, Target As Range)
 
-    ' The Target range needs to be a cell so 1 by 1
+    ' The Target range needs to be a Widget so 1 by 1
     If IsNonBlankCell(Target) = False Then
         GoTo endsub
     End If
@@ -106,7 +106,7 @@ End Function
 
 Sub VZFilter(wbTmp As Workbook, sSheetName As String, sValue As String, iCol As Integer, _
         iLength As Integer, Optional iFilterHistColumn As Integer = 25)
-Dim rSearch As Range, rCell As Range, rHidden As Range, rArea As Range, rVisible As Range, rGroup As Range
+Dim rSearch As Range, rWidget As Range, rHidden As Range, rArea As Range, rVisible As Range, rGroup As Range
 Dim rSearchFilteredCol As Range, rSearchIndex As Range, rFilterHist As Range
 Dim vSearch() As Variant, vSearchFilteredCol() As Variant, vSearchIndex() As Variant, vFilterHist() As Variant
 Dim bNot As Boolean, bOr As Boolean, bVisible As Boolean
@@ -239,7 +239,7 @@ End Sub
 
 Sub VZFilterOld(wbTmp As Workbook, sSheetName As String, sValue As String, iCol As Integer, _
         iLength As Integer, Optional iFilterHistColumn As Integer = 25)
-Dim rSearch As Range, rCell As Range, rHidden As Range, rArea As Range, rVisible As Range, rGroup As Range
+Dim rSearch As Range, rWidget As Range, rHidden As Range, rArea As Range, rVisible As Range, rGroup As Range
 Dim rSearchFilteredCol As Range, rSearchIndex As Range, rFilterHist As Range
 Dim vSearch() As Variant, vSearchFilteredCol() As Variant, vSearchIndex() As Variant, vFilterHist() As Variant
 Dim bNot As Boolean, bOr As Boolean, bVisible As Boolean
@@ -330,7 +330,7 @@ Dim iRowNum As Integer
             Set rFilterHist = rSearch.Areas(j).Columns(iFilterHistColumn)
             
             If rSearchFilteredCol.Rows.Count = 1 And rSearchFilteredCol.Columns.Count = 1 Then
-                'special case where area is 1 cell
+                'special case where area is 1 Widget
                 ReDim vSearchFilteredCol(1 To 1, 1 To 1)
                 vSearchFilteredCol(1, 1) = rSearchFilteredCol.value
                 ReDim vSearchIndex(1 To 1, 1 To 1)

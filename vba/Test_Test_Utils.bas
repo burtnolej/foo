@@ -1,5 +1,5 @@
 Attribute VB_Name = "Test_Test_Utils"
-Const CsModuleName = "Test_Array_Utils"
+Const C_MODULE_NAME = "Test_Array_Utils"
 Function Test_EnumValueOf() As TestResult
 Dim sFuncName As String
 Dim vEnum As Variant
@@ -7,7 +7,7 @@ Dim sEnumStr As String
 
 setup:
     On Error GoTo err:
-    sFuncName = CsModuleName & ".EnumValueOf"
+    sFuncName = C_MODULE_NAME & ".EnumValueOf"
 
 main:
 
@@ -47,7 +47,7 @@ Dim sEnumStr As String
 
 setup:
     On Error GoTo err:
-    sFuncName = CsModuleName & ".EnumIterator"
+    sFuncName = C_MODULE_NAME & ".EnumIterator"
 
 main:
 

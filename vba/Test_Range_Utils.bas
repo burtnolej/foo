@@ -1,6 +1,6 @@
 Attribute VB_Name = "Test_Range_Utils"
 Option Explicit
-Const CsModuleName = "Test_Range_Utils"
+Const C_MODULE_NAME = "Test_Range_Utils"
 
 Function Test_GetRangeDimensions_Merged() As TestResult
 Dim sFuncName As String, sSheetName As String
@@ -10,7 +10,7 @@ Dim rSource As Range
 Dim iWidth As Integer, iHeight As Integer
 
 setup:
-    sFuncName = CsModuleName & "." & "ListFromRange"
+    sFuncName = C_MODULE_NAME & "." & "ListFromRange"
     sSheetName = "test"
     Set wsTmp = CreateSheet(ActiveWorkbook, sSheetName, bOverwrite:=True)
     Set rSource = wsTmp.Range("A1:C3")
@@ -52,7 +52,7 @@ Dim rSource As Range
 Dim iWidth As Integer, iHeight As Integer
 
 setup:
-    sFuncName = CsModuleName & "." & "ListFromRange"
+    sFuncName = C_MODULE_NAME & "." & "ListFromRange"
     sSheetName = "test"
     Set wsTmp = CreateSheet(ActiveWorkbook, sSheetName, bOverwrite:=True)
     Set rSource = wsTmp.Range("A1:C3")
@@ -94,7 +94,7 @@ Dim vSource() As String
 Dim vResult() As String
 
 setup:
-    sFuncName = CsModuleName & "." & "ListFromRange"
+    sFuncName = C_MODULE_NAME & "." & "ListFromRange"
     sSheetName = "test"
     Set wsTmp = CreateSheet(ActiveWorkbook, sSheetName, bOverwrite:=True)
     vSource = Init2DStringArray([{"A","B";"C","D";"E","F"}])
@@ -128,7 +128,7 @@ Dim vSource() As String
 Dim vResult() As String
 
 setup:
-    sFuncName = CsModuleName & "." & "ListFromRange"
+    sFuncName = C_MODULE_NAME & "." & "ListFromRange"
     sSheetName = "test"
     Set wsTmp = CreateSheet(ActiveWorkbook, sSheetName, bOverwrite:=True)
     vSource = Init2DStringArray([{"A","B";"C","D";"E","F"}])
@@ -164,7 +164,7 @@ Dim eTestResult As TestResult
 Dim rTarget As Range
 
 setup:
-    sFuncName = CsModuleName & "." & "IsCell"
+    sFuncName = C_MODULE_NAME & "." & "IsCell"
     sSheetName = "test"
     Set wsTmp = CreateSheet(ActiveWorkbook, sSheetName, bOverwrite:=True)
     With wsTmp
@@ -203,7 +203,7 @@ Dim eTestResult As TestResult
 Dim rTarget As Range
 
 setup:
-    sFuncName = CsModuleName & "." & "IsBlankCell"
+    sFuncName = C_MODULE_NAME & "." & "IsBlankCell"
     sSheetName = "test"
     Set wsTmp = CreateSheet(ActiveWorkbook, sSheetName, bOverwrite:=True)
     With wsTmp
@@ -242,7 +242,7 @@ Dim eTestResult As TestResult
 Dim aNames() As String
 
 setup:
-    sFuncName = CsModuleName & "." & "GetSheetNamedRanges"
+    sFuncName = C_MODULE_NAME & "." & "GetSheetNamedRanges"
     sSheetName = "test"
     Set wsTmp = CreateSheet(ActiveWorkbook, sSheetName, bOverwrite:=True)
     
@@ -284,7 +284,7 @@ Dim vResult() As Variant
 
 setup:
     'ReDim vResult(0 To 0, 0 To 2)
-    sFuncName = CsModuleName & "." & "ListFromRange"
+    sFuncName = C_MODULE_NAME & "." & "ListFromRange"
     sSheetName = "test"
     Set wsTmp = CreateSheet(ActiveWorkbook, sSheetName, bOverwrite:=True)
     vSource = Init2DVariantArray([{"A", "=A1&Row()";"",""}])
@@ -317,7 +317,7 @@ Dim vResult() As Variant
 
 setup:
     'ReDim vResult(0 To 0, 0 To 2)
-    sFuncName = CsModuleName & "." & "ListFromRange"
+    sFuncName = C_MODULE_NAME & "." & "ListFromRange"
     sSheetName = "test"
     Set wsTmp = CreateSheet(ActiveWorkbook, sSheetName, bOverwrite:=True)
     vSource = Init2DStringArray([{"A", "B", "C";"","",""}])

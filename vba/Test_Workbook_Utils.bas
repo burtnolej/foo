@@ -1,5 +1,5 @@
 Attribute VB_Name = "Test_Workbook_Utils"
-Const CsModuleName = "Test_Workbook_Utils"
+Const C_MODULE_NAME = "Test_Workbook_Utils"
 
 
 
@@ -11,7 +11,7 @@ Dim sExpectedResultStr As String
 Dim wsTmp As Worksheet
 Dim eTestResult As TestResult
 setup:
-    sFuncName = CsModuleName & "." & "CreateHiddenSheet"
+    sFuncName = C_MODULE_NAME & "." & "CreateHiddenSheet"
     sSheetName = "test"
     Set wsTmp = CreateSheet(ActiveWorkbook, sSheetName, bOverwrite:=True)
     wsTmp.Visible = xlSheetHidden
@@ -25,7 +25,7 @@ Dim sExpectedResultStr As String
 Dim wsTmp As Worksheet
 Dim eTestResult As TestResult
 setup:
-    sFuncName = CsModuleName & "." & "ShowSheet"
+    sFuncName = C_MODULE_NAME & "." & "ShowSheet"
     sSheetName = "test"
     Set wsTmp = CreateSheet(ActiveWorkbook, sSheetName, bOverwrite:=True)
 
@@ -58,7 +58,7 @@ Dim wsTmp As Worksheet
 Dim eTestResult As TestResult
 setup:
     
-    sFuncName = CsModuleName & "." & "ToggleSheet"
+    sFuncName = C_MODULE_NAME & "." & "ToggleSheet"
     sSheetName = "test"
     Set wsTmp = CreateSheet(ActiveWorkbook, sSheetName, bOverwrite:=True)
 

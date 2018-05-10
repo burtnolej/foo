@@ -1,6 +1,6 @@
 Attribute VB_Name = "Test_XML_utils"
 Option Explicit
-Const CsModuleName = "Test_XML_Utils"
+Const C_MODULE_NAME = "Test_XML_Utils"
 Function Test_CreateCustomUIXMLDocFromArray() As TestResult
 Dim eTestResult As TestResult
 Dim aXMLElement() As String, aXMLElementAttr() As String, aXMLRootElementAttr() As String
@@ -8,7 +8,7 @@ Dim sExpectedResult As String, sSchema As String, sFuncName As String
 Dim xDoc As MSXML2.DOMDocument
 
 setup:
-    sFuncName = CsModuleName & ".CreateCustomUIXMLDocFromArray"
+    sFuncName = C_MODULE_NAME & ".CreateCustomUIXMLDocFromArray"
 
     sExpectedResult = "<menu xmlns=""http://schemas.microsoft.com/office/2009/07/customui"">" & _
           "<button id=""but1"" imageMso=""Help"" label=""Help"" onAction=""HelpMacro""></button>" & _
@@ -47,7 +47,7 @@ Dim eTestResult As TestResult
 Dim dTmp As New Dictionary
 Dim xDoc As MSXML2.DOMDocument
 setup:
-    sFuncName = CsModuleName & ".CreateXMLDocfromDict"
+    sFuncName = C_MODULE_NAME & ".CreateXMLDocfromDict"
     
     
     dTmp.Add "foo", InitVariantArray(Array("bar"))
@@ -82,7 +82,7 @@ Dim aXMLElementAttr() As String
 
 Dim xDoc As MSXML2.DOMDocument
 setup:
-    sFuncName = CsModuleName & ".CreateXMLDocfromArrayWithAttributes"
+    sFuncName = C_MODULE_NAME & ".CreateXMLDocfromArrayWithAttributes"
     
     aXMLElement = Init2DStringArray([{"tag1","foo";"tag2","foo2";"tag3","foo3"}])
     aXMLElementAttr = Init2DStringArray([{"attr1","attrval1","attr2","attrval2";"","","","";"attr3","attrval3","",""}])
@@ -118,7 +118,7 @@ Dim eTestResult As TestResult
 Dim dTmp As New Dictionary
 Dim xDoc As MSXML2.DOMDocument
 setup:
-    sFuncName = CsModuleName & ".CreateXMLDocfromDictMultiValues"
+    sFuncName = C_MODULE_NAME & ".CreateXMLDocfromDictMultiValues"
     
     dTmp.Add "foo", InitVariantArray(Array("bar1", "bar2"))
     dTmp.Add "bar", InitVariantArray(Array("foo1", "foo2"))

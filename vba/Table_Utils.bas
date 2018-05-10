@@ -12,10 +12,10 @@ Attribute VB_Name = "Table_Utils"
 
 Option Explicit
 Const C_MODULE_NAME = "Table_Utils"
-Const C_DB_DEFAULT_FIELDS = "CreatedTime,LastUpdatedTime,ID,SyncState"
+Const C_DB_DEFAULT_FIELDS = "CreatedTime,LastUpdatedTime,RefNo,SyncState"
 
 Enum ColumnType
-    DB = 1
+    Db = 1
     INFO = 2
 End Enum
 
@@ -37,12 +37,12 @@ End Function
 Public Function CalcLastUpdatedTime(sTableName As String, Optional wbTmp As Workbook) As Date
     CalcLastUpdatedTime = Now()
 End Function
-Public Function CalcID(sTableName As String, Optional wbTmp As Workbook) As String
+Public Function CalcRefNo(sTableName As String, Optional wbTmp As Workbook) As String
     If IsSet(wbTmp) = False Then
         Set wbTmp = ActiveWorkbook
     End If
     
-    CalcID = "=Row()"
+    CalcRefNo = "=Row()"
                
     'CalcID = wbTmp.Sheets(sTableName).Range("i" & sTableName & "NextFree").value
 
@@ -56,27 +56,110 @@ End Sub
 Public Sub FormatCreatedTime(wsTmp As Worksheet, rCell As Range)
     MakeCellLongDate wsTmp, rCell
 End Sub
+Public Function IsWidgetRangeNameForView(sWidgetRangeName As String, sTableName As String, eWidgetType As WidgetType) As Boolean
+'<<<
+'purpose:
+'param  :
+'param  :
+'rtype  :
+'>>>
+Dim sFuncName As String, sWidgetSuffix As String
+Dim lStartTick As Long
 
+setup:
+    sFuncName = C_MODULE_NAME & "." & "IsKeyForTable"
+    lStartTick = FuncLogIt(sFuncName, "", C_MODULE_NAME, LogMsgType.INFUNC)
+    
+main:
+    IsWidgetRangeNameForView = False
+    sWidgetSuffix = LCase(Left(EnumWidgetType(eWidgetType), 1))
+    If Split(sWidgetRangeName, UNDERSCORE)(0) = sWidgetSuffix & sTableName Then
+        IsWidgetRangeNameForView = True
+    End If
+
+cleanup:
+    FuncLogIt sFuncName, "[sKey=" & sWidgetRangeName & "][sTableName=" & sTableName & "] [Result=" & CStr(IsWidgetRangeNameForView) & "]", C_MODULE_NAME, LogMsgType.DEBUGGING2
+    FuncLogIt sFuncName, "", C_MODULE_NAME, LogMsgType.OUTFUNC, lLastTick:=lStartTick
+  
+End Function
+
+Public Function GetTableWidgetKeys(sTableName As String) As String()
+'<<<
+'purpose: a field can appear in Definitions multiple times so need to eliminate dupes
+'param  :
+'param  :
+'rtype  :
+'>>>
+Dim vWidgetKeys() As String
+Dim iWidgetKeyCount As Integer
+Dim lStartTick As Long
+Dim sFuncName As String, sFieldName As String
+Dim sKey As Variant
+
+setup:
+    sFuncName = C_MODULE_NAME & "." & "GetTableWidgetKeys"
+    lStartTick = FuncLogIt(sFuncName, "", C_MODULE_NAME, LogMsgType.INFUNC)
+    ReDim vWidgetKeys(0 To 100)
+main:
+    
+    For Each sKey In dDefinitions.Keys()
+        If dDefinitions.Item(sKey).Item("db_table_name") = sTableName Then
+        
+            sFieldName = GetFieldNameFromRangeName(CStr(sKey))
+            
+            If InArray(vWidgetKeys, sFieldName, bLike:=True) = False Then
+                vWidgetKeys(iWidgetKeyCount) = CStr(sKey)
+                iWidgetKeyCount = iWidgetKeyCount + 1
+            End If
+        End If
+    Next sKey
+    
+    ReDim Preserve vWidgetKeys(0 To iWidgetKeyCount - 1)
+    GetTableWidgetKeys = vWidgetKeys
+    
+cleanup:
+    FuncLogIt sFuncName, "", C_MODULE_NAME, LogMsgType.OUTFUNC, lLastTick:=lStartTick
+    FuncLogIt sFuncName, "[sTableName=" & sTableName & "] [Result=" & CStr(UBound(GetTableWidgetKeys) + 1) & " keys]", C_MODULE_NAME, LogMsgType.DEBUGGING2
+
+End Function
+
+        
 Public Function GetDBColumnRange(ByVal sTableName, sFieldName, _
-        Optional eColumnType As ColumnType = ColumnType.DB) As String
-Dim sLookUpTableName As String
-Dim sSuffix As String
+        Optional eColumnType As ColumnType = ColumnType.Db) As String
+'<<<
+'purpose:
+'param  :
+'param  :
+'rtype  :
+'>>>
+Dim sLookUpTableName As String, sSuffix As String, sFuncName As String
+Dim lStartTick As Long
 
+setup:
+    sFuncName = C_MODULE_NAME & "." & "GetDBColumnRange"
+    lStartTick = FuncLogIt(sFuncName, "", C_MODULE_NAME, LogMsgType.INFUNC)
+    
+main:
     If Left(sTableName, 1) = "&" Then
         sTableName = Right(sTableName, Len(sTableName) - 5)
     End If
 
-    If sFieldName = "ID" Or sFieldName = "SyncState" Or sFieldName = "CreatedTime" Or sFieldName = "LastUpdatedTime" Then
+    If sFieldName = "ID" Or sFieldName = "RefNo" Or sFieldName = "SyncState" Or sFieldName = "CreatedTime" Or sFieldName = "LastUpdatedTime" Then
         eColumnType = ColumnType.INFO
     End If
     
-    If eColumnType = ColumnType.DB Then
+    If eColumnType = ColumnType.Db Then
         sSuffix = "db"
     ElseIf eColumnType = ColumnType.INFO Then
         sSuffix = "i"
     End If
     
     GetDBColumnRange = sSuffix & sTableName & sFieldName
+
+cleanup:
+    FuncLogIt sFuncName, "", C_MODULE_NAME, LogMsgType.OUTFUNC, lLastTick:=lStartTick
+    FuncLogIt sFuncName, "[sTableName=" & sTableName & "] [sFieldName=" & sFieldName & "] [Result=" & GetDBColumnRange & "]", C_MODULE_NAME, LogMsgType.DEBUGGING2
+  
 End Function
 
 Public Sub GetDirtyTableRecords(ByRef vRows() As String, sTableName As String, Optional wbTmp As Workbook)
@@ -125,6 +208,7 @@ Dim i As Integer, iNumValues As Integer
 Dim wsTable As Worksheet
 Dim sKey As Variant
 Dim dDefnDetails As Dictionary, dRecord As New Dictionary
+Dim vWidgetKeys() As String
 
 setup:
 
@@ -137,22 +221,26 @@ setup:
     
 main:
     With wsTable
-        For Each sKey In dDefinitions.Keys()
-            If dDefinitions.Item(sKey).Exists("db_table_name") = False Then
-                FuncLogIt sFuncName, "entry [" & sKey & "] does not have a \'db_table_name\' record", C_MODULE_NAME, LogMsgType.Error
-                'Exit Function
-            End If
-
-            If dDefinitions.Item(sKey).Item("db_table_name") = sTableName Then
-                Set dDefnDetails = dDefinitions.Item(sKey)
-                sFieldName = dDefnDetails.Item("db_field_name")
-                sColRange = GetDBColumnRange(sTableName, sFieldName)
-                sFieldValue = wsTable.Range(sColRange).Rows(iID + 1)
-                'sFieldValue = wsTable.Range(sColRange).Rows(iID)
-                dRecord.Add sFieldName, sFieldValue
-                iNumValues = iNumValues + 1
-            End If
-        Next sKey
+        vWidgetKeys = GetTableWidgetKeys(sTableName)
+        'For Each sKey In dDefinitions.Keys()
+        If UBound(vWidgetKeys) = 0 Then
+            FuncLogIt sFuncName, "entry [" & sKey & "] does not have a \'db_table_name\' record", C_MODULE_NAME, LogMsgType.Error
+            'Exit Function
+        End If
+            
+        For i = 0 To UBound(vWidgetKeys)
+        
+        'If dDefinitions.Item(sKey).Item("db_table_name") = sTableName Then
+            Set dDefnDetails = dDefinitions.Item(vWidgetKeys(i))
+            sFieldName = dDefnDetails.Item("db_field_name")
+            sColRange = GetDBColumnRange(sTableName, sFieldName)
+            sFieldValue = wsTable.Range(sColRange).Rows(iID + 1)
+            'sFieldValue = wsTable.Range(sColRange).Rows(iID)
+            dRecord.Add sFieldName, sFieldValue
+            iNumValues = iNumValues + 1
+        'End If
+        Next i
+       ' Next sKey
     End With
 
     If IsSet(vValues) = True Then
@@ -319,7 +407,7 @@ Dim dDefnDetails As Dictionary
 Dim wsAdd As Worksheet, wsTable As Worksheet
 Dim iNextFree As Integer, i As Integer
 Dim sColRange As String, sFuncName As String
-Dim aDefaultFields() As String
+Dim aDefaultFields() As String, vWidgetKeys() As String
 
 setup:
     sFuncName = C_MODULE_NAME & "." & "AddTableRecord"
@@ -343,14 +431,21 @@ main:
         iNextFree = wsTable.Range("i" & sTableName & "NextFree").Rows(1).value + 1
         On Error GoTo 0
 
-        For Each sKey In dDefinitions.Keys()
-            If dDefinitions.Item(sKey).Exists("db_table_name") = False Then
-                FuncLogIt sFuncName, "entry [" & sKey & "] does not have a \'db_table_name\' record", C_MODULE_NAME, LogMsgType.Error
-                Exit Function
-            End If
+        vWidgetKeys = GetTableWidgetKeys(sTableName)
+        If UBound(vWidgetKeys) = 0 Then
+            FuncLogIt sFuncName, "entry [" & sKey & "] does not have a \'db_table_name\' record", C_MODULE_NAME, LogMsgType.Error
+        End If
             
-            If dDefinitions.Item(sKey).Item("db_table_name") = sTableName Then
-                Set dDefnDetails = dDefinitions.Item(sKey)
+        For i = 0 To UBound(vWidgetKeys)
+        
+        'For Each sKey In dDefinitions.Keys()
+            'If dDefinitions.Item(sKey).Exists("db_table_name") = False Then
+            '    FuncLogIt sFuncName, "entry [" & sKey & "] does not have a \'db_table_name\' record", C_MODULE_NAME, LogMsgType.Error
+            '    Exit Function
+            'End If
+            
+            If dDefinitions.Item(vWidgetKeys(i)).Item("db_table_name") = sTableName Then
+                Set dDefnDetails = dDefinitions.Item(vWidgetKeys(i))
                 sColRange = GetDBColumnRange(sTableName, dDefnDetails.Item("db_field_name"))
 
                 If NamedRangeExists(wbCacheBook, sTableName, sColRange) = False Then
@@ -361,7 +456,8 @@ main:
                 
                 wsTable.Range(sColRange).Rows(iNextFree) = .Range(dDefnDetails.Item("address")).value
             End If
-        Next sKey
+        'Next sKey
+        Next i
         
         aDefaultFields = Split(C_DB_DEFAULT_FIELDS, ",")
         For i = 0 To UBound(aDefaultFields)
@@ -380,17 +476,30 @@ End Function
 Public Sub CreateTableColumn(wsTmp As Worksheet, iCol As Integer, ByVal sTableName As String, sFieldName As String, _
                 Optional wbTmp As Workbook, _
                 Optional vDataID As Variant, _
-                Optional eColumnType As ColumnType = ColumnType.DB, _
+                Optional eColumnType As ColumnType = ColumnType.Db, _
                 Optional iFirstDataLine As Integer = 2)
+'<<<
+'purpose: simple wrapper to launch a Student View workflow
+'param  : clsQuadRuntime,Quad_Runtime; all config controlling names of books, sheets, ranges for
+'       :                 also contains any variables that need to be passed continually
+'param  :
+'rtype  :
+'>>>
 Dim rColumn As Range
-Dim sRangeName As String
-Dim sSuffix As String
+Dim sRangeName As String, sSuffix As String, sFuncName As String
+Dim lStartTick As Long
 
+setup:
+    sFuncName = C_MODULE_NAME & "." & "CreateTableColumn"
+    lStartTick = FuncLogIt(sFuncName, "", C_MODULE_NAME, LogMsgType.INFUNC)
+    On Error GoTo err
+    
+main:
     If IsSet(wbTmp) = False Then
         Set wbTmp = ActiveWorkbook
     End If
     
-    If eColumnType = ColumnType.DB Then
+    If eColumnType = ColumnType.Db Then
         sSuffix = "db"
     ElseIf eColumnType = ColumnType.INFO Then
         sSuffix = "i"
@@ -403,20 +512,29 @@ Dim sSuffix As String
         Set rColumn = .Range(.Cells(1, iCol), .Cells(10000, iCol))
     End With
     
-    
     If IsSet(vDataID) Then
         sTableName = sTableName & UNDERSCORE & CStr(vDataID)
     End If
     sRangeName = sSuffix & sTableName & sFieldName
         
     CreateNamedRange wbTmp, rColumn.Address, wsTmp.name, sRangeName, "True"
+
+cleanup:
+    FuncLogIt sFuncName, "[iCol=" & CStr(iCol) & "] [sTableName=" & sTableName & "] [sFieldName=" & sFieldName & "]", C_MODULE_NAME, LogMsgType.DEBUGGING2
+    FuncLogIt sFuncName, "", C_MODULE_NAME, LogMsgType.OUTFUNC, lLastTick:=lStartTick
+    Exit Sub
+
+err:
+    FuncLogIt sFuncName, "[" & err.Description & "]  raised", C_MODULE_NAME, LogMsgType.Error
+    err.Raise err.Number, err.Source, err.Description ' cannot recover from this
+
 End Sub
 Public Function CreateTable(sTableName As String, _
                    Optional wbTmp As Workbook, _
                    Optional bShowFilter As Boolean = False) As Worksheet
 Dim iCol As Integer
 Dim dDefnDetail As Dictionary
-Dim vSource() As String, vTableNameSplits() As String
+Dim vSource() As String, vTableNameSplits() As String, vWidgetKeys() As String
 Dim rTarget As Range
 Dim wsTmp As Worksheet
 Dim sKey As Variant
@@ -457,14 +575,20 @@ setup:
     End If
             
     With wsTmp
-        For Each sKey In dDefinitions.Keys()
-            If dDefinitions.Item(sKey).Item("db_table_name") = sTableName Then
-                Set dDefnDetail = dDefinitions.Item(sKey)
-                iCol = iCol + 1
-                CreateTableColumn wsTmp, iCol, sTableName, dDefinitions.Item(sKey).Item("db_field_name"), wbTmp:=clsQuadRuntime.CacheBook, vDataID:=vDataID
-            End If
-        Next sKey
-        iCol = iCol + 1
+        vWidgetKeys = GetTableWidgetKeys(sTableName)
+        'For Each sKey In dDefinitions.Keys()
+        '    If dDefinitions.Item(sKey).Item("db_table_name") = sTableName Then
+        '        Set dDefnDetail = dDefinitions.Item(sKey)
+        '        iCol = iCol + 1
+        '        CreateTableColumn wsTmp, iCol, sTableName, dDefinitions.Item(sKey).Item("db_field_name"), wbTmp:=clsQuadRuntime.CacheBook, vDataID:=vDataID
+        '    End If
+        'Next sKey
+        
+        For i = 0 To UBound(vWidgetKeys)
+            CreateTableColumn wsTmp, i + 1, sTableName, dDefinitions.Item(vWidgetKeys(i)).Item("db_field_name"), wbTmp:=clsQuadRuntime.CacheBook, vDataID:=vDataID
+        Next i
+        
+        iCol = i + 1
         For i = iCol To iCol + UBound(aDefaultFields)
             CreateTableColumn wsTmp, i, sTableName, aDefaultFields(i - iCol), _
                 wbTmp:=clsQuadRuntime.CacheBook, vDataID:=vDataID, eColumnType:=ColumnType.INFO

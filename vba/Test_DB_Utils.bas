@@ -1,6 +1,6 @@
 Attribute VB_Name = "Test_DB_Utils"
 Option Explicit
-Const CsModuleName = "Test_DB_Utils"
+Const C_MODULE_NAME = "Test_DB_Utils"
 
 
 Function Test_PySqliteDBInsert() As TestResult
@@ -13,7 +13,7 @@ Dim aColumns() As String, aArgs() As String
 
 setup:
     'On Error GoTo err:
-    sFuncName = CsModuleName & "." & "PySqliteDBInsert"
+    sFuncName = C_MODULE_NAME & "." & "PySqliteDBInsert"
     sDatabaseName = "foobar"
     sTableName = "foobar"
     bDeleteFlag = False
@@ -89,7 +89,7 @@ Dim aRows() As String, aColumns() As String, aArgs() As String, aFields() As Str
 
 setup:
     On Error GoTo err:
-    sFuncName = CsModuleName & "." & "PySqliteDBInsertLarge"
+    sFuncName = C_MODULE_NAME & "." & "PySqliteDBInsertLarge"
     sDatabaseName = "foobar"
     sTableName = "foobar"
     bDeleteFlag = False
@@ -177,7 +177,7 @@ Dim eTestResult As TestResult
 
 setup:
     On Error GoTo err:
-    sFuncName = CsModuleName & "." & "PySqliteDBInfo"
+    sFuncName = C_MODULE_NAME & "." & "PySqliteDBInfo"
     sDatabaseName = "foobar"
     sTableName = "foobar"
     bDeleteFlag = False
@@ -246,7 +246,7 @@ Dim eTestResult As TestResult
 
 setup:
     On Error GoTo err:
-    sFuncName = CsModuleName & "." & "PySqliteDBCreate"
+    sFuncName = C_MODULE_NAME & "." & "PySqliteDBCreate"
     sDatabaseName = "foobar"
     sTableName = "foobar"
     bDeleteFlag = False
@@ -323,7 +323,7 @@ Dim aResult() As Variant, aRows() As Variant
 
 setup:
     On Error GoTo err:
-    sFuncName = CsModuleName & "." & "CreatePySqliteArgsFile"
+    sFuncName = C_MODULE_NAME & "." & "CreatePySqliteArgsFile"
     sDatabaseName = "foobar"
     sTableName = "foobar"
     bDeleteFlag = True
@@ -385,7 +385,7 @@ Dim vSource() As String
 
 setup:
     On Error GoTo err:
-    sFuncName = CsModuleName & "." & "AutoParseInputRange"
+    sFuncName = C_MODULE_NAME & "." & "AutoParseInputRange"
     sSheetName = "test"
     Set wsTmp = CreateSheet(ActiveWorkbook, sSheetName, bOverwrite:=True)
     vSource = Init2DStringArray([{"Text","Text";"Col1","Col2";"A","B";"A","B";"A","B";"A","B"}])
@@ -420,7 +420,7 @@ Dim aRows() As String, aColumns() As String, aArgs() As String, aFields() As Str
 
 setup:
     On Error GoTo err:
-    sFuncName = CsModuleName & "." & "PySqliteDBInsertVeryLarge"
+    sFuncName = C_MODULE_NAME & "." & "PySqliteDBInsertVeryLarge"
     sDatabaseName = "foobar"
     sTableName = "foobar"
     bDeleteFlag = False
@@ -502,7 +502,7 @@ Dim aColumns() As String, aArgs() As String
 
 setup:
     On Error GoTo err:
-    sFuncName = CsModuleName & "." & "PySqliteDBQueryResultFileUUEncode"
+    sFuncName = C_MODULE_NAME & "." & "PySqliteDBQueryResultFileUUEncode"
     sDatabaseName = "foobar"
     sTableName = "foobar"
     bDeleteFlag = False
@@ -595,7 +595,7 @@ Dim aColumns() As String, aArgs() As String, aRows() As String
 
 setup:
     On Error GoTo err:
-    sFuncName = CsModuleName & "." & "PySqliteDBQueryResultFileUUEncodeVeryLarge"
+    sFuncName = C_MODULE_NAME & "." & "PySqliteDBQueryResultFileUUEncodeVeryLarge"
     sDatabaseName = "foobar"
     sTableName = "foobar"
     bDeleteFlag = False

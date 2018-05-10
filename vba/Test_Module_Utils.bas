@@ -1,7 +1,7 @@
 Attribute VB_Name = "Test_Module_Utils"
 Option Explicit
 'Sub    TestExportModules()
-Const CsModuleName = "Test_Module_Utils"
+Const C_MODULE_NAME = "Test_Module_Utils"
 
 Function TestGetCode() As TestResult
 Dim VBProj As VBIDE.VBProject
@@ -11,7 +11,7 @@ Dim sBookName As String, sRootDirectory As String, sExportModuleDir As String, s
 Dim eTestResult As TestResult
 
 setup:
-    sFuncName = CsModuleName & "." & "GetCode"
+    sFuncName = C_MODULE_NAME & "." & "GetCode"
     sModuleName = "tmp1"
     sRootDirectory = Environ("MYHOME")
     sBookName = "tmp.xls"
@@ -26,7 +26,7 @@ setup:
     sCode = sCode & "Dim sSourceSheetName As String" & vbNewLine
     sCode = sCode & "Set wbSource = Workbooks(""vba_source_new.xlsm"")" & vbNewLine
     sCode = sCode & "Set wbTarget = Workbooks(""menu.xlsm"")" & vbNewLine
-    sCode = sCode & "sSourceSheetName = ""CellStyles""" & vbNewLine
+    sCode = sCode & "sSourceSheetName = ""WidgetStyles""" & vbNewLine
     sCode = sCode & "Application.Run ""vba_source_new.xlsm!Validate"", Application.ActiveWorkbook, Application.ActiveSheet.Name, Target" & vbNewLine
     sCode = sCode & "Application.Run ""vba_source_new.xlsm!IsRecordValid"", wbSource, wbTarget, ""MenuMain"", sSourceSheetName" & vbNewLine
     sCode = sCode & "End Sub" & vbNewLine
@@ -104,7 +104,7 @@ Dim sFuncName As String
 Dim eTestResult As TestResult
 
 setup:
-    sFuncName = CsModuleName & "." & "ImportModules"
+    sFuncName = C_MODULE_NAME & "." & "ImportModules"
     sModuleName = "tmp1"
     sRootDirectory = Environ("MYHOME")
     sBookName = "tmp.xls"
@@ -158,7 +158,7 @@ Dim sSuffix As String
 Dim eTestResult As TestResult
 
 setup:
-    sFuncName = CsModuleName & "." & "ExportModules"
+    sFuncName = C_MODULE_NAME & "." & "ExportModules"
     sDirectory = Environ("MYHOME") & "\"
     sText = "public function test() as String" & vbNewLine & _
             "   test=" & """barfoo""" & vbNewLine & _
@@ -207,7 +207,7 @@ Dim wb As Workbook
 Dim wbName As String
 
 setup:
-    sFuncName = CsModuleName & "." & "GetProcsInModules"
+    sFuncName = C_MODULE_NAME & "." & "GetProcsInModules"
     wbName = "foobar"
     
     sCode = "public function test(sFoo as string, optional sBar as string) as String" & vbNewLine & _

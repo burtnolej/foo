@@ -143,7 +143,7 @@ Dim vColumnNames As Variant, vDataRow As Variant, vColumnNamesTransposed As Vari
 Dim rColumns As Range, rData As Range, rDataRow As Range
 Dim iColumnIdx As Integer
 Dim dValues As New Dictionary
-Dim iCell As Variant
+Dim iWidget As Variant
 
     With wsDataSheet
         Set rData = .Range(sRangeName)
@@ -154,9 +154,9 @@ Dim iCell As Variant
         vColumnNamesTransposed = ConvertArrayFromRangeto1D(vColumnNames, bHz:=True)
         vDataRowTransposed = ConvertArrayFromRangeto1D(vDataRow, bHz:=True)
         
-        For iCell = 0 To UBound(vColumnNamesTransposed)
-            dValues.Add vColumnNamesTransposed(iCell), vDataRowTransposed(iCell)
-        Next iCell
+        For iWidget = 0 To UBound(vColumnNamesTransposed)
+            dValues.Add vColumnNamesTransposed(iWidget), vDataRowTransposed(iWidget)
+        Next iWidget
     End With
     
     Set Row2Dict = dValues

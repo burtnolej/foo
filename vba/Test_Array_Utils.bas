@@ -1,5 +1,5 @@
 Attribute VB_Name = "Test_Array_Utils"
-Const CsModuleName = "Test_Array_Utils"
+Const C_MODULE_NAME = "Test_Array_Utils"
 
 Public Function Test_Delim2Array_Variant() As TestResult
 Dim sFuncName As String
@@ -9,7 +9,7 @@ Dim vTmp() As Variant
 
 setup:
     On Error GoTo err:
-    sFuncName = CsModuleName & ".Init2DStringArray"
+    sFuncName = C_MODULE_NAME & ".Init2DStringArray"
     
 main:
     sTmp = "a^b^c^d$$1^2^3^4$$5^6^7^8"
@@ -49,7 +49,7 @@ Dim vTmp() As String
 
 setup:
     On Error GoTo err:
-    sFuncName = CsModuleName & ".Init2DStringArray"
+    sFuncName = C_MODULE_NAME & ".Init2DStringArray"
     
 main:
     sTmp = "a^b^c^d$$1^2^3^4$$5^6^7^8"
@@ -87,7 +87,7 @@ Dim vTmp() As String
 
 setup:
     On Error GoTo err:
-    sFuncName = CsModuleName & ".Init2DStringArray"
+    sFuncName = C_MODULE_NAME & ".Init2DStringArray"
     
 main:
     vTmp = Init2DStringArray([{"a","b","c","d";"1","2","3","4";"5","6","7","8"}])
@@ -124,7 +124,7 @@ Dim vTmp() As String
 
 setup:
     On Error GoTo err:
-    sFuncName = CsModuleName & ".Init2DStringArrayFromString"
+    sFuncName = C_MODULE_NAME & ".Init2DStringArrayFromString"
     sInputStr = "a^b^c^d$$1^2^3^4$$5^6^7^8"
     
 main:
@@ -162,7 +162,7 @@ Dim aTmp() As String
 
 setup:
     On Error GoTo err:
-    sFuncName = CsModuleName & ".NumColumns"
+    sFuncName = C_MODULE_NAME & ".NumColumns"
     ReDim aTmp(0 To 100, 0 To 3)
 
 main:
@@ -188,7 +188,7 @@ Dim aTmp() As String
 
 setup:
     On Error GoTo err:
-    sFuncName = CsModuleName & ".NumColumnsNot2DArray"
+    sFuncName = C_MODULE_NAME & ".NumColumnsNot2DArray"
     ReDim aTmp(0 To 100)
 
 main:
@@ -216,7 +216,7 @@ Dim aTmp() As Variant
 
 setup:
     On Error GoTo err:
-    sFuncName = CsModuleName & ".NumColumnsVariant"
+    sFuncName = C_MODULE_NAME & ".NumColumnsVariant"
     ReDim aTmp(0 To 100, 0 To 3)
 
 main:
@@ -246,7 +246,7 @@ Dim eTestResult As TestResult
 
 setup:
     On Error GoTo err:
-    sFuncName = CsModuleName & "." & "ReDim2DArray"
+    sFuncName = C_MODULE_NAME & "." & "ReDim2DArray"
     aTmp = Init2DStringArray([{"A","B","C","","","";"D","E","F","","","";"","","","","",""}])
     aTmpVariant = Init2DVariantArray(aTmp)
 main:
@@ -285,7 +285,7 @@ Dim eTestResult As TestResult
 
 setup:
     On Error GoTo err:
-    sFuncName = CsModuleName & "." & "ReDim2DArray"
+    sFuncName = C_MODULE_NAME & "." & "ReDim2DArray"
     ReDim aTmpVariant(1 To 3, 1 To 3)
     aTmpVariant(1, 1) = "A"
     aTmpVariant(1, 2) = "B"
@@ -331,7 +331,7 @@ Dim eTestResult As TestResult
 
 setup:
     On Error GoTo err:
-    sFuncName = CsModuleName & "." & "InArray"
+    sFuncName = C_MODULE_NAME & "." & "InArray"
     
 main:
 
@@ -369,7 +369,7 @@ Dim eTestResult As TestResult
 
 setup:
     On Error GoTo err:
-    sFuncName = CsModuleName & "." & "ArrayNDtoString"
+    sFuncName = C_MODULE_NAME & "." & "ArrayNDtoString"
     
 main:
     a2dTmp = Init2DStringArray([{"A","B";"C","D"}])
@@ -429,7 +429,7 @@ Dim bTestPassed As Boolean
 
 setup:
     On Error GoTo err:
-    sFuncName = CsModuleName & "." & "Is2DArray"
+    sFuncName = C_MODULE_NAME & "." & "Is2DArray"
     
 main:
     a2dTmp = Init2DStringArray([{"A","B";"C","D"}])
@@ -479,7 +479,7 @@ Dim eTestResult As TestResult
 
 setup:
     On Error GoTo err:
-    sFuncName = CsModuleName & "." & "HasNDimensions"
+    sFuncName = C_MODULE_NAME & "." & "HasNDimensions"
     
 main:
     vSource = Init2DStringArray([{"A","B";"C","D"}])
@@ -541,7 +541,7 @@ Dim vTarget() As String
 Dim eTestResult As TestResult
 setup:
     On Error GoTo err:
-    sFuncName = CsModuleName & "." & "ConvertArrayFromRangeto1D"
+    sFuncName = C_MODULE_NAME & "." & "ConvertArrayFromRangeto1D"
     ReDim vSource(1 To 2, 1 To 2)
 main:
     vSource(1, 1) = "A"
@@ -581,7 +581,7 @@ Dim eTestResult As TestResult
 
 setup:
     On Error GoTo err:
-    sFuncName = CsModuleName & "." & "EqualsArray"
+    sFuncName = C_MODULE_NAME & "." & "EqualsArray"
     vArray1 = Array("tmp1", "tmp2")
     vArray2 = Array("tmp1", "tmp2")
     

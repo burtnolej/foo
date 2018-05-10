@@ -1,6 +1,6 @@
 Attribute VB_Name = "Test_File_Utils"
 Option Explicit
-Const CsModuleName = "Test_File_Utils"
+Const C_MODULE_NAME = "Test_File_Utils"
 
 
 Function TestInitFileArray() As TestResult
@@ -79,7 +79,7 @@ Dim eTestResult As TestResult
 
 setup:
     On Error GoTo err:
-    sFuncName = CsModuleName & "." & "ReadFile2Array"
+    sFuncName = C_MODULE_NAME & "." & "ReadFile2Array"
     sText = "valA^valB^valC" & vbCrLf & "valA1^valB2^valC2" & vbCrLf & "valA3^valB3^valC3"
     sFilePath = Environ("MYHOME") & "\tmp.txt"
     Set oFile = CreateFile(sFilePath)
@@ -115,7 +115,7 @@ Dim sFile1Name As String, sFile2Name As String, sFile3Name As String
 
 setup:
     On Error GoTo err:
-    sFuncName = CsModuleName & "." & "FilesAreSame"
+    sFuncName = C_MODULE_NAME & "." & "FilesAreSame"
     sPath = Environ("MYHOME") & "\"
     
     sFile1Name = sPath & "file1"
@@ -165,7 +165,7 @@ Dim vExtensions() As String
 setup:
     'On Error GoTo err:
     vExtensions = InitStringArray(Array("jpg", "png"))
-    sFuncName = CsModuleName & "." & "GetFolderFiles"
+    sFuncName = C_MODULE_NAME & "." & "GetFolderFiles"
     sPath = Environ("MYHOME") & "\icon"
     CreateDir sPath
     

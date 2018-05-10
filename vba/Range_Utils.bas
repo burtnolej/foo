@@ -1,5 +1,5 @@
 Attribute VB_Name = "Range_Utils"
-Const CsModuleName = "Range_Utils"
+Const C_MODULE_NAME = "Range_Utils"
 Public Sub RangeSort(sSheetName As String, rSort As Range, Optional iStartCol As Integer, Optional aSortColumns As Variant = Null)
 
     ActiveWorkbook.Worksheets(sSheetName).Sort.SortFields.Clear
@@ -40,7 +40,7 @@ Dim sFuncName As String, sDebugStr As String
 Dim nName As name
 
 setup:
-    sFuncName = CsModuleName & "." & "GetRange"
+    sFuncName = C_MODULE_NAME & "." & "GetRange"
     FuncLogIt sFuncName, "[sBookName=" & sBookName & "] [sSheetName=" & sSheetName & "] [sAddress=" & sAddress & "]", C_MODULE_NAME, LogMsgType.INFUNC
     On Error GoTo err
 
@@ -69,7 +69,7 @@ Dim vTmpRange As Variant
 Dim sFuncName As String
 
 setup:
-    sFuncName = CsModuleName & "." & "ListFromRange"
+    sFuncName = C_MODULE_NAME & "." & "ListFromRange"
     FuncLogIt sFuncName, "[wsTmp=" & wsTmp.name & "] [sSourceAddress=" & sSourceAddress & "]", C_MODULE_NAME, LogMsgType.INFUNC
     On Error GoTo errorhandler
     
@@ -134,12 +134,24 @@ Public Function IsNonBlankCell(rCell As Range) As Boolean
 End Function
 Public Function RangeFromStrArray(vSource As Variant, wsTarget As Worksheet, _
             iRowOffset As Integer, iColOffset As Integer) As Range
-            
+'<<<
+'purpose: put a string array into a range on a worksheet; uses variant to maintain datatypes in cells
+'param  : vSource, variant; array of input values
+'param  : wsTarget, worksheet; which sheet to use
+'param  : iRowOffset/iColOffset, integer; where on sheet to put 1st cell
+'rtype  : range; created range
+'>>>
 Dim wsTmp As Worksheet
 Dim rRange As Range
-Dim iRows As Integer
-Dim iCols As Integer
+Dim iRows As Integer, iCols As Integer
+Dim sFuncName As String
+Dim lStartTick As Long
 
+setup:
+    sFuncName = CsModuleName & "." & "RangeFromStrArray"
+    lStartTick = FuncLogIt(sFuncName, "", C_MODULE_NAME, LogMsgType.INFUNC)
+
+main:
     iRows = iRowOffset + UBound(vSource) + 1 - LBound(vSource)
     iCols = iColOffset + UBound(vSource, 2) + 1 - LBound(vSource, 2)
     
@@ -149,12 +161,17 @@ Dim iCols As Integer
     End With
     
     Set RangeFromStrArray = rRange
+    
+cleanup:
+    FuncLogIt sFuncName, "[iRowOffset=" & CStr(iRowOffset) & "] [iColOffset=" & CStr(iColOffset) & "] [vSource=" & CStr(UBound(vSource) + 1) & " Rows]", C_MODULE_NAME, LogMsgType.DEBUGGING2
+    FuncLogIt sFuncName, "", C_MODULE_NAME, LogMsgType.OUTFUNC, lLastTick:=lStartTick
+    
 End Function
 Public Sub FillDown(rSource As Range, rTarget As Range)
 Dim sFuncName As String
 
 init:
-    sFuncName = CsModuleName & "." & "FillDown"
+    sFuncName = C_MODULE_NAME & "." & "FillDown"
 
 main:
 
@@ -171,7 +188,7 @@ Dim sTmp As String
 Dim sFuncName As String
 
 init:
-    sFuncName = CsModuleName & "." & "DeleteNamedRange"
+    sFuncName = C_MODULE_NAME & "." & "DeleteNamedRange"
     ReDim aNames(0 To 100)
 
 main:
@@ -210,7 +227,7 @@ Dim nTmp As name
 Dim sFuncName As String
 
 init:
-    sFuncName = CsModuleName & "." & "DeleteNamedRange"
+    sFuncName = C_MODULE_NAME & "." & "DeleteNamedRange"
 
 main:
     With wbTmp.Sheets(sSheetName)
@@ -231,13 +248,24 @@ err:
 
 End Sub
 Public Sub CreateNamedRange(wbTmp As Workbook, sAddress As String, sSheetName As String, sRangeName As String, sLocalScope As String)
+'<<<
+'purpose: create a "Named" range in the workbook
+'param  : wbTmp, workbook; target Book
+'param  : sAddress, string; co-ordinates of the range to be names
+'param  : sSheetName, string; target sheet
+'param  : sRangeName, string; what to call it
+'param  : sLocalScope, string; scoped to this worksheet or entire book "True"|"False"
+'>>>
 Dim rData As Range
 Dim nrTmp As name
-Dim sFuncName As String
-Dim sLogMsg As String
+Dim sFuncName As String, sLogMsg As String
+Dim lStartTick As Long
+
+setup:
+    sFuncName = CsModuleName & "." & "CreateNamedRange"
+    lStartTick = FuncLogIt(sFuncName, "", C_MODULE_NAME, LogMsgType.INFUNC)
 
 init:
-    sFuncName = CsModuleName & "." & "CreateNamedRange"
     Set nrTmp = Nothing
 
 main:
@@ -254,7 +282,7 @@ main:
         
         If nrTmp Is Nothing Then
             wbTmp.Sheets(sSheetName).Names.Add name:=sRangeName, RefersTo:=rData
-            Exit Sub
+            GoTo cleanup
         End If
         
         If nrTmp.RefersToRange.Address <> rData.Address Then
@@ -264,9 +292,11 @@ main:
         wbTmp.Names.Update name:=sRangeName, RefersTo:=rData
     End If
     
-    FuncLogIt sFuncName, "Create range named [" & sAddress & "] in [" & sSheetName & "]", C_MODULE_NAME, LogMsgType.Error
+    
+cleanup:
+    FuncLogIt sFuncName, "Create range [sRangeName=" & sRangeName & "] [" & sAddress & "] in [" & sSheetName & "]", C_MODULE_NAME, LogMsgType.DEBUGGING2
+    FuncLogIt sFuncName, "", C_MODULE_NAME, LogMsgType.OUTFUNC, lLastTick:=lStartTick
     Exit Sub
-
 
 err:
     FuncLogIt sFuncName, "Could not create range named [" & sAddress & "] in [" & sSheetName & "] [" & err.Description & "]", C_MODULE_NAME, LogMsgType.Error
@@ -291,5 +321,5 @@ Dim rMerge As Range
     Exit Function
 
 err:
-    err.Raise Error_Utils.NOT_SINGLE_CELL_RANGE, "range [" & rSource.Address & "] might not be a single cell"
+    err.Raise Error_Utils.NOT_SINGLE_WIDGET_RANGE, "range [" & rSource.Address & "] might not be a single cell"
 End Function

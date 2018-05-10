@@ -186,7 +186,12 @@ Public Function IsInt(iValue As Variant) As Boolean
 Dim iTmp As Integer
     On Error GoTo err
     iTmp = iValue / 10
-    IsInt = True
+    
+    If Left(iValue, 1) = 0 And Len(iValue) <> 1 Then
+        IsInt = False
+    Else
+        IsInt = True
+    End If
     On Error GoTo 0
     Exit Function
 err:

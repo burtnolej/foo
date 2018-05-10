@@ -9,12 +9,14 @@ Dim clsQuadRuntime As New Quad_Runtime
             "idStudent", iPersonID, "sStudentLastNm")
 End Function
 
-Public Function GetTableRecordID(vValue As Variant, sLookupFieldName As String) As String
+Public Function GetTableRecordID(vValue As Variant, sLookUpFieldName As String) As String
 Dim clsQuadRuntime As New Quad_Runtime
 
     clsQuadRuntime.InitProperties bInitializeCache:=False
+    'GetTableRecordID = CrossRefQuadData(clsQuadRuntime, QuadDataType.person, QuadSubDataType.Student, _
+    '    sLookUpFieldName, vValue, "ID")
     GetTableRecordID = CrossRefQuadData(clsQuadRuntime, QuadDataType.person, QuadSubDataType.Student, _
-        sLookupFieldName, vValue, "ID")
+        sLookUpFieldName, vValue, "RefNo")
 End Function
 
 

@@ -1,6 +1,6 @@
 Attribute VB_Name = "Test_Macros"
 Option Explicit
-Const CsModuleName = "Test_Macros"
+Const C_MODULE_NAME = "Test_Macros"
 
 
 Public Function Test_DoQueryDBRows() As TestResult
@@ -13,7 +13,7 @@ Dim aRows() As String, aColumns() As String, aArgs() As String, aFields() As Str
 Dim wb As Workbook
 
 setup:
-    sFuncName = CsModuleName & "." & "DoQueryDBRows"
+    sFuncName = C_MODULE_NAME & "." & "DoQueryDBRows"
     sDatabaseName = "foobar"
     sTableName = "foobar"
     bDeleteFlag = False
@@ -79,7 +79,7 @@ Dim aRows() As String, aColumns() As String, aArgs() As String, aFields() As Str
 Dim wb As Workbook
 
 setup:
-    sFuncName = CsModuleName & "." & "DoQueryDBRowsResultFile"
+    sFuncName = C_MODULE_NAME & "." & "DoQueryDBRowsResultFile"
     sDatabaseName = "foobar"
     sTableName = "foobar"
     bDeleteFlag = False
@@ -151,7 +151,7 @@ Dim aRows() As String, aColumns() As String, aArgs() As String, aFields() As Str
 Dim wb As Workbook
 
 setup:
-    sFuncName = CsModuleName & "." & "DoQueryDBRowsResultFile"
+    sFuncName = C_MODULE_NAME & "." & "DoQueryDBRowsResultFile"
     sDatabaseName = "foobar"
     sTableName = "foobar"
     bDeleteFlag = False

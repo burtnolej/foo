@@ -1,5 +1,5 @@
 Attribute VB_Name = "Test_Misc_Utils"
-Const CsModuleName = "Test_Misc_Utils"
+Const C_MODULE_NAME = "Test_Misc_Utils"
 
 
 Function Test_IsQuadRuntime() As TestResult
@@ -8,7 +8,7 @@ Dim eTestResult As TestResult
 Dim clsQuadRuntime As New Quad_Runtime
 
 setup:
-    sFuncName = CsModuleName & ".MyVarTypeEnum"
+    sFuncName = C_MODULE_NAME & ".MyVarTypeEnum"
     
 main:
     If IsQuadRuntime(clsQuadRuntime) = False Then
@@ -32,7 +32,7 @@ Dim eTestResult As TestResult
 Dim clsQuadRuntime As New RGBColor
 
 setup:
-    sFuncName = CsModuleName & ".MyVarTypeEnum"
+    sFuncName = C_MODULE_NAME & ".MyVarTypeEnum"
     
 main:
     If IsQuadRuntime(clsQuadRuntime) = True Then
@@ -57,7 +57,7 @@ Dim eTestResult As TestResult
 Dim sTmp As String
 
 setup:
-    sFuncName = CsModuleName & ".MyVarTypeEnum"
+    sFuncName = C_MODULE_NAME & ".MyVarTypeEnum"
     
 main:
     If EnumVarType(MyVarType(sTmp)) <> "vbString" Then
@@ -82,7 +82,7 @@ Dim eTestResult As TestResult
 Dim aTmp() As String
 
 setup:
-    sFuncName = CsModuleName & ".MyVarTypeEnumStrArray4Columns"
+    sFuncName = C_MODULE_NAME & ".MyVarTypeEnumStrArray4Columns"
     aTmp = Init2DStringArray([{"col1", "col2","col3";"val1","val2","val3"}])
     
 main:
@@ -109,7 +109,7 @@ Dim eTestResult As TestResult
 Dim dTmp As New Dictionary
 
 setup:
-    sFuncName = CsModuleName & ".MyVarTypeEnumDict"
+    sFuncName = C_MODULE_NAME & ".MyVarTypeEnumDict"
     
 main:
     If EnumVarType(MyVarType(dTmp)) <> "vbDict" Then
@@ -135,7 +135,7 @@ Dim eTestResult As TestResult
 Dim dTmp As New Quad_Runtime
 
 setup:
-    sFuncName = CsModuleName & ".MyVarTypeEnumQuadRuntime"
+    sFuncName = C_MODULE_NAME & ".MyVarTypeEnumQuadRuntime"
     
 main:
     If EnumVarType(MyVarType(dTmp)) <> "vbQuadRuntime" Then
@@ -162,7 +162,7 @@ Dim eTestResult As TestResult
 Dim dTmp As New Dictionary
 
 setup:
-    sFuncName = CsModuleName & ".IsDict"
+    sFuncName = C_MODULE_NAME & ".IsDict"
     
 main:
     If MyVarType(dTmp) <> 21 Then
@@ -187,7 +187,7 @@ Dim eTestResult As TestResult
 Dim aTmp() As String
 
 setup:
-    sFuncName = CsModuleName & ".MyVarTypeStringArray"
+    sFuncName = C_MODULE_NAME & ".MyVarTypeStringArray"
     aTmp = InitStringArray(Array("foo", "bar"))
 main:
     If MyVarType(aTmp) <> 23 Then
@@ -213,7 +213,7 @@ Dim eTestResult As TestResult
 Dim aTmp() As String
 
 setup:
-    sFuncName = CsModuleName & ".MyVarTypeStringArray3Columns"
+    sFuncName = C_MODULE_NAME & ".MyVarTypeStringArray3Columns"
     aTmp = Init2DStringArray([{"col1", "col2","col3";"val1","val2","val3"}])
 main:
     If MyVarType(aTmp) <> 48 Then
@@ -238,7 +238,7 @@ Dim eTestResult As TestResult
 Dim dTmp As New Dictionary
 
 setup:
-    sFuncName = CsModuleName & ".IsDict"
+    sFuncName = C_MODULE_NAME & ".IsDict"
     
 main:
     If IsDict(dTmp) = False Then
@@ -269,7 +269,7 @@ Dim eTestResult As TestResult
 Dim dTmp As String
 
 setup:
-    sFuncName = CsModuleName & ".IsDictFail"
+    sFuncName = C_MODULE_NAME & ".IsDictFail"
     
 main:
     If IsDict(dTmp) = True Then
@@ -293,7 +293,7 @@ Dim sFuncName As String
 Dim eTestResult As TestResult
 
 setup:
-    sFuncName = CsModuleName & ".IsInstanceExceptionFail"
+    sFuncName = C_MODULE_NAME & ".IsInstanceExceptionFail"
     
 main:
     On Error GoTo err
@@ -316,7 +316,7 @@ Dim sFuncName As String
 Dim eTestResult As TestResult
 
 setup:
-    sFuncName = CsModuleName & ".IsInstanceExceptionPass"
+    sFuncName = C_MODULE_NAME & ".IsInstanceExceptionPass"
     
 main:
     On Error GoTo err
@@ -339,7 +339,7 @@ Dim sFuncName As String
 Dim eTestResult As TestResult
 
 setup:
-    sFuncName = CsModuleName & ".IsInstanceFail"
+    sFuncName = C_MODULE_NAME & ".IsInstanceFail"
     
 main:
     If IsInstance("foobar", vbBoolean, sFuncName:=sFuncName, bAssert:=False) = True Then
@@ -364,7 +364,7 @@ Dim sFuncName As String
 Dim eTestResult As TestResult
 
 setup:
-    sFuncName = CsModuleName & ".IsInstancePass"
+    sFuncName = C_MODULE_NAME & ".IsInstancePass"
     
 main:
     If IsInstance(True, vbBoolean, sFuncName:=sFuncName, bAssert:=False) = False Then
@@ -388,7 +388,7 @@ Dim sFuncName As String
 Dim eTestResult As TestResult
 
 setup:
-    sFuncName = CsModuleName & ".IsEqual"
+    sFuncName = C_MODULE_NAME & ".IsEqual"
     
 main:
     If IsEqual(10, 10, sFuncName:=sFuncName, bAssert:=False) = False Then
@@ -412,7 +412,7 @@ Dim sFuncName As String, sTmp As String
 Dim eTestResult As TestResult
 
 setup:
-    sFuncName = CsModuleName & "." & "UUEncode"
+    sFuncName = C_MODULE_NAME & "." & "UUEncode"
     sTmp = Environ("MYHOME") & "''''"
 main:
 

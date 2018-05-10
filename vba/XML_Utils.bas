@@ -1,6 +1,6 @@
 Attribute VB_Name = "XML_Utils"
 Option Explicit
-Const CsModuleName = "XML_Utils"
+Const C_MODULE_NAME = "XML_Utils"
 
 Function CreateXMLDocfromDict(dTmp As Dictionary) As MSXML2.DOMDocument
 Dim vKey As Variant, vElement As Variant
@@ -43,7 +43,7 @@ Dim sFuncName As String
 
 
 setup:
-    sFuncName = CsModuleName & ".CreateXMLDocfromArray"
+    sFuncName = C_MODULE_NAME & ".CreateXMLDocfromArray"
 
     IsEqual UBound(aXMLElement), UBound(aXMLElementAttr)
     IsInstance aXMLElement, vbStringArray2Columns

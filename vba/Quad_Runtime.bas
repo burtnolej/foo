@@ -23,10 +23,10 @@ Private pCacheBook As Workbook
 Private pTemplateBookPath As String
 Private pTemplateBookName As String
 Private pTemplateSheetName As String
-Private pTemplateCellSheetName As String
+Private pTemplateWidgetSheetName As String
 Private pTemplateBook As Workbook
 Private pTemplateSheet As Worksheet
-Private pTemplateCellSheet As Worksheet
+Private pTemplateWidgetSheet As Worksheet
 
 Private pScheduleBook As Workbook
 Private pScheduleBookPath As String
@@ -79,7 +79,7 @@ Private cCacheRangeName  As String
 Private cTemplateBookPath  As String
 Private cTemplateBookName As String
 Private cTemplateSheetName  As String
-Private cTemplateCellSheetName  As String
+Private cTemplateWidgetSheetName  As String
 Private cScheduleBookPath As String
 Private cScheduleBookName As String
 Private cAddBookPath As String
@@ -248,11 +248,11 @@ End Property
 Public Property Let TemplateSheet(value As Worksheet)
     Set pTemplateSheet = value
 End Property
-Public Property Get TemplateCellSheet() As Worksheet
-    Set TemplateCellSheet = pTemplateCellSheet
+Public Property Get TemplateWidgetSheet() As Worksheet
+    Set TemplateWidgetSheet = pTemplateWidgetSheet
 End Property
-Public Property Let TemplateCellSheet(value As Worksheet)
-    Set pTemplateCellSheet = value
+Public Property Let TemplateWidgetSheet(value As Worksheet)
+    Set pTemplateWidgetSheet = value
 End Property
 Public Property Get TemplateBook() As Workbook
     Set TemplateBook = pTemplateBook
@@ -325,24 +325,24 @@ setup:
     Me.TemplateSheet = GetSheet(Me.TemplateBook, TemplateSheetName)
     
 End Property
-Public Property Get TemplateCellSheetName() As String
-    TemplateCellSheetName = pTemplateCellSheetName
+Public Property Get TemplateWidgetSheetName() As String
+    TemplateWidgetSheetName = pTemplateWidgetSheetName
 End Property
-Public Property Let TemplateCellSheetName(value As String)
+Public Property Let TemplateWidgetSheetName(value As String)
 Dim sCachedValue As String, sOrigValue As String, sConstValue As String
 Dim sFuncName As String
 
 setup:
-    sFuncName = C_MODULE_NAME & "." & "TemplateCellSheetName"
-    sConstValue = cTemplateCellSheetName
+    sFuncName = C_MODULE_NAME & "." & "TemplateWidgetSheetName"
+    sConstValue = cTemplateWidgetSheetName
     
     If Me.TemplateBookName = "" Then
          err.Raise ErrorMsgType.DEPENDENT_ATTR_NOT_SET, Description:="TemplateBookName needs to be set before CacheBookRangeName"
     End If
     
-    pTemplateCellSheetName = GetUpdatedValue(sFuncName, sConstValue, value)
+    pTemplateWidgetSheetName = GetUpdatedValue(sFuncName, sConstValue, value)
     
-    Me.TemplateCellSheet = GetSheet(Me.TemplateBook, TemplateCellSheetName)
+    Me.TemplateWidgetSheet = GetSheet(Me.TemplateBook, TemplateWidgetSheetName)
     
 End Property
 ' END Template ------------------
@@ -762,7 +762,7 @@ Dim sCurrentValue As String
     vCurrentState(iRow) = sValue
     WriteArray2File vCurrentState, Me.QuadRuntimeCacheFileName
 
-    FuncLogIt "PersistOverride", "updated QuadRuntime persist file [" & Me.QuadRuntimeCacheFileName & "] for [" & sFuncName & "] from [" & sCurrentValue & "] to [" & sValue & "]", C_MODULE_NAME, LogMsgType.INFO
+    FuncLogIt sFuncName & ".PersistOverride", "updated QuadRuntime persist file [" & Me.QuadRuntimeCacheFileName & "] for [" & sFuncName & "] from [" & sCurrentValue & "] to [" & sValue & "]", C_MODULE_NAME, LogMsgType.INFO
 
 End Sub
 
@@ -821,7 +821,7 @@ Sub SetDefaults()
     cTemplateBookName = "vba_source_new.xlsm"
 
     cTemplateSheetName = "FormStyles"
-    cTemplateCellSheetName = "CellStyles"
+    cTemplateWidgetSheetName = "WidgetStyles"
     
     cScheduleBookPath = cRuntimeDir
     cScheduleBookName = "schedule.xlsm"
@@ -839,7 +839,7 @@ Sub SetDefaults()
     cDatabasePath = cAppDir & "app\quad\utils\excel\test_misc\QuadQA.db"
     cResultFileName = cRuntimeDir & "pyshell_results.txt"
     cFileName = cRuntimeDir & "uupyshell.args.txt"
-    cQuadRuntimeEnum = "BookPath,BookName,CacheBookName,CacheBookPath,CacheRangeName,TemplateBookPath,TemplateBookName,TemplateSheetName,TemplateCellSheetName,DatabasePath,ResultFileName,ExecPath,RuntimeDir,FileName,DayEnum,PeriodEnum,CurrentSheetSource,CurrentSheetColumns,QuadRuntimeCacheFileName,DefinitionSheetName,ScheduleBookPath,ScheduleBookName,AddBookPath,AddBookName,MenuBookPath,MenuBookName,ViewBookPath,ViewBookName,BookEnum,NewBookPath"
+    cQuadRuntimeEnum = "BookPath,BookName,CacheBookName,CacheBookPath,CacheRangeName,TemplateBookPath,TemplateBookName,TemplateSheetName,TemplateWidgetSheetName,DatabasePath,ResultFileName,ExecPath,RuntimeDir,FileName,DayEnum,PeriodEnum,CurrentSheetSource,CurrentSheetColumns,QuadRuntimeCacheFileName,DefinitionSheetName,ScheduleBookPath,ScheduleBookName,AddBookPath,AddBookName,MenuBookPath,MenuBookName,ViewBookPath,ViewBookName,BookEnum,NewBookPath"
     cDayEnum = "M,T,W,R,F"
     cPeriodEnum = "1,2,3,4,5,6,7,8,9,10,11"
     cQuadRuntimeCacheFileName = cHomeDir & "\quad_runtime_cache.txt"
@@ -885,7 +885,7 @@ Public Sub InitProperties( _
                  Optional sCacheBookName As String, _
                  Optional sCacheRangeName As String, _
                  Optional sTemplateBookPath As String, Optional sTemplateBookName As String, _
-                 Optional sTemplateSheetName As String, Optional sTemplateCellSheetName As String, _
+                 Optional sTemplateSheetName As String, Optional sTemplateWidgetSheetName As String, _
                  Optional sScheduleBookPath As String, Optional sScheduleBookName As String, _
                  Optional sMenuBookPath As String, Optional sMenuBookName As String, _
                  Optional sAddBookPath As String, Optional sAddBookName As String, _
@@ -900,8 +900,13 @@ Public Sub InitProperties( _
                  Optional bHydrateFromCache As Boolean = False, _
                  Optional bSetWindows = False)
 
-    FuncLogIt "Quad_Runtime.InitProperties", "", C_MODULE_NAME, LogMsgType.INFUNC
+Dim lStartTick As Long
+Dim sFuncName As String
+
+setup:
+    lStartTick = FuncLogIt(sFuncName, "", C_MODULE_NAME, LogMsgType.INFUNC)
     
+main:
     SetDefaults
     
     If bInitializeOveride = True Then
@@ -947,7 +952,7 @@ Public Sub InitProperties( _
     Me.TemplateBookPath = sTemplateBookPath
     Me.TemplateBookName = sTemplateBookName
     Me.TemplateSheetName = sTemplateSheetName
-    Me.TemplateCellSheetName = sTemplateCellSheetName
+    Me.TemplateWidgetSheetName = sTemplateWidgetSheetName
     
     Me.DefinitionSheetName = sDefinitionSheetName
     
@@ -966,6 +971,8 @@ Public Sub InitProperties( _
     ' added on 4/17/18 to get dynamic menus to work
     Me.TemplateBook.Activate
 
+cleanup:
+    FuncLogIt sFuncName, "", C_MODULE_NAME, LogMsgType.OUTFUNC, lLastTick:=lStartTick
 End Sub
 
 Public Sub CloseRuntimeCacheFile()

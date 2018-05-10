@@ -2,7 +2,7 @@ Attribute VB_Name = "Test_App_Courses"
 'Test_GetCoursesCourse
 'Test_GetCoursesSubject
 Option Explicit
-Const CsModuleName = "Test_App_Courses"
+Const C_MODULE_NAME = "Test_App_Courses"
 
 
 Public Function Test_GetCoursesSubject() As TestResult
@@ -15,7 +15,7 @@ Dim rTarget As Range
 
 setup:
     ResetQuadRuntimeGlobal
-    sFuncName = CsModuleName & "." & "Test_GetCoursesSubject"
+    sFuncName = C_MODULE_NAME & "." & "Test_GetCoursesSubject"
     sSheetName = "test"
     clsQuadRuntime.InitProperties bInitializeCache:=True, sDefinitionSheetName:=sSheetName
     Set wsCache = CreateSheet(clsQuadRuntime.Book, sSheetName, bOverwrite:=True)
@@ -59,7 +59,7 @@ Dim rTarget As Range
 
 setup:
     ResetQuadRuntimeGlobal
-    sFuncName = CsModuleName & "." & "GetCourseCourse"
+    sFuncName = C_MODULE_NAME & "." & "GetCourseCourse"
     sSheetName = "test"
     clsQuadRuntime.InitProperties bInitializeCache:=True, sDefinitionSheetName:=sSheetName
     Set wsCache = CreateSheet(clsQuadRuntime.Book, sSheetName, bOverwrite:=True)
@@ -104,7 +104,7 @@ Dim rTarget As Range
 
 setup:
     ResetQuadRuntimeGlobal
-    sFuncName = CsModuleName & "." & "GetMiscTimePeriod"
+    sFuncName = C_MODULE_NAME & "." & "GetMiscTimePeriod"
     sSheetName = "test"
     clsQuadRuntime.InitProperties bInitializeCache:=True, sDefinitionSheetName:=sSheetName
     Set wsCache = CreateSheet(clsQuadRuntime.Book, sSheetName, bOverwrite:=True)
@@ -149,7 +149,7 @@ Dim rTarget As Range
 
 setup:
     ResetQuadRuntimeGlobal
-    sFuncName = CsModuleName & "." & "GetMiscPrep"
+    sFuncName = C_MODULE_NAME & "." & "GetMiscPrep"
     sSheetName = "test"
     clsQuadRuntime.InitProperties bInitializeCache:=True, sDefinitionSheetName:=sSheetName
     Set wsCache = CreateSheet(clsQuadRuntime.Book, sSheetName, bOverwrite:=True)
@@ -193,7 +193,7 @@ Dim rTarget As Range
 
 setup:
     ResetQuadRuntimeGlobal
-    sFuncName = CsModuleName & "." & "GetDay"
+    sFuncName = C_MODULE_NAME & "." & "GetDay"
     sSheetName = "test"
     clsQuadRuntime.InitProperties bInitializeCache:=True, sDefinitionSheetName:=sSheetName
     Set wsCache = CreateSheet(clsQuadRuntime.Book, sSheetName, bOverwrite:=True)

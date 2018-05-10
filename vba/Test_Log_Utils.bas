@@ -1,6 +1,6 @@
 Attribute VB_Name = "Test_Log_Utils"
 
-Const CsModuleName = "Test_Log_Utils"
+Const C_MODULE_NAME = "Test_Log_Utils"
 Sub TestRunner()
     'GetLogFile
     'Log_Utils.LogFilter = "8,9"
@@ -18,7 +18,7 @@ Dim sExpectedResultStr As String
 Dim bTestPassed As Boolean
 
 setup:
-    sFuncName = CsModuleName & "." & "." & "WriteToLog"
+    sFuncName = C_MODULE_NAME & "." & "." & "WriteToLog"
     vArray = Array("a", "b")
     sLogFileName = Environ("MYHOME") & "\test_log.txt"
     aVals = InitStringArray(Array("foo", "bar"))

@@ -1,10 +1,10 @@
 Attribute VB_Name = "Test_App_Schedule_Add"
 Option Explicit
-Const CsModuleName = "App_Schedule_Add"
+Const C_MODULE_NAME = "App_Schedule_Add"
 Public Function FillEntryValues(vValues() As String, iCol As Integer, iFirstRow As Integer, _
     sTargetSheetName As String, iNumEntries As Integer, Optional bValidate As Boolean = True, _
     Optional wbTmp As Workbook) As Boolean
-Dim rTarget As Range, rCell As Range
+Dim rTarget As Range, rWidget As Range
 Dim i As Integer
 
     If IsSet(wbTmp) = False Then
@@ -30,14 +30,14 @@ Function Test_AddAddScheduleAdd_Multiple() As TestResult
 Dim eTestResult As TestResult
 Dim clsQuadRuntime As New Quad_Runtime
 Dim sFuncName As String, sSheetName As String, sTargetSheetName As String
-Dim rTarget As Range, rCell As Range
+Dim rTarget As Range, rWidget As Range
 Dim dEntryValues As Dictionary, dRecordValues As Dictionary
 Dim iStudentID As Integer
 Dim vEntryValues() As String
 
 setup:
     ResetQuadRuntimeGlobal
-    sFuncName = CsModuleName & "." & "Test_AddAddScheduleAdd_Multiple"
+    sFuncName = C_MODULE_NAME & "." & "Test_AddAddScheduleAdd_Multiple"
     sSheetName = "test"
     clsQuadRuntime.InitProperties bInitializeCache:=True, sDefinitionSheetName:=sSheetName
     sTargetSheetName = "AddLesson"
@@ -54,26 +54,26 @@ main:
         vEntryValues = InitStringArray(Array("Bruno", "Raskin", "David", "Stone", "Art", "Art", "Luna", "4", "M"))
         FillEntryValues vEntryValues, 2, 2, sTargetSheetName, 9, wbTmp:=clsQuadRuntime.AddBook
     
-        IsRecordValid clsQuadRuntime.TemplateBook, clsQuadRuntime.AddBook, "AddLesson", clsQuadRuntime.TemplateCellSheetName
+        IsRecordValid clsQuadRuntime.TemplateBook, clsQuadRuntime.AddBook, "AddLesson", clsQuadRuntime.TemplateWidgetSheetName
 
-        Set rCell = AddLesson()
+        Set rWidget = AddLesson()
         
         vEntryValues = InitStringArray(Array("Bruno", "Raskin", "David", "Stone", "Math", "Math", "Luna", "4", "T"))
         FillEntryValues vEntryValues, 2, 2, sTargetSheetName, 9, wbTmp:=clsQuadRuntime.AddBook
         
-        Set rCell = AddLesson()
+        Set rWidget = AddLesson()
         
         vEntryValues = InitStringArray(Array("Bruno", "Raskin", "David", "Stone", "History", "History", "Luna", "4", "W"))
         FillEntryValues vEntryValues, 2, 2, sTargetSheetName, 9, wbTmp:=clsQuadRuntime.AddBook
         
-        Set rCell = AddLesson()
+        Set rWidget = AddLesson()
         
-        If rCell.Address <> "$H$16:$I$19" Then
+        If rWidget.Address <> "$H$16:$I$19" Then
             eTestResult = TestResult.Failure
             GoTo teardown
         End If
         
-        If rCell.Columns(2).Rows(1).value <> "History" Then
+        If rWidget.Columns(2).Rows(1).value <> "History" Then
             eTestResult = TestResult.Failure
             GoTo teardown
         End If
@@ -107,13 +107,13 @@ Function Test_AddAddScheduleAddOverrideScheduleName() As TestResult
 Dim eTestResult As TestResult
 Dim clsQuadRuntime As New Quad_Runtime
 Dim sFuncName As String, sSheetName As String, sTargetSheetName As String, sScheduleName As String, sSchedulePath As String
-Dim rTarget As Range, rCell As Range
+Dim rTarget As Range, rWidget As Range
 Dim dEntryValues As Dictionary, dRecordValues As Dictionary
 Dim iStudentID As Integer
 
 setup:
     ResetQuadRuntimeGlobal
-    sFuncName = CsModuleName & "." & "Test_AddAddScheduleAddOverrideScheduleName"
+    sFuncName = C_MODULE_NAME & "." & "Test_AddAddScheduleAddOverrideScheduleName"
     sSheetName = "test"
     clsQuadRuntime.InitProperties bInitializeCache:=True, sDefinitionSheetName:=sSheetName
     sTargetSheetName = "AddLesson"
@@ -217,21 +217,21 @@ main:
             GoTo teardown
         End If
         
-        IsRecordValid clsQuadRuntime.TemplateBook, clsQuadRuntime.AddBook, "AddLesson", clsQuadRuntime.TemplateCellSheetName
+        IsRecordValid clsQuadRuntime.TemplateBook, clsQuadRuntime.AddBook, "AddLesson", clsQuadRuntime.TemplateWidgetSheetName
 
-        Set rCell = AddLesson()
+        Set rWidget = AddLesson()
         
         If clsQuadRuntime.ScheduleBook.Sheets("view_student_13").Range("E16:E16").value <> "Art" Then
             eTestResult = TestResult.Failure
             GoTo teardown
         End If
         
-        If rCell.Address <> "$D$16:$E$19" Then
+        If rWidget.Address <> "$D$16:$E$19" Then
             eTestResult = TestResult.Failure
             GoTo teardown
         End If
         
-        If rCell.Columns(2).Rows(1).value <> "Art" Then
+        If rWidget.Columns(2).Rows(1).value <> "Art" Then
             eTestResult = TestResult.Failure
             GoTo teardown
         End If
@@ -265,13 +265,13 @@ Function Test_AddAddScheduleAdd() As TestResult
 Dim eTestResult As TestResult
 Dim clsQuadRuntime As New Quad_Runtime
 Dim sFuncName As String, sSheetName As String, sTargetSheetName As String
-Dim rTarget As Range, rCell As Range
+Dim rTarget As Range, rWidget As Range
 Dim dEntryValues As Dictionary, dRecordValues As Dictionary
 Dim iStudentID As Integer
 
 setup:
     ResetQuadRuntimeGlobal
-    sFuncName = CsModuleName & "." & "Test_AddAddScheduleAdd"
+    sFuncName = C_MODULE_NAME & "." & "Test_AddAddScheduleAdd"
     sSheetName = "test"
     clsQuadRuntime.InitProperties bInitializeCache:=True, sDefinitionSheetName:=sSheetName
     sTargetSheetName = "AddLesson"
@@ -377,16 +377,16 @@ main:
             GoTo teardown
         End If
         
-        IsRecordValid clsQuadRuntime.TemplateBook, clsQuadRuntime.AddBook, "AddLesson", clsQuadRuntime.TemplateCellSheetName
+        IsRecordValid clsQuadRuntime.TemplateBook, clsQuadRuntime.AddBook, "AddLesson", clsQuadRuntime.TemplateWidgetSheetName
 
-        Set rCell = AddLesson()
+        Set rWidget = AddLesson()
         
-        If rCell.Address <> "$D$16:$E$19" Then
+        If rWidget.Address <> "$D$16:$E$19" Then
             eTestResult = TestResult.Failure
             GoTo teardown
         End If
         
-        If rCell.Columns(2).Rows(1).value <> "Art" Then
+        If rWidget.Columns(2).Rows(1).value <> "Art" Then
             eTestResult = TestResult.Failure
             GoTo teardown
         End If
@@ -427,7 +427,7 @@ Dim dRecordValues As Dictionary
 
 setup:
     ResetQuadRuntimeGlobal
-    sFuncName = CsModuleName & "." & "EditLesson"
+    sFuncName = C_MODULE_NAME & "." & "EditLesson"
     clsQuadRuntime.InitProperties bInitializeCache:=True
     
 main:

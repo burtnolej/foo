@@ -1,6 +1,6 @@
 Attribute VB_Name = "Test_Utils"
 'Sub    TestLogIt(sFuncName As String, bTestPassed As Boolean)
-Const CsModuleName = "Test_Utils"
+Const C_MODULE_NAME = "Test_Utils"
 Public Enum TestResult
     OK = 0
     Failure = 1
@@ -175,11 +175,11 @@ Sub DoProjectTestRunner()
 Dim sIncModules As String
     
     MinimumWindowState
-    sIncModules = "Test_Form_Utils"
-    ProjectTestRunner sIncModules
-    Exit Sub
+    'sIncModules = "Test_Range_Utils"
+    'ProjectTestRunner sIncModules
+    'Exit Sub
     
-    sIncModules = sIncModules & ",Test_App_Schedule"
+    sIncModules = "Test_App_Schedule"
     sIncModules = sIncModules & ",Test_App_Schedule_Add"
     sIncModules = sIncModules & ",Test_App_Person"
     sIncModules = sIncModules & ",Test_App_Courses"

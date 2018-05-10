@@ -1,7 +1,7 @@
 Attribute VB_Name = "App_Schedule"
 'Public Function GetScheduleDataFromDB
-'Public Function GetScheduleCellColWidths
-'Public Function GetScheduleCellFormat
+'Public Function GetScheduleWidgetColWidths
+'Public Function GetScheduleWidgetFormat
 'Function GetScheduleDataHelpers
 'Public Function BuildSchedule
 'Public Function BuildScheduleView
@@ -178,15 +178,15 @@ Public Function GetScheduleCellColWidths(clsQuadRuntime As Quad_Runtime, sSchedu
 ' get the column widths from the template and return in an integer array
 'param: sScheduleFormatRangeName, string, named range that contains the specific format (fStudentScheduleCell
 Dim aColumnWidths() As Integer
-Dim rCell As Range
+Dim rWidget As Range
 
     ReDim aColumnWidths(0 To 20)
     With clsQuadRuntime.TemplateSheet
         '.Activate
-        For Each rCell In Selection.Rows(1).Cells
-            aColumnWidths(iColWidthCount) = rCell.EntireColumn.ColumnWidth
+        For Each rWidget In Selection.Rows(1).Cells
+            aColumnWidths(iColWidthCount) = rWidget.EntireColumn.ColumnWidth
             iColWidthCount = iColWidthCount + 1
-        Next rCell
+        Next rWidget
         ReDim Preserve aColumnWidths(0 To iColWidthCount - 1)
     End With
     
@@ -203,7 +203,7 @@ Function BuildScheduleCellView(clsQuadRuntime As Quad_Runtime, _
                 Optional iViewColOffset As Integer = 2) As Range
 
 Dim iScheduleCurrentRow As Integer, iScheduleCurrentCol As Integer, iColWidthCount As Integer
-Dim rScheduleFormatTargetRange As Range, rCell As Range
+Dim rScheduleFormatTargetRange As Range, rWidget As Range
 Dim sFormatTemplateRange As String
 
     sFormatTemplateRange = "f" & EnumQuadSubDataType(eQuadSubDataType) & "ScheduleCell"
@@ -222,11 +222,11 @@ Dim sFormatTemplateRange As String
                 iTargetFirstRow:=iScheduleCurrentRow, iTargetFirstCol:=iScheduleCurrentCol
         
         ' evaluate the data functions to get the content
-        For Each rCell In rScheduleFormatTargetRange.Cells
-            If Left(rCell.value, 1) = "&" Then
-                rCell.value = Application.Run(Right(rCell.value, Len(rCell.value) - 1), dValues)
+        For Each rWidget In rScheduleFormatTargetRange.Cells
+            If Left(rWidget.value, 1) = "&" Then
+                rWidget.value = Application.Run(Right(rWidget.value, Len(rWidget.value) - 1), dValues)
             End If
-        Next rCell
+        Next rWidget
     End With
     
     Set BuildScheduleCellView = rScheduleFormatTargetRange
@@ -277,7 +277,7 @@ Function BuildScheduleHeaderView(clsQuadRuntime As Quad_Runtime, _
                 Optional bVz As Boolean = True) As Range
 
 Dim iScheduleCurrentRow As Integer, iColWidthCount As Integer, i As Integer, iScheduleCurrentCol As Integer
-Dim rScheduleFormatTargetRange As Range, rCell As Range, rMarker As Range
+Dim rScheduleFormatTargetRange As Range, rWidget As Range, rMarker As Range
 Dim sFormatTemplateRange As String
 Dim iNumValues As Integer
 Dim vEnumValues() As String
@@ -312,11 +312,11 @@ Dim vEnumValues() As String
                     iTargetFirstRow:=iScheduleCurrentRow, iTargetFirstCol:=iScheduleCurrentCol
         
             ' evaluate the data functions to get the content
-            For Each rCell In rScheduleFormatTargetRange.Cells
-                If Left(rCell.value, 1) = "&" Then
-                    rCell.value = Application.Run(Right(rCell.value, Len(rCell.value) - 1), vEnumValues(i - 1))
+            For Each rWidget In rScheduleFormatTargetRange.Cells
+                If Left(rWidget.value, 1) = "&" Then
+                    rWidget.value = Application.Run(Right(rWidget.value, Len(rWidget.value) - 1), vEnumValues(i - 1))
                 End If
-            Next rCell
+            Next rWidget
             
             ' put inivisble markets in row 1 and col 1 so context menu's know what cell
             If bVz = True Then

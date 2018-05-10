@@ -1,5 +1,5 @@
 Attribute VB_Name = "Macros"
-Const CsModuleName = "Macros"
+Const C_MODULE_NAME = "Macros"
 Public Sub DoImportModules()
 Dim VBProj As VBIDE.VBProject
 Dim VBComp As VBIDE.VBComponent
@@ -17,7 +17,7 @@ Dim bTestPassed As Boolean
 Dim iCount As Integer
 
 setup:
-    sFuncName = CsModuleName & "." & "ImportModules"
+    sFuncName = C_MODULE_NAME & "." & "ImportModules"
     sImportModuleDirPath = Environ("MYHOME") & "\GitHub\quadviewer\vba"
     Set wbTmp = ActiveWorkbook
 main:
@@ -52,7 +52,7 @@ Dim iNewCount As Integer, iUpdateCount As Integer, iType As Integer
 Dim ws As Worksheet
 
     GetLogFile
-    sFuncName = CsModuleName & "." & "RunExportModules"
+    sFuncName = C_MODULE_NAME & "." & "RunExportModules"
     sDirectory = Environ("MYHOME") & "\GitHub\quadviewer\vba\"
     sTmpDirectory = Environ("MYHOME") & "\tmp_export_modules\"
     
@@ -124,12 +124,12 @@ End Sub
 Public Sub DoGitCommit(rSource As Range, sRepoName As String, _
                     sGitRootPath As String, Optional sMessage As String = "no message")
 Dim iType As Integer
-Dim rCell As Range
+Dim rWidget As Range
 Dim aFiles() As String
 Dim iFileCount As Integer
 Dim sDirectory As String, sTmpDirectory As String, sFuncName As String
 
-    sFuncName = CsModuleName & "." & "DoGitCommit"
+    sFuncName = C_MODULE_NAME & "." & "DoGitCommit"
     sDirectory = Environ("MYHOME") & "\GitHub\quadviewer\vba\"
     sTmpDirectory = Environ("MYHOME") & "\tmp_export_modules\"
     
@@ -140,15 +140,15 @@ Dim sDirectory As String, sTmpDirectory As String, sFuncName As String
         PopUpWindow "Selection needs to be 1 column", "Error", iType
     End If
     
-    For Each rCell In rSource.Cells
-        If FileExists(rCell.value) = False Then
+    For Each rWidget In rSource.Cells
+        If FileExists(rWidget.value) = False Then
             iType = vbDefaultButton2
-            PopUpWindow "File [" & rCell.value & "] cannot be found", "Error", iType
+            PopUpWindow "File [" & rWidget.value & "] cannot be found", "Error", iType
         Else
-            aFiles(iFileCount) = rCell.value
+            aFiles(iFileCount) = rWidget.value
             iFileCount = iFileCount + 1
         End If
-    Next rCell
+    Next rWidget
     ReDim Preserve aFiles(0 To iFileCount - 1)
 
     For i = 0 To iFileCount - 1

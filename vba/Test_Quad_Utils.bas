@@ -3,7 +3,7 @@ Option Explicit
 'Function TestSheetTableLookup()
 'Function TestRowAsDict()
 
-Const CsModuleName = "Test_Quad_Utils"
+Const C_MODULE_NAME = "Test_Quad_Utils"
 Public Function Test_CrossRefQuadData() As TestResult
 Dim clsQuadRuntime As New Quad_Runtime
 Dim vSource() As String
@@ -115,7 +115,7 @@ Dim eTestResult As TestResult
 Dim sFuncName As String
 
 setup:
-    sFuncName = CsModuleName & "." & "GetAndInitQuadRuntimeNoVals"
+    sFuncName = C_MODULE_NAME & "." & "GetAndInitQuadRuntimeNoVals"
     
     Set clsQuadRuntime = GetQuadRuntimeGlobal(bInitFlag:=True)
     
@@ -143,7 +143,7 @@ Dim eTestResult As TestResult
 Dim sFuncName As String
 
 setup:
-    sFuncName = CsModuleName & "." & "TestGetAndInitQuadRuntime"
+    sFuncName = C_MODULE_NAME & "." & "TestGetAndInitQuadRuntime"
     
     dValues.Add "DayEnum", "foobar"
     
@@ -173,7 +173,7 @@ Dim eTestResult As TestResult
 Dim sFuncName As String
 
 setup:
-    sFuncName = CsModuleName & "." & "InitQuadRuntime"
+    sFuncName = C_MODULE_NAME & "." & "InitQuadRuntime"
     
     dValues.Add "DayEnum", "foobar"
     
@@ -206,7 +206,7 @@ Dim wsTmp As Worksheet
 Dim rTarget As Range
 
 setup:
-    sFuncName = CsModuleName & "." & "SheetTableLookup"
+    sFuncName = C_MODULE_NAME & "." & "SheetTableLookup"
     sSheetName = "test"
     sRangeName = "data"
     Set wsTmp = CreateSheet(ActiveWorkbook, sSheetName, bOverwrite:=True)
@@ -242,7 +242,7 @@ Dim rTarget As Range
 Dim dResult As New Dictionary
 
 setup:
-    sFuncName = CsModuleName & "." & "TestRowAsDict"
+    sFuncName = C_MODULE_NAME & "." & "TestRowAsDict"
     sSheetName = "test"
     sRangeName = "data"
     Set wsTmp = CreateSheet(ActiveWorkbook, sSheetName, bOverwrite:=True)

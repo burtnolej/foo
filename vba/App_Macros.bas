@@ -1,6 +1,6 @@
 Attribute VB_Name = "App_Macros"
 Option Explicit
-Const CsModuleName = "App_Macros"
+Const C_MODULE_NAME = "App_Macros"
 
 Public Sub DoGeneratePersonView()
 '<<<
@@ -10,12 +10,18 @@ Dim clsQuadRuntime As New Quad_Runtime
 Dim sSheetName As String, sFuncName As String
 Dim wsView As Worksheet
 Dim sScheduleName As String, sSchedulePath As String, sNewSchedulePath As String
+Dim lStartTick As Long
 
 setup:
-    sFuncName = CsModuleName & "." & "DoGeneratePersonView"
+    ChDir "C:\Users\burtnolej\Documents\runtime"
+    
+    sFuncName = C_MODULE_NAME & "." & "DoGeneratePersonView"
+    CloseLogFile
     GetLogFile ' write stdout to a logfile
-    FuncLogIt sFuncName, "", CsModuleName, LogMsgType.INFUNC
-    sFuncName = CsModuleName & "." & "GeneratePersonView"
+    'Log_Utils.LogFilter = "0,1,2,3"
+        
+    lStartTick = FuncLogIt(sFuncName, "", C_MODULE_NAME, LogMsgType.INFUNC)
+    
     sSheetName = "test"
     clsQuadRuntime.InitProperties bInitializeCache:=True, _
                                   sDefinitionSheetName:=sSheetName, _
@@ -31,7 +37,7 @@ cleanup:
     wsView.Visible = xlSheetVisible
     wsView.Activate
     DoEventsOn
-    FuncLogIt sFuncName, "", CsModuleName, LogMsgType.OUTFUNC
+    FuncLogIt sFuncName, "", C_MODULE_NAME, LogMsgType.OUTFUNC, lLastTick:=lStartTick
     
 End Sub
 
@@ -43,7 +49,7 @@ Dim sScheduleName As String, sSchedulePath As String, sNewSchedulePath As String
     DoEventsOn
         
     ResetQuadRuntimeGlobal
-    sFuncName = CsModuleName & "." & "DoAddAddScheduleAdd"
+    sFuncName = C_MODULE_NAME & "." & "DoAddAddScheduleAdd"
     sSheetName = "test"
     clsQuadRuntime.InitProperties bInitializeCache:=True, _
                                   sDefinitionSheetName:=sSheetName, _

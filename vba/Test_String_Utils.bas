@@ -1,6 +1,6 @@
 Attribute VB_Name = "Test_String_Utils"
 Option Explicit
-Const CsModuleName = "Test_String_Utils"
+Const C_MODULE_NAME = "Test_String_Utils"
 
 Function TestStr2Array() As TestResult
 Dim sInputStr As String
@@ -11,7 +11,7 @@ Dim sFuncName As String
 Dim eTestResult As TestResult
 
 setup:
-    sFuncName = CsModuleName & "." & "Str2Array"
+    sFuncName = C_MODULE_NAME & "." & "Str2Array"
     sInputStr = "0123456789"
     iChunkLen = 3
     sExpectedResult = "012,345,678,9"
@@ -44,7 +44,7 @@ Dim sFuncName As String
 Dim eTestResult As TestResult
 
 setup:
-    sFuncName = CsModuleName & "." & "Str2Array_NotEven"
+    sFuncName = C_MODULE_NAME & "." & "Str2Array_NotEven"
     sInputStr = "01234"
     iChunkLen = 3
     sExpectedResult = "012,34"
@@ -78,7 +78,7 @@ Dim sFuncName As String
 Dim eTestResult As TestResult
 
 setup:
-    sFuncName = CsModuleName & "." & "Str2Array_Small"
+    sFuncName = C_MODULE_NAME & "." & "Str2Array_Small"
     sInputStr = "0123"
     iChunkLen = 4
     sExpectedResult = "0123"
@@ -113,7 +113,7 @@ Dim sFuncName As String
 Dim eTestResult As TestResult
 
 setup:
-    sFuncName = CsModuleName & "." & "PadStr_Left"
+    sFuncName = C_MODULE_NAME & "." & "PadStr_Left"
     sInputStr = "foobar"
     iPadLength = 20
     sDirection = "left"
@@ -147,7 +147,7 @@ Dim sFuncName As String
 Dim eTestResult As TestResult
 
 setup:
-    sFuncName = CsModuleName & "." & "PadStr_Left"
+    sFuncName = C_MODULE_NAME & "." & "PadStr_Left"
     sInputStr = ""
     iPadLength = 3
     sDirection = "left"
@@ -182,7 +182,7 @@ Dim eTestResult As TestResult
 
 
 setup:
-    sFuncName = CsModuleName & "." & "PadStr_Right"
+    sFuncName = C_MODULE_NAME & "." & "PadStr_Right"
     sInputStr = "foobar"
     iPadLength = 20
     sDirection = "right"
@@ -216,7 +216,7 @@ Dim sExpectedResult As String
 Dim sFuncName As String
 Dim eTestResult As TestResult
 setup:
-    sFuncName = CsModuleName & "." & "CleanString"
+    sFuncName = C_MODULE_NAME & "." & "CleanString"
     sInputStr = "foo" & Chr(10) & Chr(13) & "bar" & Chr(10) & Chr(13)
     sExpectedResult = GetStrAscii("foo" & Chr(10) & Chr(13) & "bar")
 main:
@@ -247,7 +247,7 @@ Dim eTestResult As TestResult
 setup:
     sInputStr = "abc def"
     sExpectedResult = "abc%sdef"
-    sFuncName = CsModuleName & "." & "ReplaceSpace"
+    sFuncName = C_MODULE_NAME & "." & "ReplaceSpace"
     
 main:
     sOutputStr = Replace(sInputStr, " ", "%s")
@@ -278,7 +278,7 @@ Dim eTestResult As TestResult
 setup:
     sInputStr = "abc def"
     sExpectedResult = "abc+def"
-    sFuncName = CsModuleName & "." & "AsciiReplace"
+    sFuncName = C_MODULE_NAME & "." & "AsciiReplace"
     
 main:
     sOutputStr = AsciiReplace(sInputStr, 32, 43)
@@ -308,7 +308,7 @@ Dim eTestResult As TestResult
 setup:
     sInputStr = "abc def"
     sExpectedResult = "abc+++def"
-    sFuncName = CsModuleName & "." & "AsciiReplaceMulti"
+    sFuncName = C_MODULE_NAME & "." & "AsciiReplaceMulti"
     
 main:
     sOutputStr = AsciiReplace(sInputStr, 32, 43, iToCount:=3)

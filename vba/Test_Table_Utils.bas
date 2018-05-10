@@ -7,7 +7,7 @@ Attribute VB_Name = "Test_Table_Utils"
 'Function TestAddTableRecordAuto()
 
 Option Explicit
-Const CsModuleName = "Test_Table_Utils"
+Const C_MODULE_NAME = "Test_Table_Utils"
 
 Sub cleanup_workbooks()
 Dim wbTmp As Workbook
@@ -45,7 +45,7 @@ Dim bDeleteFlag As Boolean, bDecodeFlag As Boolean
 setup:
     clsQuadRuntime.InitProperties bInitializeCache:=True
     
-    sFuncName = CsModuleName & "." & "GetDirtyTableRecords"
+    sFuncName = C_MODULE_NAME & "." & "GetDirtyTableRecords"
     sSheetName = "test"
     Set wsTmp = CreateSheet(clsQuadRuntime.TemplateBook, sSheetName, bOverwrite:=True)
     
@@ -140,7 +140,7 @@ Dim clsQuadRuntime As New Quad_Runtime
 setup:
     clsQuadRuntime.InitProperties bInitializeCache:=True
     
-    sFuncName = CsModuleName & "." & "AddTableRecordAuto"
+    sFuncName = C_MODULE_NAME & "." & "AddTableRecordAuto"
     sSheetName = "test"
     Set wsTmp = CreateSheet(clsQuadRuntime.TemplateBook, sSheetName, bOverwrite:=True)
                                   
@@ -222,7 +222,7 @@ Dim clsQuadRuntime As New Quad_Runtime
 setup:
     clsQuadRuntime.InitProperties bInitializeCache:=True
     
-    sFuncName = CsModuleName & "." & "AddTableRecordAuto"
+    sFuncName = C_MODULE_NAME & "." & "AddTableRecordAuto"
     sSheetName = "test"
     Set wsTmp = CreateSheet(clsQuadRuntime.TemplateBook, sSheetName, bOverwrite:=True)
                                   
@@ -296,7 +296,7 @@ Dim clsQuadRuntime As New Quad_Runtime
 setup:
     clsQuadRuntime.InitProperties bInitializeCache:=True
     
-    sFuncName = CsModuleName & "." & "AddTableRecordManual"
+    sFuncName = C_MODULE_NAME & "." & "AddTableRecordManual"
     sSheetName = "test"
     Set wsTmp = CreateSheet(ActiveWorkbook, sSheetName, bOverwrite:=True)
     vSource = Init2DStringArray([{"AddFoo","Foo","FooName","List","IsMember","","","","Entry";"AddFoo","Foo","FooAge","Integer","IsValidInteger","","","","Entry"}])
@@ -369,7 +369,7 @@ Dim clsQuadRuntime As New Quad_Runtime
 setup:
 
     clsQuadRuntime.InitProperties bInitializeCache:=True
-    sFuncName = CsModuleName & "." & "CreateTables"
+    sFuncName = C_MODULE_NAME & "." & "CreateTables"
     sSheetName = "test"
     Set wsTmp = CreateSheet(ActiveWorkbook, sSheetName, bOverwrite:=True)
     vSource = Init2DStringArray([{"AddFoo","Foo","FooName","List","IsMember","","","","Entry";"AddFoo","Foo","FooAge","Integer","IsValidInteger","","","","Entry";"AddBar","Bar","BarName","List","IsMember","","","","Entry"}])
@@ -433,7 +433,7 @@ Dim dRecordValues As Dictionary
 Dim eTestResult As TestResult
 
     clsQuadRuntime.InitProperties bInitializeCache:=True
-    sFuncName = CsModuleName & "." & "TestAddTableMultipleRecordManual"
+    sFuncName = C_MODULE_NAME & "." & "TestAddTableMultipleRecordManual"
     sSheetName = "test"
     Set wsTmp = CreateSheet(ActiveWorkbook, sSheetName, bOverwrite:=True)
     
@@ -495,7 +495,7 @@ Dim clsQuadRuntime As New Quad_Runtime
 
 setup:
     clsQuadRuntime.InitProperties bInitializeCache:=True
-    sFuncName = CsModuleName & "." & "TestAddTableMultipleRecordManual"
+    sFuncName = C_MODULE_NAME & "." & "TestAddTableMultipleRecordManual"
     sSheetName = "test"
     Set wsTmp = CreateSheet(ActiveWorkbook, sSheetName, bOverwrite:=True)
     vSource = Init2DStringArray([{"AddFoo","Foo","FooName","List","IsMember","","","","Entry";"AddFoo","Foo","FooAge","Integer","IsValidInteger","","","","Entry";"AddBar","Bar","BarName","List","IsMember","","","","Entry"}])
@@ -588,7 +588,7 @@ Dim clsQuadRuntime As New Quad_Runtime
 
 setup:
     clsQuadRuntime.InitProperties bInitializeCache:=True
-    sFuncName = CsModuleName & "." & "TestAddTableRecordManualOntoDBLoad"
+    sFuncName = C_MODULE_NAME & "." & "TestAddTableRecordManualOntoDBLoad"
     sSheetName = "test"
     Set wsTmp = CreateSheet(ActiveWorkbook, sSheetName, bOverwrite:=True)
     vSource = Init2DStringArray([{"AddFoo","Foo","FooName","List","IsMember","","","","Entry";"AddFoo","Foo","FooAge","Integer","IsValidInteger","","","","Entry";"AddBar","Bar","BarName","List","IsMember","","","","Entry"}])
@@ -697,7 +697,7 @@ Dim clsQuadRuntime As New Quad_Runtime
 
 setup:
     clsQuadRuntime.InitProperties bInitializeCache:=True
-    sFuncName = CsModuleName & "." & "TestAddTableMultipleRecordMultiTableManual"
+    sFuncName = C_MODULE_NAME & "." & "TestAddTableMultipleRecordMultiTableManual"
     sSheetName = "test"
     Set wsTmp = CreateSheet(ActiveWorkbook, sSheetName, bOverwrite:=True)
     vSource = Init2DStringArray([{"AddFoo","Foo","FooName","List","IsMember","","","","Entry";"AddFoo","Foo","FooAge","Integer","IsValidInteger","","","","Entry";"AddBar","Bar","BarName","List","IsMember","","","","Entry"}])
@@ -786,7 +786,7 @@ Dim clsQuadRuntime As New Quad_Runtime
 
 setup:
     clsQuadRuntime.InitProperties bInitializeCache:=True
-    sFuncName = CsModuleName & "." & "AddTableRecordFail"
+    sFuncName = C_MODULE_NAME & "." & "AddTableRecordFail"
     sSheetName = "test"
     Set wsTmp = CreateSheet(ActiveWorkbook, sSheetName, bOverwrite:=True)
     vSource = Init2DStringArray([{"AddFoo","Foo","FooName","List","IsMember","","","","Entry";"AddFoo","Foo","FooAge","Integer","IsValidInteger","","","","Entry";"AddBar","Bar","BarName","List","IsMember","","","","Entry"}])

@@ -1,5 +1,5 @@
 Attribute VB_Name = "Test_Filter_Utils"
-Const CsModuleName = "Test_Filter_Utils"
+Const C_MODULE_NAME = "Test_Filter_Utils"
 
 Function TestDoFilterBasic() As TestResult
 ' test 1 basic filter
@@ -14,11 +14,11 @@ Dim rGrid As Range
 Dim sRangeName As String
 Dim sFilterCountName As String
 Dim eTestResult As TestResult
-Dim rCell As Range
+Dim rWidget As Range
 
 setup:
     On Error GoTo err:
-    sFuncName = CsModuleName & "." & "DoFilterBasic"
+    sFuncName = C_MODULE_NAME & "." & "DoFilterBasic"
     
     sModuleName = "foobar"
     sSheetName = "foobar"
@@ -42,9 +42,9 @@ main:
         DoEventsOn
         
         ' filter by the letter a
-        Set rCell = .Range(.Cells(1, 2), .Cells(1, 2))
-        rCell.value = "a"
-        DoFilter ActiveWorkbook, sSheetName, rCell
+        Set rWidget = .Range(.Cells(1, 2), .Cells(1, 2))
+        rWidget.value = "a"
+        DoFilter ActiveWorkbook, sSheetName, rWidget
         
         ' row 3 and 6 should be visible
         If .Rows(3).EntireRow.Hidden = True Then
@@ -109,11 +109,11 @@ Dim rGrid As Range
 Dim sRangeName As String
 Dim sFilterCountName As String
 Dim eTestResult As TestResult
-Dim rCell As Range
+Dim rWidget As Range
 
 setup:
     On Error GoTo err:
-    sFuncName = CsModuleName & "." & "DoFilterNot"
+    sFuncName = C_MODULE_NAME & "." & "DoFilterNot"
     
     sModuleName = "foobar"
     sSheetName = "foobar"
@@ -132,9 +132,9 @@ main:
         DoEventsOn
         
         ' filter by the letter a
-        Set rCell = .Range(.Cells(1, 2), .Cells(1, 2))
-        rCell.value = "!a"
-        DoFilter ActiveWorkbook, sSheetName, rCell
+        Set rWidget = .Range(.Cells(1, 2), .Cells(1, 2))
+        rWidget.value = "!a"
+        DoFilter ActiveWorkbook, sSheetName, rWidget
         
         ' row 3 and 6 should be visible
         If .Rows(3).EntireRow.Hidden = False Then
@@ -200,11 +200,11 @@ Dim rGrid As Range
 Dim sRangeName As String
 Dim sFilterCountName As String
 Dim eTestResult As TestResult
-Dim rCell As Range
+Dim rWidget As Range
 
 setup:
     On Error GoTo err:
-    sFuncName = CsModuleName & "." & "DoFilterResetLastFilter"
+    sFuncName = C_MODULE_NAME & "." & "DoFilterResetLastFilter"
     
     sModuleName = "foobar"
     sSheetName = "foobar"
@@ -229,20 +229,20 @@ main:
         DoEventsOn
         
         ' filter by the letter a
-        Set rCell = .Range(.Cells(1, 3), .Cells(1, 3))
-        rCell.value = "y"
-        DoFilter ActiveWorkbook, sSheetName, rCell
+        Set rWidget = .Range(.Cells(1, 3), .Cells(1, 3))
+        rWidget.value = "y"
+        DoFilter ActiveWorkbook, sSheetName, rWidget
         
 
         ' filter by the letter z
-        Set rCell = .Range(.Cells(1, 4), .Cells(1, 4))
-        rCell.value = "z"
-        DoFilter ActiveWorkbook, sSheetName, rCell
+        Set rWidget = .Range(.Cells(1, 4), .Cells(1, 4))
+        rWidget.value = "z"
+        DoFilter ActiveWorkbook, sSheetName, rWidget
 
         ' filter by the letter a
-        Set rCell = .Range(.Cells(1, 4), .Cells(1, 4))
-        rCell.value = "x"
-        DoFilter ActiveWorkbook, sSheetName, rCell
+        Set rWidget = .Range(.Cells(1, 4), .Cells(1, 4))
+        rWidget.value = "x"
+        DoFilter ActiveWorkbook, sSheetName, rWidget
         
         If .Rows(3).EntireRow.Hidden <> True Then
             eTestResult = TestResult.Failure
@@ -308,11 +308,11 @@ Dim rGrid As Range
 Dim sRangeName As String
 Dim sFilterCountName As String
 Dim eTestResult As TestResult
-Dim rCell As Range
+Dim rWidget As Range
 
 setup:
     On Error GoTo err:
-    sFuncName = CsModuleName & "." & "DoFilterResetNotLastFilter"
+    sFuncName = C_MODULE_NAME & "." & "DoFilterResetNotLastFilter"
     
     sModuleName = "foobar"
     sSheetName = "foobar"
@@ -337,21 +337,21 @@ main:
         DoEventsOn
         
         ' filter by the letter a
-        Set rCell = .Range(.Cells(1, 3), .Cells(1, 3))
-        rCell.value = "y"
-        DoFilter ActiveWorkbook, sSheetName, rCell
+        Set rWidget = .Range(.Cells(1, 3), .Cells(1, 3))
+        rWidget.value = "y"
+        DoFilter ActiveWorkbook, sSheetName, rWidget
         
         ' filter by the letter z
-        Set rCell = .Range(.Cells(1, 4), .Cells(1, 4))
-        rCell.value = "z"
-        DoFilter ActiveWorkbook, sSheetName, rCell
+        Set rWidget = .Range(.Cells(1, 4), .Cells(1, 4))
+        rWidget.value = "z"
+        DoFilter ActiveWorkbook, sSheetName, rWidget
 
         'Exit Sub
         
         ' filter by the letter a
-        Set rCell = .Range(.Cells(1, 3), .Cells(1, 3))
-        rCell.value = "x"
-        DoFilter ActiveWorkbook, sSheetName, rCell
+        Set rWidget = .Range(.Cells(1, 3), .Cells(1, 3))
+        rWidget.value = "x"
+        DoFilter ActiveWorkbook, sSheetName, rWidget
 
         If .Rows(3).EntireRow.Hidden <> True Then
             eTestResult = TestResult.Failure
@@ -417,11 +417,11 @@ Dim rGrid As Range
 Dim sRangeName As String
 Dim sFilterCountName As String
 Dim eTestResult As TestResult
-Dim rCell As Range
+Dim rWidget As Range
 
 setup:
     On Error GoTo err:
-    sFuncName = CsModuleName & "." & "DoFilterResetLastFilterAddNewFilter"
+    sFuncName = C_MODULE_NAME & "." & "DoFilterResetLastFilterAddNewFilter"
     
     sModuleName = "foobar"
     sSheetName = "foobar"
@@ -446,27 +446,27 @@ main:
         DoEventsOn
         
         ' filter by the letter y
-        Set rCell = .Range(.Cells(1, 3), .Cells(1, 3))
-        rCell.value = "y"
-        DoFilter ActiveWorkbook, sSheetName, rCell
+        Set rWidget = .Range(.Cells(1, 3), .Cells(1, 3))
+        rWidget.value = "y"
+        DoFilter ActiveWorkbook, sSheetName, rWidget
         
 
         ' filter by the letter z
-        Set rCell = .Range(.Cells(1, 4), .Cells(1, 4))
-        rCell.value = "z"
-        DoFilter ActiveWorkbook, sSheetName, rCell
+        Set rWidget = .Range(.Cells(1, 4), .Cells(1, 4))
+        rWidget.value = "z"
+        DoFilter ActiveWorkbook, sSheetName, rWidget
 
 
         ' filter by the letter x
-        Set rCell = .Range(.Cells(1, 4), .Cells(1, 4))
-        rCell.value = "x"
-        DoFilter ActiveWorkbook, sSheetName, rCell
+        Set rWidget = .Range(.Cells(1, 4), .Cells(1, 4))
+        rWidget.value = "x"
+        DoFilter ActiveWorkbook, sSheetName, rWidget
         
 
         ' filter by the letter a
-        Set rCell = .Range(.Cells(1, 4), .Cells(1, 4))
-        rCell.value = "a"
-        DoFilter ActiveWorkbook, sSheetName, rCell
+        Set rWidget = .Range(.Cells(1, 4), .Cells(1, 4))
+        rWidget.value = "a"
+        DoFilter ActiveWorkbook, sSheetName, rWidget
         
         
         If .Rows(3).EntireRow.Hidden <> True Then
@@ -531,11 +531,11 @@ Dim rGrid As Range
 Dim sRangeName As String
 Dim sFilterCountName As String
 Dim eTestResult As TestResult
-Dim rCell As Range
+Dim rWidget As Range
 
 setup:
     On Error GoTo err:
-    sFuncName = CsModuleName & "." & "DoFilter2ColumnOr"
+    sFuncName = C_MODULE_NAME & "." & "DoFilter2ColumnOr"
     
     sModuleName = "foobar"
     sSheetName = "foobar"
@@ -560,14 +560,14 @@ main:
         DoEventsOn
         
         ' filter by the letter a
-        Set rCell = .Range(.Cells(1, 2), .Cells(1, 2))
-        rCell.value = "a"
-        DoFilter ActiveWorkbook, sSheetName, rCell
+        Set rWidget = .Range(.Cells(1, 2), .Cells(1, 2))
+        rWidget.value = "a"
+        DoFilter ActiveWorkbook, sSheetName, rWidget
         
         ' filter by the letter z
-        Set rCell = .Range(.Cells(1, 4), .Cells(1, 4))
-        rCell.value = "^z"
-        DoFilter ActiveWorkbook, sSheetName, rCell
+        Set rWidget = .Range(.Cells(1, 4), .Cells(1, 4))
+        rWidget.value = "^z"
+        DoFilter ActiveWorkbook, sSheetName, rWidget
 
         ' row 4,5 and 6 should be visible
         If .Rows(3).EntireRow.Hidden <> False Then
@@ -633,11 +633,11 @@ Dim rGrid As Range
 Dim sRangeName As String
 Dim sFilterCountName As String
 Dim eTestResult As TestResult
-Dim rCell As Range
+Dim rWidget As Range
 
 setup:
     On Error GoTo err:
-    sFuncName = CsModuleName & "." & "DoFilter2FiltersOverlapping"
+    sFuncName = C_MODULE_NAME & "." & "DoFilter2FiltersOverlapping"
     
     sModuleName = "foobar"
     sSheetName = "foobar"
@@ -661,13 +661,13 @@ main:
     With wsTmp
         DoEventsOn
         
-        Set rCell = .Range(.Cells(1, 3), .Cells(1, 3))
-        rCell.value = "y"
-        DoFilter ActiveWorkbook, sSheetName, rCell
+        Set rWidget = .Range(.Cells(1, 3), .Cells(1, 3))
+        rWidget.value = "y"
+        DoFilter ActiveWorkbook, sSheetName, rWidget
 
-        Set rCell = .Range(.Cells(1, 4), .Cells(1, 4))
-        rCell.value = "z"
-        DoFilter ActiveWorkbook, sSheetName, rCell
+        Set rWidget = .Range(.Cells(1, 4), .Cells(1, 4))
+        rWidget.value = "z"
+        DoFilter ActiveWorkbook, sSheetName, rWidget
         
         If .Rows(4).EntireRow.Hidden = True Then
             eTestResult = TestResult.Failure
@@ -716,12 +716,12 @@ Dim rGrid As Range
 Dim sRangeName As String
 Dim sFilterCountName As String
 Dim eTestResult As TestResult
-Dim rCell As Range
+Dim rWidget As Range
 Dim aTmp() As String, aTmp1() As String, aTmp2() As String, aTmp3() As String
 
 setup:
     On Error GoTo err:
-    sFuncName = CsModuleName & "." & "DoFilter2Filters"
+    sFuncName = C_MODULE_NAME & "." & "DoFilter2Filters"
     
     sModuleName = "foobar"
     sSheetName = "foobar"
@@ -743,21 +743,21 @@ main:
     With wsTmp
         DoEventsOn
           
-        Set rCell = .Range(.Cells(1, 1), .Cells(1, 1))
-        rCell.value = "Boris"
-        DoFilter ActiveWorkbook, sSheetName, rCell
+        Set rWidget = .Range(.Cells(1, 1), .Cells(1, 1))
+        rWidget.value = "Boris"
+        DoFilter ActiveWorkbook, sSheetName, rWidget
     
-        Set rCell = .Range(.Cells(1, 2), .Cells(1, 2))
-        rCell.value = "Latvia"
-        DoFilter ActiveWorkbook, sSheetName, rCell
+        Set rWidget = .Range(.Cells(1, 2), .Cells(1, 2))
+        rWidget.value = "Latvia"
+        DoFilter ActiveWorkbook, sSheetName, rWidget
         
-        Set rCell = .Range(.Cells(1, 3), .Cells(1, 3))
-        rCell.value = "Right"
-        DoFilter ActiveWorkbook, sSheetName, rCell
+        Set rWidget = .Range(.Cells(1, 3), .Cells(1, 3))
+        rWidget.value = "Right"
+        DoFilter ActiveWorkbook, sSheetName, rWidget
         
-        Set rCell = .Range(.Cells(1, 2), .Cells(1, 2))
-        rCell.value = "x"
-        DoFilter ActiveWorkbook, sSheetName, rCell
+        Set rWidget = .Range(.Cells(1, 2), .Cells(1, 2))
+        rWidget.value = "x"
+        DoFilter ActiveWorkbook, sSheetName, rWidget
     
         If .Rows(8).EntireRow.Hidden = True Then
             eTestResult = TestResult.Failure
@@ -808,12 +808,12 @@ Dim rGrid As Range
 Dim sRangeName As String
 Dim sFilterCountName As String
 Dim eTestResult As TestResult
-Dim rCell As Range
+Dim rWidget As Range
 Dim aTmp() As String, aTmp1() As String, aTmp2() As String, aTmp3() As String
 
 setup:
     On Error GoTo err:
-    sFuncName = CsModuleName & "." & "DoFilter2Filters"
+    sFuncName = C_MODULE_NAME & "." & "DoFilter2Filters"
     
     sModuleName = "foobar"
     sSheetName = "foobar"
@@ -835,21 +835,21 @@ main:
     With wsTmp
         DoEventsOn
           
-        Set rCell = .Range(.Cells(1, 1), .Cells(1, 1))
-        rCell.value = "Boris"
-        DoFilter ActiveWorkbook, sSheetName, rCell
+        Set rWidget = .Range(.Cells(1, 1), .Cells(1, 1))
+        rWidget.value = "Boris"
+        DoFilter ActiveWorkbook, sSheetName, rWidget
     
-        Set rCell = .Range(.Cells(1, 2), .Cells(1, 2))
-        rCell.value = "Latvia"
-        DoFilter ActiveWorkbook, sSheetName, rCell
+        Set rWidget = .Range(.Cells(1, 2), .Cells(1, 2))
+        rWidget.value = "Latvia"
+        DoFilter ActiveWorkbook, sSheetName, rWidget
         
-        Set rCell = .Range(.Cells(1, 3), .Cells(1, 3))
-        rCell.value = "Right"
-        DoFilter ActiveWorkbook, sSheetName, rCell
+        Set rWidget = .Range(.Cells(1, 3), .Cells(1, 3))
+        rWidget.value = "Right"
+        DoFilter ActiveWorkbook, sSheetName, rWidget
         
-        Set rCell = .Range(.Cells(1, 1), .Cells(1, 1))
-        rCell.value = "x"
-        DoFilter ActiveWorkbook, sSheetName, rCell
+        Set rWidget = .Range(.Cells(1, 1), .Cells(1, 1))
+        rWidget.value = "x"
+        DoFilter ActiveWorkbook, sSheetName, rWidget
     
         If .Rows(8).EntireRow.Hidden = True Then
             eTestResult = TestResult.Failure

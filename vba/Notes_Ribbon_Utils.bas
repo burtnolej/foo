@@ -71,7 +71,7 @@ Dim dControlValues As New Dictionary
 Dim i As Integer
 Dim rRibLabels As Range
 Dim rRibValues As Range
-Dim rCell As Range
+Dim rWidget As Range
 Dim iControlCount As Integer
 
     ReDim vControls(0 To 1000)
@@ -81,10 +81,10 @@ Dim iControlCount As Integer
         Set rRibValues = .Range("ribbon_Values")
     End With
 
-    For Each rCell In rRibLabels.Cells
-        vControls(iControlCount) = rCell.value
+    For Each rWidget In rRibLabels.Cells
+        vControls(iControlCount) = rWidget.value
         iControlCount = iControlCount + 1
-    Next rCell
+    Next rWidget
     
     ReDim Preserve vControls(0 To iControlCount - 1)
     

@@ -8,16 +8,24 @@ Const cTeacherLookUpCol = "idFaculty"
 Const cStudentLookUpCol = "idStudent"
 
 Public Sub GeneratePersonView(clsQuadRuntime As Quad_Runtime)
+'<<<
+'purpose: Create a view type form showing a person (student or teacher)
+'param  : clsQuadRuntime,Quad_Runtime; all config controlling names of books, sheets, ranges for
+'       :                 also contains any variables that need to be passed continually
+'rtype  :
+'>>>
 Dim sFuncName As String, sSheetName As String
 Dim sDefn As String
 Dim vSource() As String
 Dim wsTmp As Worksheet, wsView As Worksheet
 Dim rTarget As Range
 Dim eTestResult As TestResult
+Dim lStartTick As Long
 
 setup:
     
     sFuncName = C_MODULE_NAME & "." & "GeneratePersonView"
+    lStartTick = FuncLogIt(sFuncName, "", C_MODULE_NAME, LogMsgType.INFUNC)
     sSheetName = "test"
     Set wsTmp = CreateSheet(clsQuadRuntime.TemplateBook, sSheetName, bOverwrite:=True)
 
@@ -40,6 +48,8 @@ setup:
 main:
     GenerateForms clsQuadRuntime, bLoadRefData:=True
 
+cleanup:
+    FuncLogIt sFuncName, "", C_MODULE_NAME, LogMsgType.OUTFUNC, lLastTick:=lStartTick
     
 End Sub
 

@@ -128,9 +128,14 @@ Dim iLineNum As Integer
         iLineNum = iLineNum + 1
     Loop
 End Function
+'Public Function ReadFile2Array(sPath As String, _
+'                                Optional sFieldDelim As String = "^", _
+'                                Optional bSingleCol As Boolean = False) As String()
+
 Public Function ReadFile2Array(sPath As String, _
                                 Optional sFieldDelim As String = "^", _
-                                Optional bSingleCol As Boolean = False) As String()
+                                Optional bSingleCol As Boolean = False, _
+                                Optional bVariant As Boolean = False) As Variant
 '<<<
 ' purpose: take a flat file and represent in an array; default is a 2d array with
 '        : full line in the first col (_,0)
@@ -140,12 +145,21 @@ Public Function ReadFile2Array(sPath As String, _
 ' returns: array of strings;
 '>>>
 Dim iCol As Integer, iRow As Integer
-Dim aTmpRow() As String, aTmp() As String
+'Dim aTmpRow() As String, aTmp() As String
+Dim aTmpRow As Variant, aTmp As Variant
 
-    If bSingleCol = True Then
-        ReDim aTmp(0 To 30000)
+    If bVariant = False Then
+        If bSingleCol = True Then
+            ReDim aTmp(0 To 30000) As String
+        Else
+            ReDim aTmp(0 To 30000, 0 To 100) As String
+        End If
     Else
-        ReDim aTmp(0 To 30000, 0 To 100)
+        If bSingleCol = True Then
+            ReDim aTmp(0 To 30000) As Variant
+        Else
+            ReDim aTmp(0 To 30000, 0 To 100) As Variant
+        End If
     End If
     
     Set oFile = OpenFile(sPath, 1)
@@ -156,17 +170,29 @@ Dim aTmpRow() As String, aTmp() As String
         Else
             aTmpRow = Split(oFile.ReadLine, sFieldDelim)
             For iCol = 0 To UBound(aTmpRow)
-                aTmp(iRow, iCol) = aTmpRow(iCol)
+                If IsInt(aTmpRow(iCol)) = False Or bVariant = False Then
+                    aTmp(iRow, iCol) = aTmpRow(iCol)
+                Else
+                    aTmp(iRow, iCol) = CLng(aTmpRow(iCol))
+                End If
             Next iCol
         End If
 
         iRow = iRow + 1
     Loop
-    
-    If bSingleCol = True Then
-        ReDim Preserve aTmp(0 To iRow - 1)
+
+    If bVariant = False Then
+        If bSingleCol = True Then
+            ReDim Preserve aTmp(0 To iRow - 1)
+        Else
+            aTmp = ReDim2DArray(aTmp, iRow, iCol)
+        End If
     Else
-        aTmp = ReDim2DArray(aTmp, iRow, iCol)
+        If bSingleCol = True Then
+            ReDim Preserve aTmp(0 To iRow - 1) As Variant
+        Else
+            aTmp = ReDim2DArray(aTmp, iRow, iCol, bVariant:=True)
+        End If
     End If
     oFile.Close
     

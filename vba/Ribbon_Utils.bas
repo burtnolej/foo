@@ -55,7 +55,7 @@ Dim dControlValues As New Dictionary
 Dim i As Integer
 Dim rRibLabels As Range
 Dim rRibValues As Range
-Dim rCell As Range
+Dim rWidget As Range
 Dim iControlCount As Integer
 
     ReDim vControls(0 To 1000)
@@ -65,10 +65,10 @@ Dim iControlCount As Integer
         Set rRibValues = .Range("ribbon_Values")
     End With
 
-    For Each rCell In rRibLabels.Cells
-        vControls(iControlCount) = rCell.value
+    For Each rWidget In rRibLabels.Cells
+        vControls(iControlCount) = rWidget.value
         iControlCount = iControlCount + 1
-    Next rCell
+    Next rWidget
     
     ReDim Preserve vControls(0 To iControlCount - 1)
     
@@ -126,11 +126,11 @@ Dim wsSchedule As Worksheet
     End If
     
     sTemplateRowRangeName = "f" & "student" & "ScheduleRowLabel"
-    GetScheduleCellFormat clsQuadRuntime, iFormatWidth, iFormatHeight, sTemplateRowRangeName
+    GetScheduleWidgetFormat clsQuadRuntime, iFormatWidth, iFormatHeight, sTemplateRowRangeName
     BuildScheduleHeaderView clsQuadRuntime, wsSchedule, clsQuadRuntime.PeriodEnum, iFormatWidth, iFormatHeight
 
     sTemplateColRangeName = "f" & "student" & "ScheduleColLabel"
-    GetScheduleCellFormat clsQuadRuntime, iFormatWidth, iFormatHeight, sTemplateColRangeName
+    GetScheduleWidgetFormat clsQuadRuntime, iFormatWidth, iFormatHeight, sTemplateColRangeName
     BuildScheduleHeaderView clsQuadRuntime, wsSchedule, clsQuadRuntime.DayEnum, iFormatWidth, iFormatHeight, iStartCol:=4, iStartRow:=2, bVz:=False
     
     BuildSchedule clsQuadRuntime, _
@@ -183,8 +183,8 @@ setup:
         ToggleSheet ActiveWorkbook, "FormStyles"
     ElseIf control.id = "Definitions" Then
         ToggleSheet ActiveWorkbook, "Definitions"
-    ElseIf control.id = "CellStyles" Then
-        ToggleSheet ActiveWorkbook, "CellStyles"
+    ElseIf control.id = "WidgetStyles" Then
+        ToggleSheet ActiveWorkbook, "WidgetStyles"
     ElseIf control.id = "CloseWindows" Then
         cleanup_workbooks
     ' Tab: Admin

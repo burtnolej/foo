@@ -1,13 +1,12 @@
 Attribute VB_Name = "Array_Utils"
 ' Errors
 ' ----------------------------------------------------------------------------------------------
-Const CsModuleName = "Array_Utils"
+Const C_MODULE_NAME = "Array_Utils"
 Enum ArrayErrors
     ArgNot2DArray = 1
     NotArrayFromRange = 2
 End Enum
 Const C_ARRAY_ERROR = "ArgNot2DArray,NotArrayFromRange"
-Const C_MODULE_NAME = "Array_Utils"
 Const C_ERROR_RANGE = 500
 Function ReDim2DArray(aInput As Variant, _
                       iTargetLength As Integer, _
@@ -224,7 +223,7 @@ Function NumColumns(aTmp As Variant, Optional bAssert = True) As Integer
 Dim sFuncName As String
 
 setup:
-    sFuncName = CsModuleName & ".NumColumns"
+    sFuncName = C_MODULE_NAME & ".NumColumns"
 
 main:
     If Is2DArray(aTmp) = True Then
@@ -312,14 +311,27 @@ setup:
     ConvertArrayFromRangeto1D = iTmp
     
 End Function
-Function InArray(aSearch As Variant, iValue As Variant) As Boolean
+Function InArray(aSearch As Variant, iValue As Variant, _
+        Optional bLike As Boolean = False) As Boolean
 ' Determine if value [iValue] is a member of set [aSearch]; [aSearch] needs to be a 1 dimensional array
     For i = 0 To UBound(aSearch)
-        If CStr(aSearch(i)) = CStr(iValue) Then
-            InArray = True
-            Exit Function
+        If bLike = False Then
+            If CStr(aSearch(i)) = CStr(iValue) Then
+                InArray = True
+                Exit Function
+            End If
+        Else
+            If CStr(aSearch(i)) Like ASTERISK & CStr(iValue) & ASTERISK Then
+                InArray = True
+                Exit Function
+            End If
+        End If
+        
+        If aSearch(i) = "" Then
+            GoTo cleanup
         End If
     Next
+cleanup:
     InArray = False
 End Function
 Function Array2String(aVals() As String, Optional aWidths As Variant, Optional sDelim As String = "") As String
@@ -372,17 +384,30 @@ Dim aSchedule As Variant
     
     Delim2Array = aSchedule
 End Function
-'Public Function Init2DStringArrayFromString(sInitVals As String) As String()
 Public Function Init2DStringArrayFromString(sInitVals As String, Optional bVariant As Boolean = False) As Variant
-' allows a 2d string array to be instantiated from a $$/^ delimied string
-' this makes it easier to read when setting up in a test
+'<<<
+'purpose: allows a 2d string array to be instantiated from a $$/^ delimied string
+'       : this makes it easier to read when setting up in a test
+'param  : sInitVals,string; of form field1^field2$$row2field1^row2field2
+'param  : bVariant, boolean (Optional); return a variant array
+'rtype  : variant
+'>>>
+Dim sFuncName As String
 
+setup:
+    sFuncName = CsModuleName & "." & "Init2DStringArrayFromString"
+    FuncLogIt sFuncName, "", CsModuleName, LogMsgType.INFUNC
+
+main:
     If bVariant = True Then
         Init2DStringArrayFromString = Init2DVariantArray(Delim2Array(sInitVals, bVariant:=bVariant))
     Else
         Init2DStringArrayFromString = Init2DStringArray(Delim2Array(sInitVals))
     End If
-
+    
+cleanup:
+    FuncLogIt sFuncName, "", C_MODULE_NAME, LogMsgType.OUTFUNC
+    
 End Function
 Public Function Init2DStringArray(aInitVals As Variant) As String()
 Dim iTmp() As String

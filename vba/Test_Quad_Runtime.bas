@@ -1,7 +1,7 @@
 Attribute VB_Name = "Test_Quad_Runtime"
 Option Explicit
 
-Const CsModuleName = "Test_Quad_Runtime"
+Const C_MODULE_NAME = "Test_Quad_Runtime"
 
 Function Test_Init_Quad_Runtime_MultiUpdate_Cached_Values() As TestResult
 ' updating the cache multiple times
@@ -12,11 +12,11 @@ Dim wbTmp As Workbook
 Dim vResultArray() As String
 
 setup:
-    sFuncName = CsModuleName & "." & "Init_Quad_Runtime"
+    sFuncName = C_MODULE_NAME & "." & "Init_Quad_Runtime"
     sTmpBookPath = Environ("MYHOME") & ""
     sTmpBookName = "tmp.xls"
     Set wbTmp = CreateBook(sTmpBookName, sBookPath:=sTmpBookPath)
-    sFuncName = CsModuleName & "." & "Init_Quad_Runtime"
+    sFuncName = C_MODULE_NAME & "." & "Init_Quad_Runtime"
     Set clsQuadRuntime = New Quad_Runtime
     sFilePath = Environ("MYHOME") & "\quad_runtime_cache.txt"
 main:
@@ -111,11 +111,11 @@ Dim wbTmp As Workbook
 Dim vResultArray() As String
 
 setup:
-    sFuncName = CsModuleName & "." & "Init_Quad_Runtime"
+    sFuncName = C_MODULE_NAME & "." & "Init_Quad_Runtime"
     sTmpBookPath = Environ("MYHOME")
     sTmpBookName = "tmp.xls"
     Set wbTmp = CreateBook(sTmpBookName, sBookPath:=sTmpBookPath)
-    sFuncName = CsModuleName & "." & "Init_Quad_Runtime"
+    sFuncName = C_MODULE_NAME & "." & "Init_Quad_Runtime"
     Set clsQuadRuntime = New Quad_Runtime
     sFilePath = Environ("MYHOME") & "\\quad_runtime_cache.txt"
 main:
@@ -148,7 +148,7 @@ Dim eTestResult As TestResult
 Dim clsQuadRuntime As Quad_Runtime
 
 setup:
-    sFuncName = CsModuleName & "." & "Init_Quad_Runtime"
+    sFuncName = C_MODULE_NAME & "." & "Init_Quad_Runtime"
     Set clsQuadRuntime = New Quad_Runtime
     sFilePath = Environ("MYHOME") & "\\quad_runtime_cache.txt"
     
@@ -179,7 +179,7 @@ setup:
     sTmpBookPath = Environ("MYHOME")
     sTmpBookName = "tmp.xls"
     Set wbTmp = CreateBook(sTmpBookName, sBookPath:=sTmpBookPath)
-    sFuncName = CsModuleName & "." & "Init_Quad_Runtime"
+    sFuncName = C_MODULE_NAME & "." & "Init_Quad_Runtime"
     Set clsQuadRuntime = New Quad_Runtime
     sFilePath = Environ("MYHOME") & "\\quad_runtime_cache.txt"
     
@@ -208,7 +208,7 @@ Dim eTestResult As TestResult
 Dim clsQuadRuntime As Quad_Runtime
 
 setup:
-    sFuncName = CsModuleName & "." & "Init_Quad_Runtime"
+    sFuncName = C_MODULE_NAME & "." & "Init_Quad_Runtime"
     Set clsQuadRuntime = New Quad_Runtime
     sFilePath = Environ("MYHOME") & "\\quad_runtime_cache.txt"
     
@@ -237,7 +237,7 @@ Dim eTestResult As TestResult
 Dim clsQuadRuntime As Quad_Runtime
 
 setup:
-    sFuncName = CsModuleName & "." & "Init_Quad_Runtime"
+    sFuncName = C_MODULE_NAME & "." & "Init_Quad_Runtime"
     Set clsQuadRuntime = New Quad_Runtime
     sBookPath = Environ("MYHOME")
     sBookName = "tmp2.xls"
@@ -272,7 +272,7 @@ Dim eTestResult As TestResult
 Dim clsQuadRuntime As Quad_Runtime
 
 setup:
-    sFuncName = CsModuleName & "." & "Init_Quad_Runtime"
+    sFuncName = C_MODULE_NAME & "." & "Init_Quad_Runtime"
     Set clsQuadRuntime = New Quad_Runtime
     sFilePath = Environ("MYHOME") & "\\quad_runtime_cache.txt"
     
@@ -295,22 +295,22 @@ teardown:
 End Function
 
 Function Test_Init_Quad_Runtime_Override_Template() As TestResult
-Dim sFuncName As String, sTemplateName As String, sTemplatePath As String, sTemplateSheetName As String, sTemplateCellSheetName As String, sFilePath As String
+Dim sFuncName As String, sTemplateName As String, sTemplatePath As String, sTemplateSheetName As String, sTemplateWidgetSheetName As String, sFilePath As String
 Dim eTestResult As TestResult
 Dim clsQuadRuntime As Quad_Runtime
 Dim wbTmp As Workbook
 
 setup:
-    sFuncName = CsModuleName & "." & "Init_Quad_Runtime"
+    sFuncName = C_MODULE_NAME & "." & "Init_Quad_Runtime"
     Set clsQuadRuntime = New Quad_Runtime
     sTemplatePath = Environ("MYHOME") & "\\"
     
     sTemplateName = "tmp2.xlsx"
     sTemplateSheetName = "foo"
-    sTemplateCellSheetName = "foocell"
+    sTemplateWidgetSheetName = "foocell"
     Set wbTmp = CreateBook(sTemplateName, sBookPath:=sTemplatePath)
     CreateSheet wbTmp, sTemplateSheetName
-    CreateSheet wbTmp, sTemplateCellSheetName
+    CreateSheet wbTmp, sTemplateWidgetSheetName
     CloseBook wbTmp, bSaveFlag:=True
     sFilePath = Environ("MYHOME") & "\\quad_runtime_cache.txt"
     
@@ -318,7 +318,7 @@ main:
     clsQuadRuntime.InitProperties sTemplateBookPath:=sTemplatePath, _
                                   sTemplateBookName:=sTemplateName, _
                                   sTemplateSheetName:=sTemplateSheetName, _
-                                  sTemplateCellSheetName:=sTemplateCellSheetName
+                                  sTemplateWidgetSheetName:=sTemplateWidgetSheetName
                                   
     If clsQuadRuntime.TemplateSheetName <> sTemplateSheetName Then
         eTestResult = TestResult.Failure
@@ -350,7 +350,7 @@ Dim eTestResult As TestResult
 Dim clsQuadRuntime As Quad_Runtime
 
 setup:
-    sFuncName = CsModuleName & "." & "Init_Quad_Runtime"
+    sFuncName = C_MODULE_NAME & "." & "Init_Quad_Runtime"
     Set clsQuadRuntime = New Quad_Runtime
     sDatabasePath = Environ("MYHOME") & "\\foo.db"
     CreateFile sDatabasePath & ".sqlite"

@@ -1,6 +1,6 @@
 Attribute VB_Name = "Test_Format_Utils"
 Option Explicit
-Const CsModuleName = "Test_Format_Utils"
+Const C_MODULE_NAME = "Test_Format_Utils"
 
 
 Function Test_CopyFormat() As TestResult
@@ -16,7 +16,7 @@ Dim clsQuadRuntime As New Quad_Runtime
 setup:
     clsQuadRuntime.InitProperties bInitializeCache:=True
     
-    sFuncName = CsModuleName & "." & "CopyFormat"
+    sFuncName = C_MODULE_NAME & "." & "CopyFormat"
     sSheetName = "test"
     Set wsTmp = CreateSheet(clsQuadRuntime.Book, sSheetName, bOverwrite:=True)
     
@@ -58,23 +58,23 @@ Function Test_BgColor() As TestResult
 Dim sFuncName As String
 Dim wsTmp As Worksheet
 Dim sResult As String
-Dim rCell As Range
+Dim rWidget As Range
 Dim cRGB As RGBColor
 Dim sSheetName As String
 Dim eTestResult As TestResult
 
 setup:
-    sFuncName = CsModuleName & "." & "BgColor"
+    sFuncName = C_MODULE_NAME & "." & "BgColor"
     sSheetName = "test"
     Set wsTmp = CreateSheet(ActiveWorkbook, sSheetName, bOverwrite:=True)
     With wsTmp
-        Set rCell = .Range(.Cells(1, 1), .Cells(1, 1))
+        Set rWidget = .Range(.Cells(1, 1), .Cells(1, 1))
     End With
     
 main:
 
-    SetBgColor sSheetName, rCell, 255, 0, 0
-    Set cRGB = GetBgColor(sSheetName, rCell)
+    SetBgColor sSheetName, rWidget, 255, 0, 0
+    Set cRGB = GetBgColor(sSheetName, rWidget)
     
     If cRGB.AsString <> "255,0,0" Then
         eTestResult = TestResult.Failure

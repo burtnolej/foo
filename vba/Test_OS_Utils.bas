@@ -1,6 +1,6 @@
 Attribute VB_Name = "Test_OS_Utils"
 Option Explicit
-Const CsModuleName = "Test_Shell_Utils"
+Const C_MODULE_NAME = "Test_Shell_Utils"
 Function Test_ShellRun() As TestResult
 Dim sFuncName As String
 Dim eTestResult As TestResult

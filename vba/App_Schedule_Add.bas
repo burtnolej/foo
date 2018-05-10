@@ -1,6 +1,6 @@
 Attribute VB_Name = "App_Schedule_Add"
 Option Explicit
-Const CsModuleName = "App_Schedule_Add"
+Const C_MODULE_NAME = "App_Schedule_Add"
 
 Public Sub EditLesson(iPersonID As Integer, _
                       sDayCd As String, _
@@ -110,7 +110,7 @@ Dim eTestResult As TestResult
 
 setup:
     
-    sFuncName = CsModuleName & "." & "GenerateScheduleAdd"
+    sFuncName = C_MODULE_NAME & "." & "GenerateScheduleAdd"
     sSheetName = "test"
     'clsQuadRuntime.InitProperties bInitializeCache:=True, sDefinitionSheetName:=sSheetName
     Set wsTmp = CreateSheet(clsQuadRuntime.TemplateBook, sSheetName, bOverwrite:=True)
