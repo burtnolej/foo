@@ -177,6 +177,34 @@ cleanup:
 
 End Sub
 
+Public Function GetFormName(eFormType As FormType, sSubDataType As String) As String
+'<<<
+'purpose: A FormName is the name of the Sheet that is generated
+'param  : eFormType, FormType; i.e. 3
+'param  : SubDataType (i.e. Quad this would be Student|Teacher
+'rtype  : String; i.e. ViewStudent
+'>>>
+Dim sFuncName As String
+Dim lStartTick As Long
+
+setup:
+    sFuncName = C_MODULE_NAME & "." & "GetFormName"
+    lStartTick = FuncLogIt(sFuncName, "", C_MODULE_NAME, LogMsgType.INFUNC)
+    On Error GoTo err
+    
+main:
+    GetFormName = EnumFormType(eFormType) & sSubDataType
+    
+cleanup:
+    FuncLogIt sFuncName, "[eFormType=" & eFormType & "] [sSubDataType=" & sSubDataType & "] [Result=" & GetFormName & "]", C_MODULE_NAME, LogMsgType.DEBUGGING2
+    FuncLogIt sFuncName, "", C_MODULE_NAME, LogMsgType.OUTFUNC, lLastTick:=lStartTick
+    Exit Function
+        
+err:
+    FuncLogIt sFuncName, "[" & err.Description & "]  raised", C_MODULE_NAME, LogMsgType.Error
+    err.Raise err.Number, err.Source, err.Description ' cannot recover from this
+
+End Function
 Public Sub UpdateForm(ParamArray args())
 '<<<
 'purpose:
@@ -185,14 +213,14 @@ Public Sub UpdateForm(ParamArray args())
 'param  :
 'rtype  :
 '>>>
-Dim sTableName As String, sValue As String, sLookUpIdRangeName As String, sRecordID As String, sFieldName As String, sFuncName As String, sLookUpFieldName As String
+Dim sCacheTableName As String, sValue As String, sLookUpIdRangeName As String, sRecordID As String, sFieldName As String, sFuncName As String, sLookUpFieldName As String
 Dim clsQuadRuntime As Quad_Runtime
 Dim sKey As Variant
 Dim rTarget As Range
 Dim lStartTick As Long
 Dim eWidgetType As WidgetType
 Dim eFormType As FormType
-Dim sNoun As String, sView As String
+Dim sSubDataType As String, sFormName As String
 Dim dValues As Dictionary
 
 setup:
@@ -201,34 +229,30 @@ setup:
     
 main:
     Set clsQuadRuntime = args(0)
-    sValue = args(1)
-    sLookUpIdRangeName = args(2)
-    sNoun = args(3)
-    eWidgetType = args(4)
-    eFormType = args(5)
+    sValue = args(1) ' i.e Bruno - if the LookupID is sStudentFirstNm
+    sLookUpIdRangeName = args(2) ' i.e. ViewStudent!sViewStudent_sStudentFirstNm - if the form is a ViewStudent form
+    sSubDataType = args(3) ' i.e. Student
+    eWidgetType = args(4) ' i.e. 3  for Text
+    eFormType = args(5) ' i.e. 3 for View
     
     clsQuadRuntime.InitProperties bInitializeCache:=False
-        
-    sView = EnumFormType(eFormType) & sNoun
+
+    sFormName = GetFormName(eFormType, sSubDataType)
     
     ' how to get the cache table for this lookup
-    sTableName = GetTableNameFromRangeName(sLookUpIdRangeName)
+    sCacheTableName = GetCacheTableName(sLookUpIdRangeName) ' i.e. person_student
     
-    sLookUpFieldName = GetFieldNameFromRangeName(sLookUpIdRangeName)
+    sLookUpFieldName = GetFieldName(sLookUpIdRangeName)
     
     'to look up the record gets the record key/id field name from the range name passed in
     sRecordID = GetTableRecordID(sValue, sLookUpFieldName)
     
-    'Set dValues = GetTableRecord("person_student", CInt(sRecordID) - 1, wbTmp:=clsQuadRuntime.CacheBook)
-    Set dValues = GetTableRecord(sTableName, CInt(sRecordID) - 1, wbTmp:=clsQuadRuntime.CacheBook)
+    Set dValues = GetTableRecord(sCacheTableName, CInt(sRecordID) - 1, wbTmp:=clsQuadRuntime.CacheBook)
     
     For Each sKey In dDefinitions.Keys
-        If IsWidgetRangeNameForView(CStr(sKey), sView, eWidgetType) = True Then
-            'Set dDetailDefn = dDefinitions.Item(sKey)
-            'sFieldName = Split(sKey, UNDERSCORE)(1)
-            
-            sFieldName = GetFieldNameFromRangeName(CStr(sKey))
-            Set rTarget = clsQuadRuntime.ViewBook.Sheets(sView).Range(sKey)
+        If IsWidgetRangeNameForView(CStr(sKey), sFormName, eWidgetType) = True Then
+            sFieldName = GetFieldName(CStr(sKey))
+            Set rTarget = clsQuadRuntime.ViewBook.Sheets(sFormName).Range(sKey)
             rTarget.value = dValues.Item(sFieldName)
         End If
     Next sKey
@@ -237,7 +261,7 @@ main:
     clsQuadRuntime.ViewBook.Activate
 
 cleanup:
-    FuncLogIt sFuncName, "[sTableName=" & sTableName & "] [sValue=" & sValue & "] [sLookUpIdRangeName=" & sLookUpIdRangeName & "] [sNoun=" & sNoun & "] [eWidgetType=" & EnumWidgetType(eWidgetType) & "]", C_MODULE_NAME, LogMsgType.DEBUGGING
+    FuncLogIt sFuncName, "[sCacheTableName=" & sCacheTableName & "] [sValue=" & sValue & "] [sLookUpIdRangeName=" & sLookUpIdRangeName & "] [sFormName=" & sFormName & "] [eWidgetType=" & EnumWidgetType(eWidgetType) & "]", C_MODULE_NAME, LogMsgType.DEBUGGING
     FuncLogIt sFuncName, "", C_MODULE_NAME, LogMsgType.OUTFUNC, lLastTick:=lStartTick
 
 End Sub

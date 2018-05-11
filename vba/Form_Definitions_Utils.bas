@@ -1,19 +1,19 @@
 Attribute VB_Name = "Form_Definitions_Utils"
 Option Explicit
 Const C_MODULE_NAME = "Form_Definitions_Utils"
-Public Function GetTableNameFromRangeName(sRangeName As String)
+Public Function GetCacheTableName(sRangeName As String) As String
 '<<<
 'purpose:
 'param  :
 'param  :
-'rtype  :
+'rtype  : String; i.e. person_student
 '>>>
 Dim dDetailDefn As Dictionary
 Dim sFuncName As String
 Dim lStartTick As Long
 
 setup:
-    sFuncName = C_MODULE_NAME & "." & "GetTableNameFromRangeName"
+    sFuncName = C_MODULE_NAME & "." & "GetCacheTableName"
     lStartTick = FuncLogIt(sFuncName, "", C_MODULE_NAME, LogMsgType.INFUNC)
     
 main:
@@ -22,10 +22,10 @@ main:
         sRangeName = Split(sRangeName, BANG)(1)
     End If
     Set dDetailDefn = dDefinitions.Item(sRangeName)
-    GetTableNameFromRangeName = dDetailDefn.Item("db_table_name")
+    GetCacheTableName = dDetailDefn.Item("db_table_name")
     
 cleanup:
-    FuncLogIt sFuncName, "[sRangeName=" & sRangeName & "] [Result=" & GetTableNameFromRangeName & "]", C_MODULE_NAME, LogMsgType.DEBUGGING2
+    FuncLogIt sFuncName, "[sRangeName=" & sRangeName & "] [Result=" & GetCacheTableName & "]", C_MODULE_NAME, LogMsgType.DEBUGGING2
     FuncLogIt sFuncName, "", C_MODULE_NAME, LogMsgType.OUTFUNC, lLastTick:=lStartTick
      
 End Function
@@ -150,28 +150,31 @@ Dim wbTmp As Workbook
     
     End Sub
 
-Public Sub DumpDefinitions(Optional bLog As Boolean = True)
+Public Sub DumpDefinitions(Optional bLog As Boolean = True, Optional bWorksheet As Boolean = False)
 Dim sKey As Variant
 Dim vDetail As Variant
 Dim sFuncName As String, sDetail As String
 Dim dDefnDetail As Dictionary
-Dim v
+Dim sOutput As String
 
     sFuncName = C_MODULE_NAME & "." & "DumpDefinitions"
     
     For Each sKey In dDefinitions.Keys
         If sKey <> "actions" And sKey <> "tables" Then
             Set dDefnDetail = dDefinitions.Item(sKey)
-            Debug.Print vbNewLine
-            Debug.Print sKey
+            sOutput = sOutput & vbNewLine & sKey & vbNewLine
             For Each vDetail In dDefnDetail.Keys
                 If MyVarType(dDefnDetail.Item(vDetail)) = 46 Then
                     sDetail = "[" & Join(dDefnDetail.Item(CStr(vDetail)), COMMA) & "]"
                 Else
                     sDetail = dDefnDetail.Item(vDetail)
                 End If
-                Debug.Print PadStr(CStr(vDetail), "left", 20, " ") & " = " & PadStr(sDetail, "right", 20, " ")
+                sOutput = sOutput & PadStr(CStr(vDetail), "left", 20, " ") & " = " & PadStr(sDetail, "right", 20, " ") & vbNewLine
             Next vDetail
         End If
+        Debug.Print sOutput
+        sOutput = ""
     Next sKey
+    
+    Debug.Print sOutput
 End Sub

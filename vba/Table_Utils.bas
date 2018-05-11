@@ -105,7 +105,7 @@ main:
     For Each sKey In dDefinitions.Keys()
         If dDefinitions.Item(sKey).Item("db_table_name") = sTableName Then
         
-            sFieldName = GetFieldNameFromRangeName(CStr(sKey))
+            sFieldName = GetFieldName(CStr(sKey))
             
             If InArray(vWidgetKeys, sFieldName, bLike:=True) = False Then
                 vWidgetKeys(iWidgetKeyCount) = CStr(sKey)

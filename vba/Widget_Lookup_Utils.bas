@@ -26,7 +26,7 @@ End Function
 'End Function
 'GetFormSheetNameFromRangeName
 
-Function GetFieldNameFromRangeName(sRangeName As String) As String
+Function GetFieldName(sRangeName As String) As String
 '<<<
 'purpose: [WorksheetName|TableName]!s+[ActionName]_[FieldName] i.e. "ViewStudent!sViewStudent_sStudentFirstNm"
 '       : would return sViewStudent_sStudentFirstNm
@@ -41,15 +41,15 @@ Dim sSplits() As String
 Dim lStartTick As Long
 
 setup:
-    sFuncName = C_MODULE_NAME & "." & "GetFieldNameFromRangeName"
+    sFuncName = C_MODULE_NAME & "." & "GetFieldName"
     lStartTick = FuncLogIt(sFuncName, "", C_MODULE_NAME, LogMsgType.INFUNC)
     
 main:
     sSplits = Split(sRangeName, UNDERSCORE)
-    GetFieldNameFromRangeName = sSplits(UBound(sSplits))
+    GetFieldName = sSplits(UBound(sSplits))
 
 cleanup:
-    FuncLogIt sFuncName, "[sRangeName=" & sRangeName & "] [Result=" & GetFieldNameFromRangeName & "]", C_MODULE_NAME, LogMsgType.DEBUGGING2
+    FuncLogIt sFuncName, "[sRangeName=" & sRangeName & "] [Result=" & GetFieldName & "]", C_MODULE_NAME, LogMsgType.DEBUGGING2
     FuncLogIt sFuncName, "", C_MODULE_NAME, LogMsgType.OUTFUNC, lLastTick:=lStartTick
 
 End Function

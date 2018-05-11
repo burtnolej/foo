@@ -594,7 +594,7 @@ teardown:
     clsQuadRuntime.Delete
 
 End Function
-Function T_e_stGenerateViewSelectForm() As TestResult
+Function TestGenerateViewSelectForm() As TestResult
 ' multiple Add forms
 Dim sSheetName As String, sResultStr As String, sFuncName As String, sDefn As String, sSearchCode As String, sModuleCode As String, sExpectedResultStr As String
 Dim vSource() As String
