@@ -1,5 +1,14 @@
 Attribute VB_Name = "Macros"
 Const C_MODULE_NAME = "Macros"
+
+
+Public Sub DoDeleteModules()
+Dim wbTmp As Workbook
+
+    Set wbTmp = OpenBook("quad.xlsm")
+    DeleteModules wbTmp
+    
+End Sub
 Public Sub DoImportModules()
 Dim VBProj As VBIDE.VBProject
 Dim VBComp As VBIDE.VBComponent

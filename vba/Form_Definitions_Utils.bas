@@ -15,6 +15,7 @@ Dim lStartTick As Long
 setup:
     sFuncName = C_MODULE_NAME & "." & "GetCacheTableName"
     lStartTick = FuncLogIt(sFuncName, "", C_MODULE_NAME, LogMsgType.INFUNC)
+    On Error GoTo err
     
 main:
 
@@ -22,12 +23,21 @@ main:
         sRangeName = Split(sRangeName, BANG)(1)
     End If
     Set dDetailDefn = dDefinitions.Item(sRangeName)
-    GetCacheTableName = dDetailDefn.Item("db_table_name")
+    GetCacheTableName = dDetailDefn.Item("CacheTableName")
+    
+    If GetCacheTableName = "" Then
+        err.Raise ErrorMsgType.CACHE_TABLE_NAME_CANNOT_BE_BLANK, Description:="[GetCacheTableName=" & GetCacheTableName & "]"
+    End If
     
 cleanup:
     FuncLogIt sFuncName, "[sRangeName=" & sRangeName & "] [Result=" & GetCacheTableName & "]", C_MODULE_NAME, LogMsgType.DEBUGGING2
     FuncLogIt sFuncName, "", C_MODULE_NAME, LogMsgType.OUTFUNC, lLastTick:=lStartTick
+    Exit Function
      
+err:
+    FuncLogIt sFuncName, "[" & err.Description & "]  raised", C_MODULE_NAME, LogMsgType.Error
+    err.Raise err.Number, err.Source, err.Description ' cannot recover from this
+
 End Function
 Public Function LoadDefinitions(wsTmp As Worksheet, _
                        Optional rSource As Range = Nothing, _
@@ -44,7 +54,7 @@ Public Function LoadDefinitions(wsTmp As Worksheet, _
                      
 Dim dDefinitions As New Dictionary, dDefnDetail As Dictionary, dDefnActions As New Dictionary, dDefnTables As New Dictionary
 Dim rRow As Range
-Dim sTableName As String, sFieldName As String, sActionName As String, sValidationType As String, sActionFunc As String
+Dim sCacheTableName As String, sFieldName As String, sActionName As String, sValidationType As String, sActionFunc As String
 Dim eWidgetType As WidgetType
 Dim sValidationParam As String, sFuncName As String, sKey As String
 Dim vValidationParams() As String
@@ -65,7 +75,7 @@ main:
             'rSource.Select
             iValidationParamCount = 0
             sActionName = rRow.Columns(1)
-            sTableName = rRow.Columns(2)
+            sCacheTableName = rRow.Columns(2)
             sFieldName = rRow.Columns(3)
             sValidationType = rRow.Columns(4)
             sValidationParam = rRow.Columns(5)
@@ -77,13 +87,23 @@ main:
                 eWidgetType = WidgetType.Entry
             End If
             
+            If sCacheTableName = BLANK Then
+                If eWidgetType <> WidgetType.Button Then
+                    err.Raise ErrorMsgType.CACHE_TABLE_NAME_CANNOT_BE_BLANK, Description:="[sFieldName=" & sFieldName & "] [sCacheTableName=" & sCacheTableName & "]"
+                End If
+            End If
+            
+            If sFieldName = BLANK Then
+                err.Raise ErrorMsgType.FIELD_NAME_CANNOT_BE_BLANK, Description:="[sFieldName=" & sFieldName & "]"
+            End If
+            
             Set dDefnDetail = New Dictionary
             dDefnDetail.Add "validation_type", sValidationType
             dDefnDetail.Add "validation_param", sValidationParam
-            dDefnDetail.Add "db_table_name", sTableName
-            dDefnDetail.Add "db_field_name", sFieldName
-            dDefnDetail.Add "widget_type", eWidgetType
-            dDefnDetail.Add "action_func", sActionFunc
+            dDefnDetail.Add "CacheTableName", sCacheTableName
+            dDefnDetail.Add "FieldName", sFieldName
+            dDefnDetail.Add "WidgetType", eWidgetType
+            dDefnDetail.Add "ActionName", sActionFunc
             
             For iCol = 6 To 7
                 If rRow.Columns(iCol).value <> "" Then
@@ -110,8 +130,8 @@ main:
                 dDefnActions.Add sActionName, Nothing
             End If
 
-            If dDefnTables.Exists(sTableName) = False Then
-                dDefnTables.Add sTableName, Nothing
+            If dDefnTables.Exists(sCacheTableName) = False Then
+                dDefnTables.Add sCacheTableName, Nothing
             End If
             
         Next rRow

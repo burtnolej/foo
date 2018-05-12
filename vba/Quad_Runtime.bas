@@ -10,10 +10,19 @@ Attribute VB_Exposed = False
 Option Explicit
 
 Const C_MODULE_NAME = "Quad_Runtime"
+Public Enum DataFamilyType
+    Quad = 1
+End Enum
+
+Private pDataFamily As DataFamilyType
 
 Private pBookPath As String
 Private pBookName As String
 Private pBook As Workbook
+
+Private pMainBookPath As String
+Private pMainBookName As String
+Private pMainBook As Workbook
 
 Private pCacheBookName As String
 Private pCacheBookPath As String
@@ -66,12 +75,15 @@ Private pDefinitionSheetName As String
 
 Private pWindowSettings As Quad_WindowSettings
 
+Private cDataFamily As DataFamilyType
 Private cHomeDir As String
 Private cAppDir As String
 Private cExecPath  As String
 Private cRuntimeDir  As String
 Private cBookPath As String
 Private cBookName As String
+Private cMainBookPath As String
+Private cMainBookName As String
 Private cNewBookPath As String
 Private cCacheBookName  As String
 Private cCacheBookPath  As String
@@ -97,6 +109,36 @@ Private cDayEnum  As String
 Private cPeriodEnum  As String
 Private cQuadRuntimeCacheFileName  As String
 Private cBookEnum As String
+
+
+Const C_DATA_FAMILY_TYPE = "Quad"
+Public dDefinitions As Dictionary
+
+Function EnumDataFamilyType(i As Long) As String
+    EnumDataFamilyType = Split(C_DATA_FAMILY, COMMA)(i - 1)
+End Function
+Function GetDataFamilyTypeEnumFromValue(sValue As String) As Long
+    GetDataFamilyTypeEnumFromValue = IndexArray(C_DATA_FAMILY_TYPE, sValue)
+End Function
+
+' Data Family ----------------------------------
+Public Property Get DataFamily() As DataFamilyType
+    Set DataFamily = pDataFamily
+End Property
+
+Public Property Let DataFamily(value As DataFamilyType)
+Dim sCachedValue As String, sOrigValue As String, sConstValue As String
+Dim sFuncName As String
+
+setup:
+    sFuncName = C_MODULE_NAME & "." & "DataFamily"
+    sConstValue = cDataFamily
+
+main:
+    pDataFamily = GetUpdatedValue(sFuncName, sConstValue, value)
+    
+End Property
+' END Data Family ----------------------------------
 
 ' Book -----------------------
 Public Property Get Book() As Workbook
@@ -174,6 +216,60 @@ main:
 End Property
 'END Book ----------------------
 
+' Main  Book -----------------------
+Public Property Get MainBook() As Workbook
+    Set MainBook = pMainBook
+End Property
+Public Property Let MainBook(value As Workbook)
+    Set pMainBook = value
+End Property
+Public Property Get MainBookPath() As String
+    MainBookPath = pMainBookPath
+End Property
+Public Property Let MainBookPath(value As String)
+Dim sCachedValue As String, sOrigValue As String, sConstValue As String
+Dim sFuncName As String
+
+setup:
+    sFuncName = C_MODULE_NAME & "." & "MainBookPath"
+    sConstValue = cMainBookPath
+    
+main:
+    pMainBookPath = GetUpdatedValue(sFuncName, sConstValue, value)
+    
+    If DirExists(value) <> True Then
+         err.Raise ErrorMsgType.BAD_ARGUMENT, Description:="workbook [" & value & "] does not exist"
+    End If
+    
+End Property
+Public Property Get MainBookName() As String
+    MainBookName = pMainBookName
+End Property
+
+Public Property Let MainBookName(value As String)
+Dim sCachedValue As String, sOrigValue As String, sConstValue As String
+Dim sFuncName As String
+
+setup:
+    sFuncName = C_MODULE_NAME & "." & "MainBookName"
+    sConstValue = cMainBookName
+
+main:
+
+    pMainBookName = GetUpdatedValue(sFuncName, sConstValue, value)
+    
+    If Me.MainBookPath = "" Then
+         err.Raise ErrorMsgType.DEPENDENT_ATTR_NOT_SET, Description:="MainBookPath needs to be set before MainBookName"
+    End If
+    
+    If FileExists(Me.MainBookPath & "\\" & pMainBookName) = False Then
+        err.Raise ErrorMsgType.BAD_ARGUMENT, Description:="MainBookName file does not exist [" & value & "]"
+    End If
+    
+    Me.MainBook = OpenBook(pMainBookName, sPath:=Me.MainBookPath)
+    
+End Property
+'END Main Book ----------------------
 
 ' Cache ----------------------
 Public Property Get CacheBook() As Workbook
@@ -788,11 +884,11 @@ Dim vResults() As String
 '       : initialize; each Let'er will use cached value if not explicitly overidden
     
     If bRecover = False Then
-        Me.QuadRuntimeCacheFile = InitFileArray(cQuadRuntimeCacheFileName, 30)
+        Me.QuadRuntimeCacheFile = InitFileArray(cQuadRuntimeCacheFileName, 50)
     End If
     
     If FileExists(cQuadRuntimeCacheFileName) = False Then
-        Me.QuadRuntimeCacheFile = InitFileArray(cQuadRuntimeCacheFileName, 30)
+        Me.QuadRuntimeCacheFile = InitFileArray(cQuadRuntimeCacheFileName, 50)
     Else
         'Me.QuadRuntimeCacheFile = OpenFile(cQuadRuntimeCacheFileName, 8)
     End If
@@ -806,10 +902,16 @@ Public Function IsAQuadRuntime() As Boolean
 End Function
 
 Sub SetDefaults()
+    cDataFamily = DataFamilyType.Quad
+    
     cHomeDir = GetHomePath
     cAppDir = cHomeDir & "\GitHub\quadviewer\"
     cExecPath = cAppDir & "app\\quad\utils\excel\"
     cRuntimeDir = cHomeDir & "\runtime\"
+    
+    cMainBookPath = cAppDir
+    cMainBookName = "vba_source_new.xlsm"
+    
     cBookPath = cRuntimeDir
     cBookName = "cache.xlsm"
     cCacheBookName = "cache.xlsm"
@@ -817,8 +919,10 @@ Sub SetDefaults()
     cCacheRangeName = "data"
     cNewBookPath = cRuntimeDir & "archive\"
     
-    cTemplateBookPath = cAppDir
-    cTemplateBookName = "vba_source_new.xlsm"
+    'cTemplateBookPath = cAppDir
+    cTemplateBookPath = cRuntimeDir
+    'cTemplateBookName = "vba_source_new.xlsm"
+    cTemplateBookName = "quad.xlsm"
 
     cTemplateSheetName = "FormStyles"
     cTemplateWidgetSheetName = "WidgetStyles"
@@ -839,7 +943,7 @@ Sub SetDefaults()
     cDatabasePath = cAppDir & "app\quad\utils\excel\test_misc\QuadQA.db"
     cResultFileName = cRuntimeDir & "pyshell_results.txt"
     cFileName = cRuntimeDir & "uupyshell.args.txt"
-    cQuadRuntimeEnum = "BookPath,BookName,CacheBookName,CacheBookPath,CacheRangeName,TemplateBookPath,TemplateBookName,TemplateSheetName,TemplateWidgetSheetName,DatabasePath,ResultFileName,ExecPath,RuntimeDir,FileName,DayEnum,PeriodEnum,CurrentSheetSource,CurrentSheetColumns,QuadRuntimeCacheFileName,DefinitionSheetName,ScheduleBookPath,ScheduleBookName,AddBookPath,AddBookName,MenuBookPath,MenuBookName,ViewBookPath,ViewBookName,BookEnum,NewBookPath"
+    cQuadRuntimeEnum = "BookPath,BookName,CacheBookName,CacheBookPath,CacheRangeName,TemplateBookPath,TemplateBookName,TemplateSheetName,TemplateWidgetSheetName,DatabasePath,ResultFileName,ExecPath,RuntimeDir,FileName,DayEnum,PeriodEnum,CurrentSheetSource,CurrentSheetColumns,QuadRuntimeCacheFileName,DefinitionSheetName,ScheduleBookPath,ScheduleBookName,AddBookPath,AddBookName,MenuBookPath,MenuBookName,ViewBookPath,ViewBookName,BookEnum,NewBookPath,DataFamily,MainBookPath,MainBookName,"
     cDayEnum = "M,T,W,R,F"
     cPeriodEnum = "1,2,3,4,5,6,7,8,9,10,11"
     cQuadRuntimeCacheFileName = cHomeDir & "\quad_runtime_cache.txt"
@@ -879,6 +983,9 @@ Dim sBookName As Variant
 End Sub
     
 Public Sub InitProperties( _
+                 Optional sDataFamily As DataFamilyType, _
+                 Optional sMainBookPath As String, _
+                 Optional sMainBookName As String, _
                  Optional sBookPath As String, _
                  Optional sBookName As String, _
                  Optional sCacheBookPath As String, _
@@ -948,10 +1055,13 @@ main:
     
     Me.BookPath = sBookPath
     Me.BookName = sBookName
+    
+    Me.MainBookPath = sMainBookPath
+    Me.MainBookName = sMainBookName
 
     Me.TemplateBookPath = sTemplateBookPath
     Me.TemplateBookName = sTemplateBookName
-    Me.TemplateSheetName = sTemplateSheetName
+    'Me.TemplateSheetName = sTemplateSheetName
     Me.TemplateWidgetSheetName = sTemplateWidgetSheetName
     
     Me.DefinitionSheetName = sDefinitionSheetName
@@ -982,6 +1092,20 @@ Dim oFile As Object
     oFile.Close
     On Error GoTo 0
 End Sub
+
+Function BookOpen(sBookName As String)
+
+    On Error GoTo err
+    If Workbooks(sBookName).name = sBookName Then
+        BookOpen = True
+        Exit Function
+    End If
+    On Error Resume Next
+
+err:
+    BookOpen = False
+
+End Function
 Public Sub CleanUpTmpBooks()
 Dim sBook As Variant
 Dim wbTmp As Workbook
@@ -997,6 +1121,11 @@ Dim sBookName As String, sBookPath As String
         DeleteBook sBookName, sBookPath
     Next sBook
     
+    ' close whatever template book has been opened i.e. quad.xlsm
+    If BookOpen(Me.TemplateBookName) = True Then
+        CloseBook Me.TemplateBook
+    End If
+    
 End Sub
 Public Sub Delete()
     Me.CloseRuntimeCacheFile
@@ -1011,5 +1140,7 @@ Dim sBook As Variant
         FileCopy CallByName(Me, sBook & "BookName", VbGet), CallByName(Me, "NewBookPath", VbGet), Me.RuntimeDir
     Next sBook
 End Sub
+
+
 
 

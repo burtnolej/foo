@@ -152,25 +152,13 @@ Public Sub GetScheduleCellFormat(clsQuadRuntime As Quad_Runtime, ByRef iFormatWi
 'param: sSourceBookName, string, the book that holds the templates (vba_source_new.xlsm)
 'param: sSourceSheetName, string, the sheet in sSourceBookName that holds the templates (FormStyles)
 'param: sScheduleFormatRangeName, string, named range that contains the specific format (fStudentScheduleCell
-
 Dim rScheduleFormatRange As Range
-    With clsQuadRuntime.TemplateSheet
-        '.Activate
-        'Set rScheduleFormatRange = .Range(sScheduleFormatRangeName)
-        'rScheduleFormatRange.Select
-        'Selection.Copy
-        .Range(sScheduleFormatRangeName).Copy
-        
-    'End With
-        
-    'iFormatWidth = Selection.Columns.Count
-    'iFormatHeight = Selection.Rows.Count
-    
-        iFormatWidth = .Range(sScheduleFormatRangeName).Columns.Count
-        iFormatHeight = .Range(sScheduleFormatRangeName).Rows.Count
-    
-    End With
-    
+
+    Set rScheduleFormatRange = clsQuadRuntime.TemplateBook.Names(sScheduleFormatRangeName).RefersToRange
+    rScheduleFormatRange.Copy
+    iFormatWidth = rScheduleFormatRange.Range(sScheduleFormatRangeName).Columns.Count
+    iFormatHeight = rScheduleFormatRange.Range(sScheduleFormatRangeName).Rows.Count
+
 End Sub
         
 Public Function GetScheduleCellColWidths(clsQuadRuntime As Quad_Runtime, sScheduleFormatRangeName As String, _
@@ -207,6 +195,7 @@ Dim rScheduleFormatTargetRange As Range, rWidget As Range
 Dim sFormatTemplateRange As String
 
     sFormatTemplateRange = "f" & EnumQuadSubDataType(eQuadSubDataType) & "ScheduleCell"
+    
     With wsSchedule
         ' paste the formats into the corresponding cell on the "grid"
         iScheduleCurrentRow = iFormatHeight * CInt(dValues("idTimePeriod")) + iViewRowOffset

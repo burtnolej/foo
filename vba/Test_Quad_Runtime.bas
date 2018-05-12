@@ -59,16 +59,18 @@ Dim clsQuadRuntime As Quad_Runtime
 Dim eTestResult As TestResult
 
 setup:
-    On Error GoTo err
-    sTmpBookPath = Environ("MYHOME")
+    'On Error GoTo err
+    sFuncName = C_MODULE_NAME & "." & "Test_Init_Quad_Runtime_Retreive_Cached_Values"
+    sTmpBookPath = Environ("MYHOME") & ""
     sTmpBookName = "tmp.xls"
     Set wbTmp = CreateBook(sTmpBookName, sBookPath:=sTmpBookPath)
+    
     sCacheFilePath = Environ("MYHOME") & "\\quad_runtime_cache.txt"
     Set oFile = CreateFile(sCacheFilePath)
     oFile.Close
 
-    ReDim vArray(0 To 29)
-    For i = 0 To 29
+    ReDim vArray(0 To 49)
+    For i = 0 To 49
         vArray(i) = SPACE
     Next i
     
@@ -79,7 +81,7 @@ setup:
     Set clsQuadRuntime = New Quad_Runtime
     
 main:
-    clsQuadRuntime.InitProperties
+    clsQuadRuntime.InitProperties sBookPath:=sTmpBookPath, sBookName:=sTmpBookName
     If clsQuadRuntime.BookPath <> wbTmp.Path Then
         eTestResult = TestResult.Failure
     End If
@@ -248,7 +250,7 @@ setup:
     
 main:
     clsQuadRuntime.InitProperties sBookPath:=sBookPath, sBookName:=sBookName
-    If clsQuadRuntime.BookName <> ActiveWorkbook.name Then
+    If clsQuadRuntime.BookName <> sBookName Then
         eTestResult = TestResult.Failure
     Else
         eTestResult = TestResult.OK
@@ -320,7 +322,8 @@ main:
                                   sTemplateSheetName:=sTemplateSheetName, _
                                   sTemplateWidgetSheetName:=sTemplateWidgetSheetName
                                   
-    If clsQuadRuntime.TemplateSheetName <> sTemplateSheetName Then
+    Debug.Print clsQuadRuntime.TemplateBook.name
+    If clsQuadRuntime.TemplateBook.name <> sTemplateName Then
         eTestResult = TestResult.Failure
         GoTo teardown
     End If

@@ -181,6 +181,8 @@ main:
 cleanup:
     
 End Sub
+
+
 Public Function GetSheetNamedRanges(wbTmp As Workbook, sSheetName As String, Optional sStartsWith As String = "") As String()
 Dim aNames() As String
 Dim iCount As Integer
@@ -192,6 +194,7 @@ init:
     ReDim aNames(0 To 100)
 
 main:
+
     For Each name_ In wbTmp.Sheets(sSheetName).Names
         sTmp = Split(name_.name, "!")(1)
         If Left(sTmp, Len(sStartsWith)) = sStartsWith Then
@@ -211,17 +214,30 @@ End Function
 Public Function NamedRangeExists(wbTmp As Workbook, sSheetName As String, sRangeName As String) As Boolean
 Dim nTmp As name
 
-    With wbTmp.Sheets(sSheetName)
-        On Error GoTo err
-        Set nTmp = .Names.Item(sRangeName)
-        On Error GoTo 0
-        NamedRangeExists = True
-        Exit Function
-    End With
+    If sSheetName = "" Then
+        With wbTmp
+            On Error GoTo err
+            Set nTmp = .Names.Item(sRangeName)
+            On Error GoTo 0
+            NamedRangeExists = True
+            Exit Function
+        End With
+    Else
+        With wbTmp.Sheets(sSheetName)
+        
+            On Error GoTo err
+            Set nTmp = .Names.Item(sRangeName)
+            On Error GoTo 0
+            NamedRangeExists = True
+            Exit Function
+    
+        End With
+    End If
 err:
     NamedRangeExists = False
 
 End Function
+
 Public Sub DeleteNamedRange(wbTmp As Workbook, sSheetName As String, sRangeName As String)
 Dim nTmp As name
 Dim sFuncName As String
@@ -289,7 +305,7 @@ main:
             nrTmp.RefersTo = rData
         End If
     Else:
-        wbTmp.Names.Update name:=sRangeName, RefersTo:=rData
+        wbTmp.Names.Add name:=sRangeName, RefersTo:=rData
     End If
     
     
@@ -323,3 +339,5 @@ Dim rMerge As Range
 err:
     err.Raise Error_Utils.NOT_SINGLE_WIDGET_RANGE, "range [" & rSource.Address & "] might not be a single cell"
 End Function
+
+

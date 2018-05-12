@@ -1,6 +1,25 @@
 Attribute VB_Name = "Module_Utils"
 Const C_MODULE_NAME = "Module_Utils"
 
+Sub DeleteModules(xlwb As Workbook)
+Dim VBProj As VBIDE.VBProject
+Dim VBComp As VBIDE.VBComponent
+Dim vModulesNames() As String
+Dim iCount As Integer
+ReDim vModulesNames(0 To 100)
+    
+    If sModuleName <> "" Then
+        vModulesNames(iCount) = sModuleName
+        iCount = iCount + 1
+    Else
+        Set VBProj = xlwb.VBProject
+        For Each VBComp In VBProj.VBComponents
+            If VBComp.Type = vbext_ct_StdModule Or VBComp.Type = vbext_ct_ClassModule Then
+                DeleteModule xlwb, VBComp.name
+            End If
+        Next VBComp
+    End If
+End Sub
 Public Function CreateModule(xlwb As Workbook, sModuleName As String, sCode As String) As VBComponent
 Dim module As VBComponent
     Set module = xlwb.VBProject.VBComponents.Add(vbext_ct_StdModule)
@@ -27,7 +46,9 @@ Dim VBComp As VBIDE.VBComponent
     
     Set VBProj = xlwb.VBProject
     Set VBComp = VBProj.VBComponents(sModuleName)
+    On Error Resume Next
     VBProj.VBComponents.Remove VBComp
+    On Error GoTo 0
 End Sub
 Function GetModule(xlwb As Workbook, sModuleName As String) As VBComponent
 Dim VBProj As VBIDE.VBProject

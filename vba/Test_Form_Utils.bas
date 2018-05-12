@@ -546,12 +546,12 @@ setup:
     sSheetName = "test"
     Set wsTmp = CreateSheet(clsQuadRuntime.TemplateBook, sSheetName, bOverwrite:=True)
     sDefn = "AddLesson^schedule_student^sStudentFirstNm^String^IsMember^&get_person_student^sStudentFirstNm^^Entry" & DOUBLEDOLLAR
-    sDefn = sDefn & "AddStudent^Student^StudentAge^Integer^IsValidInteger^^^^Entry" & DOUBLEDOLLAR
-    sDefn = sDefn & "AddStudent^Student^StudentPrep^IntegerRange^IsValidPrep^^^^Entry" & DOUBLEDOLLAR
+    sDefn = sDefn & "AddStudent^person_student^StudentAge^Integer^IsValidInteger^^^^Entry" & DOUBLEDOLLAR
+    sDefn = sDefn & "AddStudent^person_student^StudentPrep^IntegerRange^IsValidPrep^^^^Entry" & DOUBLEDOLLAR
     sDefn = sDefn & "AddStudent^^COMMIT^^^AddStudent^^^Button" & DOUBLEDOLLAR
-    sDefn = sDefn & "ViewStudent^^sStudentFirstNm^^^^^^Text" & DOUBLEDOLLAR
-    sDefn = sDefn & "ViewStudent^^StudentAge^^^^^^Text" & DOUBLEDOLLAR
-    sDefn = sDefn & "ViewStudent^^StudentPrep^^^^^^Text"
+    sDefn = sDefn & "ViewStudent^person_student^sStudentFirstNm^^^^^^Text" & DOUBLEDOLLAR
+    sDefn = sDefn & "ViewStudent^person_student^StudentAge^^^^^^Text" & DOUBLEDOLLAR
+    sDefn = sDefn & "ViewStudent^person_student^StudentPrep^^^^^^Text"
      
     vSource = Init2DStringArrayFromString(sDefn)
 
@@ -565,9 +565,9 @@ setup:
     dDefaultValues.Add "ViewStudent", dTmp
     
 main:
-
-    GenerateForms clsQuadRuntime, dDefaultValues:=dDefaultValues
     
+    GenerateForms clsQuadRuntime, dDefaultValues:=dDefaultValues
+        
     Set rText = clsQuadRuntime.ViewBook.Sheets("ViewStudent").Range("C4:C4")
     
     If rText.name.name <> "ViewStudent!tViewStudent_sStudentFirstNm" Then
@@ -612,9 +612,9 @@ setup:
     
     Set wsTmp = CreateSheet(clsQuadRuntime.TemplateBook, sSheetName, bOverwrite:=True)
     sDefn = "ViewStudent^person_student^sStudentFirstNm^String^IsMember^&get_person_student^sStudentFirstNm^&UpdateViewStudentForm^Selector" & DOUBLEDOLLAR
-    sDefn = sDefn & "ViewStudent^^sStudentFirstNm^^^^^^Text" & DOUBLEDOLLAR
-    sDefn = sDefn & "ViewStudent^^idStudent^^^^^^Text" & DOUBLEDOLLAR
-    sDefn = sDefn & "ViewStudent^^idPrep^^^^^^Text" & DOUBLEDOLLAR
+    sDefn = sDefn & "ViewStudent^person_student^sStudentFirstNm^^^^^^Text" & DOUBLEDOLLAR
+    sDefn = sDefn & "ViewStudent^person_student^idStudent^^^^^^Text" & DOUBLEDOLLAR
+    sDefn = sDefn & "ViewStudent^person_student^idPrep^^^^^^Text" & DOUBLEDOLLAR
     sDefn = sDefn & "AddStudent^person_student^sStudentFirstNm^String^^^^^Entry" & DOUBLEDOLLAR
     sDefn = sDefn & "AddStudent^person_student^sStudentLastNm^String^^^^^Entry" & DOUBLEDOLLAR
     sDefn = sDefn & "AddStudent^person_student^idStudent^Integer^^^^^Entry" & DOUBLEDOLLAR
@@ -691,9 +691,9 @@ setup:
     sDefn = sDefn & "AddStudent^Student^StudentAge^Integer^IsValidInteger^^^^Entry" & DOUBLEDOLLAR
     sDefn = sDefn & "AddStudent^Student^StudentPrep^IntegerRange^IsValidPrep^^^^Entry" & DOUBLEDOLLAR
     sDefn = sDefn & "AddStudent^^COMMIT^^^AddStudent^^^Button" & DOUBLEDOLLAR
-    sDefn = sDefn & "ViewListStudents^^sStudentFirstNm^^^^^^ListText" & DOUBLEDOLLAR
-    sDefn = sDefn & "ViewListStudents^^StudentAge^^^^^^ListText" & DOUBLEDOLLAR
-    sDefn = sDefn & "ViewListStudents^^StudentPrep^^^^^^ListText"
+    sDefn = sDefn & "ViewListStudents^Student^sStudentFirstNm^^^^^^ListText" & DOUBLEDOLLAR
+    sDefn = sDefn & "ViewListStudents^Student^StudentAge^^^^^^ListText" & DOUBLEDOLLAR
+    sDefn = sDefn & "ViewListStudents^Student^StudentPrep^^^^^^ListText"
      
     vSource = Init2DStringArrayFromString(sDefn)
 
@@ -765,9 +765,9 @@ setup:
     sDefn = sDefn & "AddStudent^Student^StudentAge^Integer^IsValidInteger^^^^Entry" & DOUBLEDOLLAR
     sDefn = sDefn & "AddStudent^Student^StudentPrep^IntegerRange^IsValidPrep^^^^Entry" & DOUBLEDOLLAR
     sDefn = sDefn & "AddStudent^^COMMIT^^^AddStudent^^^Button" & DOUBLEDOLLAR
-    sDefn = sDefn & "ViewListStudents^^sStudentFirstNm^^^^^^ListText" & DOUBLEDOLLAR
-    sDefn = sDefn & "ViewListStudents^^StudentAge^^^^^^ListText" & DOUBLEDOLLAR
-    sDefn = sDefn & "ViewListStudents^^StudentPrep^^^^^^ListText"
+    sDefn = sDefn & "ViewListStudents^Student^sStudentFirstNm^^^^^^ListText" & DOUBLEDOLLAR
+    sDefn = sDefn & "ViewListStudents^Student^StudentAge^^^^^^ListText" & DOUBLEDOLLAR
+    sDefn = sDefn & "ViewListStudents^Student^StudentPrep^^^^^^ListText"
      
     vSource = Init2DStringArrayFromString(sDefn)
 
@@ -830,12 +830,12 @@ main:
     Set dDefnDetails = dDefinitions.Item("eAddStudent_StudentName")
     On Error GoTo 0
     
-    If dDefnDetails.Exists("db_table_name") = False Then
+    If dDefnDetails.Exists("CacheTableName") = False Then
         eTestResult = TestResult.Failure
         GoTo teardown
     End If
     
-    If dDefnDetails.Item("db_table_name") <> "Student" Then
+    If dDefnDetails.Item("CacheTableName") <> "Student" Then
         eTestResult = TestResult.Failure
         GoTo teardown
     End If
@@ -901,10 +901,8 @@ Function DummyAddRecordCallback() As String
 End Function
 
 Function TestIsRecordValid() As TestResult
-Dim sFuncName As String
-Dim sSheetName As String
-Dim sFieldName2 As String
-Dim sFieldName1 As String
+Dim sFuncName As String, sTemplateSheetName As String
+Dim sSheetName As String, sFieldName2 As String, sFieldName1 As String
 Dim bResult As Boolean
 Dim vSource() As String
 Dim wsTmp As Worksheet
@@ -928,7 +926,10 @@ setup:
     Set Form_Utils.dDefinitions = LoadDefinitions(wsTmp, rSource:=rTarget, bIgnoreWidgetType:=True)
     
     sKey = "e" & sSheetName & "_" & sFieldName1
-    GenerateWidgets clsQuadRuntime, sSheetName, wbTmp:=clsQuadRuntime.AddBook
+    
+    sTemplateSheetName = clsQuadRuntime.TemplateBook.Names("fAdd").RefersToRange.Worksheet.name
+    
+    GenerateWidgets clsQuadRuntime, sSheetName, wbTmp:=clsQuadRuntime.AddBook, sTemplateSheetName:=sTemplateSheetName
     Set rInput = wsTmp.Range(sKey)
     rInput.value = 123
     bResult = Validate(clsQuadRuntime.AddBook, sSheetName, rInput)
@@ -1018,12 +1019,12 @@ setup:
         rFormat.Columns(5).EntireColumn.ColumnWidth = 3
     End With
     
-    CreateNamedRange clsQuadRuntime.TemplateBook, rFormat.Address, "FormStyles", "fAdd", "True"
+    CreateNamedRange clsQuadRuntime.TemplateBook, rFormat.Address, "FormStyles", "fAdd", "False"
 
 main:
 
-    CreateNamedRange clsQuadRuntime.TemplateBook, "B2:B2", "FormStyles", "fAddEntry1", "True"
-    CreateNamedRange clsQuadRuntime.TemplateBook, "B3:C3", "FormStyles", "fAddEntry2", "True"
+    CreateNamedRange clsQuadRuntime.TemplateBook, "B2:B2", "FormStyles", "fAddEntry1", "False"
+    CreateNamedRange clsQuadRuntime.TemplateBook, "B3:C3", "FormStyles", "fAddEntry2", "False"
     
     GenerateForms clsQuadRuntime
     

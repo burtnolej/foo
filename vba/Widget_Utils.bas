@@ -136,8 +136,10 @@ Dim rWidget As Range, rTargetRange As Range, rSourceRange As Range
 Dim wsTemplateSheet As Worksheet, wsTargetSheet As Worksheet
 
     Set wsTargetSheet = wbTargetbook.Sheets(sTargetSheetName)
-    Set wsTemplateSheet = wbSourceBook.Sheets(sSourceSheetName)
-    
+    'Set wsTemplateSheet = wbSourceBook.Sheets(sSourceSheetName)
+
+    Set wsTemplateSheet = wbSourceBook.Names(sSourceRangeName).RefersToRange.Parent
+
     Set rSourceRange = wsTemplateSheet.Range(sSourceRangeName)
     
     aColumnWidths = GetWidgetSizes(wsTemplateSheet, rSourceRange)
@@ -175,13 +177,63 @@ Sub CreateComboBox1()
     End With
 End Sub
 
+Public Function GetWidgetLocationRanges(wbTmp As Workbook, sFormType As String, _
+                        eWidgetType As WidgetType) As String()
+'<<<
+'purpose: get all the named ranges for Widgets for a certain WidgetType within a Form
+'       : for instance fViewButton1, fViewButton2, fViewButton3 ...
+'param  : sFormType, String; i.e. Add
+'param  : eWidgetType, WidgetType
+'rtype  : String Array
+'>>>
+Dim aNames() As String
+Dim iCount As Integer, i As Integer
+Dim sFuncName As String, sRangeName As String
+Dim lStartTick As Long
+
+setup:
+    sFuncName = C_MODULE_NAME & "." & "GetWidgetLocationRanges"
+    lStartTick = FuncLogIt(sFuncName, "", C_MODULE_NAME, LogMsgType.INFUNC)
+    On Error GoTo err
+    ReDim aNames(0 To 100)
+
+main:
+
+    sRangeName = "f" & sFormType & EnumWidgetType(eWidgetType)
+    For i = 1 To 100
+        If NamedRangeExists(wbTmp, "", sRangeName & CStr(i)) = True Then
+            aNames(iCount) = sRangeName & CStr(i)
+            iCount = iCount + 1
+        Else
+            GoTo cleanup
+        End If
+    Next i
+    
+cleanup:
+    If iCount = 0 Then
+        ReDim aNames(0)
+    Else
+        ReDim Preserve aNames(0 To iCount - 1)
+    End If
+    GetWidgetLocationRanges = aNames
+    
+    FuncLogIt sFuncName, " [wbTmp" & wbTmp.name & "] [sFormType=" & sFormType & "] [eWidgetType=" & EnumWidgetType(eWidgetType) & "] [Result=" & CStr(UBound(GetWidgetLocationRanges) + 1) & "]", C_MODULE_NAME, LogMsgType.DEBUGGING2
+    FuncLogIt sFuncName, "", C_MODULE_NAME, LogMsgType.OUTFUNC, lLastTick:=lStartTick
+    Exit Function
+        
+err:
+    FuncLogIt sFuncName, "[" & err.Description & "]  raised", C_MODULE_NAME, LogMsgType.Error
+    err.Raise err.Number, err.Source, err.Description ' cannot recover from this
+    
+End Function
 Public Function GenerateWidgets(clsQuadRuntime As Quad_Runtime, _
                               sAction As String, _
                      Optional dDefaultValues As Dictionary, _
                      Optional vValues As Variant, _
                      Optional wbTmp As Workbook, _
                      Optional eWidgetType As WidgetType = WidgetType.Entry, _
-                     Optional sFormType As String = "Add") As String()
+                     Optional sFormType As String = "Add", _
+                     Optional sTemplateSheetName As String = "FormStyles") As String()
 '<<<
 'purpose: given a set of definitions (taken from the global variable dDefinitions, generate
 '       : all the entry widgets (labels, entry , view etc)
@@ -195,7 +247,7 @@ Public Function GenerateWidgets(clsQuadRuntime As Quad_Runtime, _
 'param  : sFormType (Optional), defaults to Add, needs to specify the type of form to be generated
 'rtype  : a list of the keys from the widgets that were created
 '>>>
-Dim sFuncName As String, sSheetName As String, sWidgetTypeSuffix As String
+Dim sFuncName As String, sSheetName As String, sWidgetTypeSuffix As String, sFormatRangeNameSuffix As String
 Dim iRow As Integer, iCol As Integer, iWidth As Integer, iHeight As Integer, iWidgetCount As Integer, iParentRowOffset As Integer, iParentColOffset As Integer, iListWidth As Integer
 Dim rWidget As Range, rFormat As Range, rListHeader As Range, rListRow As Range, rListColumn As Range
 Dim vDefinedEntryNamesRanges() As String, vKeySplits() As String, vGenerated() As String
@@ -223,10 +275,12 @@ setup:
     
 main:
     ' get location opf entry screens
-    vDefinedAddNamesRanges = GetSheetNamedRanges(clsQuadRuntime.TemplateBook, "FormStyles", "f" & sFormType & EnumWidgetType(eWidgetType))
+    'vDefinedAddNamesRanges = GetSheetNamedRanges(clsQuadRuntime.TemplateBook, sTemplateSheetName, "f" & sFormType & EnumWidgetType(eWidgetType))
+    vDefinedAddNamesRanges = GetWidgetLocationRanges(clsQuadRuntime.TemplateBook, sFormType, eWidgetType)
     
     ' get location of parent format
-    With clsQuadRuntime.TemplateSheet.Range("f" & sFormType)
+    'With clsQuadRuntime.TemplateSheet.Range("f" & sFormType)
+    With clsQuadRuntime.TemplateBook.Names("f" & sFormType).RefersToRange
         iParentRowOffset = .Rows(1).Row - 1
         iParentColOffset = .Columns(1).Column - 1
     End With
@@ -244,7 +298,7 @@ main:
         
             ' only go further if the definition matches the Widget type specified by passed param
             Set dDefnDetail = dDefinitions.Item(sKey)
-            If dDefnDetail.Item("widget_type") <> eWidgetType Then
+            If dDefnDetail.Item("WidgetType") <> eWidgetType Then
                 GoTo nextdefn
             End If
             
@@ -259,7 +313,8 @@ main:
                 GoTo nextdefn
             End If
             
-            Set rFormat = clsQuadRuntime.TemplateSheet.Range(vDefinedAddNamesRanges(iWidgetCount))
+            Set rFormat = clsQuadRuntime.TemplateBook.Sheets(sTemplateSheetName).Range(vDefinedAddNamesRanges(iWidgetCount))
+            
             iRow = rFormat.Row - iParentRowOffset
             iCol = rFormat.Column - iParentColOffset
             iWidth = rFormat.Columns.Count
@@ -533,16 +588,15 @@ setup:
             'first passed arg now needs to be clsQuadRuntime if IsSet
             Validate = Application.Run(sFuncName, clsQuadRuntime, rTarget.value, vValidParams)
         Else
-            Validate = Application.Run(sFuncName, rTarget.value, dDefnDetail.Item("db_table_name"), vValidParams)
+            Validate = Application.Run(sFuncName, rTarget.value, dDefnDetail.Item("CacheTableName"), vValidParams)
         End If
         On Error GoTo 0
         
         If Validate = True Then
-            'SetBgColorFromString sSheetName, rTarget, C_RGB_VALID, wbTmp:=clsQuadRuntime.AddBook
             SetBgColorFromString sSheetName, rTarget, C_RGB_VALID, wbTmp:=wbBook
             
-            If dDefnDetail.Item("action_func") <> "" Then
-                sActionFuncName = Right(dDefnDetail.Item("action_func"), Len(dDefnDetail.Item("action_func")) - 1)
+            If dDefnDetail.Item("ActionName") <> "" Then
+                sActionFuncName = Right(dDefnDetail.Item("ActionName"), Len(dDefnDetail.Item("ActionName")) - 1)
                 Application.Run sActionFuncName, clsQuadRuntime, rTarget.value, rTarget.name.name
             End If
             
@@ -719,4 +773,6 @@ Dim sFuncName As String
     End If
         
 End Sub
+
+
 

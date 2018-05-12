@@ -103,7 +103,7 @@ setup:
 main:
     
     For Each sKey In dDefinitions.Keys()
-        If dDefinitions.Item(sKey).Item("db_table_name") = sTableName Then
+        If dDefinitions.Item(sKey).Item("CacheTableName") = sTableName Then
         
             sFieldName = GetFieldName(CStr(sKey))
             
@@ -224,15 +224,15 @@ main:
         vWidgetKeys = GetTableWidgetKeys(sTableName)
         'For Each sKey In dDefinitions.Keys()
         If UBound(vWidgetKeys) = 0 Then
-            FuncLogIt sFuncName, "entry [" & sKey & "] does not have a \'db_table_name\' record", C_MODULE_NAME, LogMsgType.Error
+            FuncLogIt sFuncName, "entry [" & sKey & "] does not have a \'CacheTableName\' record", C_MODULE_NAME, LogMsgType.Error
             'Exit Function
         End If
             
         For i = 0 To UBound(vWidgetKeys)
         
-        'If dDefinitions.Item(sKey).Item("db_table_name") = sTableName Then
+        'If dDefinitions.Item(sKey).Item("CacheTableName") = sTableName Then
             Set dDefnDetails = dDefinitions.Item(vWidgetKeys(i))
-            sFieldName = dDefnDetails.Item("db_field_name")
+            sFieldName = dDefnDetails.Item("FieldName")
             sColRange = GetDBColumnRange(sTableName, sFieldName)
             sFieldValue = wsTable.Range(sColRange).Rows(iID + 1)
             'sFieldValue = wsTable.Range(sColRange).Rows(iID)
@@ -433,20 +433,20 @@ main:
 
         vWidgetKeys = GetTableWidgetKeys(sTableName)
         If UBound(vWidgetKeys) = 0 Then
-            FuncLogIt sFuncName, "entry [" & sKey & "] does not have a \'db_table_name\' record", C_MODULE_NAME, LogMsgType.Error
+            FuncLogIt sFuncName, "entry [" & sKey & "] does not have a \'CacheTableName\' record", C_MODULE_NAME, LogMsgType.Error
         End If
             
         For i = 0 To UBound(vWidgetKeys)
         
         'For Each sKey In dDefinitions.Keys()
-            'If dDefinitions.Item(sKey).Exists("db_table_name") = False Then
-            '    FuncLogIt sFuncName, "entry [" & sKey & "] does not have a \'db_table_name\' record", C_MODULE_NAME, LogMsgType.Error
+            'If dDefinitions.Item(sKey).Exists("CacheTableName") = False Then
+            '    FuncLogIt sFuncName, "entry [" & sKey & "] does not have a \'CacheTableName\' record", C_MODULE_NAME, LogMsgType.Error
             '    Exit Function
             'End If
             
-            If dDefinitions.Item(vWidgetKeys(i)).Item("db_table_name") = sTableName Then
+            If dDefinitions.Item(vWidgetKeys(i)).Item("CacheTableName") = sTableName Then
                 Set dDefnDetails = dDefinitions.Item(vWidgetKeys(i))
-                sColRange = GetDBColumnRange(sTableName, dDefnDetails.Item("db_field_name"))
+                sColRange = GetDBColumnRange(sTableName, dDefnDetails.Item("FieldName"))
 
                 If NamedRangeExists(wbCacheBook, sTableName, sColRange) = False Then
                     AddTableRecord = -1
@@ -576,16 +576,9 @@ setup:
             
     With wsTmp
         vWidgetKeys = GetTableWidgetKeys(sTableName)
-        'For Each sKey In dDefinitions.Keys()
-        '    If dDefinitions.Item(sKey).Item("db_table_name") = sTableName Then
-        '        Set dDefnDetail = dDefinitions.Item(sKey)
-        '        iCol = iCol + 1
-        '        CreateTableColumn wsTmp, iCol, sTableName, dDefinitions.Item(sKey).Item("db_field_name"), wbTmp:=clsQuadRuntime.CacheBook, vDataID:=vDataID
-        '    End If
-        'Next sKey
         
         For i = 0 To UBound(vWidgetKeys)
-            CreateTableColumn wsTmp, i + 1, sTableName, dDefinitions.Item(vWidgetKeys(i)).Item("db_field_name"), wbTmp:=clsQuadRuntime.CacheBook, vDataID:=vDataID
+            CreateTableColumn wsTmp, i + 1, sTableName, dDefinitions.Item(vWidgetKeys(i)).Item("FieldName"), wbTmp:=clsQuadRuntime.CacheBook, vDataID:=vDataID
         Next i
         
         iCol = i + 1

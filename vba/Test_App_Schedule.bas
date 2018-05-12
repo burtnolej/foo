@@ -89,8 +89,9 @@ main:
     sTemplateRangeName = "f" & "student" & "ScheduleColLabel"
     GetScheduleCellFormat clsQuadRuntime, iFormatWidth, iFormatHeight, sTemplateRangeName
     BuildScheduleHeaderView clsQuadRuntime, wsSchedule, clsQuadRuntime.DayEnum, iFormatWidth, iFormatHeight, iStartCol:=2, iStartRow:=2, bVz:=False
-
-    iSourceColHeight = clsQuadRuntime.TemplateBook.Sheets("FormStyles").Range(sTemplateRangeName).Columns(1).EntireColumn.ColumnWidth
+    
+    iSourceColHeight = clsQuadRuntime.TemplateBook.Names(sTemplateRangeName).RefersToRange.Columns(1).EntireColumn.ColumnWidth
+    
     iTargetColHeight = clsQuadRuntime.ScheduleBook.Sheets(sSheetName).Range("B1:B1").EntireColumn.ColumnWidth
     If iSourceColHeight <> iTargetColHeight Then
         eTestResult = TestResult.Failure
@@ -508,6 +509,7 @@ err:
 teardown:
     Test_GetScheduleDataFromDB_1Period1Student = eTestResult
     clsQuadRuntime.Delete
+
     
 End Function
 

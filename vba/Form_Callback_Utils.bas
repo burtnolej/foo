@@ -29,7 +29,10 @@ main:
             "set wbSource= Workbooks(" & DOUBLEQUOTE & clsQuadRuntime.TemplateBookName & DOUBLEQUOTE & ")" & vbNewLine & _
             "set wbTarget= Workbooks(" & DOUBLEQUOTE & sTargetBookName & DOUBLEQUOTE & ")" & vbNewLine & _
             "sSourceSheetName = " & DOUBLEQUOTE & clsQuadRuntime.TemplateWidgetSheetName & DOUBLEQUOTE & vbNewLine & _
-            "Application.Run " & DOUBLEQUOTE & clsQuadRuntime.TemplateBook.name & "!Validate" & DOUBLEQUOTE & ",wbTarget,sSheetName, Target" & vbNewLine
+            "Application.Run " & DOUBLEQUOTE & clsQuadRuntime.MainBookName & "!Validate" & DOUBLEQUOTE & ",wbTarget,sSheetName, Target" & vbNewLine
+            
+           '"Application.Run " & DOUBLEQUOTE & clsQuadRuntime.TemplateBook.name & "!Validate" & DOUBLEQUOTE & ",wbTarget,sSheetName, Target" & vbNewLine
+            
             
     If eWidgetType = WidgetType.Entry Then
         GetEntryCallbackCode = GetEntryCallbackCode & "Application.Run " & DOUBLEQUOTE & clsQuadRuntime.TemplateBook.name & "!IsRecordValid" & DOUBLEQUOTE & ",wbSource,wbTarget,sSheetName,sSourceSheetName" & vbNewLine
@@ -71,7 +74,7 @@ Function GetButtonCallbackCode(clsQuadRuntime As Quad_Runtime, _
     iButtonCol As Integer, iButtonRow As Integer, sCallbackFunc As String) As String
     GetButtonCallbackCode = _
                     "If Target.Column = " & CStr(iButtonCol) & " And Target.Row = " & CStr(iButtonRow) & " Then" & vbNewLine & _
-                    "Application.Run " & DOUBLEQUOTE & clsQuadRuntime.TemplateBook.name & "!" & sCallbackFunc & DOUBLEQUOTE & vbNewLine & _
+                    "Application.Run " & DOUBLEQUOTE & clsQuadRuntime.MainBookName & "!" & sCallbackFunc & DOUBLEQUOTE & vbNewLine & _
                     "End If" & vbNewLine
 End Function
 
