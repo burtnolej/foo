@@ -11,7 +11,7 @@ Function GetCallerModuleCode() As String
                 "End Sub"
 End Function
         
-Function GetEntryCallbackCode(clsQuadRuntime As Quad_Runtime, sAction As String, sTargetBookName As String, _
+Function GetEntryCallbackCode(clsQuadRuntime As App_Runtime, sAction As String, sTargetBookName As String, _
         Optional eWidgetType As WidgetType = WidgetType.Entry) As String
 Dim sFuncName As String
 Dim lStartTick As Long
@@ -45,7 +45,7 @@ cleanup:
     FuncLogIt sFuncName, "", C_MODULE_NAME, LogMsgType.OUTFUNC, lLastTick:=lStartTick
 
 End Function
-Function GenerateCallbackCode(clsQuadRuntime As Quad_Runtime, vButtons() As String, sActionName As String, _
+Function GenerateCallbackCode(clsQuadRuntime As App_Runtime, vButtons() As String, sActionName As String, _
                 Optional sCurrentCode As String, _
                 Optional wbTmp As Workbook) As String
 Dim i As Integer, iRow As Integer, iColumn As Integer
@@ -70,7 +70,7 @@ Dim rButton As Range
         "End Sub"
 
 End Function
-Function GetButtonCallbackCode(clsQuadRuntime As Quad_Runtime, _
+Function GetButtonCallbackCode(clsQuadRuntime As App_Runtime, _
     iButtonCol As Integer, iButtonRow As Integer, sCallbackFunc As String) As String
     GetButtonCallbackCode = _
                     "If Target.Column = " & CStr(iButtonCol) & " And Target.Row = " & CStr(iButtonRow) & " Then" & vbNewLine & _

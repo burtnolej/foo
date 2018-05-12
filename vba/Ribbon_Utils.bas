@@ -112,7 +112,7 @@ End Sub
 Sub rxgal_Click(control As IRibbonControl, id As String, index As Integer)
 Dim vLabelNames As Variant
 Dim vStudentIDs As Variant
-Dim clsQuadRuntime As New Quad_Runtime
+Dim clsQuadRuntime As New App_Runtime
 Dim sTemplateRowRangeName As String, sSheetName As String, sTemplateColRangeName As String
 Dim iFormatWidth As Integer, iFormatHeight As Integer
 Dim wsSchedule As Worksheet
@@ -146,7 +146,7 @@ Dim rSource As Range
 Dim sFuncName As String
 Dim vControls() As Variant
 Dim aControlIDSplit() As String
-Dim clsQuadRuntime As Quad_Runtime
+Dim clsQuadRuntime As App_Runtime
 
 setup:
     sFuncName = "OnAction"
@@ -329,7 +329,7 @@ End Sub
 
 Sub rxgal_getItemCount(control As IRibbonControl, ByRef returnedVal)
 Dim vLabelNames As Variant
-Dim clsQuadRuntime As New Quad_Runtime
+Dim clsQuadRuntime As New App_Runtime
     clsQuadRuntime.InitProperties bInitializeCache:=True
     vLabelNames = GetColumnValues(clsQuadRuntime, QuadDataType.person, QuadSubDataType.Student, "sStudentLastNm")
     returnedVal = UBound(vLabelNames) + 1
@@ -337,7 +337,7 @@ End Sub
 
 Sub rxgal_getItemLabel(control As IRibbonControl, index As Integer, ByRef returnedVal)
 Dim vLabelFirstNames As Variant, vLabelLastNames As Variant
-Dim clsQuadRuntime As New Quad_Runtime
+Dim clsQuadRuntime As New App_Runtime
 
     If index = 0 Then index = 1
     
@@ -356,7 +356,7 @@ Dim sImagePath As String
 Dim vFiles() As String
 Dim vExtensions() As String
 Dim vPrepIDs As Variant
-Dim clsQuadRuntime As New Quad_Runtime
+Dim clsQuadRuntime As New App_Runtime
 
     If index = 0 Then index = 1
     

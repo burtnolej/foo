@@ -7,7 +7,7 @@ Const C_MODULE_NAME = "Test_App_Courses"
 
 Public Function Test_GetCoursesSubject() As TestResult
 Dim eTestResult As TestResult
-Dim clsQuadRuntime As New Quad_Runtime
+Dim clsQuadRuntime As New App_Runtime
 Dim wsCache As Worksheet
 Dim sFuncName As String, sSheetName As String, sDefn As String
 Dim vSource() As String
@@ -51,7 +51,7 @@ End Function
 
 Public Function Test_GetCoursesCourse() As TestResult
 Dim eTestResult As TestResult
-Dim clsQuadRuntime As New Quad_Runtime
+Dim clsQuadRuntime As New App_Runtime
 Dim wsCache As Worksheet
 Dim sFuncName As String, sSheetName As String, sDefn As String
 Dim vSource() As String
@@ -96,7 +96,7 @@ End Function
 
 Public Function Test_GetMiscTimePeriod() As TestResult
 Dim eTestResult As TestResult
-Dim clsQuadRuntime As New Quad_Runtime
+Dim clsQuadRuntime As New App_Runtime
 Dim wsCache As Worksheet
 Dim sFuncName As String, sSheetName As String, sDefn As String
 Dim vSource() As String
@@ -141,7 +141,7 @@ End Function
 
 Public Function Test_GetMiscPrep() As TestResult
 Dim eTestResult As TestResult
-Dim clsQuadRuntime As New Quad_Runtime
+Dim clsQuadRuntime As New App_Runtime
 Dim wsCache As Worksheet
 Dim sFuncName As String, sSheetName As String, sDefn As String
 Dim vSource() As String
@@ -185,7 +185,7 @@ End Function
 
 Public Function Test_GetMiscDay() As TestResult
 Dim eTestResult As TestResult
-Dim clsQuadRuntime As New Quad_Runtime
+Dim clsQuadRuntime As New App_Runtime
 Dim wsCache As Worksheet
 Dim sFuncName As String, sSheetName As String, sDefn As String
 Dim vSource() As String

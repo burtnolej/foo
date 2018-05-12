@@ -12,7 +12,7 @@ Option Explicit
 
 Public Function Test_IsValidPersonID_Student() As TestResult
 Dim eTestResult As TestResult
-Dim clsQuadRuntime As New Quad_Runtime
+Dim clsQuadRuntime As New App_Runtime
 
 setup:
     On Error GoTo err
@@ -38,7 +38,7 @@ End Function
 
 Public Function Test_IsValidPersonID_Student_NotFound() As TestResult
 Dim eTestResult As TestResult
-Dim clsQuadRuntime As New Quad_Runtime
+Dim clsQuadRuntime As New App_Runtime
 
 setup:
     On Error GoTo err
@@ -64,7 +64,7 @@ teardown:
 End Function
 Public Function Test_IsValidPersonID_Teacher() As TestResult
 Dim eTestResult As TestResult
-Dim clsQuadRuntime As New Quad_Runtime
+Dim clsQuadRuntime As New App_Runtime
 
 setup:
     On Error GoTo err
@@ -90,7 +90,7 @@ End Function
 
 Public Function Test_IsValidPersonID_Teacher_NotFound() As TestResult
 Dim eTestResult As TestResult
-Dim clsQuadRuntime As New Quad_Runtime
+Dim clsQuadRuntime As New App_Runtime
 
 setup:
     On Error GoTo err
@@ -117,7 +117,7 @@ End Function
 Public Function Test_GetAllPersonDataFromDB() As TestResult
 Dim sResultStr As String
 Dim eTestResult As TestResult
-Dim clsQuadRuntime As New Quad_Runtime
+Dim clsQuadRuntime As New App_Runtime
 Dim vRows() As String
 
 setup:
@@ -153,7 +153,7 @@ End Function
 
 Public Function Test_DeletePersonDataToDB() As TestResult
 Dim eTestResult As TestResult
-Dim clsQuadRuntime As New Quad_Runtime
+Dim clsQuadRuntime As New App_Runtime
 Dim vRows() As Variant, vColumns() As Variant
 Dim sResultStr As String
 
@@ -197,7 +197,7 @@ End Function
 
 Public Function Test_UpdatePersonDataInDB() As TestResult
 Dim eTestResult As TestResult
-Dim clsQuadRuntime As New Quad_Runtime
+Dim clsQuadRuntime As New App_Runtime
 Dim vRows() As Variant, vColumns() As Variant
 Dim sResultStr As String
 
@@ -243,7 +243,7 @@ End Function
 
 Public Function Test_InsertPersonDataToDB() As TestResult
 Dim eTestResult As TestResult
-Dim clsQuadRuntime As New Quad_Runtime
+Dim clsQuadRuntime As New App_Runtime
 Dim vRows() As Variant, vColumns() As Variant
 Dim sResultStr As String
 
@@ -288,7 +288,7 @@ End Function
 Public Function Test_GetPersonDataFromDB() As TestResult
 Dim sResultStr As String
 Dim eTestResult As TestResult
-Dim clsQuadRuntime As New Quad_Runtime
+Dim clsQuadRuntime As New App_Runtime
 
 setup:
     On Error GoTo err
@@ -329,7 +329,7 @@ Dim sResultStr As String, sExpectedResult As String, sCacheSheetName As String
 Dim eTestResult As TestResult
 Dim aSchedule() As String
 Dim wsCache As Worksheet
-Dim clsQuadRuntime As New Quad_Runtime
+Dim clsQuadRuntime As New App_Runtime
 
 setup:
     On Error GoTo err
@@ -366,7 +366,7 @@ Dim sResultFileName As String, sResultStr As String, sExpectedResult As String, 
 Dim eTestResult As TestResult
 Dim aSchedule() As String
 Dim wsCache As Worksheet
-Dim clsQuadRuntime As New Quad_Runtime
+Dim clsQuadRuntime As New App_Runtime
 
 setup:
     On Error GoTo err

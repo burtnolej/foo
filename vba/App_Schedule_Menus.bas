@@ -9,7 +9,7 @@ Dim aXMLElement() As String, aXMLElementAttr() As String, aXMLRootElementAttr() 
 Dim iNumNodes As Integer, iMaxNumNodes As Integer
 Dim xDoc As MSXML2.DOMDocument
 Dim sName As String
-Dim clsQuadRuntime As Quad_Runtime
+Dim clsQuadRuntime As App_Runtime
 
     Set clsQuadRuntime = GetQuadRuntimeGlobal(bInitFlag:=True)
     

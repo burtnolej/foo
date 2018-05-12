@@ -13,13 +13,13 @@ Sub cleanup_workbooks()
 Dim wbTmp As Workbook
 Dim sBookNames As String, sCacheFilePath As String
 Dim sCacheBook As Variant
-Dim clsQuadRuntime As New Quad_Runtime
+Dim clsQuadRuntime As New App_Runtime
 
 setup:
     clsQuadRuntime.InitProperties bInitializeCache:=True
     
     'sBookNames = "cache.xlsm,schedule.xlsm,add.xlsm,menu.xlsm"
-    sCacheFilePath = GetHomePath & "\quad_runtime_cache"
+    sCacheFilePath = GetHomePath & "\app_runtime_cache"
     For Each sCacheBook In Split(clsQuadRuntime.BookEnum, COMMA)
         On Error Resume Next
         Set wbTmp = Workbooks(sCacheBook)
@@ -39,7 +39,7 @@ Dim wsTmp As Worksheet
 Dim rTarget As Range
 Dim dDefinitions As Dictionary, dRecord As Dictionary
 Dim eTestResult As TestResult
-Dim clsQuadRuntime As New Quad_Runtime
+Dim clsQuadRuntime As New App_Runtime
 Dim bDeleteFlag As Boolean, bDecodeFlag As Boolean
 
 setup:
@@ -135,7 +135,7 @@ Dim rTarget As Range, rTable As Range
 Dim dDefinitions As Dictionary
 Dim dRecord As Dictionary
 Dim eTestResult As TestResult
-Dim clsQuadRuntime As New Quad_Runtime
+Dim clsQuadRuntime As New App_Runtime
 
 setup:
     clsQuadRuntime.InitProperties bInitializeCache:=True
@@ -217,7 +217,7 @@ Dim rTarget As Range, rTable As Range
 Dim dDefinitions As Dictionary
 Dim dRecord As Dictionary
 Dim eTestResult As TestResult
-Dim clsQuadRuntime As New Quad_Runtime
+Dim clsQuadRuntime As New App_Runtime
 
 setup:
     clsQuadRuntime.InitProperties bInitializeCache:=True
@@ -291,7 +291,7 @@ Dim rTarget As Range
 Dim dDefinitions As Dictionary
 Dim dRecord As Dictionary
 Dim eTestResult As TestResult
-Dim clsQuadRuntime As New Quad_Runtime
+Dim clsQuadRuntime As New App_Runtime
 
 setup:
     clsQuadRuntime.InitProperties bInitializeCache:=True
@@ -364,7 +364,7 @@ Dim rTarget As Range
 Dim dDefinitions As Dictionary
 Dim dDefnDetails As Dictionary
 Dim eTestResult As TestResult
-Dim clsQuadRuntime As New Quad_Runtime
+Dim clsQuadRuntime As New App_Runtime
 
 setup:
 
@@ -426,7 +426,7 @@ Function Test_AddTableRecordFromDict() As TestResult
 Dim aSchedule() As String, vKeys() As String, vValues As Variant, vSource() As String
 Dim dValues As New Dictionary
 Dim sFuncName As String, sSheetName As String, sTableName As String, sDefn As String
-Dim clsQuadRuntime As New Quad_Runtime
+Dim clsQuadRuntime As New App_Runtime
 Dim wsTmp As Worksheet, wsTable As Worksheet
 Dim rTarget As Range
 Dim dRecordValues As Dictionary
@@ -491,7 +491,7 @@ Dim rTarget As Range
 Dim dDefinitions As Dictionary
 Dim dRecord As Dictionary
 Dim eTestResult As TestResult
-Dim clsQuadRuntime As New Quad_Runtime
+Dim clsQuadRuntime As New App_Runtime
 
 setup:
     clsQuadRuntime.InitProperties bInitializeCache:=True
@@ -584,7 +584,7 @@ Dim wsTmp As Worksheet
 Dim rTarget As Range
 Dim dDefinitions As Dictionary, dRecord As Dictionary
 Dim eTestResult As TestResult
-Dim clsQuadRuntime As New Quad_Runtime
+Dim clsQuadRuntime As New App_Runtime
 
 setup:
     clsQuadRuntime.InitProperties bInitializeCache:=True
@@ -693,7 +693,7 @@ Dim rTarget As Range
 Dim dDefinitions As Dictionary
 Dim dRecord As Dictionary
 Dim eTestResult As TestResult
-Dim clsQuadRuntime As New Quad_Runtime
+Dim clsQuadRuntime As New App_Runtime
 
 setup:
     clsQuadRuntime.InitProperties bInitializeCache:=True
@@ -782,7 +782,7 @@ Dim dDefinitions As Dictionary
 Dim dRecord As Dictionary
 Dim eTestResult As TestResult
 Dim iResultCode As Integer
-Dim clsQuadRuntime As New Quad_Runtime
+Dim clsQuadRuntime As New App_Runtime
 
 setup:
     clsQuadRuntime.InitProperties bInitializeCache:=True
@@ -821,3 +821,48 @@ teardown:
 
     
 End Function
+
+Function TestRowAsDict() As TestResult
+
+Dim sInputStr As String, sRangeName As String, sFuncName As String, sSheetName As String
+Dim iChunkLen As Integer
+Dim vSource() As String
+Dim eTestResult As TestResult
+Dim wsTmp As Worksheet
+Dim rTarget As Range
+Dim dResult As New Dictionary
+
+setup:
+    sFuncName = C_MODULE_NAME & "." & "TestRowAsDict"
+    sSheetName = "test"
+    sRangeName = "data"
+    Set wsTmp = CreateSheet(ActiveWorkbook, sSheetName, bOverwrite:=True)
+    vSource = Init2DStringArray([{"A", "B", "C";"a1","a2","a3";"b1","b2","b3"}])
+    Set rTarget = RangeFromStrArray(vSource, wsTmp, 0, 0)
+    CreateNamedRange ActiveWorkbook, rTarget.Address, sSheetName, sRangeName, "True"
+    
+main:
+
+    Set dResult = Row2Dict(wsTmp, sRangeName, 3)
+    
+    If dResult.Count <> 3 Then
+        eTestResult = TestResult.Failure
+        GoTo teardown
+    ElseIf dResult.Item("C") <> "b3" Then
+        eTestResult = TestResult.Failure
+        GoTo teardown
+        eTestResult = TestResult.Failure
+    Else
+        eTestResult = TestResult.OK
+    End If
+    On Error GoTo 0
+    GoTo teardown
+    
+err:
+    eTestResult = TestResult.Error
+    
+teardown:
+    DeleteSheet ActiveWorkbook, sSheetName
+    TestRowAsDict = eTestResult
+End Function
+

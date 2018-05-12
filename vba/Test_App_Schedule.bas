@@ -16,7 +16,7 @@ Dim rResult As Range
 Dim wsSchedule As Worksheet
 Dim aColumnWidths() As Integer
 Dim iFormatWidth As Integer, iFormatHeight As Integer, iColWidthCount As Integer, iPersonID As Integer
-Dim clsQuadRuntime As New Quad_Runtime
+Dim clsQuadRuntime As New App_Runtime
 Dim sScheduleName As String, sSchedulePath As String
 
     clsQuadRuntime.InitProperties sScheduleBookName:=sScheduleName, sScheduleBookPath:=sSchedulePath
@@ -63,7 +63,7 @@ Dim rResult As Range
 Dim wsSchedule As Worksheet
 Dim aColumnWidths() As Integer
 Dim iFormatWidth As Integer, iFormatHeight As Integer, iColWidthCount As Integer, iPersonID As Integer, iSourceColHeight As Integer, iTargetColHeight As Integer
-Dim clsQuadRuntime As New Quad_Runtime
+Dim clsQuadRuntime As New App_Runtime
 Dim dValues As New Dictionary
 
 setup:
@@ -117,7 +117,7 @@ End Function
 
 Public Function Test_CacheQuadRuntimePtr() As TestResult
 Dim eTestResult As TestResult
-Dim clsQuadRuntime As New Quad_Runtime
+Dim clsQuadRuntime As New App_Runtime
 Dim wbBook As Workbook
 
 setup:
@@ -161,7 +161,7 @@ Dim rResult As Range
 Dim wsSchedule As Worksheet
 Dim aColumnWidths() As Integer
 Dim iFormatWidth As Integer, iFormatHeight As Integer, iColWidthCount As Integer, iPersonID As Integer
-Dim clsQuadRuntime As New Quad_Runtime
+Dim clsQuadRuntime As New App_Runtime
 
 setup:
     clsQuadRuntime.InitProperties bInitializeCache:=True
@@ -199,7 +199,7 @@ Dim rResult As Range
 Dim wsSchedule As Worksheet
 Dim aColumnWidths() As Integer
 Dim iFormatWidth As Integer, iFormatHeight As Integer, iColWidthCount As Integer, iPersonID As Integer
-Dim clsQuadRuntime As New Quad_Runtime
+Dim clsQuadRuntime As New App_Runtime
 Dim dValues As New Dictionary
 
 setup:
@@ -264,7 +264,7 @@ Dim rResult As Range
 Dim wsSchedule As Worksheet
 Dim aColumnWidths() As Integer
 Dim iFormatWidth As Integer, iFormatHeight As Integer, iColWidthCount As Integer, iPersonID As Integer
-Dim clsQuadRuntime As New Quad_Runtime
+Dim clsQuadRuntime As New App_Runtime
 
     clsQuadRuntime.InitProperties
             
@@ -318,7 +318,7 @@ Dim rResult As Range
 Dim wsSchedule As Worksheet
 Dim aColumnWidths() As Integer
 Dim iFormatWidth As Integer, iFormatHeight As Integer, iColWidthCount As Integer, iPersonID As Integer
-Dim clsQuadRuntime As New Quad_Runtime
+Dim clsQuadRuntime As New App_Runtime
 
 setup:
     clsQuadRuntime.InitProperties bInitializeCache:=True
@@ -371,7 +371,7 @@ Dim sResultStr As String, sExpectedResult As String, sCacheSheetName As String
 Dim iPersonID As Integer
 Dim eTestResult As TestResult
 Dim aSchedule() As Variant
-Dim clsQuadRuntime As New Quad_Runtime
+Dim clsQuadRuntime As New App_Runtime
 
 setup:
     clsQuadRuntime.InitProperties bInitializeCache:=True
@@ -406,7 +406,7 @@ Dim sResultStr As String, sExpectedResult As String
 Dim iPersonID As Integer
 Dim eTestResult As TestResult
 Dim aSchedule() As Variant
-Dim clsQuadRuntime As New Quad_Runtime
+Dim clsQuadRuntime As New App_Runtime
 
 setup:
     clsQuadRuntime.InitProperties bInitializeCache:=True
@@ -438,7 +438,7 @@ Public Function Test_GetScheduleDataFromDB() As TestResult
 Dim sResultStr As String
 Dim iPersonID As Integer
 Dim eTestResult As TestResult
-Dim clsQuadRuntime As New Quad_Runtime
+Dim clsQuadRuntime As New App_Runtime
 
 setup:
     clsQuadRuntime.InitProperties bInitializeCache:=True
@@ -477,7 +477,7 @@ Public Function Test_GetScheduleDataFromDB_1Period1Student() As TestResult
 Dim sResultStr As String, sExpectedResult As String
 Dim iPersonID As Integer
 Dim eTestResult As TestResult
-Dim clsQuadRuntime As New Quad_Runtime
+Dim clsQuadRuntime As New App_Runtime
 
 setup:
     clsQuadRuntime.InitProperties bInitializeCache:=True

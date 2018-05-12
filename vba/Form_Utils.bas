@@ -23,7 +23,7 @@ End Function
 
 Public dDefinitions As Dictionary
 
-Public Sub GenerateForms(clsQuadRuntime As Quad_Runtime, _
+Public Sub GenerateForms(clsQuadRuntime As App_Runtime, _
                      Optional bLoadRefData As Boolean = False, _
                      Optional sOverideButtonCallback As String, _
                      Optional sFormName As String, _
@@ -36,7 +36,7 @@ Public Sub GenerateForms(clsQuadRuntime As Quad_Runtime, _
 '       : add buttons, that can be used to submit completed records
 '       : cache reference data for use in validations when user enters data
 '       :
-'param  : clsQuadRuntime, Quad_Runtime; all config controlling names of books, sheets, ranges for
+'param  : clsQuadRuntime, App_Runtime; all config controlling names of books, sheets, ranges for
 '       :                 also contains any variables that need to be passed continually
 'param  : bLoadRefData, Boolean; when true will force loading of ref data from db
 '>>>
@@ -148,7 +148,7 @@ Public Sub UpdateViewStudentForm(ParamArray args())
 'param  :
 'rtype  :
 '>>>
-Dim clsQuadRuntime As Quad_Runtime
+Dim clsQuadRuntime As App_Runtime
 Dim lStartTick As Long
 Dim eWidgetType As WidgetType
 Dim eFormType As FormType
@@ -220,7 +220,7 @@ Public Sub UpdateForm(ParamArray args())
 'rtype  :
 '>>>
 Dim sCacheTableName As String, sValue As String, sLookUpIdRangeName As String, sRecordID As String, sFieldName As String, sFuncName As String, sLookUpFieldName As String
-Dim clsQuadRuntime As Quad_Runtime
+Dim clsQuadRuntime As App_Runtime
 Dim sKey As Variant
 Dim rTarget As Range
 Dim lStartTick As Long
@@ -326,7 +326,7 @@ Dim dActions As Dictionary
     Next sAction
     
 End Sub
-Public Function FormatForm(clsQuadRuntime As Quad_Runtime, _
+Public Function FormatForm(clsQuadRuntime As App_Runtime, _
                            sTargetSheetName As String, _
                   Optional sFormType As String = "Add", _
                   Optional iFirstCol As Integer = 1, _

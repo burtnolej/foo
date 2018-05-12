@@ -10,7 +10,7 @@ Dim wsTmp As Worksheet
 Dim rTarget As Range
 Dim dDefinitions As Dictionary, dDefnDetails As Dictionary
 Dim eTestResult As TestResult
-Dim clsQuadRuntime As New Quad_Runtime
+Dim clsQuadRuntime As New App_Runtime
 
 setup:
     ResetQuadRuntimeGlobal
@@ -114,7 +114,7 @@ Dim wsTmp As Worksheet
 Dim rTarget As Range
 Dim dDefinitions As Dictionary, dDefnDetails As Dictionary
 Dim eTestResult As TestResult
-Dim clsQuadRuntime As New Quad_Runtime
+Dim clsQuadRuntime As New App_Runtime
 
 setup:
     ResetQuadRuntimeGlobal
@@ -201,7 +201,7 @@ Dim wsTmp As Worksheet
 Dim rTarget As Range
 Dim dDefinitions As Dictionary, dDefnDetails As Dictionary
 Dim eTestResult As TestResult
-Dim clsQuadRuntime As New Quad_Runtime
+Dim clsQuadRuntime As New App_Runtime
 
 setup:
     ResetQuadRuntimeGlobal
@@ -286,7 +286,7 @@ Dim wsTmp As Worksheet
 Dim rTarget As Range
 Dim dDefinitions As Dictionary, dDefnDetails As Dictionary
 Dim eTestResult As TestResult
-Dim clsQuadRuntime As New Quad_Runtime
+Dim clsQuadRuntime As New App_Runtime
 
 setup:
     'On Error GoTo err:
@@ -362,7 +362,7 @@ Dim wsTmp As Worksheet
 Dim rTarget As Range
 Dim dDefinitions As Dictionary, dDefnDetails As Dictionary
 Dim eTestResult As TestResult
-Dim clsQuadRuntime As New Quad_Runtime
+Dim clsQuadRuntime As New App_Runtime
 
 setup:
     'On Error GoTo err:
@@ -453,7 +453,7 @@ Dim wsTmp As Worksheet
 Dim rTarget As Range, rAdd As Range, rButton As Range
 Dim dDefinitions As Dictionary, dDefnDetails As Dictionary
 Dim eTestResult As TestResult
-Dim clsQuadRuntime As New Quad_Runtime
+Dim clsQuadRuntime As New App_Runtime
 
 setup:
     clsQuadRuntime.InitProperties bInitializeCache:=True
@@ -537,7 +537,7 @@ Dim wsTmp As Worksheet
 Dim rTarget As Range, rAdd As Range, rButton As Range
 Dim dDefinitions As Dictionary, dDefnDetails As Dictionary, dDefaultValues As New Dictionary, dTmp As New Dictionary
 Dim eTestResult As TestResult
-Dim clsQuadRuntime As New Quad_Runtime
+Dim clsQuadRuntime As New App_Runtime
 
 setup:
     clsQuadRuntime.InitProperties bInitializeCache:=True
@@ -602,7 +602,7 @@ Dim wsTmp As Worksheet
 Dim rTarget As Range, rAdd As Range, rButton As Range
 Dim dDefinitions As Dictionary, dDefnDetails As Dictionary, dDefaultValues As New Dictionary, dTmp As New Dictionary
 Dim eTestResult As TestResult
-Dim clsQuadRuntime As New Quad_Runtime
+Dim clsQuadRuntime As New App_Runtime
 
 setup:
     sSheetName = "test"
@@ -679,7 +679,7 @@ Dim wsTmp As Worksheet
 Dim rTarget As Range, rAdd As Range, rButton As Range, rColumn As Range
 Dim dDefinitions As Dictionary, dDefnDetails As Dictionary, dDefaultValues As New Dictionary, dTmp As New Dictionary
 Dim eTestResult As TestResult
-Dim clsQuadRuntime As New Quad_Runtime
+Dim clsQuadRuntime As New App_Runtime
 
 setup:
     clsQuadRuntime.InitProperties bInitializeCache:=True
@@ -753,7 +753,7 @@ Dim wsTmp As Worksheet
 Dim rTarget As Range, rAdd As Range, rButton As Range, rColumn As Range
 Dim dDefinitions As Dictionary, dDefnDetails As Dictionary, dDefaultValues As New Dictionary, dTmp As New Dictionary
 Dim eTestResult As TestResult
-Dim clsQuadRuntime As New Quad_Runtime
+Dim clsQuadRuntime As New App_Runtime
 
 setup:
     clsQuadRuntime.InitProperties bInitializeCache:=True
@@ -868,7 +868,7 @@ Dim wsTmp As Worksheet
 Dim rTarget As Range
 Dim dDefinitions As Dictionary, dDefnDetails As Dictionary
 Dim eTestResult As TestResult
-Dim clsQuadRuntime As New Quad_Runtime
+Dim clsQuadRuntime As New App_Runtime
 
 setup:
     'On Error GoTo err:
@@ -911,7 +911,7 @@ Dim eTestResult As TestResult
 Dim rInput As Range
 Dim sKey As String
 
-Dim clsQuadRuntime As New Quad_Runtime
+Dim clsQuadRuntime As New App_Runtime
 
 setup:
     clsQuadRuntime.InitProperties bInitializeCache:=True
@@ -982,7 +982,7 @@ Dim wsTmp As Worksheet, wsFormat As Worksheet, wsWidgetFormat As Worksheet
 Dim rTarget As Range, rFormat As Range
 Dim dDefinitions As Dictionary, dDefnDetails As Dictionary
 Dim eTestResult As TestResult
-Dim clsQuadRuntime As New Quad_Runtime
+Dim clsQuadRuntime As New App_Runtime
 Dim wbTemplateBook As Workbook
 
 setup:

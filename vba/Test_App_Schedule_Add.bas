@@ -28,7 +28,7 @@ End Function
 
 Function Test_AddAddScheduleAdd_Multiple() As TestResult
 Dim eTestResult As TestResult
-Dim clsQuadRuntime As New Quad_Runtime
+Dim clsQuadRuntime As New App_Runtime
 Dim sFuncName As String, sSheetName As String, sTargetSheetName As String
 Dim rTarget As Range, rWidget As Range
 Dim dEntryValues As Dictionary, dRecordValues As Dictionary
@@ -105,7 +105,7 @@ teardown:
 End Function
 Function Test_AddAddScheduleAddOverrideScheduleName() As TestResult
 Dim eTestResult As TestResult
-Dim clsQuadRuntime As New Quad_Runtime
+Dim clsQuadRuntime As New App_Runtime
 Dim sFuncName As String, sSheetName As String, sTargetSheetName As String, sScheduleName As String, sSchedulePath As String
 Dim rTarget As Range, rWidget As Range
 Dim dEntryValues As Dictionary, dRecordValues As Dictionary
@@ -263,7 +263,7 @@ End Function
 
 Function Test_AddAddScheduleAdd() As TestResult
 Dim eTestResult As TestResult
-Dim clsQuadRuntime As New Quad_Runtime
+Dim clsQuadRuntime As New App_Runtime
 Dim sFuncName As String, sSheetName As String, sTargetSheetName As String
 Dim rTarget As Range, rWidget As Range
 Dim dEntryValues As Dictionary, dRecordValues As Dictionary
@@ -421,7 +421,7 @@ Sub test()
 End Sub
 Function Test_EditLesson() As TestResult
 Dim eTestResult As TestResult
-Dim clsQuadRuntime As New Quad_Runtime
+Dim clsQuadRuntime As New App_Runtime
 Dim sFuncName As String, sSheetName As String, sTargetSheetName As String
 Dim dRecordValues As Dictionary
 

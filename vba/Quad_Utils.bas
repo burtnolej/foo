@@ -44,7 +44,7 @@ End Enum
 Const C_QUAD_SCOPE = "all,specified"
 
 
-Private clsQuadRuntimeGlobal As Quad_Runtime
+Private clsQuadRuntimeGlobal As App_Runtime
 
 Function EnumQuadDataType(i As Long) As String
     EnumQuadDataType = Split(C_QUAD_DATA_TYPE, COMMA)(i - 1)
@@ -67,8 +67,8 @@ End Function
 Public Sub ResetQuadRuntimeGlobal()
     Set clsQuadRuntimeGlobal = Nothing
 End Sub
-Public Function InitQuadRuntimeGlobal(Optional dQuadRuntimeValues As Dictionary) As Quad_Runtime
-Dim clsQuadRuntime As New Quad_Runtime
+Public Function InitQuadRuntimeGlobal(Optional dQuadRuntimeValues As Dictionary) As App_Runtime
+Dim clsQuadRuntime As New App_Runtime
 Dim vKey As Variant
 
     clsQuadRuntime.InitProperties
@@ -81,18 +81,18 @@ Dim vKey As Variant
     
     Set InitQuadRuntimeGlobal = clsQuadRuntime
 End Function
-Public Sub LetQuadRuntimeGlobal(clsQuadRuntime As Quad_Runtime)
+Public Sub LetQuadRuntimeGlobal(clsQuadRuntime As App_Runtime)
 Dim sFuncName As String
     sFuncName = C_MODULE_NAME & "." & "LetQuadRuntimeGlobal"
     If IsInstance(clsQuadRuntime, vbQuadRuntime) = False Then
-        err.Raise ErrorMsgType.BAD_ARGUMENT, Description:="arg is not of type Quad_Runtime"
+        err.Raise ErrorMsgType.BAD_ARGUMENT, Description:="arg is not of type App_Runtime"
     End If
     
     Set clsQuadRuntimeGlobal = clsQuadRuntime
     FuncLogIt sFuncName, "Setting GLOBAL Quad_Utils.clsQuadRuntimeGlobal", C_MODULE_NAME, LogMsgType.INFO
 End Sub
 Public Function GetQuadRuntimeGlobal(Optional bInitFlag As Boolean = False, _
-                                     Optional dQuadRuntimeValues As Dictionary) As Quad_Runtime
+                                     Optional dQuadRuntimeValues As Dictionary) As App_Runtime
 Dim sFuncName As String
     sFuncName = C_MODULE_NAME & "." & "GetQuadRuntimeGlobal"
     
@@ -109,111 +109,9 @@ Dim sFuncName As String
         End If
     End If
 End Function
-Public Function SheetTableLookup(wsDataSheet As Worksheet, sRangeName As String, _
-                            sLookUpColName As String, vLookUpVal As Variant, _
-                            Optional wbTmp As Workbook) As Integer
-' assumes row 1 contains the column names
-':param:sLookupColName, string, column name that will be used as AboveAverage unique index to lookup by
-Dim vColumnNames As Variant, vColumnNamesTransposed As Variant
-Dim rColumns As Range, rData As Range
-Dim iColumnIdx As Integer
 
-    If IsSet(wbTmp) = False Then
-        Set wbTmp = ActiveWorkbook
-    End If
-        
-    'Set rData = wbTmp.Sheets("person_student").Range(sRangeName)
-    With wsDataSheet
-        Set rData = .Range(sRangeName)
-        Set rColumns = rData.Resize(1)
-        vColumnNames = rColumns
-        vColumnNamesTransposed = ConvertArrayFromRangeto1D(vColumnNames, bHz:=True)
-        iColumnIdx = IndexArray(vColumnNamesTransposed, sLookUpColName) + 1
-        On Error GoTo notfound
-        SheetTableLookup = Application.Match(CStr(vLookUpVal), rData.Columns(iColumnIdx), 0)
-        Exit Function
-        On Error GoTo 0
-    End With
-notfound:
-    SheetTableLookup = -1
 
-End Function
-Public Function Row2Dict(wsDataSheet As Worksheet, sRangeName As String, iRowId As Integer) As Dictionary
-Dim vColumnNames As Variant, vDataRow As Variant, vColumnNamesTransposed As Variant, vDataRowTransposed As Variant
-Dim rColumns As Range, rData As Range, rDataRow As Range
-Dim iColumnIdx As Integer
-Dim dValues As New Dictionary
-Dim iWidget As Variant
-
-    With wsDataSheet
-        Set rData = .Range(sRangeName)
-        Set rColumns = rData.Resize(1)
-        Set rDataRow = rData.Resize(1).Offset(iRowId - 1)
-        vColumnNames = rColumns
-        vDataRow = rDataRow
-        vColumnNamesTransposed = ConvertArrayFromRangeto1D(vColumnNames, bHz:=True)
-        vDataRowTransposed = ConvertArrayFromRangeto1D(vDataRow, bHz:=True)
-        
-        For iWidget = 0 To UBound(vColumnNamesTransposed)
-            dValues.Add vColumnNamesTransposed(iWidget), vDataRowTransposed(iWidget)
-        Next iWidget
-    End With
-    
-    Set Row2Dict = dValues
-        
-End Function
-Public Sub SetCacheBook(ByRef sCacheBookName As String, ByRef sCacheBookPath As String)
-Dim sFuncName As String
-
-setup:
-    sFuncName = C_MODULE_NAME & "." & "SetCacheBook"
-    ' Assertions --------------------------------
-    If sCacheBookPath <> "" And DirExists(sCacheBookPath) = False Then
-        err.Raise ErrorMsgType.BAD_ARGUMENT, Description:="arg sCacheBookPath dir not found"
-    End If
-    
-    If sCacheBookName <> "" And sCacheBookPath <> "" Then
-        If FileExists(sCacheBookPath & "\\" & sCacheBookName) = False Then
-            err.Raise ErrorMsgType.BAD_ARGUMENT, Description:="arg '" & sCacheBookPath & "\\" & sCacheBookName & "[ file not found"
-        End If
-    End If
-    
-    ' END Assertions -----------------------------
-
-main:
-    If sCacheBookName = "" Then
-        sCacheBookName = Quad_Utils.sCacheBookName
-        FuncLogIt sFuncName, "Cache workbook name not set so defaulting to [" & sCacheBookName & "]", C_MODULE_NAME, LogMsgType.INFO
-    End If
-    
-    If sCacheBookPath = "" Then
-        sCacheBookPath = Quad_Utils.sCacheBookPath
-        FuncLogIt sFuncName, "Cache workbook path not set so defaulting to [" & sCacheBookPath & "]", C_MODULE_NAME, LogMsgType.INFO
-    End If
-End Sub
-Public Sub SetBook(ByRef sBookName As String, ByRef sBookPath As String)
-Dim sFuncName As String
-
-setup:
-    sFuncName = C_MODULE_NAME & "." & "SetBook"
-    ' Assertions --------------------------------
-    If sBookPath <> "" And DirExists(sBookPath) = False Then
-        err.Raise ErrorMsgType.BAD_ARGUMENT, Description:="arg sBookPath dir not found"
-    End If
-    ' END Assertions -----------------------------
-
-main:
-    If sBookName = "" Then
-        sBookName = Quad_Utils.sBookName
-        FuncLogIt sFuncName, "main workbook name not set so defaulting to [" & sCacheBookName & "]", C_MODULE_NAME, LogMsgType.INFO
-    End If
-    
-    If sBookPath = "" Then
-        sBookPath = Quad_Utils.sBookPath
-        FuncLogIt sFuncName, "main workbook path not set so defaulting to [" & sBookPath & "]", C_MODULE_NAME, LogMsgType.INFO
-    End If
-End Sub
-Public Sub CreateQuadArgsFile(clsQuadRuntime As Quad_Runtime, sSpName As String, _
+Public Sub CreateQuadArgsFile(clsQuadRuntime As App_Runtime, sSpName As String, _
         Optional dSpArgs As Dictionary, _
         Optional vRows As Variant, _
         Optional vColumns As Variant, _
@@ -275,102 +173,13 @@ Dim PYTHONPATH As String, xSpArgs As String, sTmp As String
     End If
     
 End Sub
-                        
-Public Function GetColumnValues(clsQuadRuntime As Quad_Runtime, _
-                                 eQuadDataType As QuadDataType, _
-                                 eQuadSubDataType As QuadSubDataType, _
-                                 sLookUpColName As String, _
-                        Optional iPersonID As Integer) As String()
-Dim wsCache As Worksheet
-Dim sLookUpRangeName As String
-Dim sFuncName As String
-
-setup:
-    sFuncName = C_MODULE_NAME & "." & "GetColumnValues"
-    'FuncLogIt sFuncName, "[sLookUpColName=" & sLookUpColName & "] [iPersonID=" & iPersonID & "]", C_MODULE_NAME, LogMsgType.INFUNC
-
-main:
-    If eQuadDataType = QuadDataType.schedule Then
-        Set wsCache = GetScheduleData(clsQuadRuntime, iPersonID, eQuadDataType, eQuadSubDataType, bInTable:=True)
-    Else
-        Set wsCache = GetPersonData(clsQuadRuntime, eQuadDataType, eQuadSubDataType, QuadScope.all, bInTable:=True)
-    End If
-    sLookUpRangeName = GetDBColumnRange(wsCache.name, sLookUpColName)
-    GetColumnValues = ListFromRange(wsCache, sLookUpRangeName)
-                       
-endfunc:
-    On Error GoTo 0
-    Exit Function
-    
-err:
-    FuncLogIt sFuncName, "[sLookUpColName=" & sLookUpColName & "] [iPersonID=" & iPersonID & "]", C_MODULE_NAME, LogMsgType.Error
-                       
-End Function
-Public Function CrossRefQuadData(clsQuadRuntime As Quad_Runtime, _
-                                 eQuadDataType As QuadDataType, _
-                                 eQuadSubDataType As QuadSubDataType, _
-                                 sLookUpByColName As String, _
-                                 sLookUpByValue As Variant, _
-                                 sLookUpColName As String)
-Dim wsCache As Worksheet
-Dim sLookUpByRangeName As String, sLookUpRangeName As String
-Dim vLookUpByValues() As String, vLookUpValues() As String
-
-    Set wsCache = GetPersonData(clsQuadRuntime, eQuadDataType, eQuadSubDataType, QuadScope.all, _
-                                    bInTable:=True)
-            
-    sLookUpByRangeName = GetDBColumnRange(wsCache.name, sLookUpByColName)
-    sLookUpRangeName = GetDBColumnRange(wsCache.name, sLookUpColName)
-    
-    vLookUpByValues = ListFromRange(wsCache, sLookUpByRangeName)
-    vLookUpValues = ListFromRange(wsCache, sLookUpRangeName)
-
-    CrossRefQuadData = vLookUpValues(IndexArray(vLookUpByValues, CStr(sLookUpByValue)))
-
-    
-End Function
-
-Public Sub UpdateQuadDataInDB(clsQuadRuntime As Quad_Runtime, sSpName As String, vRow() As Variant, _
-                    Optional bHeaderFlag As Boolean = False)
-                
-    CreateQuadArgsFile clsQuadRuntime, sSpName, vRow:=vRow, bHeaderFlag:=bHeaderFlag
-    aArgs = InitStringArray(Array("python", clsQuadRuntime.ExecPath & "excel_data_utils.py", "--input_file", clsQuadRuntime.FileName))
-                    
-    ShellRun aArgs
-  
-End Sub
-
-Public Sub InsertQuadDataToDB(clsQuadRuntime As Quad_Runtime, sSpName As String, _
-                              vRows() As Variant, vColumns() As Variant, _
-                    Optional bHeaderFlag As Boolean = False)
-                
-    CreateQuadArgsFile clsQuadRuntime, sSpName, vRows:=vRows, vColumns:=vColumns, bHeaderFlag:=bHeaderFlag
-    aArgs = InitStringArray(Array("python", clsQuadRuntime.ExecPath & "excel_data_utils.py", "--input_file", clsQuadRuntime.FileName))
-                    
-    ShellRun aArgs
-  
-End Sub
-    
-Public Sub GetQuadDataFromDB(clsQuadRuntime As Quad_Runtime, sSpName As String, _
-                        Optional dSpArgs As Dictionary, _
-                        Optional bHeaderFlag As Boolean = False)
-' get the raw data from a backsheet
-Dim sExecPath As String, sRuntimePath As String, sResult As String
-Dim aArgs() As String
-
-    CreateQuadArgsFile clsQuadRuntime, sSpName, dSpArgs:=dSpArgs, bHeaderFlag:=bHeaderFlag
-    aArgs = InitStringArray(Array("python", clsQuadRuntime.ExecPath & "excel_data_utils.py", "--input_file", clsQuadRuntime.FileName))
-                    
-    ShellRun aArgs
-    
-End Sub
-Public Function IsDataCached(clsQuadRuntime As Quad_Runtime, _
+Public Function IsDataCached(clsQuadRuntime As App_Runtime, _
                              eQuadDataType As QuadDataType, _
                              eQuadSubDataType As QuadSubDataType, _
                     Optional iDataID As Integer) As Boolean
 '<<<
 ' purpose: has this data set already been cached
-' param  : clsQuadRuntime, Quad_Runtime; all config controlling names of books, sheets, ranges for
+' param  : clsQuadRuntime, App_Runtime; all config controlling names of books, sheets, ranges for
 '        :                 also contains any variables that need to be passed continually
 ' param  : eQuadSubDataType, QuadSubDataType; what type of person are we querying
 ' param  : eQuadDataType, QuadDataType; what type of data are we querying
@@ -394,7 +203,7 @@ Public Function ParseRawData(sData As String) As Variant
     ParseRawData = Delim2Array(sData, bVariant:=True)
 End Function
 
-Public Function CacheData(clsQuadRuntime As Quad_Runtime, _
+Public Function CacheData(clsQuadRuntime As App_Runtime, _
                           aData() As Variant, _
                           eQuadDataType As QuadDataType, _
                           eQuadSubDataType As QuadSubDataType, _

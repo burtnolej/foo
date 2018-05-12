@@ -9,7 +9,7 @@ Attribute VB_Name = "App_Schedule"
 Option Explicit
 Const C_MODULE_NAME = "App_Schedule"
 
-Public Function BuildSchedule(clsQuadRuntime As Quad_Runtime, _
+Public Function BuildSchedule(clsQuadRuntime As App_Runtime, _
                               eQuadSubDataType As QuadSubDataType, _
                               iPersonID As Integer) As Worksheet
 '"""Using data from the database, and a format template, create a visual schedule on a new sheet
@@ -53,7 +53,7 @@ main:
   
 End Function
 
-Public Function GetScheduleData(clsQuadRuntime As Quad_Runtime, _
+Public Function GetScheduleData(clsQuadRuntime As App_Runtime, _
                                 iPersonID As Integer, _
                               eQuadDataType As QuadDataType, _
                               eQuadSubDataType As QuadSubDataType, _
@@ -87,7 +87,7 @@ main:
     Set GetScheduleData = clsQuadRuntime.CacheBook.Sheets(sCacheSheetName)
 End Function
     
-Public Sub GetScheduleDataFromDB(clsQuadRuntime As Quad_Runtime, _
+Public Sub GetScheduleDataFromDB(clsQuadRuntime As App_Runtime, _
                                  sPersonId As Integer, _
                                  eQuadSubDataType As QuadSubDataType, _
                         Optional sPeriod As String, _
@@ -130,7 +130,7 @@ main:
     GetQuadDataFromDB clsQuadRuntime, sSpName, dSpArgs:=dSpArgs, bHeaderFlag:=True
 
 End Sub
-Function GetScheduleDataHelpers(clsQuadRuntime As Quad_Runtime, sCacheSheetName As String)
+Function GetScheduleDataHelpers(clsQuadRuntime As App_Runtime, sCacheSheetName As String)
 Dim iScheduleWidth As Integer, iScheduleHeight As Integer
 Dim rSource As Range
     ' Assertions --------------------------------
@@ -146,7 +146,7 @@ Dim rSource As Range
 End Function
 
 
-Public Sub GetScheduleCellFormat(clsQuadRuntime As Quad_Runtime, ByRef iFormatWidth As Integer, _
+Public Sub GetScheduleCellFormat(clsQuadRuntime As App_Runtime, ByRef iFormatWidth As Integer, _
                                  ByRef iFormatHeight As Integer, sScheduleFormatRangeName As String)
 'gets the template for the cell and puts it into the clipboard
 'param: sSourceBookName, string, the book that holds the templates (vba_source_new.xlsm)
@@ -161,7 +161,7 @@ Dim rScheduleFormatRange As Range
 
 End Sub
         
-Public Function GetScheduleCellColWidths(clsQuadRuntime As Quad_Runtime, sScheduleFormatRangeName As String, _
+Public Function GetScheduleCellColWidths(clsQuadRuntime As App_Runtime, sScheduleFormatRangeName As String, _
                                          iColWidthCount As Integer) As Integer()
 ' get the column widths from the template and return in an integer array
 'param: sScheduleFormatRangeName, string, named range that contains the specific format (fStudentScheduleCell
@@ -181,7 +181,7 @@ Dim rWidget As Range
     GetScheduleCellColWidths = aColumnWidths
 End Function
 
-Function BuildScheduleCellView(clsQuadRuntime As Quad_Runtime, _
+Function BuildScheduleCellView(clsQuadRuntime As App_Runtime, _
                           wsSchedule As Worksheet, _
                           dValues As Dictionary, _
                           iFormatWidth As Integer, iFormatHeight As Integer, _
@@ -220,7 +220,7 @@ Dim sFormatTemplateRange As String
     
     Set BuildScheduleCellView = rScheduleFormatTargetRange
 End Function
-Function BuildScheduleView(clsQuadRuntime As Quad_Runtime, _
+Function BuildScheduleView(clsQuadRuntime As App_Runtime, _
                            aColumnWidths() As Integer, _
                            iFormatWidth As Integer, _
                            iFormatHeight As Integer, _
@@ -256,7 +256,7 @@ Dim i As Integer, j As Integer
 DoEventsOn
 End Function
 
-Function BuildScheduleHeaderView(clsQuadRuntime As Quad_Runtime, _
+Function BuildScheduleHeaderView(clsQuadRuntime As App_Runtime, _
                           wsSchedule As Worksheet, _
                           sEnums As String, _
                           iFormatWidth As Integer, iFormatHeight As Integer, _

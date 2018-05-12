@@ -5,7 +5,7 @@ Const C_MODULE_NAME = "Test_Misc_Utils"
 Function Test_IsQuadRuntime() As TestResult
 Dim sFuncName As String
 Dim eTestResult As TestResult
-Dim clsQuadRuntime As New Quad_Runtime
+Dim clsQuadRuntime As New App_Runtime
 
 setup:
     sFuncName = C_MODULE_NAME & ".MyVarTypeEnum"
@@ -132,7 +132,7 @@ End Function
 Function Test_MyVarTypeEnumQuadRuntime() As TestResult
 Dim sFuncName As String
 Dim eTestResult As TestResult
-Dim dTmp As New Quad_Runtime
+Dim dTmp As New App_Runtime
 
 setup:
     sFuncName = C_MODULE_NAME & ".MyVarTypeEnumQuadRuntime"

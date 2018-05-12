@@ -1,24 +1,24 @@
 Attribute VB_Name = "Test_Quad_Runtime"
 Option Explicit
 
-Const C_MODULE_NAME = "Test_Quad_Runtime"
+Const C_MODULE_NAME = "Test_App_Runtime"
 
-Function Test_Init_Quad_Runtime_MultiUpdate_Cached_Values() As TestResult
+Function Test_Init_App_Runtime_MultiUpdate_Cached_Values() As TestResult
 ' updating the cache multiple times
 Dim sFuncName As String, sTmpBookName As String, sTmpBookPath As String, sFilePath As String
 Dim eTestResult As TestResult
-Dim clsQuadRuntime As Quad_Runtime
+Dim clsQuadRuntime As App_Runtime
 Dim wbTmp As Workbook
 Dim vResultArray() As String
 
 setup:
-    sFuncName = C_MODULE_NAME & "." & "Init_Quad_Runtime"
+    sFuncName = C_MODULE_NAME & "." & "Init_App_Runtime"
     sTmpBookPath = Environ("MYHOME") & ""
     sTmpBookName = "tmp.xls"
     Set wbTmp = CreateBook(sTmpBookName, sBookPath:=sTmpBookPath)
-    sFuncName = C_MODULE_NAME & "." & "Init_Quad_Runtime"
-    Set clsQuadRuntime = New Quad_Runtime
-    sFilePath = Environ("MYHOME") & "\quad_runtime_cache.txt"
+    sFuncName = C_MODULE_NAME & "." & "Init_App_Runtime"
+    Set clsQuadRuntime = New App_Runtime
+    sFilePath = Environ("MYHOME") & "\app_runtime_cache.txt"
 main:
     clsQuadRuntime.InitProperties sBookPath:=sTmpBookPath, sBookName:=sTmpBookName, sDayEnum:="foobar"
     clsQuadRuntime.DayEnum = "barfoo"
@@ -41,7 +41,7 @@ main:
 
 
 teardown:
-    Test_Init_Quad_Runtime_MultiUpdate_Cached_Values = eTestResult
+    Test_Init_App_Runtime_MultiUpdate_Cached_Values = eTestResult
     CloseBook wbTmp
     DeleteBook sTmpBookName, sTmpBookPath
     clsQuadRuntime.Delete
@@ -49,23 +49,23 @@ teardown:
 End Function
 
 
-Function Test_Init_Quad_Runtime_Retreive_Cached_Values() As TestResult
+Function Test_Init_App_Runtime_Retreive_Cached_Values() As TestResult
 Dim sFuncName As String, sTmpBookName As String, sTmpBookPath As String, sCacheFilePath As String
 Dim wbTmp As Workbook
 Dim oFile As Object
 Dim vArray() As String
 Dim i As Integer
-Dim clsQuadRuntime As Quad_Runtime
+Dim clsQuadRuntime As App_Runtime
 Dim eTestResult As TestResult
 
 setup:
     'On Error GoTo err
-    sFuncName = C_MODULE_NAME & "." & "Test_Init_Quad_Runtime_Retreive_Cached_Values"
+    sFuncName = C_MODULE_NAME & "." & "Test_Init_App_Runtime_Retreive_Cached_Values"
     sTmpBookPath = Environ("MYHOME") & ""
     sTmpBookName = "tmp.xls"
     Set wbTmp = CreateBook(sTmpBookName, sBookPath:=sTmpBookPath)
     
-    sCacheFilePath = Environ("MYHOME") & "\\quad_runtime_cache.txt"
+    sCacheFilePath = Environ("MYHOME") & "\\app_runtime_cache.txt"
     Set oFile = CreateFile(sCacheFilePath)
     oFile.Close
 
@@ -78,7 +78,7 @@ setup:
     vArray(1) = sTmpBookName
     
     WriteArray2File vArray, sCacheFilePath
-    Set clsQuadRuntime = New Quad_Runtime
+    Set clsQuadRuntime = New App_Runtime
     
 main:
     clsQuadRuntime.InitProperties sBookPath:=sTmpBookPath, sBookName:=sTmpBookName
@@ -99,27 +99,27 @@ err:
     
     
 teardown:
-    Test_Init_Quad_Runtime_Retreive_Cached_Values = eTestResult
+    Test_Init_App_Runtime_Retreive_Cached_Values = eTestResult
     CloseBook wbTmp
     DeleteBook sTmpBookName, sTmpBookPath
     clsQuadRuntime.Delete
     
 End Function
-Function Test_Init_Quad_Runtime_Persist_Cache() As TestResult
+Function Test_Init_App_Runtime_Persist_Cache() As TestResult
 Dim sFuncName As String, sTmpBookName As String, sTmpBookPath As String, sFilePath As String
 Dim eTestResult As TestResult
-Dim clsQuadRuntime As Quad_Runtime
+Dim clsQuadRuntime As App_Runtime
 Dim wbTmp As Workbook
 Dim vResultArray() As String
 
 setup:
-    sFuncName = C_MODULE_NAME & "." & "Init_Quad_Runtime"
+    sFuncName = C_MODULE_NAME & "." & "Init_App_Runtime"
     sTmpBookPath = Environ("MYHOME")
     sTmpBookName = "tmp.xls"
     Set wbTmp = CreateBook(sTmpBookName, sBookPath:=sTmpBookPath)
-    sFuncName = C_MODULE_NAME & "." & "Init_Quad_Runtime"
-    Set clsQuadRuntime = New Quad_Runtime
-    sFilePath = Environ("MYHOME") & "\\quad_runtime_cache.txt"
+    sFuncName = C_MODULE_NAME & "." & "Init_App_Runtime"
+    Set clsQuadRuntime = New App_Runtime
+    sFilePath = Environ("MYHOME") & "\\app_runtime_cache.txt"
 main:
     clsQuadRuntime.InitProperties sBookPath:=sTmpBookPath, sBookName:=sTmpBookName
 
@@ -137,22 +137,22 @@ main:
 
 
 teardown:
-    Test_Init_Quad_Runtime_Persist_Cache = eTestResult
+    Test_Init_App_Runtime_Persist_Cache = eTestResult
     CloseBook wbTmp
     DeleteBook sTmpBookName, sTmpBookPath
     clsQuadRuntime.Delete
     
 End Function
 
-Function Test_Init_Quad_Runtime_Default() As TestResult
+Function Test_Init_App_Runtime_Default() As TestResult
 Dim sFuncName As String, sFilePath As String
 Dim eTestResult As TestResult
-Dim clsQuadRuntime As Quad_Runtime
+Dim clsQuadRuntime As App_Runtime
 
 setup:
-    sFuncName = C_MODULE_NAME & "." & "Init_Quad_Runtime"
-    Set clsQuadRuntime = New Quad_Runtime
-    sFilePath = Environ("MYHOME") & "\\quad_runtime_cache.txt"
+    sFuncName = C_MODULE_NAME & "." & "Init_App_Runtime"
+    Set clsQuadRuntime = New App_Runtime
+    sFilePath = Environ("MYHOME") & "\\app_runtime_cache.txt"
     
 main:
     clsQuadRuntime.InitProperties
@@ -168,22 +168,22 @@ err:
     eTestResult = TestResult.Error
     
 teardown:
-    Test_Init_Quad_Runtime_Default = eTestResult
+    Test_Init_App_Runtime_Default = eTestResult
     clsQuadRuntime.Delete
 End Function
 
-Function Test_Init_Quad_Runtime_Override_BookPath() As TestResult
+Function Test_Init_App_Runtime_Override_BookPath() As TestResult
 Dim sFuncName As String, sTmpBookName As String, sTmpBookPath As String, sFilePath As String
 Dim eTestResult As TestResult
-Dim clsQuadRuntime As Quad_Runtime
+Dim clsQuadRuntime As App_Runtime
 Dim wbTmp As Workbook
 setup:
     sTmpBookPath = Environ("MYHOME")
     sTmpBookName = "tmp.xls"
     Set wbTmp = CreateBook(sTmpBookName, sBookPath:=sTmpBookPath)
-    sFuncName = C_MODULE_NAME & "." & "Init_Quad_Runtime"
-    Set clsQuadRuntime = New Quad_Runtime
-    sFilePath = Environ("MYHOME") & "\\quad_runtime_cache.txt"
+    sFuncName = C_MODULE_NAME & "." & "Init_App_Runtime"
+    Set clsQuadRuntime = New App_Runtime
+    sFilePath = Environ("MYHOME") & "\\app_runtime_cache.txt"
     
 main:
     clsQuadRuntime.InitProperties sBookPath:=sTmpBookPath, sBookName:=wbTmp.name
@@ -199,20 +199,20 @@ err:
     eTestResult = TestResult.Error
     
 teardown:
-    Test_Init_Quad_Runtime_Override_BookPath = eTestResult
+    Test_Init_App_Runtime_Override_BookPath = eTestResult
     CloseBook wbTmp
     DeleteBook sTmpBookName, sTmpBookPath
     clsQuadRuntime.Delete
 End Function
-Function Test_Init_Quad_Runtime_Override_BookPath_Invalid() As TestResult
+Function Test_Init_App_Runtime_Override_BookPath_Invalid() As TestResult
 Dim sFuncName As String, sFilePath As String
 Dim eTestResult As TestResult
-Dim clsQuadRuntime As Quad_Runtime
+Dim clsQuadRuntime As App_Runtime
 
 setup:
-    sFuncName = C_MODULE_NAME & "." & "Init_Quad_Runtime"
-    Set clsQuadRuntime = New Quad_Runtime
-    sFilePath = Environ("MYHOME") & "\\quad_runtime_cache.txt"
+    sFuncName = C_MODULE_NAME & "." & "Init_App_Runtime"
+    Set clsQuadRuntime = New App_Runtime
+    sFilePath = Environ("MYHOME") & "\\app_runtime_cache.txt"
     
 main:
     On Error GoTo err
@@ -229,24 +229,24 @@ err:
     End If
     
 teardown:
-    Test_Init_Quad_Runtime_Override_BookPath_Invalid = eTestResult
+    Test_Init_App_Runtime_Override_BookPath_Invalid = eTestResult
     clsQuadRuntime.Delete
 End Function
 
-Function Test_Init_Quad_Runtime_Override_BookName() As TestResult
+Function Test_Init_App_Runtime_Override_BookName() As TestResult
 Dim sFuncName As String, sBookName As String, sBookPath As String, sFilePath As String
 Dim eTestResult As TestResult
-Dim clsQuadRuntime As Quad_Runtime
+Dim clsQuadRuntime As App_Runtime
 
 setup:
-    sFuncName = C_MODULE_NAME & "." & "Init_Quad_Runtime"
-    Set clsQuadRuntime = New Quad_Runtime
+    sFuncName = C_MODULE_NAME & "." & "Init_App_Runtime"
+    Set clsQuadRuntime = New App_Runtime
     sBookPath = Environ("MYHOME")
     sBookName = "tmp2.xls"
     'ChDir sBookPath
     CreateBook sBookName, sBookPath:=sBookPath
     CloseBook Workbooks(sBookName)
-    sFilePath = Environ("MYHOME") & "\\quad_runtime_cache.txt"
+    sFilePath = Environ("MYHOME") & "\\app_runtime_cache.txt"
     
 main:
     clsQuadRuntime.InitProperties sBookPath:=sBookPath, sBookName:=sBookName
@@ -262,21 +262,21 @@ err:
     eTestResult = TestResult.Error
     
 teardown:
-    Test_Init_Quad_Runtime_Override_BookName = eTestResult
+    Test_Init_App_Runtime_Override_BookName = eTestResult
     CloseBook Workbooks(sBookName)
     DeleteBook sBookName, sPath:=sBookPath
     clsQuadRuntime.Delete
 End Function
 
-Function Test_Init_Quad_Runtime_Override_CacheBookRangeName() As TestResult
+Function Test_Init_App_Runtime_Override_CacheBookRangeName() As TestResult
 Dim sFuncName As String, sFilePath As String
 Dim eTestResult As TestResult
-Dim clsQuadRuntime As Quad_Runtime
+Dim clsQuadRuntime As App_Runtime
 
 setup:
-    sFuncName = C_MODULE_NAME & "." & "Init_Quad_Runtime"
-    Set clsQuadRuntime = New Quad_Runtime
-    sFilePath = Environ("MYHOME") & "\\quad_runtime_cache.txt"
+    sFuncName = C_MODULE_NAME & "." & "Init_App_Runtime"
+    Set clsQuadRuntime = New App_Runtime
+    sFilePath = Environ("MYHOME") & "\\app_runtime_cache.txt"
     
 main:
     clsQuadRuntime.InitProperties sCacheRangeName:="foo"
@@ -292,19 +292,19 @@ err:
     eTestResult = TestResult.Error
     
 teardown:
-    Test_Init_Quad_Runtime_Override_CacheBookRangeName = eTestResult
+    Test_Init_App_Runtime_Override_CacheBookRangeName = eTestResult
     clsQuadRuntime.Delete
 End Function
 
-Function Test_Init_Quad_Runtime_Override_Template() As TestResult
+Function Test_Init_App_Runtime_Override_Template() As TestResult
 Dim sFuncName As String, sTemplateName As String, sTemplatePath As String, sTemplateSheetName As String, sTemplateWidgetSheetName As String, sFilePath As String
 Dim eTestResult As TestResult
-Dim clsQuadRuntime As Quad_Runtime
+Dim clsQuadRuntime As App_Runtime
 Dim wbTmp As Workbook
 
 setup:
-    sFuncName = C_MODULE_NAME & "." & "Init_Quad_Runtime"
-    Set clsQuadRuntime = New Quad_Runtime
+    sFuncName = C_MODULE_NAME & "." & "Init_App_Runtime"
+    Set clsQuadRuntime = New App_Runtime
     sTemplatePath = Environ("MYHOME") & "\\"
     
     sTemplateName = "tmp2.xlsx"
@@ -314,7 +314,7 @@ setup:
     CreateSheet wbTmp, sTemplateSheetName
     CreateSheet wbTmp, sTemplateWidgetSheetName
     CloseBook wbTmp, bSaveFlag:=True
-    sFilePath = Environ("MYHOME") & "\\quad_runtime_cache.txt"
+    sFilePath = Environ("MYHOME") & "\\app_runtime_cache.txt"
     
 main:
     clsQuadRuntime.InitProperties sTemplateBookPath:=sTemplatePath, _
@@ -341,23 +341,23 @@ err:
     eTestResult = TestResult.Error
     
 teardown:
-    Test_Init_Quad_Runtime_Override_Template = eTestResult
+    Test_Init_App_Runtime_Override_Template = eTestResult
     CloseBook clsQuadRuntime.TemplateBook
     DeleteBook sTemplateName, sPath:=sTemplatePath
     clsQuadRuntime.Delete
 End Function
 
-Function Test_Init_Quad_Runtime_Override_Database() As TestResult
+Function Test_Init_App_Runtime_Override_Database() As TestResult
 Dim sFuncName As String, sDatabasePath As String, sFilePath As String
 Dim eTestResult As TestResult
-Dim clsQuadRuntime As Quad_Runtime
+Dim clsQuadRuntime As App_Runtime
 
 setup:
-    sFuncName = C_MODULE_NAME & "." & "Init_Quad_Runtime"
-    Set clsQuadRuntime = New Quad_Runtime
+    sFuncName = C_MODULE_NAME & "." & "Init_App_Runtime"
+    Set clsQuadRuntime = New App_Runtime
     sDatabasePath = Environ("MYHOME") & "\\foo.db"
     CreateFile sDatabasePath & ".sqlite"
-    sFilePath = Environ("MYHOME") & "\\quad_runtime_cache.txt"
+    sFilePath = Environ("MYHOME") & "\\app_runtime_cache.txt"
     
 main:
     clsQuadRuntime.InitProperties sDatabasePath:=sDatabasePath
@@ -375,7 +375,7 @@ err:
     eTestResult = TestResult.Error
     
 teardown:
-    Test_Init_Quad_Runtime_Override_Database = eTestResult
+    Test_Init_App_Runtime_Override_Database = eTestResult
     DeleteFile sDatabasePath
     clsQuadRuntime.Delete
 End Function

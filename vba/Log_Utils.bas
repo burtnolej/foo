@@ -17,7 +17,7 @@ End Enum
 
 Const C_LOG_MSG_TYPE = "FATAL,Error,Failure,INFO,OK,,,DEBUGGING,FAIL_TEST,PASS_TEST,,INFUNC,OUTFUNC,DEBUGGING2"
 
-Private clsQuadRuntimeGlobal As Quad_Runtime
+Private clsQuadRuntimeGlobal As App_Runtime
 Public LogFilter As String
 Public StartTick As Long
 

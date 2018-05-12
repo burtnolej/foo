@@ -61,7 +61,7 @@ Dim eTestResult As TestResult
 Dim rSource As Range
 Dim rTarget As Range
 Dim cRGB As RGBColor
-Dim clsQuadRuntime As New Quad_Runtime
+Dim clsQuadRuntime As New App_Runtime
 
 setup:
     clsQuadRuntime.InitProperties bInitializeCache:=True
@@ -111,7 +111,7 @@ Dim eTestResult As TestResult
 Dim rSource As Range
 Dim rTarget As Range
 Dim cRGB As RGBColor
-Dim clsQuadRuntime As New Quad_Runtime
+Dim clsQuadRuntime As New App_Runtime
 
 setup:
     clsQuadRuntime.InitProperties bInitializeCache:=True
@@ -160,7 +160,7 @@ Dim eTestResult As TestResult
 Dim rSource As Range
 Dim rTarget As Range
 Dim cRGB As RGBColor
-Dim clsQuadRuntime As New Quad_Runtime
+Dim clsQuadRuntime As New App_Runtime
 
 setup:
     clsQuadRuntime.InitProperties bInitializeCache:=True
@@ -213,7 +213,7 @@ Dim eTestResult As TestResult
 Dim rSource As Range
 Dim rTarget As Range
 Dim cRGB As RGBColor
-Dim clsQuadRuntime As New Quad_Runtime
+Dim clsQuadRuntime As New App_Runtime
 
 setup:
     clsQuadRuntime.InitProperties bInitializeCache:=True
@@ -265,7 +265,7 @@ Dim eTestResult As TestResult
 Dim rSource As Range
 Dim rTarget As Range
 Dim cRGB As RGBColor
-Dim clsQuadRuntime As New Quad_Runtime
+Dim clsQuadRuntime As New App_Runtime
 
 setup:
     clsQuadRuntime.InitProperties bInitializeCache:=True
@@ -325,7 +325,7 @@ Dim eTestResult As TestResult
 Dim rSource As Range
 Dim rTarget As Range
 Dim cRGB As RGBColor
-Dim clsQuadRuntime As New Quad_Runtime
+Dim clsQuadRuntime As New App_Runtime
 
 setup:
     clsQuadRuntime.InitProperties bInitializeCache:=True
@@ -381,7 +381,7 @@ End Function
 Function TestIsValidInteger() As TestResult
 Dim sFuncName As String
 Dim eTestResult As TestResult
-Dim clsQuadRuntime As New Quad_Runtime
+Dim clsQuadRuntime As New App_Runtime
 
 setup:
     ResetQuadRuntimeGlobal
@@ -426,7 +426,7 @@ End Function
 Function TestIsValidPrep() As TestResult
 Dim sFuncName As String
 Dim eTestResult As TestResult
-Dim clsQuadRuntime As New Quad_Runtime
+Dim clsQuadRuntime As New App_Runtime
 
 setup:
     ResetQuadRuntimeGlobal
@@ -467,7 +467,7 @@ Dim wsTmp As Worksheet
 Dim rTarget As Range
 Dim eTestResult As TestResult
 Dim rInput As Range
-Dim clsQuadRuntime As New Quad_Runtime
+Dim clsQuadRuntime As New App_Runtime
 
 setup:
     clsQuadRuntime.InitProperties bInitializeCache:=True
@@ -521,7 +521,7 @@ Dim vSource() As String, vColNames() As String, vRows() As Variant
 Dim wsTmp As Worksheet
 Dim rTarget As Range, rInput As Range
 Dim bTestPassed As Boolean
-Dim clsQuadRuntime As New Quad_Runtime
+Dim clsQuadRuntime As New App_Runtime
  
 setup:
     'On Error GoTo err:
@@ -566,7 +566,7 @@ Dim vSource() As String, vColNames() As String, vRows() As String
 Dim wsTmp As Worksheet
 Dim rTarget As Range, rInput As Range
 Dim bTestPassed As Boolean
-Dim clsQuadRuntime As New Quad_Runtime
+Dim clsQuadRuntime As New App_Runtime
  
 setup:
     On Error GoTo err:

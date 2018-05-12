@@ -83,7 +83,7 @@ Dim iWidth As Integer, iHeight As Integer, iSizeCount As Integer
     GetWidgetSizes = aSizes
 End Function
 
-Public Function GetWidgetColWidthsORig(clsQuadRuntime As Quad_Runtime, sScheduleFormatRangeName As String, _
+Public Function GetWidgetColWidthsORig(clsQuadRuntime As App_Runtime, sScheduleFormatRangeName As String, _
                                          iColWidthCount As Integer) As Integer()
 Dim aColumnWidths() As Integer
 Dim rWidget As Range
@@ -116,7 +116,7 @@ End Sub
 
 'add format EntryWidget here to copy formats for entry Widgets
 
-'Public Function GetScheduleWidgetColWidths(clsQuadRuntime As Quad_Runtime, sScheduleFormatRangeName As String, _
+'Public Function GetScheduleWidgetColWidths(clsQuadRuntime As App_Runtime, sScheduleFormatRangeName As String, _
 '                                         iColWidthCount As Integer) As Integer()
 ' get the column widths from the template and return in an integer array
 'param: sScheduleFormatRangeName, string, named range that contains the specific format (fStudentScheduleWidget
@@ -226,7 +226,7 @@ err:
     err.Raise err.Number, err.Source, err.Description ' cannot recover from this
     
 End Function
-Public Function GenerateWidgets(clsQuadRuntime As Quad_Runtime, _
+Public Function GenerateWidgets(clsQuadRuntime As App_Runtime, _
                               sAction As String, _
                      Optional dDefaultValues As Dictionary, _
                      Optional vValues As Variant, _
@@ -237,7 +237,7 @@ Public Function GenerateWidgets(clsQuadRuntime As Quad_Runtime, _
 '<<<
 'purpose: given a set of definitions (taken from the global variable dDefinitions, generate
 '       : all the entry widgets (labels, entry , view etc)
-'param  : clsQuadRuntime, Quad_Runtime; all config controlling names of books, sheets, ranges for
+'param  : clsQuadRuntime, App_Runtime; all config controlling names of books, sheets, ranges for
 '       :                 also contains any variables that need to be passed continually
 'param  : sAction, String; user action that entrys need to be generated for (like NewLesson)
 'param  : dDefaultValues (Optional), Dictionary; name/value pairs of fieldname and value
@@ -545,7 +545,7 @@ Dim vValidParams() As String
 Dim bValid As Boolean
 Dim eThisErrorType As ErrorType
 Dim mThisModule As VBComponent
-Dim clsQuadRuntime As New Quad_Runtime
+Dim clsQuadRuntime As New App_Runtime
 
 setup:
     clsQuadRuntime.InitProperties bInitializeCache:=False
@@ -685,7 +685,7 @@ Public Function IsMember(ParamArray args()) As Boolean
 Dim sColumnRange As String, sLookUpTableName As String, sLookUpColumnName As String, sValue As String
 Dim vValid2DValues() As Variant
 Dim vValidValues() As String
-Dim clsQuadRuntime As New Quad_Runtime
+Dim clsQuadRuntime As New App_Runtime
 Dim wsCache As Worksheet
 
     Set clsQuadRuntime = args(0)

@@ -6,7 +6,7 @@ Public Sub DoGeneratePersonView()
 '<<<
 'purpose: simple wrapper to launch a Student View workflow
 '>>>
-Dim clsQuadRuntime As New Quad_Runtime
+Dim clsQuadRuntime As New App_Runtime
 Dim sSheetName As String, sFuncName As String
 Dim wsView As Worksheet
 Dim sScheduleName As String, sSchedulePath As String, sNewSchedulePath As String
@@ -42,7 +42,7 @@ cleanup:
 End Sub
 
 Public Sub DoAddAddScheduleAdd()
-Dim clsQuadRuntime As New Quad_Runtime
+Dim clsQuadRuntime As New App_Runtime
 Dim sSheetName As String
 Dim sScheduleName As String, sSchedulePath As String, sNewSchedulePath As String
 

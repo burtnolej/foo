@@ -12,7 +12,7 @@ Dim sCacheSheetName As String
 Dim wsCache As Worksheet
 Dim iIndex As Integer
 Dim dAllDefaultValues As New Dictionary, dDefaultValues As New Dictionary
-Dim clsQuadRuntime As New Quad_Runtime
+Dim clsQuadRuntime As New App_Runtime
 
     clsQuadRuntime.InitProperties bInitializeCache:=False
 
@@ -37,7 +37,7 @@ End Sub
 Public Function AddLesson() As Range
 Dim dEntryValues As Dictionary
 Dim sFormatRangeName As String
-Dim clsQuadRuntime As New Quad_Runtime
+Dim clsQuadRuntime As New App_Runtime
 Dim iPersonID As Integer
 
     clsQuadRuntime.InitProperties bInitializeCache:=False
@@ -48,7 +48,7 @@ Dim iPersonID As Integer
     
 End Function
         
-Function AddAddLesson(clsQuadRuntime As Quad_Runtime, _
+Function AddAddLesson(clsQuadRuntime As App_Runtime, _
                 dValues As Dictionary, sTemplateRangeName As String, _
                 iStudentID As Integer, _
                 Optional eQuadDataSubType As QuadSubDataType = QuadSubDataType.Student) As Range
@@ -97,7 +97,7 @@ Dim rTemplateSource As Range
     
     clsQuadRuntime.ScheduleBook.Windows(1).Visible = True
 End Function
-Public Sub GenerateScheduleAdd(clsQuadRuntime As Quad_Runtime)
+Public Sub GenerateScheduleAdd(clsQuadRuntime As App_Runtime)
 
 Dim sFuncName As String, sSheetName As String
 Dim sDefn As String

@@ -152,7 +152,7 @@ err:
 
 End Function
 
-Public Sub DoLoadDefinitions(Optional clsQuadRuntime As Quad_Runtime)
+Public Sub DoLoadDefinitions(Optional clsQuadRuntime As App_Runtime)
 Dim rSource As Range
 Dim wsTmp As Worksheet
 Dim wbTmp As Workbook

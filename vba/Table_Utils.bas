@@ -56,6 +56,60 @@ End Sub
 Public Sub FormatCreatedTime(wsTmp As Worksheet, rCell As Range)
     MakeCellLongDate wsTmp, rCell
 End Sub
+Public Function Row2Dict(wsDataSheet As Worksheet, sRangeName As String, iRowId As Integer) As Dictionary
+Dim vColumnNames As Variant, vDataRow As Variant, vColumnNamesTransposed As Variant, vDataRowTransposed As Variant
+Dim rColumns As Range, rData As Range, rDataRow As Range
+Dim iColumnIdx As Integer
+Dim dValues As New Dictionary
+Dim iWidget As Variant
+
+    With wsDataSheet
+        Set rData = .Range(sRangeName)
+        Set rColumns = rData.Resize(1)
+        Set rDataRow = rData.Resize(1).Offset(iRowId - 1)
+        vColumnNames = rColumns
+        vDataRow = rDataRow
+        vColumnNamesTransposed = ConvertArrayFromRangeto1D(vColumnNames, bHz:=True)
+        vDataRowTransposed = ConvertArrayFromRangeto1D(vDataRow, bHz:=True)
+        
+        For iWidget = 0 To UBound(vColumnNamesTransposed)
+            dValues.Add vColumnNamesTransposed(iWidget), vDataRowTransposed(iWidget)
+        Next iWidget
+    End With
+    
+    Set Row2Dict = dValues
+        
+End Function
+Public Function GetColumnValues(clsQuadRuntime As App_Runtime, _
+                                 eQuadDataType As QuadDataType, _
+                                 eQuadSubDataType As QuadSubDataType, _
+                                 sLookUpColName As String, _
+                        Optional iPersonID As Integer) As String()
+Dim wsCache As Worksheet
+Dim sLookUpRangeName As String
+Dim sFuncName As String
+
+setup:
+    sFuncName = C_MODULE_NAME & "." & "GetColumnValues"
+    'FuncLogIt sFuncName, "[sLookUpColName=" & sLookUpColName & "] [iPersonID=" & iPersonID & "]", C_MODULE_NAME, LogMsgType.INFUNC
+
+main:
+    If eQuadDataType = QuadDataType.schedule Then
+        Set wsCache = GetScheduleData(clsQuadRuntime, iPersonID, eQuadDataType, eQuadSubDataType, bInTable:=True)
+    Else
+        Set wsCache = GetPersonData(clsQuadRuntime, eQuadDataType, eQuadSubDataType, QuadScope.all, bInTable:=True)
+    End If
+    sLookUpRangeName = GetDBColumnRange(wsCache.name, sLookUpColName)
+    GetColumnValues = ListFromRange(wsCache, sLookUpRangeName)
+                       
+endfunc:
+    On Error GoTo 0
+    Exit Function
+    
+err:
+    FuncLogIt sFuncName, "[sLookUpColName=" & sLookUpColName & "] [iPersonID=" & iPersonID & "]", C_MODULE_NAME, LogMsgType.Error
+                       
+End Function
 Public Function IsWidgetRangeNameForView(sWidgetRangeName As String, sTableName As String, eWidgetType As WidgetType) As Boolean
 '<<<
 'purpose:
@@ -480,7 +534,7 @@ Public Sub CreateTableColumn(wsTmp As Worksheet, iCol As Integer, ByVal sTableNa
                 Optional iFirstDataLine As Integer = 2)
 '<<<
 'purpose: simple wrapper to launch a Student View workflow
-'param  : clsQuadRuntime,Quad_Runtime; all config controlling names of books, sheets, ranges for
+'param  : clsQuadRuntime,App_Runtime; all config controlling names of books, sheets, ranges for
 '       :                 also contains any variables that need to be passed continually
 'param  :
 'rtype  :
@@ -542,7 +596,7 @@ Dim aDefaultFields() As String
 Dim i As Integer
 Dim sRangeName As String
 Dim sFuncName As String
-Dim clsQuadRuntime As New Quad_Runtime
+Dim clsQuadRuntime As New App_Runtime
 Dim vDataID As Variant
 
 setup:
