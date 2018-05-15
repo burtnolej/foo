@@ -2,8 +2,10 @@ import unittest
 from os import path, environ
 from app.quad.utils.data_utils import *
 from app.quad.utils.excel.excel_data_utils import *
-from utils.misc_basic.misc_utils import os_dir_exists, write_text_to_file, append_text_to_file, encode, os_file_delete, os_file_to_string, os_file_exists
+from utils.misc_basic.misc_utils import os_dir_exists, write_text_to_file, append_text_to_file, encode, os_file_delete, os_file_to_string, os_file_exists, put_2darray_in_file
 from utils.database.database_util import Database
+
+
 from types import FunctionType, MethodType,StringType
 from sys import modules
 
@@ -35,6 +37,130 @@ class Test_DataStoredProc_validate_sp_args(unittest.TestCase):
         
     def test_(self):
         self.assertTrue(self.datasp._validate_sp_args())
+    
+class Test_DataStoredProc_InsertStudent(unittest.TestCase):
+    def setUp(self):
+        self.filename = "uupyshell.txt"
+        self.result_filename = environ["MYHOME"] + "\\pyshell_result.txt"
+        self.datasp = DataStoredProc(path.join(TESTDIR,TESTDBNAME)) 
+        self.encoding = "uu"
+        self.columns = ["idStudent","sStudentFirstNm","sStudentLastNm","idPrep","iGradeLevel"]
+        self.column_defn = [('col1','text'),('col2','text'),('col3','integer')] 
+        self.row =[[666, 'foo', 'bar',2,6], [667, 'blah', 'blah',3,6]]
+            
+    def test_(self):
+        write_text_to_file(self.filename,"database_name:"+encode(path.join(TESTDIR,TESTDBNAME),self.encoding) + "\n")
+
+        append_text_to_file(self.filename,"sp_name:"+encode("insert_basic_student_info",self.encoding) + "\n") 
+        append_text_to_file(self.filename,"delete_flag:"+encode("False",self.encoding) + "\n") 
+        append_text_to_file(self.filename,"header_flag:"+encode("False",self.encoding) + "\n") 
+        append_text_to_file(self.filename,"columns:"+"$$".join([field for field in self.columns]) + "\n")
+    
+        put_2darray_in_file(self.filename,self.row,suffix="rows:")
+        
+        result = DataStoredProc.stored_proc_by_file(self.filename,result_file=self.result_filename)
+        
+        DataStoredProc.sp_args = {}
+    
+        write_text_to_file(self.filename,"database_name:"+encode(path.join(TESTDIR,TESTDBNAME),self.encoding) + "\n")
+        append_text_to_file(self.filename,"sp_name:"+encode("basic_student_info",self.encoding) + "\n") 
+        append_text_to_file(self.filename,"delete_flag:"+encode("False",self.encoding) + "\n") 
+        append_text_to_file(self.filename,"sp_args:"+encode("<root><students>667</students></root>",self.encoding) + "\n") 
+    
+        result = DataStoredProc.stored_proc_by_file(self.filename,result_file=self.result_filename)
+    
+        self.assertEqual(result,[[u'blah', u'blah', 667, 3, u'Aurora']])
+        
+    def tearDown(self):
+        write_text_to_file(self.filename,"database_name:"+encode(path.join(TESTDIR,TESTDBNAME),self.encoding) + "\n")
+    
+        append_text_to_file(self.filename,"sp_name:"+encode("delete_basic_student_info",self.encoding) + "\n") 
+        append_text_to_file(self.filename,"delete_flag:"+encode("False",self.encoding) + "\n") 
+        append_text_to_file(self.filename,"sp_args:"+encode("<root><students>666</students><students>667</students></root>",self.encoding) + "\n") 
+    
+        result = DataStoredProc.stored_proc_by_file(self.filename,result_file=self.result_filename)
+        os_file_delete(self.filename)    
+        DataStoredProc.sp_args = {}
+        
+class Test_DataStoredProc_UpdateStudent(unittest.TestCase):
+    def setUp(self):
+        self.filename = "uupyshell.txt"
+        self.result_filename = environ["MYHOME"] + "\\pyshell_result.txt"
+        self.datasp = DataStoredProc(path.join(TESTDIR,TESTDBNAME)) 
+        self.encoding = "uu"
+        self.columns = ["idStudent","sStudentFirstNm","sStudentLastNm","idPrep","iGradeLevel"]
+        self.column_defn = [('col1','text'),('col2','text'),('col3','integer')] 
+        self.rows =[[666, 'foo', 'bar',2,6], [667, 'blah', 'blah',3,6]]
+        self.row =['idPrep', 3, 'idStudent',666]
+                   
+        write_text_to_file(self.filename,"database_name:"+encode(path.join(TESTDIR,TESTDBNAME),self.encoding) + "\n")
+    
+        append_text_to_file(self.filename,"sp_name:"+encode("insert_basic_student_info",self.encoding) + "\n") 
+        append_text_to_file(self.filename,"delete_flag:"+encode("False",self.encoding) + "\n") 
+        append_text_to_file(self.filename,"columns:"+"$$".join([field for field in self.columns]) + "\n")
+    
+        put_2darray_in_file(self.filename,self.rows,suffix="rows:")
+    
+        result = DataStoredProc.stored_proc_by_file(self.filename,result_file=self.result_filename)
+        DataStoredProc.sp_args = {}
+        
+    def test_(self):
+        write_text_to_file(self.filename,"database_name:"+encode(path.join(TESTDIR,TESTDBNAME),self.encoding) + "\n")
+    
+        append_text_to_file(self.filename,"sp_name:"+encode("update_basic_student_info",self.encoding) + "\n") 
+        append_text_to_file(self.filename,"delete_flag:"+encode("False",self.encoding) + "\n") 
+        append_text_to_file(self.filename,"row:"+"$$".join([str(field) for field in self.row]) + "\n")
+        
+        result = DataStoredProc.stored_proc_by_file(self.filename,result_file=self.result_filename)
+        DataStoredProc.sp_args = {}
+        
+        write_text_to_file(self.filename,"database_name:"+encode(path.join(TESTDIR,TESTDBNAME),self.encoding) + "\n")
+        append_text_to_file(self.filename,"sp_name:"+encode("basic_student_info",self.encoding) + "\n") 
+        append_text_to_file(self.filename,"delete_flag:"+encode("False",self.encoding) + "\n") 
+        append_text_to_file(self.filename,"sp_args:"+encode("<root><students>666</students></root>",self.encoding) + "\n") 
+    
+        result = DataStoredProc.stored_proc_by_file(self.filename,result_file=self.result_filename)
+        
+        self.assertEqual(result,[[u'foo', u'bar', 666, 3, u'Aurora']])
+
+    def tearDown(self):
+        write_text_to_file(self.filename,"database_name:"+encode(path.join(TESTDIR,TESTDBNAME),self.encoding) + "\n")
+    
+        append_text_to_file(self.filename,"sp_name:"+encode("delete_basic_student_info",self.encoding) + "\n") 
+        append_text_to_file(self.filename,"delete_flag:"+encode("False",self.encoding) + "\n") 
+        append_text_to_file(self.filename,"sp_args:"+encode("<root><students>666</students><students>667</students></root>",self.encoding) + "\n") 
+    
+        result = DataStoredProc.stored_proc_by_file(self.filename,result_file=self.result_filename)
+        os_file_delete(self.filename)
+    
+class Test_DataStoredProc_DeleteStudent(unittest.TestCase):
+    def setUp(self):
+        self.filename = "uupyshell.txt"
+        self.result_filename = environ["MYHOME"] + "\\pyshell_result.txt"
+        self.datasp = DataStoredProc(path.join(TESTDIR,TESTDBNAME)) 
+        self.encoding = "uu"
+            
+    def test_(self):
+        write_text_to_file(self.filename,"database_name:"+encode(path.join(TESTDIR,TESTDBNAME),self.encoding) + "\n")
+
+        append_text_to_file(self.filename,"sp_name:"+encode("delete_basic_student_info",self.encoding) + "\n") 
+        append_text_to_file(self.filename,"delete_flag:"+encode("False",self.encoding) + "\n") 
+        append_text_to_file(self.filename,"sp_args:"+encode("<root><students>666</students><students>667</students></root>",self.encoding) + "\n") 
+        
+        result = DataStoredProc.stored_proc_by_file(self.filename,result_file=self.result_filename)
+
+        write_text_to_file(self.filename,"database_name:"+encode(path.join(TESTDIR,TESTDBNAME),self.encoding) + "\n")
+        append_text_to_file(self.filename,"sp_name:"+encode("basic_student_info",self.encoding) + "\n") 
+        append_text_to_file(self.filename,"delete_flag:"+encode("False",self.encoding) + "\n") 
+        append_text_to_file(self.filename,"sp_args:"+encode("<root><students>666</students></root>",self.encoding) + "\n") 
+    
+        result = DataStoredProc.stored_proc_by_file(self.filename,result_file=self.result_filename)
+        
+        self.assertEqual("",os_file_to_string(self.result_filename))
+
+    def tearDown(self):
+        os_file_delete(self.filename)
+        DataStoredProc.sp_args = {}
         
 class Test_DataStoredProc_StudentSchedule(unittest.TestCase):
     def setUp(self):
@@ -44,7 +170,6 @@ class Test_DataStoredProc_StudentSchedule(unittest.TestCase):
         self.encoding = "uu"
             
     def test_(self):
-        
         write_text_to_file(self.filename,"database_name:"+encode(path.join(TESTDIR,TESTDBNAME),self.encoding) + "\n")
         append_text_to_file(self.filename,"sp_name:"+encode("student_schedule",self.encoding) + "\n") 
         append_text_to_file(self.filename,"delete_flag:"+encode("False",self.encoding) + "\n") 
@@ -58,6 +183,7 @@ class Test_DataStoredProc_StudentSchedule(unittest.TestCase):
         
     def tearDown(self):
         os_file_delete(self.filename)
+        DataStoredProc.sp_args = {}
                        
 class Test_DataStoredProc_StudentSchedule_MultiVals(unittest.TestCase):
     def setUp(self):
@@ -117,6 +243,8 @@ class Test_DataStoredProc_StudentScheduleWithHeaders(unittest.TestCase):
         
     def tearDown(self):
         os_file_delete(self.filename)
+        os_file_delete(self.result_filename)
+        DataStoredProc.sp_args = {}
         
 if __name__ == "__main__":
     suite = unittest.TestSuite()   
@@ -126,7 +254,9 @@ if __name__ == "__main__":
     suite.addTest(unittest.TestLoader().loadTestsFromTestCase(Test_DataStoredProc_StudentSchedule))
     suite.addTest(unittest.TestLoader().loadTestsFromTestCase(Test_DataStoredProc_StudentSchedule_MultiVals))
     suite.addTest(unittest.TestLoader().loadTestsFromTestCase(Test_DataStoredProc_StudentScheduleWithHeaders))
-    
+    suite.addTest(unittest.TestLoader().loadTestsFromTestCase(Test_DataStoredProc_InsertStudent))
+    suite.addTest(unittest.TestLoader().loadTestsFromTestCase(Test_DataStoredProc_DeleteStudent))
+    suite.addTest(unittest.TestLoader().loadTestsFromTestCase(Test_DataStoredProc_UpdateStudent))
     
     
     

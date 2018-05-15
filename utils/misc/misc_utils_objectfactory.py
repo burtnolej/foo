@@ -1,18 +1,25 @@
 import sys
-from misc_utils_log import Log, logger
-log = Log(cacheflag=True,logdir="/tmp/log",verbosity=20,
+
+if sys.platform == "win32":
+    LOGDIR = "./"
+else:
+    LOGDIR = "/tmp/log"
+    
+from utils.misc_basic.misc_utils_log import Log, logger, PRIORITY
+log = Log(cacheflag=True,logdir=LOGDIR,verbosity=20,
           pidlogname=True,proclogname=False)
 
 import os
 from os import path as ospath
-from misc_utils import thisfuncname
-from misc_utils_generic import GenericBase
+from utils.misc_basic.misc_utils import thisfuncname
+from utils.misc_basic.misc_utils_generic import GenericBase
 from inspect import isclass
 import unittest
 import time
 from collections import OrderedDict
 from types import StringType,IntType, UnicodeType
 from inspect import getmembers
+    
     
 class ObjFactory(GenericBase):
     
@@ -76,13 +83,13 @@ class ObjFactory(GenericBase):
 
             #newobj = getattr(sys.modules[self.modname],clsname)(objid,**kwargs)
             if newobj == "":
-                log.log(thisfuncname(),2,msg="could not create an instance")
+                log.log(PRIORITY.FAILURE,msg="could not create an instance")
             else:
                 self.store[clsname][kwargs['objid']] = newobj
-                log.log(thisfuncname(),20,msg="created",newobj=newobj,kwargs=kwargs)
+                log.log(PRIORITY.INFO, msg="created")
             
         else:
-            log.log(thisfuncname,15,msg="key conflict",kwargs=kwargs)
+            log.log(PRIORITY.FAILURE,msg="key conflict")
 
         return(self.store[clsname][kwargs['objid']])
         

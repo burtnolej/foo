@@ -3,8 +3,8 @@ import sys
 from os import walk, getcwd
 from os.path import basename, splitext, join, isdir, abspath, isabs, dirname, isfile
 import unittest
-sys.path.append("/home/burtnolej/Development/pythonapps3/clean/utils")
-from module_utils import __load_module__ as load_module
+#sys.path.append("/home/burtnolej/Development/pythonapps3/clean/utils")
+from utils.misc_basic.module_utils import __load_module__ as load_module
 from getopt import getopt, GetoptError, gnu_getopt
 from unittest import suite
 

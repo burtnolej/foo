@@ -1,6 +1,6 @@
 
 import sys
-from misc_utils_enum import enum
+from utils.misc.misc_utils_enum import enum
 
 __all__ = ['whiteblack14i','burgundywhite18','greyblack18','darkbluelightblue16',
            'yellowburgundy14','lightblueburgundy16','blackgreen14']

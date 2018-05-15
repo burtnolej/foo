@@ -91,7 +91,7 @@ def summarise_testresults(results):
                 result_sum[module_name][result_type]+=1
     return result_sum
                        
-def testrunner(rootdir="C:\Users\burtnolej\Development",
+def testrunner(rootdir="C:\\Users\\burtnolej\\Development",
                inc_testcase=[],inc_module=[],exc_module=[],dryrun=False):
     
     assert isinstance(inc_testcase,ListType), inc_testcase

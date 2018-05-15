@@ -1,6 +1,6 @@
 import unittest
 import sys
-from http_utils import urlpost
+from utils.misc.http_utils import urlpost
 
 class TestUrlPost(unittest.TestCase):
     def setUp(self):

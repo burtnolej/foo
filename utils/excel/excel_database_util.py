@@ -22,7 +22,7 @@ else:
 log = Log(cacheflag=False,logdir=LOGDIR,verbosity=5)
 log.config =OrderedDict([('now',12),('linenum',5),('type',10),('class',30),('funcname',30),
                          ('module',20),('msg',-1),('today',8)])
-        
+
 class DatabaseBase(ExcelBase):
     def __init__(self,database_name,delete_flag=False,**kwargs):
         super(DatabaseBase,self).__init__(**kwargs)
@@ -67,7 +67,7 @@ class DatabaseBase(ExcelBase):
                 self.columns = [b64decode(_field) for _field in self.columns.split("$$")]
             else:
                 self.columns = [_field for _field in self.columns.split("$$")]
-                
+    
     @classmethod
     def _validate_column_defns(self,encoding="unicode"):
         if hasattr(self,"column_defns") == False:
@@ -83,7 +83,7 @@ class DatabaseBase(ExcelBase):
                 else:
                     _column_defns.append((_name,_type))
             setattr(self,"column_defns",_column_defns)
-                
+
     @classmethod   
     def _validate_rows(self,encoding="unicode"):
         if hasattr(self,"rows") == False:
@@ -102,7 +102,7 @@ class DatabaseBase(ExcelBase):
                 self.urows.append(_row)
                 
         setattr(self,"rows",_quotestrs(self.urows))
-    
+
 class DatabaseQueryTable(DatabaseBase):
     @classmethod
     def query(cls,database_name,query_str,delete_flag=False):

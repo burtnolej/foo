@@ -3,24 +3,22 @@ from Tkinter import *
 from Tkinter import Label as Tklabel
 from ttk import *
 #from PIL import Image, ImageTk
-from image_utils import ImageCreate, rgbstr_get, get_gif_filename
+from utils.misc_basic.image_utils import ImageCreate, rgbstr_get, get_gif_filename
 from collections import OrderedDict
-from misc_utils_process import *
-from misc_utils_enum import enum
-from misc_utils import nxnarraycreate
+from utils.misc_basic.misc_utils_process import *
+from utils.misc_basic.misc_utils import nxnarraycreate, Enum
 
-from type_utils import SetMemberPartial, DBSetMember, TextAlphaNumRO, TrueFalse
+from utils.misc.type_utils  import SetMemberPartial, DBSetMember, TextAlphaNumRO, TrueFalse
 
-
-from ui_utils import TkImageWidget, TkImageLabelGrid, geometry_get, font_scale, \
+from utils.ui.ui_utils import TkImageWidget, TkImageLabelGrid, geometry_get, font_scale, \
      tkwidgetfactory, geometry_get_dict, tkwidgetimage_set, fontscale, \
      TkCombobox, TkButton, TkEntry, TkLabel, Tk3Label, TkNLabel, TkGridCombobox
 import tkFont
 import unittest
 
-from format_utils import *
-from type_utils import TextAlphaNum, TextAlphaNumRO, SetMemberPartial, DBSetMember
-from ui_utils import tk_create_config, tkfrm_cfg, \
+from utils.misc.format_utils import *
+from utils.misc.type_utils import TextAlphaNum, TextAlphaNumRO, SetMemberPartial, DBSetMember
+from utils.ui.ui_utils import tk_create_config,  \
      tk_create_frame, tk_label_get_image
 
 import time
@@ -210,7 +208,7 @@ class TestWidget(unittest.TestCase):
                 
                 wininfo = getattr(widget,"winfo_"+d)()
                 
-                print d,lowerbound,">=",wininfo,"<=",upperbound
+                #print d,lowerbound,">=",wininfo,"<=",upperbound
                 
                 if kw[d] == 0:
                     self.assertLessEqual(wininfo,kw[d] + 10)
@@ -842,12 +840,12 @@ class TestUIFrameResize(TestWidget):
         
     def draw(self):
         self.master.update()
-        print self.master.winfo_height(),self.master.winfo_width()
+        #print self.master.winfo_height(),self.master.winfo_width()
         self.idle = False
         self.lbl.image_set('foobar',**self.image_args)
         self.image_args['extent'] = self.lbl.image_size
         
-        print "in draw",self.lbl.image_size
+        #print "in draw",self.lbl.image_size
             
     def test_(self):
         

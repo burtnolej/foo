@@ -10,16 +10,30 @@ from ttk import *
 import tkFont
 from math import ceil,floor
 import sys
-from misc_utils import nxnarraycreate, thisfuncname
-from misc_utils_log import Log, logger
-from misc_utils_enum import enum
-from type_utils import isadatatype, TextAlphaNumRO
-from image_utils import ImageCreate, rgbstr_get
+from utils.misc_basic.misc_utils import nxnarraycreate, thisfuncname, Enum
+from utils.misc_basic.misc_utils_log import Log, logger
+from utils.misc.type_utils import isadatatype, TextAlphaNumRO
+from utils.misc_basic.image_utils import ImageCreate, rgbstr_get
+from utils.misc.misc_utils_enum import enum
+
+from os import path
+
 ic = ImageCreate()
 
-log = Log(cacheflag=True,logdir="/tmp/log",pidlogname=True,proclogname=True)
+if sys.platform == "win32":
+    LOGDIR = "./"
+else:
+    LOGDIR = "/tmp/log"
+    
+from utils.misc_basic.misc_utils_log import Log, logger, PRIORITY
+log = Log(cacheflag=True,logdir=LOGDIR,verbosity=20,
+          pidlogname=True,proclogname=False)
 
-fontscale = enum(sy = 2500,sx = 3500,
+IMDIR = "C:\Program Files (x86)\ImageMagick-6.7.5-Q8\\"
+
+#log = Log(cacheflag=True,logdir="/tmp/log",pidlogname=True,proclogname=True)
+
+fontscale = Enum(sy = 2500,sx = 3500,
                  minfpt = 8,maxfpt = 64,
                  minwy=50,minwx=50)
 
@@ -56,7 +70,7 @@ def capture_key_press():
         keypress[event.keysym] = _keypress
 
     def callback(event):
-        print "clicked at", event.x, event.y 
+        #print "clicked at", event.x, event.y 
         frame.focus_set()
     
     root = Tk()
@@ -125,6 +139,8 @@ def tkwidgetimage_set(ic,widget,label,overwrite=False,**kwargs):
     
     #widget.update_idletasks()
     #widget.update() # this seems to be needed on mac
+    
+    kwargs['convert_exec'] = path.join(IMDIR,"convert")
     
     widget.image_size = "{0}x{1}".format(widget.winfo_width(),widget.winfo_height())
     kwargs['extent'] = widget.image_size
@@ -333,7 +349,8 @@ class TkImageLabelGrid(Frame):
         dy = ty-oy
             
         for _clipboard in self.clipboard:
-            log.log(thisfuncname(),9,msg="paste clipboard",clipboard= _clipboard,tag="clipboard")            
+            log.log(PRIORITY.INFO,msg="paste clipboard [clipboard="+ _clipboard +"][tag="+clipboard+"]")      
+            #log.log(thisfuncname(),9,msg="paste clipboard",clipboard= _clipboard,tag="clipboard")   
             for x,y in _clipboard:
                 
                 newx = x+dx
@@ -366,8 +383,9 @@ class TkImageLabelGrid(Frame):
             self.current_inputmode = "Normal"
             #self.inputmode_label_sv.set(self.current_inputmode)            
                 
-        log.log(thisfuncname(),9,msg="added to clipboard",clipboard= _clipboard,tag="clipboard")
-         
+        log.log(PRIORITY.INFO,msg="added to clipboard [clipboard=" +  _clipboard + "][tag=" + clipboard + "]")
+        #log.log(thisfuncname(),9,msg="added to clipboard",clipboard= _clipboard,tag="clipboard")
+        
         #self.clipboard = self.clipboard + _clipboard
         self.clipboard.append(_clipboard)
         
@@ -377,7 +395,8 @@ class TkImageLabelGrid(Frame):
         self.clipboard_selection = len(self.clipboard)
         #self.clipboard_selected_label_sv.set(self.clipboard_selection)
         
-        log.log(thisfuncname(),9,msg="input mode set",currentmode= self.current_inputmode,tag="clipboard")
+        #log.log(thisfuncname(),9,msg="input mode set",currentmode= self.current_inputmode,tag="clipboard")
+        log.log(PRIORITY.INFO,msg="input mode set [currentmode="+ self.current_inputmode+"][tag="+clipboard+"]")
         
     def selection_clear(self):
         for x in range(1,self.maxrows):
@@ -387,19 +406,23 @@ class TkImageLabelGrid(Frame):
                     self.widgets[x][y].copy_state = False
                     
 
-        log.log(thisfuncname(),9,msg="input mode set",currentmode= self.current_inputmode,
-                newmode="Normal",tag="clipboard")
+        #log.log(thisfuncname(),9,msg="input mode set",currentmode= self.current_inputmode,
+        #        newmode="Normal",tag="clipboard")
+        log.log(PRIORITY.INFO,msg="input mode set [currentmode=" +  self.current_inputmode + "][newmode=Normal] [tag=" + clipboard+"]")
     
     def clipboard_clear(self):
         self.clipboard = []
-        log.log(thisfuncname(),9,msg="clipbboard cleared",currentmode= self.current_inputmode,
-                newmode="Normal",tag="clipboard")
+        #log.log(thisfuncname(),9,msg="clipbboard cleared",currentmode= self.current_inputmode,
+        #        newmode="Normal",tag="clipboard")
+        log.log(PRIORITY.INFO,msg="clipbboard cleared [currentmode="+ self.current_inputmode+"][newmode=Normal] [tag="+clipboard+"]")
         
     def modeset(self,event):
         
         self.update()
         
-        log.log(thisfuncname(),9,msg="input mode",currentmode= self.current_inputmode,tag="clipboard")
+        #log.log(thisfuncname(),9,msg="input mode",currentmode= self.current_inputmode,tag="clipboard")
+        log.log(PRIORITY.INFO,msg="input mode [currentmode="+self.current_inputmode+"][tag="+clipboard+"]")
+        
         new_inputmode = None
         if event.keysym_num == 115:
             new_inputmode = "Select"
@@ -421,18 +444,21 @@ class TkImageLabelGrid(Frame):
             else:
                 self.clipboard_selection+=1
             self.clipboard_selected_label_sv.set(self.clipboard_selection)
-            log.log(thisfuncname(),9,msg="clipboard selection set",selection=self.clipboard_selection,tag="clipboard")
+            #log.log(thisfuncname(),9,msg="clipboard selection set",selection=self.clipboard_selection,tag="clipboard")
+            log.log(PRIORITY.INFO,msg="clipboard selection set [selection="+self.clipboard_selection+"][tag="+clipboard+"]")
         elif event.keysym_num == 118:
             self.clipboard_paste()
         elif event.keysym == "d":
-            print self.clipboard
+            #print self.clipboard
+            pass
         else:
             pass
         
         if new_inputmode <> None:
             #self.inputmode_label_sv.set(new_inputmode)
         
-            log.log(thisfuncname(),9,msg="input mode set",newmode=new_inputmode,tag="clipboard")
+            #log.log(thisfuncname(),9,msg="input mode set",newmode=new_inputmode,tag="clipboard")
+            log.log(PRIORITY.INFO,msg="input mode set[newmode="+new_inputmode+"][tag="+clipboard+"]")
             self.current_inputmode = new_inputmode
             
             self.widgets[0][0].sv.set(new_inputmode)
@@ -582,7 +608,8 @@ class TKBase(object):
         if hasattr(self.toplevel,'update_callback'):
             self.set_update_trace()
         else:
-            log.log(thisfuncname(),3,msg='no update_callback method found on',widget=str(self.toplevel))
+            #log.log(thisfuncname(),3,msg='no update_callback method found on',widget=str(self.toplevel))
+            log.log(PRIORITY.FAILURE,msg="no update_callback method found on[widget="+str(self.toplevel)+"]")
             
         #self.sv=StringVar() 
         
@@ -641,10 +668,13 @@ class TKBase(object):
         try:
             self.sv.trace("w",lambda name,index,mode,sv=self.sv:
                           self.toplevel.update_callback(self.widget,self.sv.get()))
-            log.log(thisfuncname(),10,func=self.sv.trace,widgetclass=widget_class, widget=self.toplevel)
+            #log.log(thisfuncname(),10,func=self.sv.trace,widgetclass=widget_class, widget=self.toplevel)
+            log.log(PRIORITY.INFO,10,msg="[func="+self.sv.trace+"][widgetclass="+widget_class+"][widget="+self.toplevel+"]")
 
         except Exception, e:
-            log.log(thisfuncname(),1,func=self.sv.trace,widgetclass=widget_class, widget=self.toplevel,error=str(e))
+            #log.log(thisfuncname(),1,func=self.sv.trace,widgetclass=widget_class, widget=self.toplevel,error=str(e))
+            log.log(PRIORITY.INFO,10,msg="[func="+self.sv.trace+"][widgetclass="+widget_class+"][widget="+self.toplevel+"][error="+str(e)+"]")
+
 
     def highlight(self,event):
         _,state,_ = self['style'].split(".")
@@ -655,7 +685,7 @@ class TKBase(object):
         elif event.type == '10':
             self['style']=".".join(['OutOfFocus',state,self.winfo_class()])
           
-        print ".".join(['OutOfFocus',state,self.winfo_class()])
+        #print ".".join(['OutOfFocus',state,self.winfo_class()])
         
         self.selectall()
         
@@ -686,7 +716,8 @@ class TkEntryBool(Entry,TKBase):
         self.widget.s.configure(self.style_on,fieldbackground='green',foreground='black',
                                 relief=FLAT,borderwidth=1,highlightthickness=0)
         
-        log.log(thisfuncname(),10,func=self.__init__)
+        #log.log(thisfuncname(),10,func=self.__init__)
+        log.log(PRIORITY.INFO,msg="[func="+self.__init__+"]")
         
     def highlight(self,event):
         
@@ -715,7 +746,8 @@ class TkEntry(Entry,TKBase):
         self.sv.trace("w",lambda name,index,mode,sv=self.sv:
                       self.changed(self.sv))
         
-        log.log(thisfuncname(),10,func=self.__init__)
+        #log.log(thisfuncname(),10,func=self.__init__)
+        log.log(PRIORITY.INFO,msg="[func="+str(self.__init__)+"]")
                       
     def changed(self,sv):
         #new_value = sv.get()
@@ -755,7 +787,8 @@ class TkGridEntry(TkEntry):
     def highlight(self,event):
         
        
-        log.log(thisfuncname(),9,style=self['style'],inputmode=self.app.current_inputmode,tag="clipboard")
+        #log.log(thisfuncname(),9,style=self['style'],inputmode=self.app.current_inputmode,tag="clipboard")
+        log.log(PRIORITY.INFO,msg="style="+self['style']+"][inputmode="+self.app.current_inputmode+"][tag="+clipboard+"]")
         
         _,state,_ = self['style'].split(".")
 
@@ -774,7 +807,8 @@ class TkGridEntry(TkEntry):
                 self['style']=".".join(['Select',state,self.winfo_class()])
                 self.copy_state=True
                 
-                log.log(thisfuncname(),9,msg="combo in select mode",style=self['style'],tag="clipboard")
+                #log.log(thisfuncname(),9,msg="combo in select mode",style=self['style'],tag="clipboard")
+                log.log(PRIORITY.INFO,msg="combo in select mode [style="+self['style']+"][tag="+clipboard+"]")
             else:
                 self['style']=".".join(['InFocus',state,self.winfo_class()])    
                 self.xhdrwidget['style']=".".join(['InFocus',state,self.winfo_class()])
@@ -1055,7 +1089,7 @@ class TkCombobox(Combobox,TKBase):
         else:
             self.update_values(self.orig_values)
         
-        print ".".join([current_focus_state,valid_state,'TCombobox'])
+        #print ".".join([current_focus_state,valid_state,'TCombobox'])
                        
         self['style']=".".join([current_focus_state,valid_state,'TCombobox'])   
             

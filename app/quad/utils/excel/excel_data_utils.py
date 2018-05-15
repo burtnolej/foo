@@ -4,6 +4,8 @@ from utils.excel.excel_utils import ExcelBase
 from utils.misc_basic.misc_utils import os_dir_exists, encode, decode, os_file_exists
 from utils.misc_basic.xml_utils import xmlstr2dict
 from utils.database.database_util import Database
+from utils.database.database_table_util import _quotestrs
+
 import sys
 from os import path
 from collections import OrderedDict
@@ -29,7 +31,7 @@ class DataStoredProcBase(ExcelBase):
         super(DataStoredProcBase,self).__init__(**kwargs)
         self.database_name = database_name
         self.database = Database(self.database_name + ".sqlite",False)
-
+        
     @classmethod
     def _validate_database_name(self,encoding="unicode"):
         self._validate_field("database_name",encoding)
@@ -62,7 +64,11 @@ class DataStoredProcBase(ExcelBase):
         module = modules['app.quad.utils.data_utils']
         module_members = _getmembers(module)
         
-        sp_func_name = "get_" + self.sp_name
+        if self.sp_name.startswith("insert_") == False and self.sp_name.startswith("delete_") == False and self.sp_name.startswith("update_") == False:
+            sp_func_name = "get_" + self.sp_name
+        else:
+            sp_func_name = self.sp_name
+            
         if hasattr(module,sp_func_name) == False:
             return [-1]
         setattr(self,'sp_name',sp_func_name)
@@ -88,6 +94,102 @@ class DataStoredProcBase(ExcelBase):
         setattr(self,'sp_args',sp_args_dict)
         log.log(PRIORITY.INFO,msg="validated sp args, set member attr sp_arg to ["+str(sp_args_dict)+"]")
         return True
+
+    # DUPLICATE CODE - need to reuse code from excel_database_util
+    # BUT NEED TO ADD TO SP_ARGS 
+    
+    @classmethod
+    def _validate_list(self,listname,encoding="unicode"):
+        if hasattr(self,listname) == False:
+            log.log(PRIORITY.FAILURE,msg=listname + " must be passed")   
+            return([-1])
+        else:
+            if encoding == "base64":
+                setattr(self,listname,[b64decode(_field) for _field in getattr(self,listname).split("$$")])
+            else:
+                setattr(self,listname,[_field for _field in getattr(self,listname).split("$$")])
+
+        if hasattr(self,"sp_args") == False:
+            setattr(self,"sp_args",{})
+                    
+        sp_args_dict = getattr(self,'sp_args')
+        sp_args_dict[listname] = getattr(self,listname)
+        setattr(self,'sp_args',sp_args_dict)
+    
+    @classmethod
+    def _validate_columns(self,encoding="unicode"):
+        self._validate_list("columns",encoding)
+        '''if hasattr(self,"columns") == False:
+            log.log(PRIORITY.FAILURE,msg="columns must be passed")   
+            return([-1])
+        else:
+            if encoding == "base64":
+                self.columns = [b64decode(_field) for _field in self.columns.split("$$")]
+            else:
+                self.columns = [_field for _field in self.columns.split("$$")]
+
+        if hasattr(self,"sp_args") == False:
+            setattr(self,"sp_args",{})
+                    
+        sp_args_dict = getattr(self,'sp_args')
+        sp_args_dict['columns'] = self.columns
+        setattr(self,'sp_args',sp_args_dict)'''
+        
+    @classmethod
+    def _validate_row(self,encoding="unicode"):
+        self._validate_list("row",encoding)
+        
+    @classmethod
+    def _validate_column_defns(self,encoding="unicode"):
+        if hasattr(self,"column_defns") == False:
+            log.log(PRIORITY.FAILURE,msg="column_defns must be passed")   
+            return([-1])
+        else:
+            if column_defns == []: # allows method to be called statically
+                column_defns = self.column_defns
+                
+            _column_defns = []
+            _field_pairs = [_field for _field in self.column_defns.split("$$")]
+            for _field_pair in _field_pairs:
+                _name,_type = _field_pair.split("^")
+                if encoding == "base64":
+                    _column_defns.append((b64decode(_name),b64decode(_type)))
+                else:
+                    _column_defns.append((_name,_type))
+            setattr(self,"column_defns",_column_defns)
+
+        if hasattr(self,"sp_args") == False:
+            setattr(self,"sp_args",{})
+                
+        sp_args_dict = getattr(self,'sp_args')
+        sp_args_dict['column_defns'] = self.column_defns
+        setattr(self,'sp_args',sp_args_dict)
+
+    @classmethod   
+    def _validate_rows(self,encoding="unicode"):
+        if hasattr(self,"rows") == False:
+            log.log(PRIORITY.FAILURE,msg="rows must be passed")   
+            return([-1]) 
+        else:
+            self.urows = []
+            for row in self.rows.split("$$"):
+                _row = row.split("^")
+                if encoding == "base64":
+                    try:
+                        tmp = [b64decode(_field) for _field in _row]
+                    except TypeError, e:
+                        raise Exception("rows are not base64 encoded")
+
+                self.urows.append(_row)
+                
+        setattr(self,"rows",_quotestrs(self.urows))
+
+        if hasattr(self,"sp_args") == False:
+            setattr(self,"sp_args",{})
+            
+        sp_args_dict = getattr(self,'sp_args')
+        sp_args_dict['rows'] = self.rows
+        setattr(self,'sp_args',sp_args_dict)
         
 class DataStoredProc(DataStoredProcBase):
     

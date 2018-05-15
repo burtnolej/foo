@@ -1,6 +1,7 @@
 from types import StringType, IntType, ListType
 from utils.database.database_util import Database
-from utils.database.database_table_util import tbl_query
+from utils.database.database_table_util import tbl_query, tbl_rows_insert, tbl_row_delete, _quotestrs, tbl_rows_update,tbl_cols_get
+from datetime import datetime
 
 __all__ = ["get_basic_student_info","get_basic_teacher_info",
            "get_student_schedule","get_teacher_schedule",
@@ -9,7 +10,10 @@ __all__ = ["get_basic_student_info","get_basic_teacher_info",
            "get_all_basic_course_info","get_basic_course_info",
            "get_all_basic_subject_info","get_basic_subject_info",
            "get_all_basic_prep_info","get_all_basic_timeperiod_info",
-           "get_all_basic_day_info"]
+           "get_all_basic_day_info", "insert_basic_student_info",
+           "_insert_student", "_insert_student_level",
+           "_delete_student_level","_delete_student","delete_basic_student_info", 
+           "_update_table","update_basic_student_info"]
 
 def is_valid_course(course_id):
     return True
@@ -21,6 +25,167 @@ def is_valid_student(student_id):
 def is_valid_teacher(teacher_id):
     return True
 
+def _construct_record(table_config,rows,columns):
+    default_columns=[]
+    for key in table_config.keys():
+        try:
+            column_index = columns.index(key)
+        except ValueError:
+            column_index = -1
+        
+        if column_index == -1:
+            default_columns.append(key)
+                
+    for row in rows:
+        for column in default_columns:
+            row.append(table_config[column][1])
+            
+    columns = columns + default_columns
+    
+    return(rows,columns)
+
+def _filter_data(rows,columns,table_info):
+    required_columns = [column for column in columns if column in table_info.keys() ]
+    required_rows = []
+    for row in rows:
+        _row = []
+        
+        for required_column in required_columns:
+            _row.append(row[columns.index(required_column)])
+        required_rows.append(_row)
+    
+    return required_rows,required_columns
+
+''' ----- STUDENT ----- 
+ _qry_basic_student_info
+
+get_all_basic_student_info
+get_basic_student_info
+
+insert_basic_student_info
+delete_basic_student_info
+
+_insert_student
+_delete_student
+
+_insert_student_level
+_delete_student_level '''
+
+
+def _qry_basic_student_info(students,allstudents=False):
+    sql = ('select st.sStudentFirstNm, st.sStudentLastNm, st.idStudent, stl.idPrep, pc.sPrepNm '
+           'from Student st, StudentLevel stl, PrepCode pc '
+           'where st.cdRowStatus = "act" ')
+    
+    if not allstudents:
+        sql = sql + ('and st.idStudent in ({}) ').format(",".join(map(str,students)))
+    
+    sql = sql + ('and st.idStudent = stl.idStudent and stl.cdRowStatus = "act" and stl.idAcadPeriod = 1 '                 
+           'and stl.idPrep = pc.idPrep and pc.cdRowStatus = "act" ')
+    return sql
+
+def update_basic_student_info(database,row):
+    
+    field_name= row[0]
+    field_value= row[1]
+    pred_name= row[2]
+    pred_value = row[3]
+    
+    _update_table(database,"Student",field_name,field_value,pred_name,pred_value)
+    _update_table(database,"StudentLevel",field_name,field_value,pred_name,pred_value)
+    return [],[]
+
+def _update_table(database,tbl_name,field_name,field_value,pred_name,pred_value):
+    update_config = [field_name,field_value,pred_name,pred_value]
+
+    with database:
+        columns = [column for column,column_type in tbl_cols_get(database,tbl_name)]
+    
+        if field_name in columns:
+            tbl_rows_update(database,tbl_name,update_config)
+
+def delete_basic_student_info(database,students):
+    _delete_student(database,students)
+    _delete_student_level(database,students)
+    return [],[]
+
+def insert_basic_student_info(database,rows,
+                              columns=["idStudent","sStudentFirstNm","sStudentLastNm","idPrep"], 
+                              username="butlerj"):
+    _insert_student(database,rows,columns) 
+    _insert_student_level(database,rows,columns)
+    return [],[]
+
+def _insert_student(database,rows,columns=["idStudent","sStudentFirstNm","sStudentLastNm"]):
+    
+    mandatory_columns = ["idStudent","sStudentFirstNm","sStudentLastNm"]
+    update_time = datetime.now().strftime("%Y%m%d %H:%M") # 20180301 18:37
+    username="butlerj"
+    pk=["idStudent","cdRowStatus"]
+    table_info = {"idStudent":["INTEGER",-1],
+                  "sStudentFirstNm":["TEXT",-1],
+                  "sStudentLastNm":["TEXT",-1],
+                  "sStudentMiddleNm":["TEXT","\"NOTSET\""],
+                  "cdMatricStatus":["TEXT","\"act\""],
+                  "dtMatriculation":["TEXT","\"19000101\""],
+                  "dtLeave":["TEXT","\"NOTSET\""],
+                  "cdLeaveReason":["TEXT","\"NOTSET\""],
+                  "cdRowStatus":["TEXT","\"act\""],
+                  "dtAdd":["TEXT","\""+update_time+"\""],
+                  "dtLastUpd":["TEXT","\""+update_time+"\""],
+                  "sAddUserNm":["TEXT","\""+username+"\""],
+                  "sLastUpdUserNm":["TEXT","\""+username+"\""]}
+
+    if columns != mandatory_columns:
+        rows,columns = _filter_data(rows,columns,table_info)
+        
+    required_rows,columns = _construct_record(table_info,rows,columns)
+    
+    with database:
+        #required_rows = _quotestrs(required_rows)
+        tbl_rows_insert(database,"Student",columns,required_rows)
+        
+def _insert_student_level(database,rows,columns=["idStudent","idPrep","iGradeLevel"], 
+                    username="butlerj"):
+    update_time = datetime.now().strftime("%Y%m%d %H:%M") # 20180301 18:37
+    prep_start = "20170912"
+    prep_end = "20180622"
+    academic_period = 1
+    mandatory_columns = ["idStudent","idAcadPeriod","iGradeLevel"]
+    
+    pk=["idStudent","idAcadPeriod","cdRowStatus"]
+    table_info = {"idStudent":["INTEGER",-1],
+                  "idAcadPeriod":["INTEGER","\""+str(academic_period)+"\""],
+                  "idPrep":["INTEGER",-1],
+                  "dtPrepStart":["TEXT","\""+prep_start+"\""],
+                  "dtPrepEnd":["TEXT","\""+prep_end+"\""],
+                  "iGradeLevel":["INTEGER",-1],
+                  "sStudentLevelNote":["TEXT","\"NOTSET\""],
+                  "cdRowStatus":["TEXT","\"act\""],
+                  "dtAdd":["TEXT","\""+update_time+"\""],  
+                  "dtLastUpd":["TEXT","\""+update_time+"\""],
+                  "sAddUserNm":["TEXT","\""+username+"\""],
+                  "sLastUpdUserNm":["TEXT","\""+username+"\""]}
+
+    if columns != mandatory_columns:
+        rows,columns = _filter_data(rows,columns,table_info)
+        
+    rows,columns = _construct_record(table_info,rows,columns)
+    with database:
+        #rows = _quotestrs(rows)
+        tbl_rows_insert(database,"StudentLevel",columns,rows)          
+                      
+        
+def _delete_student(database,students,allstudents=False):
+    for studentid in students:
+        with database:
+            tbl_row_delete(database,"Student",[["idStudent","=",studentid]])
+
+def _delete_student_level(database,students,allstudents=False):
+    for studentid in students:
+        with database:
+            tbl_row_delete(database,"StudentLevel",[["idStudent","=",studentid]])
+            
 def get_all_basic_student_info(database):
     return get_basic_student_info(database, allstudents=True)
 
@@ -34,6 +199,11 @@ def get_basic_student_info(database,students=[70],allstudents=False):
         columns,results,_ = tbl_query(database,sql)
     
     return columns,results
+
+
+''' ----- END STUDENT ----- '''
+
+
 
 def get_all_basic_teacher_info(database):
     return get_basic_teacher_info(database,allteachers=True)
@@ -172,18 +342,6 @@ def _qry_course_info(courses,allcourses=False):
     
     if not allcourses:
         sql = sql + ('and idCourse in ({}) ').format(",".join(map(str,courses)))
-    return sql
-
-def _qry_basic_student_info(students,allstudents=False):
-    sql = ('select st.sStudentFirstNm, st.sStudentLastNm, st.idStudent, stl.idPrep, pc.sPrepNm '
-           'from Student st, StudentLevel stl, PrepCode pc '
-           'where st.cdRowStatus = "act" ')
-    
-    if not allstudents:
-        sql = sql + ('and st.idStudent in ({}) ').format(",".join(map(str,students)))
-    
-    sql = sql + ('and st.idStudent = stl.idStudent and stl.cdRowStatus = "act" and stl.idAcadPeriod = 1 '                 
-           'and stl.idPrep = pc.idPrep and pc.cdRowStatus = "act" ')
     return sql
 
 def _qry_basic_teacher_info(teachers,allteachers=False):

@@ -3,6 +3,7 @@ from os import path
 from app.quad.utils.data_utils import *
 from utils.misc_basic.misc_utils import os_dir_exists
 from utils.database.database_util import Database
+from utils.database.database_table_util import tbl_rows_get
 
 ROOTDIR = path.dirname(path.realpath(__file__))
 assert(os_dir_exists(ROOTDIR,"test_misc")) # test files go here
@@ -58,8 +59,94 @@ class Test_GetAllBasicStudentInfo(Test_Base):
         expected_results = [[u'Donovan', u'Greene', 70, 7, u'Photon']]
         columns,results = get_all_basic_student_info(self.database)
         self.assertEqual(len(results),82)
+
+class Test_InsertBasicStudentInfo(Test_Base):
+    def test_(self):
+        expected_results = [[u'foo', u'bar', 666, 2, u'Luna'], [u'blah', u'blah', 667, 3, u'Aurora']]
+        rows = [[666, u'\"foo\"', u'\"bar\"',2,6], [667, u'\"blah\"', u'\"blah\"',3,6]]
+        insert_basic_student_info(self.database,rows, 
+                        columns = ["idStudent","sStudentFirstNm","sStudentLastNm","idPrep","iGradeLevel"])
+
+        columns,results = get_basic_student_info(self.database,students=[666,667])    
+        self.assertEqual(results,expected_results)  
         
+        delete_basic_student_info(self.database,[666,667])
+
+class Test_InsertStudent(Test_Base):
+    def test_(self):
+        expected_results = [[666, u'foo', u'bar'], [667, u'blah', u'blah']]
+        rows = [[666,"\"foo\"","\"bar\""],[667,"\"blah\"","\"blah\""]]
+        _insert_student(self.database,rows)
         
+        with self.database:
+            _,results,_ = tbl_rows_get(self.database,"Student",
+                                       fields = ["idStudent","sStudentFirstNm","sStudentLastNm"],
+                                       whereclause=[["idStudent","in","(666,667)"]])
+            
+        self.assertEqual(results,expected_results)  
+        _delete_student(self.database,[666,667])
+        
+class Test_UpdateStudent(Test_Base):
+    def test_(self):
+        expected_results = [[666, u'Jon', u'bar'], [667, u'blah', u'blah']]
+        rows = [[666,"\"foo\"","\"bar\""],[667,"\"blah\"","\"blah\""]]
+        _insert_student(self.database,rows)
+        
+        _update_table(self.database,"Student","sStudentFirstNm","\"Jon\"","idStudent",666)
+        with self.database:
+            _,results,_ = tbl_rows_get(self.database,"Student",
+                                       fields = ["idStudent","sStudentFirstNm","sStudentLastNm"],
+                                       whereclause=[["idStudent","in","(666,667)"]])
+            
+        self.assertEqual(results,expected_results)  
+        _delete_student(self.database,[666,667])
+        
+class Test_UpdateBasicStudentInfo_StudentLevel(Test_Base):
+    def test_(self):
+        expected_results = [[u'foo', u'bar', 666, 2, u'Luna'], [u'blah', u'blah', 667, 2, u'Luna']]
+        rows = [[666, u'\"foo\"', u'\"bar\"',2,6], [667, u'\"blah\"', u'\"blah\"',3,6]]
+        insert_basic_student_info(self.database,rows, 
+                        columns = ["idStudent","sStudentFirstNm","sStudentLastNm","idPrep","iGradeLevel"])
+
+        update_basic_student_info(self.database,["idPrep",2,"idStudent",667])
+    
+        columns,results = get_basic_student_info(self.database,students=[666,667])    
+        self.assertEqual(results,expected_results)  
+        
+        delete_basic_student_info(self.database,[666,667])
+        
+class Test_InsertStudent_ExtraColumns(Test_Base):
+    # this is where insert student is part of a bigger insert and it needs to take
+    # only the columns relevant to it
+    def test_(self):
+        expected_results = [[666, u'foo',u'bar'], [667, u'blah',u'blah']]
+        rows = [[666,"\"foo\"", "\"dummy\"","\"bar\""],[667,"\"blah\"", "\"dummy\"","\"blah\""]]
+        _insert_student(self.database,rows,columns=["idStudent","sStudentFirstNm","dummy","sStudentLastNm"])
+        
+        with self.database:
+            _,results,_ = tbl_rows_get(self.database,"Student",
+                                       fields = ["idStudent","sStudentFirstNm","sStudentLastNm"],
+                                       whereclause=[["idStudent","in","(666,667)"]])
+            
+        self.assertEqual(results,expected_results)  
+        _delete_student(self.database,[666,667])
+        
+class Test_InsertStudentLevel(Test_Base):
+    def test_(self):
+    
+        expected_results =  [[666, 2, 6],
+                             [667, 3, 6]]
+        # 2=Luna
+        rows = [[666,2,6],[667,3,6]]
+        _insert_student_level(self.database,rows)
+        with self.database:
+            _,results,_ = tbl_rows_get(self.database,"StudentLevel",
+                                       fields = ["idStudent","idPrep","iGradeLevel"],
+                                       whereclause=[["idStudent","in","(666,667)"]])
+            
+        self.assertEqual(results,expected_results)  
+        _delete_student_level(self.database,[666,667])
+   
 class Test_GetBasicStudentInfo(Test_Base):
     def test_(self):
         expected_results = [[u'Donovan', u'Greene', 70, 7, u'Photon']]
@@ -121,6 +208,14 @@ class Test_GetStudentScheduleArgs_Columns(Test_Base):
 if __name__ == "__main__":
     suite = unittest.TestSuite()   
     
+    suite.addTest(unittest.TestLoader().loadTestsFromTestCase(Test_UpdateStudent))
+    suite.addTest(unittest.TestLoader().loadTestsFromTestCase(Test_UpdateBasicStudentInfo_StudentLevel))
+    
+    suite.addTest(unittest.TestLoader().loadTestsFromTestCase(Test_InsertStudent))
+    suite.addTest(unittest.TestLoader().loadTestsFromTestCase(Test_InsertStudentLevel))
+    suite.addTest(unittest.TestLoader().loadTestsFromTestCase(Test_InsertStudent_ExtraColumns))
+    
+    suite.addTest(unittest.TestLoader().loadTestsFromTestCase(Test_InsertBasicStudentInfo))
     suite.addTest(unittest.TestLoader().loadTestsFromTestCase(Test_GetStudentScheduleArgs))
     suite.addTest(unittest.TestLoader().loadTestsFromTestCase(Test_GetBasicStudentInfo))
     suite.addTest(unittest.TestLoader().loadTestsFromTestCase(Test_GetBasicTeacherInfo))
@@ -138,5 +233,4 @@ if __name__ == "__main__":
     suite.addTest(unittest.TestLoader().loadTestsFromTestCase(Test_GetPrepInfo))
     suite.addTest(unittest.TestLoader().loadTestsFromTestCase(Test_GetDayInfo))
     suite.addTest(unittest.TestLoader().loadTestsFromTestCase(Test_GetTimePeriodInfo))
-
     unittest.TextTestRunner(verbosity=2).run(suite)    

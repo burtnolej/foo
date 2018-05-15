@@ -3,7 +3,7 @@ import unittest
 import sys
 import os
 
-from type_utils import RealInt, BoundRealInt, SetMember, \
+from utils.misc.type_utils import RealInt, BoundRealInt, SetMember, \
      DBSetMember, TextAlphaNum, SetMemberPartial, isadatatype
 
 CURRENTDIR=os.path.dirname(__file__)

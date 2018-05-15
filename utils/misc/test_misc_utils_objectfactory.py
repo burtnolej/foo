@@ -2,12 +2,19 @@
 import sys
 import os
 from os import path as ospath
-from misc_utils_objectfactory import GenericBase, ObjFactory
-from database_table_util import dbtblgeneric, dbtblfactory, tbl_rows_get
-from database_util import Database
-
+from utils.misc.misc_utils_objectfactory import GenericBase, ObjFactory
+from utils.database.database_table_util import dbtblgeneric, dbtblfactory, tbl_rows_get
+from utils.database.database_util import Database
+from utils.misc_basic.misc_utils import os_dir_exists
 import unittest
-      
+
+#if sys.platform == "win32":
+#    LOGDIR = "./"
+#else:
+#   LOGDIR = "/tmp/log"
+    
+#log = Log(cacheflag=True,logdir=LOGDIR,verbosity=10)
+    
 class Test_ObjFrameworkBasic(unittest.TestCase):
 
     def setUp(self):
@@ -1085,10 +1092,10 @@ if __name__ == "__main__":
     suite.addTest(unittest.TestLoader().loadTestsFromTestCase(Test_ObjFrameworkDumpRptNestedSchoolsched))
     suite.addTest(unittest.TestLoader().loadTestsFromTestCase(Test_ObjFrameworkGetByVal))
     
-    suite.addTest(unittest.TestLoader().loadTestsFromTestCase(Test_ObjFrameworkDumpRptNestedSchoolschedConstraints))
+    '''suite.addTest(unittest.TestLoader().loadTestsFromTestCase(Test_ObjFrameworkDumpRptNestedSchoolschedConstraints))
+    '''
     
-    
-    suite.addTest(unittest.TestLoader().loadTestsFromTestCase(Test_ObjFrameworkDumpRptNestedSchoolschedFieldNameHdr))
+    #suite.addTest(unittest.TestLoader().loadTestsFromTestCase(Test_ObjFrameworkDumpRptNestedSchoolschedFieldNameHdr))
     
     
     

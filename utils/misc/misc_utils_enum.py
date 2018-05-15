@@ -1,7 +1,7 @@
 
 import sys
 
-from misc_utils_generic import GenericBase
+from utils.misc_basic.misc_utils_generic import GenericBase
 
 class enum(GenericBase):
     pass
