@@ -2,6 +2,18 @@ from types import StringType, IntType, ListType
 from utils.database.database_util import Database
 from utils.database.database_table_util import tbl_query, tbl_rows_insert, tbl_row_delete, _quotestrs, tbl_rows_update,tbl_cols_get
 from datetime import datetime
+from utils.misc_basic.misc_utils_log import Log, logger, PRIORITY
+import sys
+from collections import OrderedDict
+
+if sys.platform == "win32":
+    LOGDIR = "./"
+else:
+    LOGDIR = "/tmp/log"
+
+log = Log(cacheflag=False,logdir=LOGDIR,verbosity=5)
+log.config =OrderedDict([('now_format',-1),('now_ms',-1),('duration',-1),('type',-1),('class',-1),('module',-1),
+                         ('funcname',-1),('msg',-1),('today',-1)])
 
 __all__ = ["get_basic_student_info","get_basic_teacher_info",
            "get_student_schedule","get_teacher_schedule",

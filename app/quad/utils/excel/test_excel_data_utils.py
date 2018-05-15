@@ -258,6 +258,4 @@ if __name__ == "__main__":
     suite.addTest(unittest.TestLoader().loadTestsFromTestCase(Test_DataStoredProc_DeleteStudent))
     suite.addTest(unittest.TestLoader().loadTestsFromTestCase(Test_DataStoredProc_UpdateStudent))
     
-    
-    
     unittest.TextTestRunner(verbosity=2).run(suite)

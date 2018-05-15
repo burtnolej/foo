@@ -254,7 +254,8 @@ class Log():
             # remove self from the passed args if is an instancemethod
             _f_locals = stack()[1][0].f_locals
             if _f_locals.has_key('self'): 
-                logmesg['class'] = _f_locals["self"].__class__.__name__
+                #logmesg['class'] = _f_locals["self"].__class__.__name__
+                logmesg['class'] = _f_locals["self"].__name__
                 _f_locals.pop('self')
             else:
                 logmesg['class'] = ""
@@ -347,6 +348,8 @@ class Log():
                     logmesg['type'] ="UNKNOWN"
 
             logmesg['now'] = ":".join(map(str,[now,datetime.now().microsecond/1000]))
+            logmesg['now_format'] = '{d.hour}:{d.minute}:{d.second}'.format(d=datetime.now())
+            logmesg['now_ms'] = datetime.now().microsecond
             logmesg['today']=today
             kwargs = self._args_readable(kwargs)
             logmesg['logmesg'] = str(zip(map(str,kwargs.keys()),map(str,kwargs.values())))

@@ -18,11 +18,12 @@ if sys.platform == "win32":
     LOGDIR = "./"
 else:
     LOGDIR = "/tmp/log"
-    
-    
-log = Log(cacheflag=False,logdir=LOGDIR,verbosity=5)
-log.config =OrderedDict([('now',12),('type',10),('class',30),('funcname',30),
-                         ('module',20),('msg',-1),('today',8)])
+	
+log = Log(cacheflag=False,logdir=LOGDIR,verbosity=20)
+log.config =OrderedDict([('now_format',-1),('now_ms',-1),('etime',-1),('type',-1),('class',-1),('module',-1),
+                         ('funcname',-1),('msg',-1),('today',-1)])
+log.startlog
+log.verbosity=20
 
 __all__ = ['DataStoredProcBase','DataStoredProc']
 
@@ -200,8 +201,9 @@ class DataStoredProc(DataStoredProcBase):
             setattr(self,"sp_args",{})
         
     @classmethod
+    @logger(log)
     def stored_proc_by_file(cls,filepath,**kwargs):
-        ''' query_str arg is encoded and is passed in a file'''        
+        ''' query_str arg is encoded and is passed in a file'''
         encoding = cls._get_file_encoding(filepath)
         cls._parse_input_file(filepath,mandatory_fields=['database_name','sp_name','delete_flag'],encoding=encoding,**kwargs)    
         cls1 = cls(cls.database_name,**kwargs)       
