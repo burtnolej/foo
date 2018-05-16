@@ -80,7 +80,7 @@ Dim iWidget As Variant
     Set Row2Dict = dValues
         
 End Function
-Public Function GetColumnValues(clsQuadRuntime As App_Runtime, _
+Public Function GetColumnValues(clsAppRuntime As App_Runtime, _
                                  eQuadDataType As QuadDataType, _
                                  eQuadSubDataType As QuadSubDataType, _
                                  sLookUpColName As String, _
@@ -95,9 +95,9 @@ setup:
 
 main:
     If eQuadDataType = QuadDataType.schedule Then
-        Set wsCache = GetScheduleData(clsQuadRuntime, iPersonID, eQuadDataType, eQuadSubDataType, bInTable:=True)
+        Set wsCache = GetScheduleData(clsAppRuntime, iPersonID, eQuadDataType, eQuadSubDataType, bInTable:=True)
     Else
-        Set wsCache = GetPersonData(clsQuadRuntime, eQuadDataType, eQuadSubDataType, QuadScope.all, bInTable:=True)
+        Set wsCache = GetPersonData(clsAppRuntime, eQuadDataType, eQuadSubDataType, QuadScope.all, bInTable:=True)
     End If
     sLookUpRangeName = GetDBColumnRange(wsCache.name, sLookUpColName)
     GetColumnValues = ListFromRange(wsCache, sLookUpRangeName)
@@ -534,7 +534,7 @@ Public Sub CreateTableColumn(wsTmp As Worksheet, iCol As Integer, ByVal sTableNa
                 Optional iFirstDataLine As Integer = 2)
 '<<<
 'purpose: simple wrapper to launch a Student View workflow
-'param  : clsQuadRuntime,App_Runtime; all config controlling names of books, sheets, ranges for
+'param  : clsAppRuntime,App_Runtime; all config controlling names of books, sheets, ranges for
 '       :                 also contains any variables that need to be passed continually
 'param  :
 'rtype  :
@@ -596,11 +596,11 @@ Dim aDefaultFields() As String
 Dim i As Integer
 Dim sRangeName As String
 Dim sFuncName As String
-Dim clsQuadRuntime As New App_Runtime
+Dim clsAppRuntime As New App_Runtime
 Dim vDataID As Variant
 
 setup:
-    clsQuadRuntime.InitProperties bInitializeCache:=False
+    clsAppRuntime.InitProperties bInitializeCache:=False
     
     If IsSet(wbTmp) = False Then
         Set wbTmp = ActiveWorkbook
@@ -616,7 +616,7 @@ setup:
     If dDefinitions Is Nothing Then
         ' when called from a callback and dDefinitons needs to be reconstituted
         FuncLogIt sFuncName, "Definitions not loaded so reloading", C_MODULE_NAME, LogMsgType.INFO
-        DoLoadDefinitions clsQuadRuntime:=clsQuadRuntime
+        DoLoadDefinitions clsAppRuntime:=clsAppRuntime
     End If
 
     ' this is to account for sub tables that are filtered tables (like by personID)
@@ -632,20 +632,20 @@ setup:
         vWidgetKeys = GetTableWidgetKeys(sTableName)
         
         For i = 0 To UBound(vWidgetKeys)
-            CreateTableColumn wsTmp, i + 1, sTableName, dDefinitions.Item(vWidgetKeys(i)).Item("FieldName"), wbTmp:=clsQuadRuntime.CacheBook, vDataID:=vDataID
+            CreateTableColumn wsTmp, i + 1, sTableName, dDefinitions.Item(vWidgetKeys(i)).Item("FieldName"), wbTmp:=clsAppRuntime.CacheBook, vDataID:=vDataID
         Next i
         
         iCol = i + 1
         For i = iCol To iCol + UBound(aDefaultFields)
             CreateTableColumn wsTmp, i, sTableName, aDefaultFields(i - iCol), _
-                wbTmp:=clsQuadRuntime.CacheBook, vDataID:=vDataID, eColumnType:=ColumnType.INFO
+                wbTmp:=clsAppRuntime.CacheBook, vDataID:=vDataID, eColumnType:=ColumnType.INFO
         Next i
 
         ' create the range that stored the NextFree row
         Set rTarget = .Range(.Cells(1, i + 1), .Cells(1, i + 1))
         rTarget.value = 1
         sRangeName = "i" & sTableName & "NextFree"
-        CreateTableColumn wsTmp, i + 1, sTableName, "NextFree", wbTmp:=clsQuadRuntime.CacheBook, vDataID:=vDataID, eColumnType:=ColumnType.INFO
+        CreateTableColumn wsTmp, i + 1, sTableName, "NextFree", wbTmp:=clsAppRuntime.CacheBook, vDataID:=vDataID, eColumnType:=ColumnType.INFO
                 
         FuncLogIt sFuncName, "Created db table [" & sTableName & "] with [" & CStr(i + 1) & "] columns", C_MODULE_NAME, LogMsgType.INFO
     End With

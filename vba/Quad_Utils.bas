@@ -44,7 +44,6 @@ End Enum
 Const C_QUAD_SCOPE = "all,specified"
 
 
-Private clsQuadRuntimeGlobal As App_Runtime
 
 Function EnumQuadDataType(i As Long) As String
     EnumQuadDataType = Split(C_QUAD_DATA_TYPE, COMMA)(i - 1)
@@ -64,59 +63,13 @@ End Function
 Function GetQuadScopeEnumFromValue(sValue As String) As Long
     GetQuadScopeEnumFromValue = IndexArray(C_QUAD_SCOPE, sValue)
 End Function
-Public Sub ResetQuadRuntimeGlobal()
-    Set clsQuadRuntimeGlobal = Nothing
-End Sub
-Public Function InitQuadRuntimeGlobal(Optional dQuadRuntimeValues As Dictionary) As App_Runtime
-Dim clsQuadRuntime As New App_Runtime
-Dim vKey As Variant
-
-    clsQuadRuntime.InitProperties
-    
-    If IsSet(dQuadRuntimeValues) Then
-        For Each vKey In dQuadRuntimeValues
-            CallByName clsQuadRuntime, vKey, VbLet, dQuadRuntimeValues.Item(vKey)
-        Next vKey
-    End If
-    
-    Set InitQuadRuntimeGlobal = clsQuadRuntime
-End Function
-Public Sub LetQuadRuntimeGlobal(clsQuadRuntime As App_Runtime)
-Dim sFuncName As String
-    sFuncName = C_MODULE_NAME & "." & "LetQuadRuntimeGlobal"
-    If IsInstance(clsQuadRuntime, vbQuadRuntime) = False Then
-        err.Raise ErrorMsgType.BAD_ARGUMENT, Description:="arg is not of type App_Runtime"
-    End If
-    
-    Set clsQuadRuntimeGlobal = clsQuadRuntime
-    FuncLogIt sFuncName, "Setting GLOBAL Quad_Utils.clsQuadRuntimeGlobal", C_MODULE_NAME, LogMsgType.INFO
-End Sub
-Public Function GetQuadRuntimeGlobal(Optional bInitFlag As Boolean = False, _
-                                     Optional dQuadRuntimeValues As Dictionary) As App_Runtime
-Dim sFuncName As String
-    sFuncName = C_MODULE_NAME & "." & "GetQuadRuntimeGlobal"
-    
-    If IsSet(clsQuadRuntimeGlobal) Then
-        Set GetQuadRuntimeGlobal = clsQuadRuntimeGlobal
-        FuncLogIt sFuncName, "GETTING GLOBAL Quad_Utils.clsQuadRuntimeGlobal", C_MODULE_NAME, LogMsgType.INFO
-    Else
-        If bInitFlag = True Then
-            Set GetQuadRuntimeGlobal = InitQuadRuntimeGlobal(dQuadRuntimeValues:=dQuadRuntimeValues)
-            FuncLogIt sFuncName, "Initializating GLOBAL Quad_Utils.clsQuadRuntimeGlobal", C_MODULE_NAME, LogMsgType.INFO
-        Else
-            Set GetQuadRuntimeGlobal = Nothing
-            FuncLogIt sFuncName, "Cannot GET GLOBAL Quad_Utils.clsQuadRuntimeGlobal as its not set", C_MODULE_NAME, LogMsgType.INFO
-        End If
-    End If
-End Function
-
-
-Public Sub CreateQuadArgsFile(clsQuadRuntime As App_Runtime, sSpName As String, _
+Public Sub CreateQuadArgsFile(clsAppRuntime As App_Runtime, sSpName As String, _
         Optional dSpArgs As Dictionary, _
         Optional vRows As Variant, _
         Optional vColumns As Variant, _
         Optional vColumnDefns As Variant, _
         Optional vRow As Variant, _
+        Optional bDeleteFlag As Boolean = False, _
         Optional bHeaderFlag As Boolean = False)
         
 Dim PYTHONPATH As String, xSpArgs As String, sTmp As String
@@ -124,38 +77,39 @@ Dim PYTHONPATH As String, xSpArgs As String, sTmp As String
     PYTHONPATH = LCase(Environ("PYTHONPATH"))
 
     On Error Resume Next 'in case running for first time and nothing to delete
-    Call DeleteFile(clsQuadRuntime.FileName)
+    Call DeleteFile(clsAppRuntime.FileName)
     On Error GoTo 0
-    Call TouchFile(clsQuadRuntime.FileName)
+    Call TouchFile(clsAppRuntime.FileName)
     
-    Call AppendFile(clsQuadRuntime.FileName, "database_name:" & UUEncode(clsQuadRuntime.DatabasePath) & vbCrLf)
-    Call AppendFile(clsQuadRuntime.FileName, "sp_name:" & UUEncode(sSpName) & vbCrLf)
+    Call AppendFile(clsAppRuntime.FileName, "database_name:" & UUEncode(clsAppRuntime.DatabasePath) & vbCrLf)
+    Call AppendFile(clsAppRuntime.FileName, "sp_name:" & UUEncode(sSpName) & vbCrLf)
+    Call AppendFile(clsAppRuntime.FileName, "delete_flag:" & UUEncode(CStr(bDeleteFlag)) & vbCrLf)
     
     If bHeaderFlag = True Then
-        Call AppendFile(clsQuadRuntime.FileName, "header_flag:" & UUEncode("True") & vbCrLf)
+        Call AppendFile(clsAppRuntime.FileName, "header_flag:" & UUEncode("True") & vbCrLf)
     End If
 
     If IsSet(dSpArgs) = True Then
         xSpArgs = CreateXMLDocfromDict(dSpArgs).xml
-        Call AppendFile(clsQuadRuntime.FileName, "sp_args:" & UUEncode(xSpArgs) & vbCrLf)
+        Call AppendFile(clsAppRuntime.FileName, "sp_args:" & UUEncode(xSpArgs) & vbCrLf)
     End If
     
-    Call AppendFile(clsQuadRuntime.FileName, "runtime_dir:" & UUEncode(clsQuadRuntime.RuntimeDir) & vbCrLf)
+    Call AppendFile(clsAppRuntime.FileName, "runtime_dir:" & UUEncode(clsAppRuntime.RuntimeDir) & vbCrLf)
     
-    If clsQuadRuntime.ResultFileName <> "" Then
-        Call AppendFile(clsQuadRuntime.FileName, "result_file:" & UUEncode(clsQuadRuntime.ResultFileName) & vbCrLf)
+    If clsAppRuntime.ResultFileName <> "" Then
+        Call AppendFile(clsAppRuntime.FileName, "result_file:" & UUEncode(clsAppRuntime.ResultFileName) & vbCrLf)
     End If
 
     If IsSet(vColumnDefns) = True Then
-        Call AppendFile(clsQuadRuntime.FileName, "column_defns:" & ArrayNDtoString(vColumnDefns, bUUEncode:=True) & vbCrLf)
+        Call AppendFile(clsAppRuntime.FileName, "column_defns:" & ArrayNDtoString(vColumnDefns, bUUEncode:=True) & vbCrLf)
     End If
     
     If IsSet(vColumns) = True Then
-        Call AppendFile(clsQuadRuntime.FileName, "columns:" & ArrayNDtoString(vColumns, bUUEncode:=True) & vbCrLf)
+        Call AppendFile(clsAppRuntime.FileName, "columns:" & ArrayNDtoString(vColumns, bUUEncode:=True) & vbCrLf)
     End If
     
     If IsSet(vRow) = True Then
-        Call AppendFile(clsQuadRuntime.FileName, "row:" & ArrayNDtoString(vRow, bUUEncode:=True) & vbCrLf)
+        Call AppendFile(clsAppRuntime.FileName, "row:" & ArrayNDtoString(vRow, bUUEncode:=True) & vbCrLf)
     End If
     
     If IsSet(vRows) = True Then
@@ -168,18 +122,18 @@ Dim PYTHONPATH As String, xSpArgs As String, sTmp As String
             sTmp = Replace(sTmp, "'", "")
         End If
 
-        Call AppendFile(clsQuadRuntime.FileName, "rows:" & sTmp & vbCrLf)
+        Call AppendFile(clsAppRuntime.FileName, "rows:" & sTmp & vbCrLf)
     
     End If
     
 End Sub
-Public Function IsDataCached(clsQuadRuntime As App_Runtime, _
+Public Function IsDataCached(clsAppRuntime As App_Runtime, _
                              eQuadDataType As QuadDataType, _
                              eQuadSubDataType As QuadSubDataType, _
                     Optional iDataID As Integer) As Boolean
 '<<<
 ' purpose: has this data set already been cached
-' param  : clsQuadRuntime, App_Runtime; all config controlling names of books, sheets, ranges for
+' param  : clsAppRuntime, App_Runtime; all config controlling names of books, sheets, ranges for
 '        :                 also contains any variables that need to be passed continually
 ' param  : eQuadSubDataType, QuadSubDataType; what type of person are we querying
 ' param  : eQuadDataType, QuadDataType; what type of data are we querying
@@ -192,7 +146,7 @@ Dim sCacheSheetName As String
         sCacheSheetName = sCacheSheetName & "_" & CStr(iDataID)
     End If
 
-    IsDataCached = SheetExists(clsQuadRuntime.CacheBook, sCacheSheetName)
+    IsDataCached = SheetExists(clsAppRuntime.CacheBook, sCacheSheetName)
                     
 End Function
 
@@ -203,7 +157,7 @@ Public Function ParseRawData(sData As String) As Variant
     ParseRawData = Delim2Array(sData, bVariant:=True)
 End Function
 
-Public Function CacheData(clsQuadRuntime As App_Runtime, _
+Public Function CacheData(clsAppRuntime As App_Runtime, _
                           aData() As Variant, _
                           eQuadDataType As QuadDataType, _
                           eQuadSubDataType As QuadSubDataType, _
@@ -245,18 +199,18 @@ Dim wsCurrentFocus As Worksheet
     
     ' wrap the data in a Table structure from Table_Utils or create manually
     If bInTable = True Then
-        CreateTable sCacheSheetName, wbTmp:=clsQuadRuntime.CacheBook
+        CreateTable sCacheSheetName, wbTmp:=clsAppRuntime.CacheBook
         ReDim vColNames(0 To UBound(aData, 2))
         For iColCount = 0 To UBound(aData, 2)
             vColNames(iColCount) = aData(0, iColCount)
         Next iColCount
-        AddTableRecordAuto clsQuadRuntime.CacheBook, sCacheSheetName, vColNames, _
+        AddTableRecordAuto clsAppRuntime.CacheBook, sCacheSheetName, vColNames, _
                 aData, bBulkLoad:=True, vTableFilterID:=iDataID
 
     Else
-        Set wsCache = CreateSheet(clsQuadRuntime.CacheBook, sCacheSheetName, bOverwrite:=True)
-        If SheetExists(clsQuadRuntime.CacheBook, "Sheet1") Then
-            DeleteSheet clsQuadRuntime.CacheBook, "Sheet1" ' can be deleted now not only sheet
+        Set wsCache = CreateSheet(clsAppRuntime.CacheBook, sCacheSheetName, bOverwrite:=True)
+        If SheetExists(clsAppRuntime.CacheBook, "Sheet1") Then
+            DeleteSheet clsAppRuntime.CacheBook, "Sheet1" ' can be deleted now not only sheet
         End If
         
         iNumRows = UBound(aData)
@@ -268,7 +222,7 @@ Dim wsCurrentFocus As Worksheet
             Set rTarget = .Range(.Cells(1, 1), .Cells(iNumRows + 1, iNumCols + 1))
             rTarget.value = aData
             
-            CreateNamedRange clsQuadRuntime.CacheBook, rTarget.Address, sCacheSheetName, clsQuadRuntime.CacheRangeName, sLocalScope:="True"
+            CreateNamedRange clsAppRuntime.CacheBook, rTarget.Address, sCacheSheetName, clsAppRuntime.CacheRangeName, sLocalScope:="True"
         End With
     End If
 

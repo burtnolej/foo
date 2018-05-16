@@ -5,7 +5,7 @@ Option Explicit
 
 Const C_MODULE_NAME = "Test_Quad_Utils"
 Public Function Test_CrossRefQuadData() As TestResult
-Dim clsQuadRuntime As New App_Runtime
+Dim clsAppRuntime As New App_Runtime
 Dim vSource() As String
 Dim sDefn As String, sDefnSheetName As String
 Dim rTarget As Range
@@ -13,10 +13,10 @@ Dim wsTmp As Worksheet
 Dim eTestResult As TestResult
 
 setup:
-    clsQuadRuntime.InitProperties bInitializeCache:=True
+    clsAppRuntime.InitProperties bInitializeCache:=True
 
     sDefnSheetName = "test_definition"
-    Set wsTmp = CreateSheet(clsQuadRuntime.Book, sDefnSheetName, bOverwrite:=True)
+    Set wsTmp = CreateSheet(clsAppRuntime.Book, sDefnSheetName, bOverwrite:=True)
         
     sDefn = "Add_person_student^person_student^sStudentFirstNm^AlphaNumeric^IsMember^Student^^^Entry" & DOUBLEDOLLAR
     sDefn = sDefn & "Add_person_student^person_student^sStudentLastNm^AlphaNumeric^IsMember^Student^^^Entry" & DOUBLEDOLLAR
@@ -28,7 +28,7 @@ setup:
     Set rTarget = RangeFromStrArray(vSource, wsTmp, 0, 1)
     Set Form_Utils.dDefinitions = LoadDefinitions(wsTmp, rSource:=rTarget)
     
-    If CrossRefQuadData(clsQuadRuntime, QuadDataType.person, _
+    If CrossRefQuadData(clsAppRuntime, QuadDataType.person, _
                     QuadSubDataType.Student, "idStudent", 1, "sStudentLastNm") <> "Gromek" Then
         eTestResult = TestResult.Failure
         GoTo teardown
@@ -43,7 +43,7 @@ err:
     
 teardown:
     Test_CrossRefQuadData = eTestResult
-    clsQuadRuntime.Delete
+    clsAppRuntime.Delete
     
 End Function
 Public Function Test_CacheData_Table() As TestResult
@@ -53,14 +53,14 @@ Dim sResultStr As String, sExpectedResult As String, sCacheSheetName As String, 
 Dim iPersonID As Integer
 Dim eTestResult As TestResult
 Dim aPersonData() As Variant, vSource() As String
-Dim clsQuadRuntime As New App_Runtime
+Dim clsAppRuntime As New App_Runtime
 Dim wsTmp As Worksheet
 Dim rTarget As Range
 
 setup:
-    clsQuadRuntime.InitProperties bInitializeCache:=True
+    clsAppRuntime.InitProperties bInitializeCache:=True
     sDefnSheetName = "test_definition"
-    Set wsTmp = CreateSheet(clsQuadRuntime.Book, sDefnSheetName, bOverwrite:=True)
+    Set wsTmp = CreateSheet(clsAppRuntime.Book, sDefnSheetName, bOverwrite:=True)
     
     'sDefn = "AddLesson^Lesson^sSubjectLongDesc^AlphaNumeric^IsMember^Subject" & DOUBLEDOLLAR
     'sDefn = sDefn & "AddLesson^Lesson^sCourseNm^AlphaNumeric^IsMember^Course" & DOUBLEDOLLAR
@@ -84,11 +84,11 @@ setup:
     Set rTarget = RangeFromStrArray(vSource, wsTmp, 0, 1)
     Set Form_Utils.dDefinitions = LoadDefinitions(wsTmp, rSource:=rTarget)
     
-    GetPersonDataFromDB clsQuadRuntime, QuadSubDataType.Student, eQuadScope:=QuadScope.all
-    aPersonData = ParseRawData(ReadFile(clsQuadRuntime.ResultFileName))
-    sCacheSheetName = CacheData(clsQuadRuntime, aPersonData, QuadDataType.person, QuadSubDataType.Student, bInTable:=True)
+    GetPersonDataFromDB clsAppRuntime, QuadSubDataType.Student, eQuadScope:=QuadScope.all
+    aPersonData = ParseRawData(ReadFile(clsAppRuntime.ResultFileName))
+    sCacheSheetName = CacheData(clsAppRuntime, aPersonData, QuadDataType.person, QuadSubDataType.Student, bInTable:=True)
         
-    With clsQuadRuntime.CacheBook.Sheets(sCacheSheetName)
+    With clsAppRuntime.CacheBook.Sheets(sCacheSheetName)
         If .Range(.Cells(83, 2), .Cells(83, 2)).value <> "Tzvi" Then
             eTestResult = TestResult.Failure
             GoTo teardown
@@ -103,23 +103,23 @@ err:
     
 teardown:
     Test_CacheData_Table = eTestResult
-    DeleteSheet clsQuadRuntime.CacheBook, sCacheSheetName
-    clsQuadRuntime.Delete
+    DeleteSheet clsAppRuntime.CacheBook, sCacheSheetName
+    clsAppRuntime.Delete
     
 End Function
 
 
-Function TestGetAndInitQuadRuntimeNoVals() As TestResult
-Dim clsQuadRuntime As App_Runtime
+Function TestGetAndInitAppRuntimeNoVals() As TestResult
+Dim clsAppRuntime As App_Runtime
 Dim eTestResult As TestResult
 Dim sFuncName As String
 
 setup:
-    sFuncName = C_MODULE_NAME & "." & "GetAndInitQuadRuntimeNoVals"
+    sFuncName = C_MODULE_NAME & "." & "GetAndInitAppRuntimeNoVals"
     
-    Set clsQuadRuntime = GetQuadRuntimeGlobal(bInitFlag:=True)
+    Set clsAppRuntime = GetAppRuntimeGlobal(bInitFlag:=True)
     
-    If clsQuadRuntime.DayEnum <> "M,T,W,R,F" Then
+    If clsAppRuntime.DayEnum <> "M,T,W,R,F" Then
         eTestResult = TestResult.Failure
     Else
         eTestResult = TestResult.OK
@@ -131,25 +131,25 @@ err:
     eTestResult = TestResult.Error
     
 teardown:
-    TestGetAndInitQuadRuntimeNoVals = eTestResult
-    clsQuadRuntime.Delete
-    ResetQuadRuntimeGlobal
+    TestGetAndInitAppRuntimeNoVals = eTestResult
+    clsAppRuntime.Delete
+    ResetAppRuntimeGlobal
 
 End Function
-Function TestGetAndInitQuadRuntime() As TestResult
+Function TestGetAndInitAppRuntime() As TestResult
 Dim dValues As New Dictionary
-Dim clsQuadRuntime As App_Runtime
+Dim clsAppRuntime As App_Runtime
 Dim eTestResult As TestResult
 Dim sFuncName As String
 
 setup:
-    sFuncName = C_MODULE_NAME & "." & "TestGetAndInitQuadRuntime"
+    sFuncName = C_MODULE_NAME & "." & "TestGetAndInitAppRuntime"
     
     dValues.Add "DayEnum", "foobar"
     
-    Set clsQuadRuntime = GetQuadRuntimeGlobal(bInitFlag:=True, dQuadRuntimeValues:=dValues)
+    Set clsAppRuntime = GetAppRuntimeGlobal(bInitFlag:=True, dAppRuntimeValues:=dValues)
     
-    If clsQuadRuntime.DayEnum <> "foobar" Then
+    If clsAppRuntime.DayEnum <> "foobar" Then
         eTestResult = TestResult.Failure
     Else
         eTestResult = TestResult.OK
@@ -161,25 +161,25 @@ err:
     eTestResult = TestResult.Error
     
 teardown:
-    TestGetAndInitQuadRuntime = eTestResult
-    clsQuadRuntime.Delete
-    ResetQuadRuntimeGlobal
+    TestGetAndInitAppRuntime = eTestResult
+    clsAppRuntime.Delete
+    ResetAppRuntimeGlobal
 
 End Function
-Function TestInitQuadRuntime() As TestResult
+Function TestInitAppRuntime() As TestResult
 Dim dValues As New Dictionary
-Dim clsQuadRuntime As App_Runtime
+Dim clsAppRuntime As App_Runtime
 Dim eTestResult As TestResult
 Dim sFuncName As String
 
 setup:
-    sFuncName = C_MODULE_NAME & "." & "InitQuadRuntime"
+    sFuncName = C_MODULE_NAME & "." & "InitAppRuntime"
     
     dValues.Add "DayEnum", "foobar"
     
-    Set clsQuadRuntime = InitQuadRuntimeGlobal(dQuadRuntimeValues:=dValues)
+    Set clsAppRuntime = InitAppRuntimeGlobal(dAppRuntimeValues:=dValues)
     
-    If clsQuadRuntime.DayEnum <> "foobar" Then
+    If clsAppRuntime.DayEnum <> "foobar" Then
         eTestResult = TestResult.Failure
     Else
         eTestResult = TestResult.OK
@@ -191,9 +191,9 @@ err:
     eTestResult = TestResult.Error
     
 teardown:
-    TestInitQuadRuntime = eTestResult
-    clsQuadRuntime.Delete
-    ResetQuadRuntimeGlobal
+    TestInitAppRuntime = eTestResult
+    clsAppRuntime.Delete
+    ResetAppRuntimeGlobal
 
 End Function
 

@@ -1,6 +1,109 @@
 Attribute VB_Name = "Form_Definitions_Utils"
 Option Explicit
 Const C_MODULE_NAME = "Form_Definitions_Utils"
+
+Enum DefnType
+    Lesson = 1
+End Enum
+
+Public Const C_DEFN_TYPE = "AddLesson"
+
+Function EnumDefnType(i As Long) As String
+    EnumDefnType = Split(C_DEFN_TYPE, COMMA)(i - 1)
+End Function
+
+Sub GetDefinition(clsAppRuntime As App_Runtime, eDefnType As DefnType, sSheetName As String, Optional wbTmp As Workbook)
+'<<<
+'purpose: load definitions required to support the Add Lesson workflow
+'param  : clsAppRuntime, App_Runtime; App defaults
+'param  : sSheetName, string; where to store the excel representation of the definition
+'>>>
+Dim sFuncName As String, sDefn As String
+Dim vSource() As String
+Dim wsTmp As Worksheet
+Dim rTarget As Range
+Dim lStartTick As Long
+
+setup:
+    lStartTick = FuncLogIt(sFuncName, "", C_MODULE_NAME, LogMsgType.INFUNC)
+    On Error GoTo err
+    sFuncName = C_MODULE_NAME & "." & "GetAddLessonDefinition"
+    
+    If IsSet(wbTmp) = False Then
+        Set wbTmp = clsAppRuntime.TemplateBook
+    End If
+    
+    Set wsTmp = CreateSheet(wbTmp, sSheetName, bOverwrite:=True)
+    
+main:
+
+    If eDefnType = DefnType.Lesson Then
+        ' table: Add lesson
+        ' --------------------------------------------------------------------------------
+        ' attr : student name
+        sDefn = "AddLesson^schedule_student^sStudentFirstNm^String^IsMember^&get_person_student^sStudentFirstNm^^Entry" & DOUBLEDOLLAR
+        sDefn = sDefn & "AddLesson^schedule_student^sStudentLastNm^String^IsMember^&get_person_student^sStudentLastNm^^Entry" & DOUBLEDOLLAR
+        ' attr : teacher_name
+        sDefn = sDefn & "AddLesson^schedule_student^sFacultyFirstNm^String^IsMember^&get_person_teacher^sFacultyFirstNm^^Entry" & DOUBLEDOLLAR
+        sDefn = sDefn & "AddLesson^schedule_student^sFacultyLastNm^String^IsMember^&get_person_teacher^sFacultyLastNm^^Entry" & DOUBLEDOLLAR
+        ' attr : ref data
+        sDefn = sDefn & "AddLesson^schedule_student^sCourseNm^Integer^IsMember^&get_courses_course^sCourseNm^^Entry" & DOUBLEDOLLAR
+        sDefn = sDefn & "AddLesson^schedule_student^sSubjectLongDesc^Integer^IsMember^&get_courses_subject^sSubjectLongDesc^^Entry" & DOUBLEDOLLAR
+        sDefn = sDefn & "AddLesson^schedule_student^idPrep^Integer^IsMember^&get_misc_prep^sPrepNm^^Entry" & DOUBLEDOLLAR
+        sDefn = sDefn & "AddLesson^schedule_student^idTimePeriod^Integer^IsMember^&get_misc_timeperiod^idTimePeriod^^Entry" & DOUBLEDOLLAR
+        sDefn = sDefn & "AddLesson^schedule_student^cdDay^Integer^IsMember^&get_misc_day^cdDay^^Entry" & DOUBLEDOLLAR
+        
+        ' Add student
+        sDefn = sDefn & "AddStudent^person_student^sStudentFirstNm^String^^^^^Entry" & DOUBLEDOLLAR
+        sDefn = sDefn & "AddStudent^person_student^sStudentLastNm^String^^^^^Entry" & DOUBLEDOLLAR
+        sDefn = sDefn & "AddStudent^person_student^idStudent^Integer^^^^^Entry" & DOUBLEDOLLAR
+        sDefn = sDefn & "AddStudent^person_student^idPrep^Integer^IsValidPrep^^^^Entry" & DOUBLEDOLLAR
+        sDefn = sDefn & "AddStudent^person_student^sPrepNm^String^^^^^Entry" & DOUBLEDOLLAR
+        ' Add teacher
+        sDefn = sDefn & "AddStudent^person_teacher^sFacultyFirstNm^String^^^^^Entry" & DOUBLEDOLLAR
+        sDefn = sDefn & "AddStudent^person_teacher^sFacultyLastNm^String^^^^^Entry" & DOUBLEDOLLAR
+        sDefn = sDefn & "AddStudent^person_teacher^idFaculty^Integer^^^^^Entry" & DOUBLEDOLLAR
+        ' table: Add subject ---------------------------------------------------------------
+        sDefn = sDefn & "AddSubject^courses_subject^sSubjectLongDesc^String^^^^^Entry" & DOUBLEDOLLAR
+        sDefn = sDefn & "AddSubject^courses_subject^idSubject^String^^^^^Entry" & DOUBLEDOLLAR
+        ' table: Add course ---------------------------------------------------------------
+        sDefn = sDefn & "AddCourse^courses_course^sCourseNm^String^^^^^Entry" & DOUBLEDOLLAR
+        sDefn = sDefn & "AddCourse^courses_course^idCourse^String^^^^^Entry" & DOUBLEDOLLAR
+        sDefn = sDefn & "AddCourse^courses_course^idSubject^String^^^^^Entry" & DOUBLEDOLLAR
+        ' table: Add timeperiod ---------------------------------------------------------------
+        sDefn = sDefn & "AddTimePeriod^misc_timeperiod^idTimePeriod^String^^^^^Entry" & DOUBLEDOLLAR
+        sDefn = sDefn & "AddTimePeriod^misc_timeperiod^dtPeriodStart^String^^^^^Entry" & DOUBLEDOLLAR
+        sDefn = sDefn & "AddTimePeriod^misc_timeperiod^dtPeriodEnd^String^^^^^Entry" & DOUBLEDOLLAR
+        ' table: Add prep ---------------------------------------------------------------
+        sDefn = sDefn & "AddPrep^misc_prep^idPrep^String^^^^^Entry" & DOUBLEDOLLAR
+        sDefn = sDefn & "AddPrep^misc_prep^sPrepNm^String^^^^^Entry" & DOUBLEDOLLAR
+        ' table: Add day ---------------------------------------------------------------
+        sDefn = sDefn & "AddDay^misc_day^idDay^String^^^^^Entry" & DOUBLEDOLLAR
+        sDefn = sDefn & "AddDay^misc_day^sDayDesc^String^^^^^Entry" & DOUBLEDOLLAR
+        sDefn = sDefn & "AddDay^misc_day^cdDay^String^^^^^Entry" & DOUBLEDOLLAR
+        ' button: Add lesson ---------------------------------------------------------------
+        sDefn = sDefn & "AddLesson^^COMMIT^^^AddLesson^^^Button"
+    Else
+        err.Raise ErrorMsgType.INVALID_DEFN_TYPE, Description:="[DefnType=" & EnumDefnType(eDefnType) & "]"
+    End If
+    
+    vSource = Init2DStringArrayFromString(sDefn)
+
+    Set rTarget = RangeFromStrArray(vSource, wsTmp, 0, 1)
+    CreateNamedRange wbTmp, rTarget.Address, sSheetName, "Definitions", "True"
+    Set Form_Utils.dDefinitions = LoadDefinitions(wsTmp, rSource:=rTarget)
+
+cleanup:
+    FuncLogIt sFuncName, "Loaded [num defns=" & CStr(UBound(Split(sDefn, DOUBLEDOLLAR))) & "] [sSheetName=" & sSheetName & "]", C_MODULE_NAME, LogMsgType.DEBUGGING2
+    FuncLogIt sFuncName, "", C_MODULE_NAME, LogMsgType.OUTFUNC, lLastTick:=lStartTick
+    Exit Sub
+        
+err:
+    FuncLogIt sFuncName, "[" & err.Description & "]  raised", C_MODULE_NAME, LogMsgType.Error
+    err.Raise err.Number, err.Source, err.Description ' cannot recover from this
+
+End Sub
+
 Public Function GetCacheTableName(sRangeName As String) As String
 '<<<
 'purpose:
@@ -152,17 +255,17 @@ err:
 
 End Function
 
-Public Sub DoLoadDefinitions(Optional clsQuadRuntime As App_Runtime)
+Public Sub DoLoadDefinitions(Optional clsAppRuntime As App_Runtime)
 Dim rSource As Range
 Dim wsTmp As Worksheet
 Dim wbTmp As Workbook
 
-    If IsSet(clsQuadRuntime) = True Then
-        Set wbTmp = clsQuadRuntime.TemplateBook
-        Set wsTmp = wbTmp.Sheets(clsQuadRuntime.DefinitionSheetName)
+    If IsSet(clsAppRuntime) = True Then
+        Set wbTmp = clsAppRuntime.TemplateBook
+        Set wsTmp = wbTmp.Sheets(clsAppRuntime.DefinitionSheetName)
     Else
         Set wbTmp = ActiveWorkbook
-        Set wsTmp = wbTmp.Sheets(clsQuadRuntime.DefinitionSheetName)
+        Set wsTmp = wbTmp.Sheets(clsAppRuntime.DefinitionSheetName)
     End If
     
     Set rSource = wsTmp.Range("Definitions")

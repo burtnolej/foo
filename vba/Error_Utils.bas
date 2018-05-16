@@ -15,4 +15,7 @@ Enum ErrorMsgType
     CACHE_TABLE_NAME_CANNOT_BE_BLANK = 605
     FIELD_NAME_CANNOT_BE_BLANK = 605
     
+    ' Definitions
+    INVALID_DEFN_TYPE = 700
+    
 End Enum

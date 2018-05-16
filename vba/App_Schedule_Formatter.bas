@@ -1,11 +1,11 @@
 Attribute VB_Name = "App_Schedule_Formatter"
 Function FmtRowLabel(ByVal sValue As String) As String
-Dim clsQuadRuntime As New App_Runtime
+Dim clsAppRuntime As New App_Runtime
 Dim sPeriodStart As String, sPeriodEnd As String
-    clsQuadRuntime.InitProperties bInitializeCache:=False
-    sPeriodStart = CrossRefQuadData(clsQuadRuntime, QuadDataType.misc, QuadSubDataType.TimePeriod, _
+    clsAppRuntime.InitProperties bInitializeCache:=False
+    sPeriodStart = CrossRefQuadData(clsAppRuntime, QuadDataType.misc, QuadSubDataType.TimePeriod, _
                 "idTimePeriod", sValue, "dtPeriodStart")
-    sPeriodEnd = CrossRefQuadData(clsQuadRuntime, QuadDataType.misc, QuadSubDataType.TimePeriod, _
+    sPeriodEnd = CrossRefQuadData(clsAppRuntime, QuadDataType.misc, QuadSubDataType.TimePeriod, _
                 "idTimePeriod", sValue, "dtPeriodEnd")
                 
     FmtRowLabel = sPeriodStart & "-" & sPeriodEnd

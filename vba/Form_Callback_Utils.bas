@@ -11,7 +11,7 @@ Function GetCallerModuleCode() As String
                 "End Sub"
 End Function
         
-Function GetEntryCallbackCode(clsQuadRuntime As App_Runtime, sAction As String, sTargetBookName As String, _
+Function GetEntryCallbackCode(clsAppRuntime As App_Runtime, sAction As String, sTargetBookName As String, _
         Optional eWidgetType As WidgetType = WidgetType.Entry) As String
 Dim sFuncName As String
 Dim lStartTick As Long
@@ -26,16 +26,16 @@ main:
             "dim sSourceSheetName as string" & vbNewLine & _
             "dim sSheetName as string" & vbNewLine & _
             "sSheetName=" & DOUBLEQUOTE & sAction & DOUBLEQUOTE & vbNewLine & _
-            "set wbSource= Workbooks(" & DOUBLEQUOTE & clsQuadRuntime.TemplateBookName & DOUBLEQUOTE & ")" & vbNewLine & _
+            "set wbSource= Workbooks(" & DOUBLEQUOTE & clsAppRuntime.TemplateBookName & DOUBLEQUOTE & ")" & vbNewLine & _
             "set wbTarget= Workbooks(" & DOUBLEQUOTE & sTargetBookName & DOUBLEQUOTE & ")" & vbNewLine & _
-            "sSourceSheetName = " & DOUBLEQUOTE & clsQuadRuntime.TemplateWidgetSheetName & DOUBLEQUOTE & vbNewLine & _
-            "Application.Run " & DOUBLEQUOTE & clsQuadRuntime.MainBookName & "!Validate" & DOUBLEQUOTE & ",wbTarget,sSheetName, Target" & vbNewLine
+            "sSourceSheetName = " & DOUBLEQUOTE & clsAppRuntime.TemplateWidgetSheetName & DOUBLEQUOTE & vbNewLine & _
+            "Application.Run " & DOUBLEQUOTE & clsAppRuntime.MainBookName & "!Validate" & DOUBLEQUOTE & ",wbTarget,sSheetName, Target" & vbNewLine
             
-           '"Application.Run " & DOUBLEQUOTE & clsQuadRuntime.TemplateBook.name & "!Validate" & DOUBLEQUOTE & ",wbTarget,sSheetName, Target" & vbNewLine
+           '"Application.Run " & DOUBLEQUOTE & clsAppRuntime.TemplateBook.name & "!Validate" & DOUBLEQUOTE & ",wbTarget,sSheetName, Target" & vbNewLine
             
             
     If eWidgetType = WidgetType.Entry Then
-        GetEntryCallbackCode = GetEntryCallbackCode & "Application.Run " & DOUBLEQUOTE & clsQuadRuntime.TemplateBook.name & "!IsRecordValid" & DOUBLEQUOTE & ",wbSource,wbTarget,sSheetName,sSourceSheetName" & vbNewLine
+        GetEntryCallbackCode = GetEntryCallbackCode & "Application.Run " & DOUBLEQUOTE & clsAppRuntime.TemplateBook.name & "!IsRecordValid" & DOUBLEQUOTE & ",wbSource,wbTarget,sSheetName,sSourceSheetName" & vbNewLine
     End If
     
     GetEntryCallbackCode = GetEntryCallbackCode & "End Sub"
@@ -45,7 +45,7 @@ cleanup:
     FuncLogIt sFuncName, "", C_MODULE_NAME, LogMsgType.OUTFUNC, lLastTick:=lStartTick
 
 End Function
-Function GenerateCallbackCode(clsQuadRuntime As App_Runtime, vButtons() As String, sActionName As String, _
+Function GenerateCallbackCode(clsAppRuntime As App_Runtime, vButtons() As String, sActionName As String, _
                 Optional sCurrentCode As String, _
                 Optional wbTmp As Workbook) As String
 Dim i As Integer, iRow As Integer, iColumn As Integer
@@ -61,7 +61,7 @@ Dim rButton As Range
         Set dDetail = dDefinitions.Item(vButtons(i))
         sCallback = dDetail.Item("validation_args")(0)
         Set rButton = wbTmp.Sheets(sActionName).Range(vButtons(i))
-        sCallbackCode = sCallbackCode & GetButtonCallbackCode(clsQuadRuntime, rButton.Column, rButton.Row, sCallback) & vbNewLine
+        sCallbackCode = sCallbackCode & GetButtonCallbackCode(clsAppRuntime, rButton.Column, rButton.Row, sCallback) & vbNewLine
     Next i
     
     GenerateCallbackCode = sCurrentCode & vbNewLine & _
@@ -70,11 +70,11 @@ Dim rButton As Range
         "End Sub"
 
 End Function
-Function GetButtonCallbackCode(clsQuadRuntime As App_Runtime, _
+Function GetButtonCallbackCode(clsAppRuntime As App_Runtime, _
     iButtonCol As Integer, iButtonRow As Integer, sCallbackFunc As String) As String
     GetButtonCallbackCode = _
                     "If Target.Column = " & CStr(iButtonCol) & " And Target.Row = " & CStr(iButtonRow) & " Then" & vbNewLine & _
-                    "Application.Run " & DOUBLEQUOTE & clsQuadRuntime.MainBookName & "!" & sCallbackFunc & DOUBLEQUOTE & vbNewLine & _
+                    "Application.Run " & DOUBLEQUOTE & clsAppRuntime.MainBookName & "!" & sCallbackFunc & DOUBLEQUOTE & vbNewLine & _
                     "End If" & vbNewLine
 End Function
 

@@ -112,28 +112,28 @@ End Sub
 Sub rxgal_Click(control As IRibbonControl, id As String, index As Integer)
 Dim vLabelNames As Variant
 Dim vStudentIDs As Variant
-Dim clsQuadRuntime As New App_Runtime
+Dim clsAppRuntime As New App_Runtime
 Dim sTemplateRowRangeName As String, sSheetName As String, sTemplateColRangeName As String
 Dim iFormatWidth As Integer, iFormatHeight As Integer
 Dim wsSchedule As Worksheet
     
-    clsQuadRuntime.InitProperties bInitializeCache:=False, sDefinitionSheetName:="Definitions"
-    vStudentIDs = GetColumnValues(clsQuadRuntime, QuadDataType.person, QuadSubDataType.Student, "idStudent")
+    clsAppRuntime.InitProperties bInitializeCache:=False, sDefinitionSheetName:="Definitions"
+    vStudentIDs = GetColumnValues(clsAppRuntime, QuadDataType.person, QuadSubDataType.Student, "idStudent")
 
     sSheetName = "view_" & EnumQuadSubDataType(QuadSubDataType.Student) & "_" & CStr(CInt(vStudentIDs(index)))
-    If SheetExists(clsQuadRuntime.ScheduleBook, sSheetName) = False Then
-        Set wsSchedule = CreateSheet(clsQuadRuntime.ScheduleBook, sSheetName)
+    If SheetExists(clsAppRuntime.ScheduleBook, sSheetName) = False Then
+        Set wsSchedule = CreateSheet(clsAppRuntime.ScheduleBook, sSheetName)
     End If
     
     sTemplateRowRangeName = "f" & "student" & "ScheduleRowLabel"
-    GetScheduleWidgetFormat clsQuadRuntime, iFormatWidth, iFormatHeight, sTemplateRowRangeName
-    BuildScheduleHeaderView clsQuadRuntime, wsSchedule, clsQuadRuntime.PeriodEnum, iFormatWidth, iFormatHeight
+    GetScheduleWidgetFormat clsAppRuntime, iFormatWidth, iFormatHeight, sTemplateRowRangeName
+    BuildScheduleHeaderView clsAppRuntime, wsSchedule, clsAppRuntime.PeriodEnum, iFormatWidth, iFormatHeight
 
     sTemplateColRangeName = "f" & "student" & "ScheduleColLabel"
-    GetScheduleWidgetFormat clsQuadRuntime, iFormatWidth, iFormatHeight, sTemplateColRangeName
-    BuildScheduleHeaderView clsQuadRuntime, wsSchedule, clsQuadRuntime.DayEnum, iFormatWidth, iFormatHeight, iStartCol:=4, iStartRow:=2, bVz:=False
+    GetScheduleWidgetFormat clsAppRuntime, iFormatWidth, iFormatHeight, sTemplateColRangeName
+    BuildScheduleHeaderView clsAppRuntime, wsSchedule, clsAppRuntime.DayEnum, iFormatWidth, iFormatHeight, iStartCol:=4, iStartRow:=2, bVz:=False
     
-    BuildSchedule clsQuadRuntime, _
+    BuildSchedule clsAppRuntime, _
                     eQuadSubDataType:=QuadSubDataType.Student, _
                     iPersonID:=CInt(vStudentIDs(index))
 
@@ -146,7 +146,7 @@ Dim rSource As Range
 Dim sFuncName As String
 Dim vControls() As Variant
 Dim aControlIDSplit() As String
-Dim clsQuadRuntime As App_Runtime
+Dim clsAppRuntime As App_Runtime
 
 setup:
     sFuncName = "OnAction"
@@ -162,15 +162,15 @@ setup:
         If UBound(aControlIDSplit) <> 2 Then
             FuncLogIt sFuncName, "SchedBut ID is incorrectly formed [" & control.id & "] needs to have 3 parts delimed by _", C_MODULE_NAME, LogMsgType.Error
         Else
-            Set clsQuadRuntime = GetQuadRuntimeGlobal(bInitFlag:=True)
-            BuildSchedule clsQuadRuntime, _
+            Set clsAppRuntime = GetAppRuntimeGlobal(bInitFlag:=True)
+            BuildSchedule clsAppRuntime, _
                             eQuadSubDataType:=GetQuadSubDataTypeEnumFromValue(aControlIDSplit(1)), _
                             iPersonID:=CInt(aControlIDSplit(2))
         End If
              
     ElseIf control.id = "GenerateEntryForm" Then
-        Set clsQuadRuntime = GetQuadRuntimeGlobal(bInitFlag:=True)
-        GenerateForms clsQuadRuntime
+        Set clsAppRuntime = GetAppRuntimeGlobal(bInitFlag:=True)
+        GenerateForms clsAppRuntime
     ElseIf control.id = "DeleteEntryForm" Then
         DeleteForms
     ElseIf control.id = "Student" Then
@@ -329,21 +329,21 @@ End Sub
 
 Sub rxgal_getItemCount(control As IRibbonControl, ByRef returnedVal)
 Dim vLabelNames As Variant
-Dim clsQuadRuntime As New App_Runtime
-    clsQuadRuntime.InitProperties bInitializeCache:=True
-    vLabelNames = GetColumnValues(clsQuadRuntime, QuadDataType.person, QuadSubDataType.Student, "sStudentLastNm")
+Dim clsAppRuntime As New App_Runtime
+    clsAppRuntime.InitProperties bInitializeCache:=True
+    vLabelNames = GetColumnValues(clsAppRuntime, QuadDataType.person, QuadSubDataType.Student, "sStudentLastNm")
     returnedVal = UBound(vLabelNames) + 1
 End Sub
 
 Sub rxgal_getItemLabel(control As IRibbonControl, index As Integer, ByRef returnedVal)
 Dim vLabelFirstNames As Variant, vLabelLastNames As Variant
-Dim clsQuadRuntime As New App_Runtime
+Dim clsAppRuntime As New App_Runtime
 
     If index = 0 Then index = 1
     
-    clsQuadRuntime.InitProperties bInitializeCache:=False
-    vLabelFirstNames = GetColumnValues(clsQuadRuntime, QuadDataType.person, QuadSubDataType.Student, "sStudentFirstNm")
-    vLabelLastNames = GetColumnValues(clsQuadRuntime, QuadDataType.person, QuadSubDataType.Student, "sStudentLastNm")
+    clsAppRuntime.InitProperties bInitializeCache:=False
+    vLabelFirstNames = GetColumnValues(clsAppRuntime, QuadDataType.person, QuadSubDataType.Student, "sStudentFirstNm")
+    vLabelLastNames = GetColumnValues(clsAppRuntime, QuadDataType.person, QuadSubDataType.Student, "sStudentLastNm")
     
     'is this correct at last index ?
     returnedVal = vLabelFirstNames(index) & SPACE & vLabelLastNames(index)
@@ -356,12 +356,12 @@ Dim sImagePath As String
 Dim vFiles() As String
 Dim vExtensions() As String
 Dim vPrepIDs As Variant
-Dim clsQuadRuntime As New App_Runtime
+Dim clsAppRuntime As New App_Runtime
 
     If index = 0 Then index = 1
     
-    clsQuadRuntime.InitProperties bInitializeCache:=False
-    vPrepIDs = GetColumnValues(clsQuadRuntime, QuadDataType.person, QuadSubDataType.Student, "idPrep")
+    clsAppRuntime.InitProperties bInitializeCache:=False
+    vPrepIDs = GetColumnValues(clsAppRuntime, QuadDataType.person, QuadSubDataType.Student, "idPrep")
     
     vExtensions = InitStringArray(Array("png", "jpg"))
     sImagePath = Environ("MYHOME") & "\Pictures\icons\"

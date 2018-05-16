@@ -7,10 +7,10 @@ Const C_MODULE_NAME = "App_Person"
 Const cTeacherLookUpCol = "idFaculty"
 Const cStudentLookUpCol = "idStudent"
 
-Public Sub GeneratePersonView(clsQuadRuntime As App_Runtime)
+Public Sub GeneratePersonView(clsAppRuntime As App_Runtime)
 '<<<
 'purpose: Create a view type form showing a person (student or teacher)
-'param  : clsQuadRuntime,App_Runtime; all config controlling names of books, sheets, ranges for
+'param  : clsAppRuntime,App_Runtime; all config controlling names of books, sheets, ranges for
 '       :                 also contains any variables that need to be passed continually
 'rtype  :
 '>>>
@@ -27,7 +27,7 @@ setup:
     sFuncName = C_MODULE_NAME & "." & "GeneratePersonView"
     lStartTick = FuncLogIt(sFuncName, "", C_MODULE_NAME, LogMsgType.INFUNC)
     sSheetName = "test"
-    Set wsTmp = CreateSheet(clsQuadRuntime.TemplateBook, sSheetName, bOverwrite:=True)
+    Set wsTmp = CreateSheet(clsAppRuntime.TemplateBook, sSheetName, bOverwrite:=True)
 
     sDefn = "ViewStudent^person_student^sStudentFirstNm^String^IsMember^&get_person_student^sStudentFirstNm^&UpdateViewStudentForm^Selector" & DOUBLEDOLLAR
     sDefn = sDefn & "ViewStudent^person_student^sStudentFirstNm^^^^^^Text" & DOUBLEDOLLAR
@@ -42,11 +42,11 @@ setup:
     vSource = Init2DStringArrayFromString(sDefn)
 
     Set rTarget = RangeFromStrArray(vSource, wsTmp, 0, 1)
-    CreateNamedRange clsQuadRuntime.TemplateBook, rTarget.Address, sSheetName, "Definitions", "True"
+    CreateNamedRange clsAppRuntime.TemplateBook, rTarget.Address, sSheetName, "Definitions", "True"
     Set Form_Utils.dDefinitions = LoadDefinitions(wsTmp, rSource:=rTarget)
 
 main:
-    GenerateForms clsQuadRuntime, bLoadRefData:=True
+    GenerateForms clsAppRuntime, bLoadRefData:=True
 
 cleanup:
     FuncLogIt sFuncName, "", C_MODULE_NAME, LogMsgType.OUTFUNC, lLastTick:=lStartTick
@@ -54,13 +54,13 @@ cleanup:
 End Sub
 
 
-Public Function IsValidPersonID(clsQuadRuntime As App_Runtime, _
+Public Function IsValidPersonID(clsAppRuntime As App_Runtime, _
                                 iPersonID As Integer, _
                                 eQuadSubDataType As QuadSubDataType) As Boolean
 '<<<
 ' purpose: tests if the given person ID exists; retreives data to perform the test
 '        : currently uses the non table mechanism for storing data and looking up
-' param  : clsQuadRuntime, App_Runtime; all config controlling names of books, sheets, ranges for
+' param  : clsAppRuntime, App_Runtime; all config controlling names of books, sheets, ranges for
 '        :                 also contains any variables that need to be passed continually
 ' param  : eQuadSubDataType, QuadSubDataType; what type of person are we querying
 ' param  : iPersonID, Integer; id to be checked
@@ -77,7 +77,7 @@ setup:
     On Error GoTo err
 
 main:
-    Set wsPersonDataCache = GetPersonData(clsQuadRuntime, QuadDataType.person, eQuadSubDataType, _
+    Set wsPersonDataCache = GetPersonData(clsAppRuntime, QuadDataType.person, eQuadSubDataType, _
                 eQuadScope:=QuadScope.all, bInTable:=True)
 
     If eQuadSubDataType = QuadSubDataType.teacher Then
@@ -86,8 +86,8 @@ main:
         sLookUpCol = cStudentLookUpCol
     End If
 
-    'clsQuadRuntime.InitProperties bInitializeCache:=False
-    vStudentIDs = GetColumnValues(clsQuadRuntime, QuadDataType.person, QuadSubDataType.Student, "idStudent")
+    'clsAppRuntime.InitProperties bInitializeCache:=False
+    vStudentIDs = GetColumnValues(clsAppRuntime, QuadDataType.person, QuadSubDataType.Student, "idStudent")
 
     If InArray(vStudentIDs, CStr(iPersonID)) Then
         IsValidPersonID = True
@@ -106,27 +106,27 @@ err:
     FuncLogIt sFuncName, "[iPersonID=" & iPersonID & "] [eQuadSubDataType=" & eQuadSubDataType & "]", C_MODULE_NAME, LogMsgType.Error
 
 End Function
-Public Function get_person_student(clsQuadRuntime As App_Runtime, _
+Public Function get_person_student(clsAppRuntime As App_Runtime, _
                       Optional bInTable As Boolean = True) As Worksheet
-    Set get_person_student = GetPersonData(clsQuadRuntime, QuadDataType.person, QuadSubDataType.Student, eQuadScope:=QuadScope.all, bInTable:=bInTable)
+    Set get_person_student = GetPersonData(clsAppRuntime, QuadDataType.person, QuadSubDataType.Student, eQuadScope:=QuadScope.all, bInTable:=bInTable)
 End Function
-Public Function get_person_teacher(clsQuadRuntime As App_Runtime, _
+Public Function get_person_teacher(clsAppRuntime As App_Runtime, _
                       Optional bInTable As Boolean = True) As Worksheet
-    Set get_person_teacher = GetPersonData(clsQuadRuntime, QuadDataType.person, QuadSubDataType.teacher, eQuadScope:=QuadScope.all, bInTable:=bInTable)
+    Set get_person_teacher = GetPersonData(clsAppRuntime, QuadDataType.person, QuadSubDataType.teacher, eQuadScope:=QuadScope.all, bInTable:=bInTable)
 End Function
                      
-'Public Function GetPersonData(clsQuadRuntime As App_Runtime, _
+'Public Function GetPersonData(clsAppRuntime As App_Runtime, _
 '                              eQuadSubDataType As QuadSubDataType, _
 '                     Optional eQuadScope As QuadScope = QuadScope.specified, _
 '                     Optional bInTable As Boolean = False) As Worksheet
-Public Function GetPersonData(clsQuadRuntime As App_Runtime, _
+Public Function GetPersonData(clsAppRuntime As App_Runtime, _
                               eQuadDataType As QuadDataType, _
                               eQuadSubDataType As QuadSubDataType, _
                      Optional eQuadScope As QuadScope = QuadScope.specified, _
                      Optional bInTable As Boolean = False) As Worksheet
 '<<<
 ' purpose: returns a worksheet containing the person data set, uses cached data if already there
-' param  : clsQuadRuntime, App_Runtime; all config controlling names of books, sheets, ranges for
+' param  : clsAppRuntime, App_Runtime; all config controlling names of books, sheets, ranges for
 '        :                 also contains any variables that need to be passed continually
 ' param  : eQuadSubDataType, QuadSubDataType; what type of person are we querying
 ' param  : eQuadScope, QuadScope; all persons or a specific individual
@@ -142,17 +142,17 @@ setup:
 main:
 
     On Error GoTo err
-    If IsDataCached(clsQuadRuntime, eQuadDataType, eQuadSubDataType) = False Then
-        GetPersonDataFromDB clsQuadRuntime, eQuadSubDataType, eQuadScope:=eQuadScope
-        aSchedule = ParseRawData(ReadFile(clsQuadRuntime.ResultFileName))
-        sCacheSheetName = CacheData(clsQuadRuntime, aSchedule, eQuadDataType, eQuadSubDataType, _
+    If IsDataCached(clsAppRuntime, eQuadDataType, eQuadSubDataType) = False Then
+        GetPersonDataFromDB clsAppRuntime, eQuadSubDataType, eQuadScope:=eQuadScope
+        aSchedule = ParseRawData(ReadFile(clsAppRuntime.ResultFileName))
+        sCacheSheetName = CacheData(clsAppRuntime, aSchedule, eQuadDataType, eQuadSubDataType, _
                                     bInTable:=bInTable)
     Else
-        sCacheSheetName = CacheData(clsQuadRuntime, aSchedule, eQuadDataType, eQuadSubDataType, bCacheNameOnly:=True, _
+        sCacheSheetName = CacheData(clsAppRuntime, aSchedule, eQuadDataType, eQuadSubDataType, bCacheNameOnly:=True, _
                                     bInTable:=bInTable)
     End If
     
-    Set GetPersonData = clsQuadRuntime.CacheBook.Sheets(sCacheSheetName)
+    Set GetPersonData = clsAppRuntime.CacheBook.Sheets(sCacheSheetName)
     
 cleanup:
     On Error GoTo 0
@@ -163,7 +163,7 @@ err:
 
 End Function
 
-Public Sub UpdatePersonDataInDB(clsQuadRuntime As App_Runtime, _
+Public Sub UpdatePersonDataInDB(clsAppRuntime As App_Runtime, _
                                eQuadSubDataType As QuadSubDataType, _
                                sFieldName As String, sFieldVal As Variant, _
                                sPredName As String, sPredVal As Variant)
@@ -172,11 +172,11 @@ Dim vRow() As Variant
 
     vRow = Array(sFieldName, sFieldVal, sPredName, sPredVal)
     sSpName = "update_basic_" & EnumQuadSubDataType(eQuadSubDataType) & "_info"
-    UpdateQuadDataInDB clsQuadRuntime, sSpName, bHeaderFlag:=True, vRow:=vRow
+    UpdateQuadDataInDB clsAppRuntime, sSpName, bHeaderFlag:=True, vRow:=vRow
                                
 End Sub
 
-Public Sub InsertPersonDataToDB(clsQuadRuntime As App_Runtime, _
+Public Sub InsertPersonDataToDB(clsAppRuntime As App_Runtime, _
                                eQuadSubDataType As QuadSubDataType, _
                                vRows() As Variant, _
                                vColumns() As Variant)
@@ -184,10 +184,10 @@ Public Sub InsertPersonDataToDB(clsQuadRuntime As App_Runtime, _
 Dim sSpName As String
 
     sSpName = "insert_basic_" & EnumQuadSubDataType(eQuadSubDataType) & "_info"
-    InsertQuadDataToDB clsQuadRuntime, sSpName, bHeaderFlag:=True, vRows:=vRows, vColumns:=vColumns
+    InsertQuadDataToDB clsAppRuntime, sSpName, bHeaderFlag:=True, vRows:=vRows, vColumns:=vColumns
                                
 End Sub
-Public Sub DeletePersonDataFromDB(clsQuadRuntime As App_Runtime, _
+Public Sub DeletePersonDataFromDB(clsAppRuntime As App_Runtime, _
                                eQuadSubDataType As QuadSubDataType, _
                                iPersonID As String)
 '<<<
@@ -198,21 +198,21 @@ Dim dSpArgs As New Dictionary
     sSpName = "delete_basic_" & EnumQuadSubDataType(eQuadSubDataType) & "_info"
     dSpArgs.Add EnumQuadSubDataType(eQuadSubDataType) & "s", InitVariantArray(Array(iPersonID))
 
-    GetQuadDataFromDB clsQuadRuntime, sSpName, bHeaderFlag:=True, dSpArgs:=dSpArgs
+    GetQuadDataFromDB clsAppRuntime, sSpName, bHeaderFlag:=True, dSpArgs:=dSpArgs
 
 End Sub
-Public Sub GetPersonDataFromDB(clsQuadRuntime As App_Runtime, _
+Public Sub GetPersonDataFromDB(clsAppRuntime As App_Runtime, _
                                eQuadSubDataType As QuadSubDataType, _
                       Optional eQuadScope = QuadScope.specified, _
                       Optional iPersonID As String)
 '<<<
 ' purpose: go to the database to get person data
-' param  : clsQuadRuntime, App_Runtime; all config controlling names of books, sheets, ranges for
+' param  : clsAppRuntime, App_Runtime; all config controlling names of books, sheets, ranges for
 '        :                 also contains any variables that need to be passed continually
 ' param  : eQuadSubDataType, QuadSubDataType; what type of person are we querying
 ' param  : eQuadScope, QuadScope; all persons or a specific individual
 ' param  : iPersonID (optional), Integer; id of the specific individual we want to get data for
-' returns: data is store in clsQuadRuntime.ResultFileName to be read / parsed by called
+' returns: data is store in clsAppRuntime.ResultFileName to be read / parsed by called
 '>>>
 Dim sDatabasePath As String, sSpName As String, sResults As String
 Dim dSpArgs As New Dictionary
@@ -225,7 +225,7 @@ Dim dSpArgs As New Dictionary
         dSpArgs.Add EnumQuadSubDataType(eQuadSubDataType) & "s", InitVariantArray(Array(iPersonID))
     End If
 
-    GetQuadDataFromDB clsQuadRuntime, sSpName, bHeaderFlag:=True, dSpArgs:=dSpArgs
+    GetQuadDataFromDB clsAppRuntime, sSpName, bHeaderFlag:=True, dSpArgs:=dSpArgs
 
 End Sub
 

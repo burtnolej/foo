@@ -2,16 +2,16 @@ Attribute VB_Name = "Test_Misc_Utils"
 Const C_MODULE_NAME = "Test_Misc_Utils"
 
 
-Function Test_IsQuadRuntime() As TestResult
+Function Test_IsAppRuntime() As TestResult
 Dim sFuncName As String
 Dim eTestResult As TestResult
-Dim clsQuadRuntime As New App_Runtime
+Dim clsAppRuntime As New App_Runtime
 
 setup:
     sFuncName = C_MODULE_NAME & ".MyVarTypeEnum"
     
 main:
-    If IsQuadRuntime(clsQuadRuntime) = False Then
+    If IsAppRuntime(clsAppRuntime) = False Then
         eTestResult = TestResult.Failure
         GoTo teardown
     End If
@@ -23,19 +23,19 @@ err:
     eTestResult = TestResult.Error
     
 teardown:
-    Test_IsQuadRuntime = eTestResult
+    Test_IsAppRuntime = eTestResult
     
 End Function
-Function Test_IsQuadRuntime_False() As TestResult
+Function Test_IsAppRuntime_False() As TestResult
 Dim sFuncName As String
 Dim eTestResult As TestResult
-Dim clsQuadRuntime As New RGBColor
+Dim clsAppRuntime As New RGBColor
 
 setup:
     sFuncName = C_MODULE_NAME & ".MyVarTypeEnum"
     
 main:
-    If IsQuadRuntime(clsQuadRuntime) = True Then
+    If IsAppRuntime(clsAppRuntime) = True Then
         eTestResult = TestResult.Failure
         GoTo teardown
     End If
@@ -47,7 +47,7 @@ err:
     eTestResult = TestResult.Error
     
 teardown:
-    Test_IsQuadRuntime_False = eTestResult
+    Test_IsAppRuntime_False = eTestResult
     
 End Function
 
@@ -129,16 +129,16 @@ teardown:
     
 End Function
 
-Function Test_MyVarTypeEnumQuadRuntime() As TestResult
+Function Test_MyVarTypeEnumAppRuntime() As TestResult
 Dim sFuncName As String
 Dim eTestResult As TestResult
 Dim dTmp As New App_Runtime
 
 setup:
-    sFuncName = C_MODULE_NAME & ".MyVarTypeEnumQuadRuntime"
+    sFuncName = C_MODULE_NAME & ".MyVarTypeEnumAppRuntime"
     
 main:
-    If EnumVarType(MyVarType(dTmp)) <> "vbQuadRuntime" Then
+    If EnumVarType(MyVarType(dTmp)) <> "vbAppRuntime" Then
         eTestResult = TestResult.Failure
     Else
         eTestResult = TestResult.OK
@@ -150,7 +150,7 @@ err:
     eTestResult = TestResult.Error
     
 teardown:
-    Test_MyVarTypeEnumQuadRuntime = eTestResult
+    Test_MyVarTypeEnumAppRuntime = eTestResult
     
     
 End Function

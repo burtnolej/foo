@@ -23,7 +23,7 @@ End Function
 
 Public dDefinitions As Dictionary
 
-Public Sub GenerateForms(clsQuadRuntime As App_Runtime, _
+Public Sub GenerateForms(clsAppRuntime As App_Runtime, _
                      Optional bLoadRefData As Boolean = False, _
                      Optional sOverideButtonCallback As String, _
                      Optional sFormName As String, _
@@ -36,7 +36,7 @@ Public Sub GenerateForms(clsQuadRuntime As App_Runtime, _
 '       : add buttons, that can be used to submit completed records
 '       : cache reference data for use in validations when user enters data
 '       :
-'param  : clsQuadRuntime, App_Runtime; all config controlling names of books, sheets, ranges for
+'param  : clsAppRuntime, App_Runtime; all config controlling names of books, sheets, ranges for
 '       :                 also contains any variables that need to be passed continually
 'param  : bLoadRefData, Boolean; when true will force loading of ref data from db
 '>>>
@@ -82,9 +82,9 @@ main:
         For Each vFormType In Split(C_FORM_TYPE, COMMA)
             If CStr(sAction) Like vFormType & ASTERISK Then
                 If vFormType = "ViewList" Then
-                    Set wbTarget = CallByName(clsQuadRuntime, "ViewBook", VbGet)
+                    Set wbTarget = CallByName(clsAppRuntime, "ViewBook", VbGet)
                 Else
-                    Set wbTarget = CallByName(clsQuadRuntime, vFormType & "Book", VbGet)
+                    Set wbTarget = CallByName(clsAppRuntime, vFormType & "Book", VbGet)
                 End If
                 sFormType = CStr(vFormType)
                 
@@ -103,23 +103,23 @@ main:
         For i = 1 To UBound(Split(C_WIDGET_TYPE, COMMA)) + 1
             eWidgetType = i
 
-            sCode = GetEntryCallbackCode(clsQuadRuntime, CStr(sAction), wbTarget.name, eWidgetType:=eWidgetType)
-            sTemplateSheetName = FormatForm(clsQuadRuntime, CStr(sAction), sFormType:=sFormType)
+            sCode = GetEntryCallbackCode(clsAppRuntime, CStr(sAction), wbTarget.name, eWidgetType:=eWidgetType)
+            sTemplateSheetName = FormatForm(clsAppRuntime, CStr(sAction), sFormType:=sFormType)
             
             If eWidgetType = WidgetType.ListText Then
-                GenerateWidgets clsQuadRuntime, CStr(sAction), wbTmp:=wbTarget, vValues:=vValues, eWidgetType:=eWidgetType, sFormType:=sFormType, sTemplateSheetName:=sTemplateSheetName
+                GenerateWidgets clsAppRuntime, CStr(sAction), wbTmp:=wbTarget, vValues:=vValues, eWidgetType:=eWidgetType, sFormType:=sFormType, sTemplateSheetName:=sTemplateSheetName
             ElseIf eWidgetType = WidgetType.Text Then
-                GenerateWidgets clsQuadRuntime, CStr(sAction), wbTmp:=wbTarget, dDefaultValues:=dDefaultValues, eWidgetType:=eWidgetType, sFormType:=sFormType, sTemplateSheetName:=sTemplateSheetName
+                GenerateWidgets clsAppRuntime, CStr(sAction), wbTmp:=wbTarget, dDefaultValues:=dDefaultValues, eWidgetType:=eWidgetType, sFormType:=sFormType, sTemplateSheetName:=sTemplateSheetName
             ElseIf eWidgetType = WidgetType.Button Then
-                vGenerated = GenerateWidgets(clsQuadRuntime, CStr(sAction), wbTmp:=wbTarget, dDefaultValues:=dDefaultValues, eWidgetType:=eWidgetType, sFormType:=sFormType, sTemplateSheetName:=sTemplateSheetName)
+                vGenerated = GenerateWidgets(clsAppRuntime, CStr(sAction), wbTmp:=wbTarget, dDefaultValues:=dDefaultValues, eWidgetType:=eWidgetType, sFormType:=sFormType, sTemplateSheetName:=sTemplateSheetName)
                 If IsEmptyArray(vGenerated) = False Then
-                    sCode = GenerateCallbackCode(clsQuadRuntime, vGenerated, CStr(sAction), sCurrentCode:=sCode, wbTmp:=wbTarget)
+                    sCode = GenerateCallbackCode(clsAppRuntime, vGenerated, CStr(sAction), sCurrentCode:=sCode, wbTmp:=wbTarget)
                 End If
                 AddCode2Module wbTarget, wsTmp.CodeName, sCode
             ElseIf eWidgetType = WidgetType.Selector Then
-                GenerateWidgets clsQuadRuntime, CStr(sAction), wbTmp:=wbTarget, dDefaultValues:=dDefaultValues, eWidgetType:=eWidgetType, sFormType:=sFormType, sTemplateSheetName:=sTemplateSheetName
+                GenerateWidgets clsAppRuntime, CStr(sAction), wbTmp:=wbTarget, dDefaultValues:=dDefaultValues, eWidgetType:=eWidgetType, sFormType:=sFormType, sTemplateSheetName:=sTemplateSheetName
             ElseIf eWidgetType = WidgetType.Entry Then
-                GenerateWidgets clsQuadRuntime, CStr(sAction), wbTmp:=wbTarget, dDefaultValues:=dDefaultValues, sTemplateSheetName:=sTemplateSheetName
+                GenerateWidgets clsAppRuntime, CStr(sAction), wbTmp:=wbTarget, dDefaultValues:=dDefaultValues, sTemplateSheetName:=sTemplateSheetName
             End If
             
             If eWidgetType = WidgetType.Button Or eWidgetType = WidgetType.Entry Then
@@ -148,7 +148,7 @@ Public Sub UpdateViewStudentForm(ParamArray args())
 'param  :
 'rtype  :
 '>>>
-Dim clsQuadRuntime As App_Runtime
+Dim clsAppRuntime As App_Runtime
 Dim lStartTick As Long
 Dim eWidgetType As WidgetType
 Dim eFormType As FormType
@@ -159,7 +159,7 @@ setup:
     lStartTick = FuncLogIt(sFuncName, "", C_MODULE_NAME, LogMsgType.INFUNC)
     
 main:
-    Set clsQuadRuntime = args(0)
+    Set clsAppRuntime = args(0)
     sValue = args(1)
     sLookUpIdRangeName = args(2)
     
@@ -170,7 +170,7 @@ main:
     'its an update view function
     eFormType = FormType.View
     
-    UpdateForm clsQuadRuntime, sValue, sLookUpIdRangeName, sSubDataType, eWidgetType, eFormType
+    UpdateForm clsAppRuntime, sValue, sLookUpIdRangeName, sSubDataType, eWidgetType, eFormType
 
 cleanup:
     FuncLogIt sFuncName, "[sValue=" & sValue & "] [sLookUpIdRangeName=" & sLookUpIdRangeName & "]", C_MODULE_NAME, LogMsgType.DEBUGGING
@@ -220,7 +220,7 @@ Public Sub UpdateForm(ParamArray args())
 'rtype  :
 '>>>
 Dim sCacheTableName As String, sValue As String, sLookUpIdRangeName As String, sRecordID As String, sFieldName As String, sFuncName As String, sLookUpFieldName As String
-Dim clsQuadRuntime As App_Runtime
+Dim clsAppRuntime As App_Runtime
 Dim sKey As Variant
 Dim rTarget As Range
 Dim lStartTick As Long
@@ -234,14 +234,14 @@ setup:
     lStartTick = FuncLogIt(sFuncName, "", C_MODULE_NAME, LogMsgType.INFUNC)
     
 main:
-    Set clsQuadRuntime = args(0)
+    Set clsAppRuntime = args(0)
     sValue = args(1) ' i.e Bruno - if the LookupID is sStudentFirstNm
     sLookUpIdRangeName = args(2) ' i.e. ViewStudent!sViewStudent_sStudentFirstNm - if the form is a ViewStudent form
     sSubDataType = args(3) ' i.e. Student
     eWidgetType = args(4) ' i.e. 3  for Text
     eFormType = args(5) ' i.e. 3 for View
     
-    clsQuadRuntime.InitProperties bInitializeCache:=False
+    clsAppRuntime.InitProperties bInitializeCache:=False
 
     sFormName = GetFormName(eFormType, sSubDataType)
     
@@ -253,18 +253,18 @@ main:
     'to look up the record gets the record key/id field name from the range name passed in
     sRecordID = GetTableRecordID(sValue, sLookUpFieldName)
     
-    Set dValues = GetTableRecord(sCacheTableName, CInt(sRecordID) - 1, wbTmp:=clsQuadRuntime.CacheBook)
+    Set dValues = GetTableRecord(sCacheTableName, CInt(sRecordID) - 1, wbTmp:=clsAppRuntime.CacheBook)
     
     For Each sKey In dDefinitions.Keys
         If IsWidgetRangeNameForView(CStr(sKey), sFormName, eWidgetType) = True Then
             sFieldName = GetFieldName(CStr(sKey))
-            Set rTarget = clsQuadRuntime.ViewBook.Sheets(sFormName).Range(sKey)
+            Set rTarget = clsAppRuntime.ViewBook.Sheets(sFormName).Range(sKey)
             rTarget.value = dValues.Item(sFieldName)
         End If
     Next sKey
     
     EventsToggle True
-    clsQuadRuntime.ViewBook.Activate
+    clsAppRuntime.ViewBook.Activate
 
 cleanup:
     FuncLogIt sFuncName, "[sCacheTableName=" & sCacheTableName & "] [sValue=" & sValue & "] [sLookUpIdRangeName=" & sLookUpIdRangeName & "] [sFormName=" & sFormName & "] [eWidgetType=" & EnumWidgetType(eWidgetType) & "]", C_MODULE_NAME, LogMsgType.DEBUGGING
@@ -326,7 +326,7 @@ Dim dActions As Dictionary
     Next sAction
     
 End Sub
-Public Function FormatForm(clsQuadRuntime As App_Runtime, _
+Public Function FormatForm(clsAppRuntime As App_Runtime, _
                            sTargetSheetName As String, _
                   Optional sFormType As String = "Add", _
                   Optional iFirstCol As Integer = 1, _
@@ -347,13 +347,13 @@ setup:
 main:
     sFormFormatRangeName = "f" & sFormType
     If sFormType = "ViewList" Then
-        Set wbTarget = CallByName(clsQuadRuntime, "ViewBook", VbGet)
+        Set wbTarget = CallByName(clsAppRuntime, "ViewBook", VbGet)
     Else
-        Set wbTarget = CallByName(clsQuadRuntime, sFormType & "Book", VbGet)
+        Set wbTarget = CallByName(clsAppRuntime, sFormType & "Book", VbGet)
     End If
     
     Set wsForm = wbTarget.Sheets(sTargetSheetName)
-    Set rFormFormatRange = clsQuadRuntime.TemplateBook.Names(sFormFormatRangeName).RefersToRange
+    Set rFormFormatRange = clsAppRuntime.TemplateBook.Names(sFormFormatRangeName).RefersToRange
     Set wsFormFormat = rFormFormatRange.Worksheet
     
     rFormFormatRange.Copy
@@ -370,9 +370,9 @@ main:
                                                                                Transpose:=False
     End With
 
-    'FormatColRowSize clsQuadRuntime.TemplateBook, wbTarget, _
-    '        wsForm.name, clsQuadRuntime.TemplateSheetName, sFormFormatRangeName
-    FormatColRowSize clsQuadRuntime.TemplateBook, wbTarget, _
+    'FormatColRowSize clsAppRuntime.TemplateBook, wbTarget, _
+    '        wsForm.name, clsAppRuntime.TemplateSheetName, sFormFormatRangeName
+    FormatColRowSize clsAppRuntime.TemplateBook, wbTarget, _
             wsForm.name, wsFormFormat.name, sFormFormatRangeName
             
 cleanup:

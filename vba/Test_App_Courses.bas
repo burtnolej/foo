@@ -7,18 +7,18 @@ Const C_MODULE_NAME = "Test_App_Courses"
 
 Public Function Test_GetCoursesSubject() As TestResult
 Dim eTestResult As TestResult
-Dim clsQuadRuntime As New App_Runtime
+Dim clsAppRuntime As New App_Runtime
 Dim wsCache As Worksheet
 Dim sFuncName As String, sSheetName As String, sDefn As String
 Dim vSource() As String
 Dim rTarget As Range
 
 setup:
-    ResetQuadRuntimeGlobal
+    ResetAppRuntimeGlobal
     sFuncName = C_MODULE_NAME & "." & "Test_GetCoursesSubject"
     sSheetName = "test"
-    clsQuadRuntime.InitProperties bInitializeCache:=True, sDefinitionSheetName:=sSheetName
-    Set wsCache = CreateSheet(clsQuadRuntime.Book, sSheetName, bOverwrite:=True)
+    clsAppRuntime.InitProperties bInitializeCache:=True, sDefinitionSheetName:=sSheetName
+    Set wsCache = CreateSheet(clsAppRuntime.Book, sSheetName, bOverwrite:=True)
 
     ' table: new subject ---------------------------------------------------------------
     sDefn = "AddSubject^courses_subject^Name^String^^^^^Entry" & DOUBLEDOLLAR
@@ -27,11 +27,11 @@ setup:
     vSource = Init2DStringArrayFromString(sDefn)
 
     Set rTarget = RangeFromStrArray(vSource, wsCache, 0, 1)
-    CreateNamedRange clsQuadRuntime.Book, rTarget.Address, sSheetName, "Definitions", "True"
+    CreateNamedRange clsAppRuntime.Book, rTarget.Address, sSheetName, "Definitions", "True"
     Set Form_Utils.dDefinitions = LoadDefinitions(wsCache, rSource:=rTarget)
     
 main:
-    Set wsCache = get_courses_subject(clsQuadRuntime)
+    Set wsCache = get_courses_subject(clsAppRuntime)
     If wsCache.Range("dbcourses_subjectName").Rows(17) <> "Specials" Then
         eTestResult = TestResult.Failure
         GoTo teardown
@@ -44,25 +44,25 @@ err:
     
 teardown:
     Test_GetCoursesSubject = eTestResult
-    DeleteSheet clsQuadRuntime.CacheBook, "courses_subject"
-    clsQuadRuntime.Delete
+    DeleteSheet clsAppRuntime.CacheBook, "courses_subject"
+    clsAppRuntime.Delete
 
 End Function
 
 Public Function Test_GetCoursesCourse() As TestResult
 Dim eTestResult As TestResult
-Dim clsQuadRuntime As New App_Runtime
+Dim clsAppRuntime As New App_Runtime
 Dim wsCache As Worksheet
 Dim sFuncName As String, sSheetName As String, sDefn As String
 Dim vSource() As String
 Dim rTarget As Range
 
 setup:
-    ResetQuadRuntimeGlobal
+    ResetAppRuntimeGlobal
     sFuncName = C_MODULE_NAME & "." & "GetCourseCourse"
     sSheetName = "test"
-    clsQuadRuntime.InitProperties bInitializeCache:=True, sDefinitionSheetName:=sSheetName
-    Set wsCache = CreateSheet(clsQuadRuntime.Book, sSheetName, bOverwrite:=True)
+    clsAppRuntime.InitProperties bInitializeCache:=True, sDefinitionSheetName:=sSheetName
+    Set wsCache = CreateSheet(clsAppRuntime.Book, sSheetName, bOverwrite:=True)
 
     ' table: new course ---------------------------------------------------------------
     sDefn = "AddCourse^courses_course^Name^String^^^^^Entry" & DOUBLEDOLLAR
@@ -72,11 +72,11 @@ setup:
     vSource = Init2DStringArrayFromString(sDefn)
 
     Set rTarget = RangeFromStrArray(vSource, wsCache, 0, 1)
-    CreateNamedRange clsQuadRuntime.Book, rTarget.Address, sSheetName, "Definitions", "True"
+    CreateNamedRange clsAppRuntime.Book, rTarget.Address, sSheetName, "Definitions", "True"
     Set Form_Utils.dDefinitions = LoadDefinitions(wsCache, rSource:=rTarget)
     
 main:
-    Set wsCache = get_courses_course(clsQuadRuntime)
+    Set wsCache = get_courses_course(clsAppRuntime)
     If wsCache.Range("dbcourses_courseName").Rows(13) <> "Physics" Then
         eTestResult = TestResult.Failure
         GoTo teardown
@@ -89,25 +89,25 @@ err:
     
 teardown:
     Test_GetCoursesCourse = eTestResult
-    DeleteSheet clsQuadRuntime.CacheBook, "courses_course"
-    clsQuadRuntime.Delete
+    DeleteSheet clsAppRuntime.CacheBook, "courses_course"
+    clsAppRuntime.Delete
 
 End Function
 
 Public Function Test_GetMiscTimePeriod() As TestResult
 Dim eTestResult As TestResult
-Dim clsQuadRuntime As New App_Runtime
+Dim clsAppRuntime As New App_Runtime
 Dim wsCache As Worksheet
 Dim sFuncName As String, sSheetName As String, sDefn As String
 Dim vSource() As String
 Dim rTarget As Range
 
 setup:
-    ResetQuadRuntimeGlobal
+    ResetAppRuntimeGlobal
     sFuncName = C_MODULE_NAME & "." & "GetMiscTimePeriod"
     sSheetName = "test"
-    clsQuadRuntime.InitProperties bInitializeCache:=True, sDefinitionSheetName:=sSheetName
-    Set wsCache = CreateSheet(clsQuadRuntime.Book, sSheetName, bOverwrite:=True)
+    clsAppRuntime.InitProperties bInitializeCache:=True, sDefinitionSheetName:=sSheetName
+    Set wsCache = CreateSheet(clsAppRuntime.Book, sSheetName, bOverwrite:=True)
 
     ' table: Add timeperiod ---------------------------------------------------------------
     sDefn = "AddTimePeriod^misc_timeperiod^ID^String^^^^^Entry" & DOUBLEDOLLAR
@@ -117,11 +117,11 @@ setup:
     vSource = Init2DStringArrayFromString(sDefn)
 
     Set rTarget = RangeFromStrArray(vSource, wsCache, 0, 1)
-    CreateNamedRange clsQuadRuntime.Book, rTarget.Address, sSheetName, "Definitions", "True"
+    CreateNamedRange clsAppRuntime.Book, rTarget.Address, sSheetName, "Definitions", "True"
     Set Form_Utils.dDefinitions = LoadDefinitions(wsCache, rSource:=rTarget)
     
 main:
-    Set wsCache = get_misc_timeperiod(clsQuadRuntime)
+    Set wsCache = get_misc_timeperiod(clsAppRuntime)
     If Format(wsCache.Range("dbmisc_timeperiodPeriodStart").Rows(7), "h:mm") <> "11:36" Then
         eTestResult = TestResult.Failure
         GoTo teardown
@@ -134,25 +134,25 @@ err:
     
 teardown:
     Test_GetMiscTimePeriod = eTestResult
-    DeleteSheet clsQuadRuntime.CacheBook, "misc_timeperiod"
-    clsQuadRuntime.Delete
+    DeleteSheet clsAppRuntime.CacheBook, "misc_timeperiod"
+    clsAppRuntime.Delete
 
 End Function
 
 Public Function Test_GetMiscPrep() As TestResult
 Dim eTestResult As TestResult
-Dim clsQuadRuntime As New App_Runtime
+Dim clsAppRuntime As New App_Runtime
 Dim wsCache As Worksheet
 Dim sFuncName As String, sSheetName As String, sDefn As String
 Dim vSource() As String
 Dim rTarget As Range
 
 setup:
-    ResetQuadRuntimeGlobal
+    ResetAppRuntimeGlobal
     sFuncName = C_MODULE_NAME & "." & "GetMiscPrep"
     sSheetName = "test"
-    clsQuadRuntime.InitProperties bInitializeCache:=True, sDefinitionSheetName:=sSheetName
-    Set wsCache = CreateSheet(clsQuadRuntime.Book, sSheetName, bOverwrite:=True)
+    clsAppRuntime.InitProperties bInitializeCache:=True, sDefinitionSheetName:=sSheetName
+    Set wsCache = CreateSheet(clsAppRuntime.Book, sSheetName, bOverwrite:=True)
 
     ' table: Add prep ---------------------------------------------------------------
     sDefn = "AddPrep^misc_prep^ID^String^^^^^Entry" & DOUBLEDOLLAR
@@ -161,11 +161,11 @@ setup:
     vSource = Init2DStringArrayFromString(sDefn)
 
     Set rTarget = RangeFromStrArray(vSource, wsCache, 0, 1)
-    CreateNamedRange clsQuadRuntime.Book, rTarget.Address, sSheetName, "Definitions", "True"
+    CreateNamedRange clsAppRuntime.Book, rTarget.Address, sSheetName, "Definitions", "True"
     Set Form_Utils.dDefinitions = LoadDefinitions(wsCache, rSource:=rTarget)
     
 main:
-    Set wsCache = get_misc_prep(clsQuadRuntime)
+    Set wsCache = get_misc_prep(clsAppRuntime)
     If wsCache.Range("dbmisc_prepName").Rows(5) <> "Pulsar" Then
         eTestResult = TestResult.Failure
         GoTo teardown
@@ -178,25 +178,25 @@ err:
     
 teardown:
     Test_GetMiscPrep = eTestResult
-    DeleteSheet clsQuadRuntime.CacheBook, "misc_prep"
-    clsQuadRuntime.Delete
+    DeleteSheet clsAppRuntime.CacheBook, "misc_prep"
+    clsAppRuntime.Delete
 
 End Function
 
 Public Function Test_GetMiscDay() As TestResult
 Dim eTestResult As TestResult
-Dim clsQuadRuntime As New App_Runtime
+Dim clsAppRuntime As New App_Runtime
 Dim wsCache As Worksheet
 Dim sFuncName As String, sSheetName As String, sDefn As String
 Dim vSource() As String
 Dim rTarget As Range
 
 setup:
-    ResetQuadRuntimeGlobal
+    ResetAppRuntimeGlobal
     sFuncName = C_MODULE_NAME & "." & "GetDay"
     sSheetName = "test"
-    clsQuadRuntime.InitProperties bInitializeCache:=True, sDefinitionSheetName:=sSheetName
-    Set wsCache = CreateSheet(clsQuadRuntime.Book, sSheetName, bOverwrite:=True)
+    clsAppRuntime.InitProperties bInitializeCache:=True, sDefinitionSheetName:=sSheetName
+    Set wsCache = CreateSheet(clsAppRuntime.Book, sSheetName, bOverwrite:=True)
 
     ' table: Add day ---------------------------------------------------------------
     sDefn = "AddDay^misc_day^ID^String^^^^^Entry" & DOUBLEDOLLAR
@@ -206,11 +206,11 @@ setup:
     vSource = Init2DStringArrayFromString(sDefn)
 
     Set rTarget = RangeFromStrArray(vSource, wsCache, 0, 1)
-    CreateNamedRange clsQuadRuntime.Book, rTarget.Address, sSheetName, "Definitions", "True"
+    CreateNamedRange clsAppRuntime.Book, rTarget.Address, sSheetName, "Definitions", "True"
     Set Form_Utils.dDefinitions = LoadDefinitions(wsCache, rSource:=rTarget)
     
 main:
-    Set wsCache = get_misc_day(clsQuadRuntime)
+    Set wsCache = get_misc_day(clsAppRuntime)
     If wsCache.Range("dbmisc_dayLongDay").Rows(6) <> "Friday" Then
         eTestResult = TestResult.Failure
         GoTo teardown
@@ -223,7 +223,7 @@ err:
     
 teardown:
     Test_GetMiscDay = eTestResult
-    DeleteSheet clsQuadRuntime.CacheBook, "misc_day"
-    clsQuadRuntime.Delete
+    DeleteSheet clsAppRuntime.CacheBook, "misc_day"
+    clsAppRuntime.Delete
 
 End Function

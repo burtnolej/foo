@@ -34,7 +34,7 @@ Enum MyVbType
     vbVariantArray3Columns = 68
     vbVariantArray4Columns = 69
     
-    vbQuadRuntime = 100
+    vbAppRuntime = 100
 
     vbUserDefinedType = 36 'Variants that contain user-defined types
     vbArray = 8192  'Array
@@ -46,17 +46,17 @@ Public Sub EventsToggle(bStatus As Boolean)
     Application.ScreenUpdating = bStatus
 End Sub
 
-Function IsQuadRuntime(obj As Variant) As Boolean
+Function IsAppRuntime(obj As Variant) As Boolean
     On Error GoTo err
-    If obj.IsAQuadRuntime = True Then
-        IsQuadRuntime = True
+    If obj.IsAAppRuntime = True Then
+        IsAppRuntime = True
         Exit Function
     End If
     
     On Error GoTo 0
     Exit Function
 err:
-    IsQuadRuntime = False
+    IsAppRuntime = False
     
 End Function
 Function IsDict(dTmp As Variant) As Boolean
@@ -97,7 +97,7 @@ Dim iSubType As Integer
             If IsDict(vObject) Then
                 MyVarType = 24
                 Exit Function
-            ElseIf IsQuadRuntime(vObject) Then
+            ElseIf IsAppRuntime(vObject) Then
                 MyVarType = 100
                 Exit Function
             End If
@@ -138,7 +138,7 @@ Function EnumVarType(i As Long) As String
                             "", "", "", "", "vbByte", "", "", "", "vbLongLong", _
                             "vbDict", "vbIntArray", "vbStringArray", "vbVariantArray")(i)
     ElseIf i = 100 Then
-        EnumVarType = "vbQuadRuntime"
+        EnumVarType = "vbAppRuntime"
     Else
         err.Raise 102, Description:=" VarType enum [" & CStr(i) & "] is not recognised"
     End If

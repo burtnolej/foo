@@ -67,9 +67,9 @@ Private pNewBookPath As String
 Private pCurrentSheetSource As Variant
 Private pCurrentSheetColumns As Variant
 
-Private pQuadRuntimeCacheFile As Object
-Private pQuadRuntimeCacheFileName As String
-Private pQuadRuntimeCacheFileArray() As String
+Private pAppRuntimeCacheFile As Object
+Private pAppRuntimeCacheFileName As String
+Private pAppRuntimeCacheFileArray() As String
 
 Private pDefinitionSheetName As String
 
@@ -104,12 +104,11 @@ Private cDefinitionSheetName   As String
 Private cDatabasePath  As String
 Private cResultFileName  As String
 Private cFileName  As String
-Private cQuadRuntimeEnum  As String
+Private cAppRuntimeEnum  As String
 Private cDayEnum  As String
 Private cPeriodEnum  As String
-Private cQuadRuntimeCacheFileName  As String
+Private cAppRuntimeCacheFileName  As String
 Private cBookEnum As String
-
 
 Const C_DATA_FAMILY_TYPE = "Quad"
 Public dDefinitions As Dictionary
@@ -120,6 +119,8 @@ End Function
 Function GetDataFamilyTypeEnumFromValue(sValue As String) As Long
     GetDataFamilyTypeEnumFromValue = IndexArray(C_DATA_FAMILY_TYPE, sValue)
 End Function
+
+
 
 ' Data Family ----------------------------------
 Public Property Get DataFamily() As DataFamilyType
@@ -721,24 +722,24 @@ setup:
 main:
     
 End Property
-Public Property Get QuadRuntimeCacheFileName() As String
-    QuadRuntimeCacheFileName = pQuadRuntimeCacheFileName
+Public Property Get AppRuntimeCacheFileName() As String
+    AppRuntimeCacheFileName = pAppRuntimeCacheFileName
 End Property
-Public Property Let QuadRuntimeCacheFileName(value As String)
+Public Property Let AppRuntimeCacheFileName(value As String)
 Dim sCachedValue As String, sOrigValue As String, sConstValue As String, sTmpValue As String
 Dim sFuncName As String
 setup:
-    sFuncName = C_MODULE_NAME & "." & "QuadRuntimeCacheFileName"
-    sConstValue = cQuadRuntimeCacheFileName
+    sFuncName = C_MODULE_NAME & "." & "AppRuntimeCacheFileName"
+    sConstValue = cAppRuntimeCacheFileName
 main:
-    pQuadRuntimeCacheFileName = GetUpdatedValue(sFuncName, sConstValue, value)
+    pAppRuntimeCacheFileName = GetUpdatedValue(sFuncName, sConstValue, value)
     
 End Property
-Public Property Get QuadRuntimeCacheFile() As Object
-    Set QuadRuntimeCacheFile = pQuadRuntimeCacheFile
+Public Property Get AppRuntimeCacheFile() As Object
+    Set AppRuntimeCacheFile = pAppRuntimeCacheFile
 End Property
-Public Property Let QuadRuntimeCacheFile(value As Object)
-    Set pQuadRuntimeCacheFile = value
+Public Property Let AppRuntimeCacheFile(value As Object)
+    Set pAppRuntimeCacheFile = value
 End Property
 ' END Misc -------------------------------------------
 
@@ -829,17 +830,17 @@ Dim sCachedValue As String, sOrigValue As String
 End Function
 
 Function GetAttrEnum(sAttrName As String) As Integer
-    GetAttrEnum = IndexArray(Split(cQuadRuntimeEnum, COMMA), sAttrName)
+    GetAttrEnum = IndexArray(Split(cAppRuntimeEnum, COMMA), sAttrName)
     If GetAttrEnum = -1 Then
-        err.Raise ErrorMsgType.BAD_ENUM, Description:="value [" & sAttrName & "] is not a member of enum [cQuadRuntimeEnum]"
+        err.Raise ErrorMsgType.BAD_ENUM, Description:="value [" & sAttrName & "] is not a member of enum [cAppRuntimeEnum]"
     End If
 End Function
 
-Public Property Get QuadRuntimeCacheFileArray() As String()
-    QuadRuntimeCacheFileArray = pQuadRuntimeCacheFileArray
+Public Property Get AppRuntimeCacheFileArray() As String()
+    AppRuntimeCacheFileArray = pAppRuntimeCacheFileArray
 End Property
-Public Property Let QuadRuntimeCacheFileArray(value() As String)
-    pQuadRuntimeCacheFileArray = value
+Public Property Let AppRuntimeCacheFileArray(value() As String)
+    pAppRuntimeCacheFileArray = value
 End Property
 
 
@@ -853,18 +854,18 @@ Dim sCurrentValue As String
     End If
     
     iRow = GetAttrEnum(sFuncName)
-    vCurrentState = ReadFile2Array(Me.QuadRuntimeCacheFileName, bSingleCol:=True)
+    vCurrentState = ReadFile2Array(Me.AppRuntimeCacheFileName, bSingleCol:=True)
     sCurrentValue = vCurrentState(iRow)
     vCurrentState(iRow) = sValue
-    WriteArray2File vCurrentState, Me.QuadRuntimeCacheFileName
+    WriteArray2File vCurrentState, Me.AppRuntimeCacheFileName
 
-    FuncLogIt sFuncName & ".PersistOverride", "updated QuadRuntime persist file [" & Me.QuadRuntimeCacheFileName & "] for [" & sFuncName & "] from [" & sCurrentValue & "] to [" & sValue & "]", C_MODULE_NAME, LogMsgType.INFO
+    FuncLogIt sFuncName & ".PersistOverride", "updated AppRuntime persist file [" & Me.AppRuntimeCacheFileName & "] for [" & sFuncName & "] from [" & sCurrentValue & "] to [" & sValue & "]", C_MODULE_NAME, LogMsgType.INFO
 
 End Sub
 
 'write some tests for this
 'then put into each Letter
-'then create a rehydrate option for QuadRuntime
+'then create a rehydrate option for AppRuntime
 'then call rehydrate from validate
 Function RetreiveOverride(ByVal sFuncName As String) As String
 Dim iRow As Integer
@@ -874,7 +875,7 @@ Dim vResults() As String
         sFuncName = Split(sFuncName, PERIOD)(1)
     End If
     iRow = GetAttrEnum(sFuncName)
-    vResults = Me.QuadRuntimeCacheFileArray
+    vResults = Me.AppRuntimeCacheFileArray
     RetreiveOverride = vResults(iRow)
 End Function
 
@@ -884,21 +885,21 @@ Dim vResults() As String
 '       : initialize; each Let'er will use cached value if not explicitly overidden
     
     If bRecover = False Then
-        Me.QuadRuntimeCacheFile = InitFileArray(cQuadRuntimeCacheFileName, 50)
+        Me.AppRuntimeCacheFile = InitFileArray(cAppRuntimeCacheFileName, 50)
     End If
     
-    If FileExists(cQuadRuntimeCacheFileName) = False Then
-        Me.QuadRuntimeCacheFile = InitFileArray(cQuadRuntimeCacheFileName, 50)
+    If FileExists(cAppRuntimeCacheFileName) = False Then
+        Me.AppRuntimeCacheFile = InitFileArray(cAppRuntimeCacheFileName, 50)
     Else
-        'Me.QuadRuntimeCacheFile = OpenFile(cQuadRuntimeCacheFileName, 8)
+        'Me.AppRuntimeCacheFile = OpenFile(cAppRuntimeCacheFileName, 8)
     End If
 
-    vResults = ReadFile2Array(cQuadRuntimeCacheFileName, bSingleCol:=True)
-    Me.QuadRuntimeCacheFileArray = vResults
+    vResults = ReadFile2Array(cAppRuntimeCacheFileName, bSingleCol:=True)
+    Me.AppRuntimeCacheFileArray = vResults
 
 End Sub
-Public Function IsAQuadRuntime() As Boolean
-    IsAQuadRuntime = True
+Public Function IsAAppRuntime() As Boolean
+    IsAAppRuntime = True
 End Function
 
 Sub SetDefaults()
@@ -943,10 +944,10 @@ Sub SetDefaults()
     cDatabasePath = cAppDir & "app\quad\utils\excel\test_misc\QuadQA.db"
     cResultFileName = cRuntimeDir & "pyshell_results.txt"
     cFileName = cRuntimeDir & "uupyshell.args.txt"
-    cQuadRuntimeEnum = "BookPath,BookName,CacheBookName,CacheBookPath,CacheRangeName,TemplateBookPath,TemplateBookName,TemplateSheetName,TemplateWidgetSheetName,DatabasePath,ResultFileName,ExecPath,RuntimeDir,FileName,DayEnum,PeriodEnum,CurrentSheetSource,CurrentSheetColumns,QuadRuntimeCacheFileName,DefinitionSheetName,ScheduleBookPath,ScheduleBookName,AddBookPath,AddBookName,MenuBookPath,MenuBookName,ViewBookPath,ViewBookName,BookEnum,NewBookPath,DataFamily,MainBookPath,MainBookName,"
+    cAppRuntimeEnum = "BookPath,BookName,CacheBookName,CacheBookPath,CacheRangeName,TemplateBookPath,TemplateBookName,TemplateSheetName,TemplateWidgetSheetName,DatabasePath,ResultFileName,ExecPath,RuntimeDir,FileName,DayEnum,PeriodEnum,CurrentSheetSource,CurrentSheetColumns,AppRuntimeCacheFileName,DefinitionSheetName,ScheduleBookPath,ScheduleBookName,AddBookPath,AddBookName,MenuBookPath,MenuBookName,ViewBookPath,ViewBookName,BookEnum,NewBookPath,DataFamily,MainBookPath,MainBookName,"
     cDayEnum = "M,T,W,R,F"
     cPeriodEnum = "1,2,3,4,5,6,7,8,9,10,11"
-    cQuadRuntimeCacheFileName = cHomeDir & "\app_runtime_cache.txt"
+    cAppRuntimeCacheFileName = cHomeDir & "\app_runtime_cache.txt"
     cBookEnum = Join(Array(cCacheBookName, cScheduleBookName, cMenuBookName, cAddBookName, cViewBookName), COMMA)
     
 End Sub
@@ -1001,7 +1002,7 @@ Public Sub InitProperties( _
                  Optional sResultFileName As String, Optional sExecPath As String, Optional sRuntimeDir As String, _
                  Optional sFileName As String, Optional sDayEnum As String, Optional sPeriodEnum As String, _
                  Optional sBookEnum As String, _
-                 Optional sDefinitionSheetName As String, Optional sQuadRuntimeCacheFileName As String, _
+                 Optional sDefinitionSheetName As String, Optional sAppRuntimeCacheFileName As String, _
                  Optional bInitializeCache As Boolean = True, _
                  Optional bInitializeOveride As Boolean = True, _
                  Optional bHydrateFromCache As Boolean = False, _
@@ -1020,7 +1021,7 @@ main:
         Me.InitOveride
     End If
     
-    Me.QuadRuntimeCacheFileName = sQuadRuntimeCacheFileName
+    Me.AppRuntimeCacheFileName = sAppRuntimeCacheFileName
     
     Me.CacheBookPath = sCacheBookPath
     Me.CacheBookName = sCacheBookName
@@ -1087,7 +1088,7 @@ End Sub
 
 Public Sub CloseRuntimeCacheFile()
 Dim oFile As Object
-    Set oFile = Me.QuadRuntimeCacheFile
+    Set oFile = Me.AppRuntimeCacheFile
     On Error Resume Next
     oFile.Close
     On Error GoTo 0
@@ -1129,7 +1130,7 @@ Dim sBookName As String, sBookPath As String
 End Sub
 Public Sub Delete()
     Me.CloseRuntimeCacheFile
-    DeleteFile Me.QuadRuntimeCacheFileName
+    DeleteFile Me.AppRuntimeCacheFileName
     Me.CleanUpTmpBooks
 End Sub
 Public Sub OpenBooks()

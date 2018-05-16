@@ -11,14 +11,14 @@ Dim eTestResult As TestResult
 Dim rSource As Range
 Dim rTarget As Range
 Dim cRGB As RGBColor
-Dim clsQuadRuntime As New App_Runtime
+Dim clsAppRuntime As New App_Runtime
 
 setup:
-    clsQuadRuntime.InitProperties bInitializeCache:=True
+    clsAppRuntime.InitProperties bInitializeCache:=True
     
     sFuncName = C_MODULE_NAME & "." & "CopyFormat"
     sSheetName = "test"
-    Set wsTmp = CreateSheet(clsQuadRuntime.Book, sSheetName, bOverwrite:=True)
+    Set wsTmp = CreateSheet(clsAppRuntime.Book, sSheetName, bOverwrite:=True)
     
     With wsTmp
         Set rTarget = .Range(.Cells(1, 1), .Cells(1, 1))
@@ -28,8 +28,8 @@ setup:
     rTarget.name = "target"
     rSource.name = "source"
 
-    SetBgColor sSheetName, rSource, 255, 255, 0, wbTmp:=clsQuadRuntime.CacheBook
-    CopyFormat clsQuadRuntime.Book, clsQuadRuntime.Book, _
+    SetBgColor sSheetName, rSource, 255, 255, 0, wbTmp:=clsAppRuntime.CacheBook
+    CopyFormat clsAppRuntime.Book, clsAppRuntime.Book, _
             sSheetName, sSheetName, "source", "target"
             
 main:
@@ -50,7 +50,7 @@ err:
 teardown:
     Test_CopyFormat = eTestResult
     DeleteSheet ActiveWorkbook, sSheetName
-    clsQuadRuntime.Delete
+    clsAppRuntime.Delete
     
 End Function
 

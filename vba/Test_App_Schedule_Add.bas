@@ -28,7 +28,7 @@ End Function
 
 Function Test_AddAddScheduleAdd_Multiple() As TestResult
 Dim eTestResult As TestResult
-Dim clsQuadRuntime As New App_Runtime
+Dim clsAppRuntime As New App_Runtime
 Dim sFuncName As String, sSheetName As String, sTargetSheetName As String
 Dim rTarget As Range, rWidget As Range
 Dim dEntryValues As Dictionary, dRecordValues As Dictionary
@@ -36,35 +36,35 @@ Dim iStudentID As Integer
 Dim vEntryValues() As String
 
 setup:
-    ResetQuadRuntimeGlobal
+    ResetAppRuntimeGlobal
     sFuncName = C_MODULE_NAME & "." & "Test_AddAddScheduleAdd_Multiple"
     sSheetName = "test"
-    clsQuadRuntime.InitProperties bInitializeCache:=True, sDefinitionSheetName:=sSheetName
+    clsAppRuntime.InitProperties bInitializeCache:=True, sDefinitionSheetName:=sSheetName
     sTargetSheetName = "AddLesson"
     ReDim vEntryValues(0 To 8)
     
 main:
-    GenerateScheduleAdd clsQuadRuntime
+    GenerateScheduleAdd clsAppRuntime
     
     EventsToggle True
     Set Form_Utils.dDefinitions = Nothing
-    clsQuadRuntime.CloseRuntimeCacheFile
+    clsAppRuntime.CloseRuntimeCacheFile
     
-    With clsQuadRuntime.AddBook.Sheets(sTargetSheetName)
+    With clsAppRuntime.AddBook.Sheets(sTargetSheetName)
         vEntryValues = InitStringArray(Array("Bruno", "Raskin", "David", "Stone", "Art", "Art", "Luna", "4", "M"))
-        FillEntryValues vEntryValues, 2, 2, sTargetSheetName, 9, wbTmp:=clsQuadRuntime.AddBook
+        FillEntryValues vEntryValues, 2, 2, sTargetSheetName, 9, wbTmp:=clsAppRuntime.AddBook
     
-        IsRecordValid clsQuadRuntime.TemplateBook, clsQuadRuntime.AddBook, "AddLesson", clsQuadRuntime.TemplateWidgetSheetName
+        IsRecordValid clsAppRuntime.TemplateBook, clsAppRuntime.AddBook, "AddLesson", clsAppRuntime.TemplateWidgetSheetName
 
         Set rWidget = AddLesson()
         
         vEntryValues = InitStringArray(Array("Bruno", "Raskin", "David", "Stone", "Math", "Math", "Luna", "4", "T"))
-        FillEntryValues vEntryValues, 2, 2, sTargetSheetName, 9, wbTmp:=clsQuadRuntime.AddBook
+        FillEntryValues vEntryValues, 2, 2, sTargetSheetName, 9, wbTmp:=clsAppRuntime.AddBook
         
         Set rWidget = AddLesson()
         
         vEntryValues = InitStringArray(Array("Bruno", "Raskin", "David", "Stone", "History", "History", "Luna", "4", "W"))
-        FillEntryValues vEntryValues, 2, 2, sTargetSheetName, 9, wbTmp:=clsQuadRuntime.AddBook
+        FillEntryValues vEntryValues, 2, 2, sTargetSheetName, 9, wbTmp:=clsAppRuntime.AddBook
         
         Set rWidget = AddLesson()
         
@@ -78,7 +78,7 @@ main:
             GoTo teardown
         End If
         
-        Set dRecordValues = GetTableRecord("schedule_student", 1, wbTmp:=clsQuadRuntime.CacheBook)
+        Set dRecordValues = GetTableRecord("schedule_student", 1, wbTmp:=clsAppRuntime.CacheBook)
         
         If dRecordValues.Exists("sFacultyLastNm") = False Then
         eTestResult = TestResult.Failure
@@ -98,39 +98,39 @@ err:
     
 teardown:
     Test_AddAddScheduleAdd_Multiple = eTestResult
-    DeleteForms wbTmp:=clsQuadRuntime.AddBook
-    DeleteSheet clsQuadRuntime.Book, sSheetName
-    clsQuadRuntime.Delete
+    DeleteForms wbTmp:=clsAppRuntime.AddBook
+    DeleteSheet clsAppRuntime.Book, sSheetName
+    clsAppRuntime.Delete
     
 End Function
 Function Test_AddAddScheduleAddOverrideScheduleName() As TestResult
 Dim eTestResult As TestResult
-Dim clsQuadRuntime As New App_Runtime
+Dim clsAppRuntime As New App_Runtime
 Dim sFuncName As String, sSheetName As String, sTargetSheetName As String, sScheduleName As String, sSchedulePath As String
 Dim rTarget As Range, rWidget As Range
 Dim dEntryValues As Dictionary, dRecordValues As Dictionary
 Dim iStudentID As Integer
 
 setup:
-    ResetQuadRuntimeGlobal
+    ResetAppRuntimeGlobal
     sFuncName = C_MODULE_NAME & "." & "Test_AddAddScheduleAddOverrideScheduleName"
     sSheetName = "test"
-    clsQuadRuntime.InitProperties bInitializeCache:=True, sDefinitionSheetName:=sSheetName
+    clsAppRuntime.InitProperties bInitializeCache:=True, sDefinitionSheetName:=sSheetName
     sTargetSheetName = "AddLesson"
     
 main:
-    GenerateScheduleAdd clsQuadRuntime
+    GenerateScheduleAdd clsAppRuntime
     
     EventsToggle True
     Set Form_Utils.dDefinitions = Nothing
-    clsQuadRuntime.CloseRuntimeCacheFile
+    clsAppRuntime.CloseRuntimeCacheFile
 
-    With clsQuadRuntime.AddBook.Sheets(sTargetSheetName)
+    With clsAppRuntime.AddBook.Sheets(sTargetSheetName)
     
         ' SFirstName
         Set rTarget = .Range(.Cells(2, 2), .Cells(2, 2))
         rTarget = "Bruno"
-        Validate clsQuadRuntime.AddBook, sTargetSheetName, rTarget
+        Validate clsAppRuntime.AddBook, sTargetSheetName, rTarget
     
         If GetBgColor(sTargetSheetName, rTarget).AsString <> "0,255,0" Then
             eTestResult = TestResult.Failure
@@ -140,7 +140,7 @@ main:
         ' SLastName
         Set rTarget = .Range(.Cells(3, 2), .Cells(3, 2))
         rTarget = "Raskin"
-        Validate clsQuadRuntime.AddBook, sTargetSheetName, rTarget
+        Validate clsAppRuntime.AddBook, sTargetSheetName, rTarget
     
         If GetBgColor(sTargetSheetName, rTarget).AsString <> "0,255,0" Then
             eTestResult = TestResult.Failure
@@ -150,7 +150,7 @@ main:
         ' TFirstName
         Set rTarget = .Range(.Cells(4, 2), .Cells(4, 2))
         rTarget = "David"
-        Validate clsQuadRuntime.AddBook, sTargetSheetName, rTarget
+        Validate clsAppRuntime.AddBook, sTargetSheetName, rTarget
     
         If GetBgColor(sTargetSheetName, rTarget).AsString <> "0,255,0" Then
             eTestResult = TestResult.Failure
@@ -160,7 +160,7 @@ main:
         ' TLastName
         Set rTarget = .Range(.Cells(5, 2), .Cells(5, 2))
         rTarget = "Stone"
-        Validate clsQuadRuntime.AddBook, sTargetSheetName, rTarget
+        Validate clsAppRuntime.AddBook, sTargetSheetName, rTarget
     
         If GetBgColor(sTargetSheetName, rTarget).AsString <> "0,255,0" Then
             eTestResult = TestResult.Failure
@@ -170,7 +170,7 @@ main:
         ' CourseName
         Set rTarget = .Range(.Cells(6, 2), .Cells(6, 2))
         rTarget = "Art"
-        Validate clsQuadRuntime.AddBook, sTargetSheetName, rTarget
+        Validate clsAppRuntime.AddBook, sTargetSheetName, rTarget
     
         If GetBgColor(sTargetSheetName, rTarget).AsString <> "0,255,0" Then
             eTestResult = TestResult.Failure
@@ -180,7 +180,7 @@ main:
         ' SubjectName
         Set rTarget = .Range(.Cells(7, 2), .Cells(7, 2))
         rTarget = "Science"
-        Validate clsQuadRuntime.AddBook, sTargetSheetName, rTarget
+        Validate clsAppRuntime.AddBook, sTargetSheetName, rTarget
     
         If GetBgColor(sTargetSheetName, rTarget).AsString <> "0,255,0" Then
             eTestResult = TestResult.Failure
@@ -190,7 +190,7 @@ main:
         ' Prep
         Set rTarget = .Range(.Cells(8, 2), .Cells(8, 2))
         rTarget = "Luna"
-        Validate clsQuadRuntime.AddBook, sTargetSheetName, rTarget
+        Validate clsAppRuntime.AddBook, sTargetSheetName, rTarget
     
         If GetBgColor(sTargetSheetName, rTarget).AsString <> "0,255,0" Then
             eTestResult = TestResult.Failure
@@ -200,7 +200,7 @@ main:
         ' TimePeriod
         Set rTarget = .Range(.Cells(9, 2), .Cells(9, 2))
         rTarget = "4"
-        Validate clsQuadRuntime.AddBook, sTargetSheetName, rTarget
+        Validate clsAppRuntime.AddBook, sTargetSheetName, rTarget
     
         If GetBgColor(sTargetSheetName, rTarget).AsString <> "0,255,0" Then
             eTestResult = TestResult.Failure
@@ -210,18 +210,18 @@ main:
         ' Day
         Set rTarget = .Range(.Cells(10, 2), .Cells(10, 2))
         rTarget = "M"
-        Validate clsQuadRuntime.AddBook, sTargetSheetName, rTarget
+        Validate clsAppRuntime.AddBook, sTargetSheetName, rTarget
     
         If GetBgColor(sTargetSheetName, rTarget).AsString <> "0,255,0" Then
             eTestResult = TestResult.Failure
             GoTo teardown
         End If
         
-        IsRecordValid clsQuadRuntime.TemplateBook, clsQuadRuntime.AddBook, "AddLesson", clsQuadRuntime.TemplateWidgetSheetName
+        IsRecordValid clsAppRuntime.TemplateBook, clsAppRuntime.AddBook, "AddLesson", clsAppRuntime.TemplateWidgetSheetName
 
         Set rWidget = AddLesson()
         
-        If clsQuadRuntime.ScheduleBook.Sheets("view_student_13").Range("E16:E16").value <> "Art" Then
+        If clsAppRuntime.ScheduleBook.Sheets("view_student_13").Range("E16:E16").value <> "Art" Then
             eTestResult = TestResult.Failure
             GoTo teardown
         End If
@@ -236,7 +236,7 @@ main:
             GoTo teardown
         End If
         
-        Set dRecordValues = GetTableRecord("schedule_student", 1, wbTmp:=clsQuadRuntime.CacheBook)
+        Set dRecordValues = GetTableRecord("schedule_student", 1, wbTmp:=clsAppRuntime.CacheBook)
         
         If dRecordValues.Exists("sFacultyLastNm") = False Then
         eTestResult = TestResult.Failure
@@ -256,41 +256,41 @@ err:
     
 teardown:
     Test_AddAddScheduleAddOverrideScheduleName = eTestResult
-    DeleteForms wbTmp:=clsQuadRuntime.AddBook
-    DeleteSheet clsQuadRuntime.Book, sSheetName
-    clsQuadRuntime.Delete
+    DeleteForms wbTmp:=clsAppRuntime.AddBook
+    DeleteSheet clsAppRuntime.Book, sSheetName
+    clsAppRuntime.Delete
 End Function
 
 Function Test_AddAddScheduleAdd() As TestResult
 Dim eTestResult As TestResult
-Dim clsQuadRuntime As New App_Runtime
+Dim clsAppRuntime As New App_Runtime
 Dim sFuncName As String, sSheetName As String, sTargetSheetName As String
 Dim rTarget As Range, rWidget As Range
 Dim dEntryValues As Dictionary, dRecordValues As Dictionary
 Dim iStudentID As Integer
 
 setup:
-    ResetQuadRuntimeGlobal
+    ResetAppRuntimeGlobal
     sFuncName = C_MODULE_NAME & "." & "Test_AddAddScheduleAdd"
     sSheetName = "test"
-    clsQuadRuntime.InitProperties bInitializeCache:=True, sDefinitionSheetName:=sSheetName
+    clsAppRuntime.InitProperties bInitializeCache:=True, sDefinitionSheetName:=sSheetName
     sTargetSheetName = "AddLesson"
     
 main:
-    GenerateScheduleAdd clsQuadRuntime
+    GenerateScheduleAdd clsAppRuntime
     
     EventsToggle True
     Set Form_Utils.dDefinitions = Nothing
-    clsQuadRuntime.CloseRuntimeCacheFile
+    clsAppRuntime.CloseRuntimeCacheFile
     
     'need to test that the extra row has been added
     
-    With clsQuadRuntime.AddBook.Sheets(sTargetSheetName)
+    With clsAppRuntime.AddBook.Sheets(sTargetSheetName)
     
         ' SFirstName
         Set rTarget = .Range(.Cells(2, 2), .Cells(2, 2))
         rTarget = "Bruno"
-        Validate clsQuadRuntime.AddBook, sTargetSheetName, rTarget
+        Validate clsAppRuntime.AddBook, sTargetSheetName, rTarget
     
         If GetBgColor(sTargetSheetName, rTarget).AsString <> "0,255,0" Then
             eTestResult = TestResult.Failure
@@ -300,7 +300,7 @@ main:
         ' SLastName
         Set rTarget = .Range(.Cells(3, 2), .Cells(3, 2))
         rTarget = "Raskin"
-        Validate clsQuadRuntime.AddBook, sTargetSheetName, rTarget
+        Validate clsAppRuntime.AddBook, sTargetSheetName, rTarget
     
         If GetBgColor(sTargetSheetName, rTarget).AsString <> "0,255,0" Then
             eTestResult = TestResult.Failure
@@ -310,7 +310,7 @@ main:
         ' TFirstName
         Set rTarget = .Range(.Cells(4, 2), .Cells(4, 2))
         rTarget = "David"
-        Validate clsQuadRuntime.AddBook, sTargetSheetName, rTarget
+        Validate clsAppRuntime.AddBook, sTargetSheetName, rTarget
     
         If GetBgColor(sTargetSheetName, rTarget).AsString <> "0,255,0" Then
             eTestResult = TestResult.Failure
@@ -320,7 +320,7 @@ main:
         ' TLastName
         Set rTarget = .Range(.Cells(5, 2), .Cells(5, 2))
         rTarget = "Stone"
-        Validate clsQuadRuntime.AddBook, sTargetSheetName, rTarget
+        Validate clsAppRuntime.AddBook, sTargetSheetName, rTarget
     
         If GetBgColor(sTargetSheetName, rTarget).AsString <> "0,255,0" Then
             eTestResult = TestResult.Failure
@@ -330,7 +330,7 @@ main:
         ' CourseName
         Set rTarget = .Range(.Cells(6, 2), .Cells(6, 2))
         rTarget = "Art"
-        Validate clsQuadRuntime.AddBook, sTargetSheetName, rTarget
+        Validate clsAppRuntime.AddBook, sTargetSheetName, rTarget
     
         If GetBgColor(sTargetSheetName, rTarget).AsString <> "0,255,0" Then
             eTestResult = TestResult.Failure
@@ -340,7 +340,7 @@ main:
         ' SubjectName
         Set rTarget = .Range(.Cells(7, 2), .Cells(7, 2))
         rTarget = "Science"
-        Validate clsQuadRuntime.AddBook, sTargetSheetName, rTarget
+        Validate clsAppRuntime.AddBook, sTargetSheetName, rTarget
     
         If GetBgColor(sTargetSheetName, rTarget).AsString <> "0,255,0" Then
             eTestResult = TestResult.Failure
@@ -350,7 +350,7 @@ main:
         ' Prep
         Set rTarget = .Range(.Cells(8, 2), .Cells(8, 2))
         rTarget = "Luna"
-        Validate clsQuadRuntime.AddBook, sTargetSheetName, rTarget
+        Validate clsAppRuntime.AddBook, sTargetSheetName, rTarget
     
         If GetBgColor(sTargetSheetName, rTarget).AsString <> "0,255,0" Then
             eTestResult = TestResult.Failure
@@ -360,7 +360,7 @@ main:
         ' TimePeriod
         Set rTarget = .Range(.Cells(9, 2), .Cells(9, 2))
         rTarget = "4"
-        Validate clsQuadRuntime.AddBook, sTargetSheetName, rTarget
+        Validate clsAppRuntime.AddBook, sTargetSheetName, rTarget
     
         If GetBgColor(sTargetSheetName, rTarget).AsString <> "0,255,0" Then
             eTestResult = TestResult.Failure
@@ -370,14 +370,14 @@ main:
         ' Day
         Set rTarget = .Range(.Cells(10, 2), .Cells(10, 2))
         rTarget = "M"
-        Validate clsQuadRuntime.AddBook, sTargetSheetName, rTarget
+        Validate clsAppRuntime.AddBook, sTargetSheetName, rTarget
     
         If GetBgColor(sTargetSheetName, rTarget).AsString <> "0,255,0" Then
             eTestResult = TestResult.Failure
             GoTo teardown
         End If
         
-        IsRecordValid clsQuadRuntime.TemplateBook, clsQuadRuntime.AddBook, "AddLesson", clsQuadRuntime.TemplateWidgetSheetName
+        IsRecordValid clsAppRuntime.TemplateBook, clsAppRuntime.AddBook, "AddLesson", clsAppRuntime.TemplateWidgetSheetName
 
         Set rWidget = AddLesson()
         
@@ -391,7 +391,7 @@ main:
             GoTo teardown
         End If
         
-        Set dRecordValues = GetTableRecord("schedule_student", 1, wbTmp:=clsQuadRuntime.CacheBook)
+        Set dRecordValues = GetTableRecord("schedule_student", 1, wbTmp:=clsAppRuntime.CacheBook)
         
         If dRecordValues.Exists("sFacultyLastNm") = False Then
         eTestResult = TestResult.Failure
@@ -411,9 +411,9 @@ err:
     
 teardown:
     Test_AddAddScheduleAdd = eTestResult
-    DeleteForms wbTmp:=clsQuadRuntime.AddBook
-    DeleteSheet clsQuadRuntime.Book, sSheetName
-    clsQuadRuntime.Delete
+    DeleteForms wbTmp:=clsAppRuntime.AddBook
+    DeleteSheet clsAppRuntime.Book, sSheetName
+    clsAppRuntime.Delete
     
 End Function
 Sub test()
@@ -421,14 +421,14 @@ Sub test()
 End Sub
 Function Test_EditLesson() As TestResult
 Dim eTestResult As TestResult
-Dim clsQuadRuntime As New App_Runtime
+Dim clsAppRuntime As New App_Runtime
 Dim sFuncName As String, sSheetName As String, sTargetSheetName As String
 Dim dRecordValues As Dictionary
 
 setup:
-    ResetQuadRuntimeGlobal
+    ResetAppRuntimeGlobal
     sFuncName = C_MODULE_NAME & "." & "EditLesson"
-    clsQuadRuntime.InitProperties bInitializeCache:=True
+    clsAppRuntime.InitProperties bInitializeCache:=True
     
 main:
     ' force using "Definitions" not "test"
@@ -437,7 +437,7 @@ main:
 
     EditLesson 70, "M", 1
 
-    If clsQuadRuntime.AddBook.Sheets("AddLesson").Range("eAddLesson_sFacultyFirstNm").value = "Isaac" Then
+    If clsAppRuntime.AddBook.Sheets("AddLesson").Range("eAddLesson_sFacultyFirstNm").value = "Isaac" Then
         eTestResult = TestResult.OK
         GoTo teardown
     Else
@@ -449,7 +449,7 @@ err:
 
 teardown:
     Test_EditLesson = eTestResult
-    DeleteSheet clsQuadRuntime.Book, sSheetName
-    clsQuadRuntime.Delete
+    DeleteSheet clsAppRuntime.Book, sSheetName
+    clsAppRuntime.Delete
     
 End Function

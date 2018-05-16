@@ -83,13 +83,13 @@ Dim iWidth As Integer, iHeight As Integer, iSizeCount As Integer
     GetWidgetSizes = aSizes
 End Function
 
-Public Function GetWidgetColWidthsORig(clsQuadRuntime As App_Runtime, sScheduleFormatRangeName As String, _
+Public Function GetWidgetColWidthsORig(clsAppRuntime As App_Runtime, sScheduleFormatRangeName As String, _
                                          iColWidthCount As Integer) As Integer()
 Dim aColumnWidths() As Integer
 Dim rWidget As Range
 
     ReDim aColumnWidths(0 To 20)
-    With clsQuadRuntime.TemplateSheet
+    With clsAppRuntime.TemplateSheet
         .Activate
         For Each rWidget In Selection.Rows(1).Cells
             aColumnWidths(iColWidthCount) = rWidget.EntireColumn.ColumnWidth
@@ -116,7 +116,7 @@ End Sub
 
 'add format EntryWidget here to copy formats for entry Widgets
 
-'Public Function GetScheduleWidgetColWidths(clsQuadRuntime As App_Runtime, sScheduleFormatRangeName As String, _
+'Public Function GetScheduleWidgetColWidths(clsAppRuntime As App_Runtime, sScheduleFormatRangeName As String, _
 '                                         iColWidthCount As Integer) As Integer()
 ' get the column widths from the template and return in an integer array
 'param: sScheduleFormatRangeName, string, named range that contains the specific format (fStudentScheduleWidget
@@ -226,7 +226,7 @@ err:
     err.Raise err.Number, err.Source, err.Description ' cannot recover from this
     
 End Function
-Public Function GenerateWidgets(clsQuadRuntime As App_Runtime, _
+Public Function GenerateWidgets(clsAppRuntime As App_Runtime, _
                               sAction As String, _
                      Optional dDefaultValues As Dictionary, _
                      Optional vValues As Variant, _
@@ -237,7 +237,7 @@ Public Function GenerateWidgets(clsQuadRuntime As App_Runtime, _
 '<<<
 'purpose: given a set of definitions (taken from the global variable dDefinitions, generate
 '       : all the entry widgets (labels, entry , view etc)
-'param  : clsQuadRuntime, App_Runtime; all config controlling names of books, sheets, ranges for
+'param  : clsAppRuntime, App_Runtime; all config controlling names of books, sheets, ranges for
 '       :                 also contains any variables that need to be passed continually
 'param  : sAction, String; user action that entrys need to be generated for (like NewLesson)
 'param  : dDefaultValues (Optional), Dictionary; name/value pairs of fieldname and value
@@ -268,19 +268,19 @@ setup:
     End If
         
     If sFormType = "ViewList" Then
-        Set wbTarget = CallByName(clsQuadRuntime, "ViewBook", VbGet)
+        Set wbTarget = CallByName(clsAppRuntime, "ViewBook", VbGet)
     Else
-        Set wbTarget = CallByName(clsQuadRuntime, sFormType & "Book", VbGet)
+        Set wbTarget = CallByName(clsAppRuntime, sFormType & "Book", VbGet)
     End If
     
 main:
     ' get location opf entry screens
-    'vDefinedAddNamesRanges = GetSheetNamedRanges(clsQuadRuntime.TemplateBook, sTemplateSheetName, "f" & sFormType & EnumWidgetType(eWidgetType))
-    vDefinedAddNamesRanges = GetWidgetLocationRanges(clsQuadRuntime.TemplateBook, sFormType, eWidgetType)
+    'vDefinedAddNamesRanges = GetSheetNamedRanges(clsAppRuntime.TemplateBook, sTemplateSheetName, "f" & sFormType & EnumWidgetType(eWidgetType))
+    vDefinedAddNamesRanges = GetWidgetLocationRanges(clsAppRuntime.TemplateBook, sFormType, eWidgetType)
     
     ' get location of parent format
-    'With clsQuadRuntime.TemplateSheet.Range("f" & sFormType)
-    With clsQuadRuntime.TemplateBook.Names("f" & sFormType).RefersToRange
+    'With clsAppRuntime.TemplateSheet.Range("f" & sFormType)
+    With clsAppRuntime.TemplateBook.Names("f" & sFormType).RefersToRange
         iParentRowOffset = .Rows(1).Row - 1
         iParentColOffset = .Columns(1).Column - 1
     End With
@@ -313,7 +313,7 @@ main:
                 GoTo nextdefn
             End If
             
-            Set rFormat = clsQuadRuntime.TemplateBook.Sheets(sTemplateSheetName).Range(vDefinedAddNamesRanges(iWidgetCount))
+            Set rFormat = clsAppRuntime.TemplateBook.Sheets(sTemplateSheetName).Range(vDefinedAddNamesRanges(iWidgetCount))
             
             iRow = rFormat.Row - iParentRowOffset
             iCol = rFormat.Column - iParentColOffset
@@ -326,15 +326,15 @@ main:
             
             If sWidgetTypeSuffix = "e" Then
                 Set rWidget = GenerateEntryWidget(CStr(sKey), iRow, iCol, sAction, sSheetName, wbTmp:=wbTmp)
-                FormatWidget clsQuadRuntime.TemplateBook, wbTarget, CStr(sAction), rWidget, WidgetState.Invalid, sSourceSheetName:=clsQuadRuntime.TemplateWidgetSheetName, eWidgetType:=WidgetType.Entry
+                FormatWidget clsAppRuntime.TemplateBook, wbTarget, CStr(sAction), rWidget, WidgetState.Invalid, sSourceSheetName:=clsAppRuntime.TemplateWidgetSheetName, eWidgetType:=WidgetType.Entry
                 dDefinitions.Item(sKey).Add "address", rWidget.Address
                 UpdateDefaultValues CStr(sKey), dDefaultValues, sAction, rWidget
             ElseIf sWidgetTypeSuffix = "s" Then
-                GenerateSelector clsQuadRuntime.TemplateBook, wbTarget, sAction, iRow, iCol, WidgetState.Invalid, clsQuadRuntime.TemplateWidgetSheetName, CStr(sKey)
+                GenerateSelector clsAppRuntime.TemplateBook, wbTarget, sAction, iRow, iCol, WidgetState.Invalid, clsAppRuntime.TemplateWidgetSheetName, CStr(sKey)
             ElseIf sWidgetTypeSuffix = "b" Then
-                GenerateButton clsQuadRuntime.TemplateBook, wbTarget, sAction, iRow, iCol, WidgetState.Invalid, clsQuadRuntime.TemplateWidgetSheetName, CStr(sKey)
+                GenerateButton clsAppRuntime.TemplateBook, wbTarget, sAction, iRow, iCol, WidgetState.Invalid, clsAppRuntime.TemplateWidgetSheetName, CStr(sKey)
             ElseIf sWidgetTypeSuffix = "t" Then
-                Set rWidget = GenerateView(clsQuadRuntime.TemplateBook, wbTarget, sAction, iRow, iCol, clsQuadRuntime.TemplateWidgetSheetName, CStr(sKey))
+                Set rWidget = GenerateView(clsAppRuntime.TemplateBook, wbTarget, sAction, iRow, iCol, clsAppRuntime.TemplateWidgetSheetName, CStr(sKey))
                 dDefinitions.Item(sKey).Add "address", rWidget.Address
                 UpdateDefaultValues CStr(sKey), dDefaultValues, sAction, rWidget
             ElseIf sWidgetTypeSuffix = "l" Then
@@ -343,7 +343,7 @@ main:
                     err.Raise ErrorMsgType.BAD_ARGUMENT, Description:="Expecting a 2d string array got [" & MyVarType(vValues) & "] [sFormType=" & sFormType & "]"
                 End If
 
-                Set rListColumn = GenerateViewList(clsQuadRuntime.TemplateBook, wbTarget, sAction, iRow, iCol, clsQuadRuntime.TemplateWidgetSheetName, CStr(sKey), iHeight:=iHeight)
+                Set rListColumn = GenerateViewList(clsAppRuntime.TemplateBook, wbTarget, sAction, iRow, iCol, clsAppRuntime.TemplateWidgetSheetName, CStr(sKey), iHeight:=iHeight)
                     
                 For iRow = 1 To UBound(vValues)
                         On Error Resume Next
@@ -538,179 +538,12 @@ setup:
     SetEntryValue = 0
 End Function
 
-Public Function Validate(wbBook As Workbook, sSheetName As String, rTarget As Range) As Boolean
-Dim sFuncName As String, sDefnName As String, sActionFuncName As String, sValidType As String
-Dim dDefnDetail As Dictionary
-Dim vValidParams() As String
-Dim bValid As Boolean
-Dim eThisErrorType As ErrorType
-Dim mThisModule As VBComponent
-Dim clsQuadRuntime As New App_Runtime
-
-setup:
-    clsQuadRuntime.InitProperties bInitializeCache:=False
-    
-    EventsToggle False
-    'On Error GoTo err_name
-
-    If UBound(Split(rTarget.name.name, "!")) = 1 Then
-        sDefnName = Split(rTarget.name.name, "!")(1)
-    Else
-        sDefnName = rTarget.name.name
-    End If
-    On Error GoTo 0
-    
-    sFuncName = C_MODULE_NAME & "." & "Validate"
-    
-    If dDefinitions Is Nothing Then
-        ' when called from a callback and dDefinitons needs to be reconstituted
-        FuncLogIt sFuncName, "Definitions not loaded so reloading", C_MODULE_NAME, LogMsgType.INFO
-        DoLoadDefinitions clsQuadRuntime:=clsQuadRuntime
-    End If
-    
-    If dDefinitions.Exists(sDefnName) = False Then
-        ' usually called from tests, where dDefinitions is already set
-        FuncLogIt sFuncName, "Loading definition for  in [" & sDefnName & "]", C_MODULE_NAME, _
-            LogMsgType.Failure
-    Else
-        Set dDefnDetail = dDefinitions.Item(sDefnName)
-        sValidType = dDefnDetail.Item("validation_type")
-        sFuncName = dDefnDetail.Item("validation_param")
-        If IsSet(dDefnDetail.Item("validation_args")) = True Then
-            vValidParams = dDefnDetail.Item("validation_args")
-        End If
-        
-        FuncLogIt sFuncName, "Using validation  [" & sValidType & "] [" & sFuncName & "]", C_MODULE_NAME, _
-            LogMsgType.OK
-        
-        On Error GoTo err
-        If IsSet(clsQuadRuntime) Then
-            'first passed arg now needs to be clsQuadRuntime if IsSet
-            Validate = Application.Run(sFuncName, clsQuadRuntime, rTarget.value, vValidParams)
-        Else
-            Validate = Application.Run(sFuncName, rTarget.value, dDefnDetail.Item("CacheTableName"), vValidParams)
-        End If
-        On Error GoTo 0
-        
-        If Validate = True Then
-            SetBgColorFromString sSheetName, rTarget, C_RGB_VALID, wbTmp:=wbBook
-            
-            If dDefnDetail.Item("ActionName") <> "" Then
-                sActionFuncName = Right(dDefnDetail.Item("ActionName"), Len(dDefnDetail.Item("ActionName")) - 1)
-                Application.Run sActionFuncName, clsQuadRuntime, rTarget.value, rTarget.name.name
-            End If
-            
-            Exit Function
-        End If
-    End If
-    
-    SetBgColorFromString sSheetName, rTarget, C_RGB_INVALID, wbTmp:=clsQuadRuntime.AddBook
-    Validate = False
-    EventsToggle True
-    
-    Exit Function
-
-err:
-    SetBgColorFromString sSheetName, rTarget, C_RGB_ERROR, wbTmp:=clsQuadRuntime.AddBook
-    FuncLogIt sFuncName, "Error [" & err.Description & "]", C_MODULE_NAME, _
-            LogMsgType.Failure
-    Exit Function
-
-err_name:
-    FuncLogIt sFuncName, "Error with range name for [" & rTarget.Address & "} [" & err.Description & "]", C_MODULE_NAME, _
-            LogMsgType.Failure
-End Function
-
-
 Public Sub FormatWidgetInvalid(sSheetName As String, rWidget As Range)
     SetBgColor sSheetName, rWidget, 255, 0, 0
 End Sub
 Public Sub FormatWidgetValid(sSheetName As String, rWidget As Range)
     SetBgColor sSheetName, rWidget, 0, 255, 0
 End Sub
-
-'Public Function IsValidInteger(ByVal iValue As Variant) As Boolean
-Public Function IsValidInteger(ParamArray args()) As Boolean
-Dim sFuncName As String
-Dim iValueTmp As Integer
-Dim iValue As Variant
-
-setup:
-    sFuncName = C_MODULE_NAME & "." & "IsValidInteger"
-    iValue = args(1)
-
-main:
-    On Error GoTo err
-    iValueTmp = Int(iValue)
-    On Error GoTo 0
-    IsValidInteger = True
-    FuncLogIt sFuncName, "Value [" & CStr(iValue) & "] is valid", C_MODULE_NAME, LogMsgType.OK
-
-    Exit Function
-err:
-    IsValidInteger = False
-    FuncLogIt sFuncName, "Value [" & CStr(iValue) & "] is invalid ", C_MODULE_NAME, LogMsgType.OK
-
-End Function
-Public Function IsValidString(ParamArray args()) As Boolean
-    IsValidString = True
-End Function
-Public Function IsValidPrep(ParamArray args()) As Boolean
-Dim sFuncName As String
-Dim aPreps() As String
-Dim iValue As Variant
- 
-setup:
-    sFuncName = C_MODULE_NAME & "." & "IsValidPrep"
-    iValue = args(1)
-main:
-    aPreps = Split(C_PREPS, ",")
-    'If IsValidInteger(iValue) = True Then
-    If IsValidInteger(args(0), args(1)) = True Then
-    'If IsValidInteger(args(0), args(1), args(2)) = True Then
-    
-        If InArray(aPreps, iValue) = True Then
-            IsValidPrep = True
-            FuncLogIt sFuncName, "Value [" & CStr(iValue) & "] is valid", C_MODULE_NAME, LogMsgType.OK
-            Exit Function
-        End If
-    End If
-err:
-    IsValidPrep = False
-    FuncLogIt sFuncName, "Value [" & CStr(iValue) & "] is invalid", C_MODULE_NAME, LogMsgType.OK
-
-End Function
-
-Public Function IsMember(ParamArray args()) As Boolean
-Dim sColumnRange As String, sLookUpTableName As String, sLookUpColumnName As String, sValue As String
-Dim vValid2DValues() As Variant
-Dim vValidValues() As String
-Dim clsQuadRuntime As New App_Runtime
-Dim wsCache As Worksheet
-
-    Set clsQuadRuntime = args(0)
-    sValue = args(1)
-    sLookUpTableName = args(2)(0)
-    sLookUpColumnName = args(2)(1)
-
-    sColumnRange = GetDBColumnRange(sLookUpTableName, sLookUpColumnName)
-    
-    If Left(sLookUpTableName, 1) = "&" Then
-        Set wsCache = Application.Run(Right(sLookUpTableName, Len(sLookUpTableName) - 1), clsQuadRuntime)
-        vValidValues = ListFromRange(wsCache, sColumnRange)
-    Else
-        vValidValues = ListFromRange(clsQuadRuntime.CacheBook.Sheets(sLookUpTableName), sColumnRange)
-    End If
-    
-    If InArray(vValidValues, sValue) = False Then
-        IsMember = False
-        Exit Function
-    End If
-    
-    IsMember = True
-End Function
-
-
 
 
 Public Function GenerateEntryWidget(sKey As String, iLabelRow As Integer, iLabelCol As Integer, _

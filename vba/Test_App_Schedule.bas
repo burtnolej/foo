@@ -16,12 +16,12 @@ Dim rResult As Range
 Dim wsSchedule As Worksheet
 Dim aColumnWidths() As Integer
 Dim iFormatWidth As Integer, iFormatHeight As Integer, iColWidthCount As Integer, iPersonID As Integer
-Dim clsQuadRuntime As New App_Runtime
+Dim clsAppRuntime As New App_Runtime
 Dim sScheduleName As String, sSchedulePath As String
 
-    clsQuadRuntime.InitProperties sScheduleBookName:=sScheduleName, sScheduleBookPath:=sSchedulePath
+    clsAppRuntime.InitProperties sScheduleBookName:=sScheduleName, sScheduleBookPath:=sSchedulePath
     iPersonID = 70
-    Set wsSchedule = BuildSchedule(clsQuadRuntime, QuadSubDataType.Student, iPersonID)
+    Set wsSchedule = BuildSchedule(clsAppRuntime, QuadSubDataType.Student, iPersonID)
                               
     With wsSchedule
         Set rResult = .Range("L20:M23")
@@ -50,8 +50,8 @@ err:
     
 teardown:
     Test_BuildSchedule_Student_OverideScheduleBook = eTestResult
-    DeleteSheet clsQuadRuntime.CacheBook, wsSchedule.name
-    clsQuadRuntime.Delete
+    DeleteSheet clsAppRuntime.CacheBook, wsSchedule.name
+    clsAppRuntime.Delete
 
 End Function
 
@@ -63,42 +63,42 @@ Dim rResult As Range
 Dim wsSchedule As Worksheet
 Dim aColumnWidths() As Integer
 Dim iFormatWidth As Integer, iFormatHeight As Integer, iColWidthCount As Integer, iPersonID As Integer, iSourceColHeight As Integer, iTargetColHeight As Integer
-Dim clsQuadRuntime As New App_Runtime
+Dim clsAppRuntime As New App_Runtime
 Dim dValues As New Dictionary
 
 setup:
-    ResetQuadRuntimeGlobal
+    ResetAppRuntimeGlobal
     sFuncName = C_MODULE_NAME & "." & "BuildScheduleHeaders"
     sSheetName = "test"
-    clsQuadRuntime.InitProperties bInitializeCache:=True, sDefinitionSheetName:=sSheetName
+    clsAppRuntime.InitProperties bInitializeCache:=True, sDefinitionSheetName:=sSheetName
     sTargetSheetName = "AddLesson"
     
 main:
-    GenerateScheduleAdd clsQuadRuntime
+    GenerateScheduleAdd clsAppRuntime
     
     sFuncName = C_MODULE_NAME & "." & "BuildScheduleCell"
     
-    'clsQuadRuntime.InitProperties
+    'clsAppRuntime.InitProperties
     sSheetName = "view_student_70"
-    Set wsSchedule = CreateSheet(clsQuadRuntime.ScheduleBook, sSheetName)
+    Set wsSchedule = CreateSheet(clsAppRuntime.ScheduleBook, sSheetName)
     
     sTemplateRangeName = "f" & "student" & "ScheduleRowLabel"
-    GetScheduleCellFormat clsQuadRuntime, iFormatWidth, iFormatHeight, sTemplateRangeName
-    BuildScheduleHeaderView clsQuadRuntime, wsSchedule, clsQuadRuntime.PeriodEnum, iFormatWidth, iFormatHeight
+    GetScheduleCellFormat clsAppRuntime, iFormatWidth, iFormatHeight, sTemplateRangeName
+    BuildScheduleHeaderView clsAppRuntime, wsSchedule, clsAppRuntime.PeriodEnum, iFormatWidth, iFormatHeight
     
     sTemplateRangeName = "f" & "student" & "ScheduleColLabel"
-    GetScheduleCellFormat clsQuadRuntime, iFormatWidth, iFormatHeight, sTemplateRangeName
-    BuildScheduleHeaderView clsQuadRuntime, wsSchedule, clsQuadRuntime.DayEnum, iFormatWidth, iFormatHeight, iStartCol:=2, iStartRow:=2, bVz:=False
+    GetScheduleCellFormat clsAppRuntime, iFormatWidth, iFormatHeight, sTemplateRangeName
+    BuildScheduleHeaderView clsAppRuntime, wsSchedule, clsAppRuntime.DayEnum, iFormatWidth, iFormatHeight, iStartCol:=2, iStartRow:=2, bVz:=False
     
-    iSourceColHeight = clsQuadRuntime.TemplateBook.Names(sTemplateRangeName).RefersToRange.Columns(1).EntireColumn.ColumnWidth
+    iSourceColHeight = clsAppRuntime.TemplateBook.Names(sTemplateRangeName).RefersToRange.Columns(1).EntireColumn.ColumnWidth
     
-    iTargetColHeight = clsQuadRuntime.ScheduleBook.Sheets(sSheetName).Range("B1:B1").EntireColumn.ColumnWidth
+    iTargetColHeight = clsAppRuntime.ScheduleBook.Sheets(sSheetName).Range("B1:B1").EntireColumn.ColumnWidth
     If iSourceColHeight <> iTargetColHeight Then
         eTestResult = TestResult.Failure
         GoTo teardown
     End If
 
-    If clsQuadRuntime.ScheduleBook.Sheets(sSheetName).Range("E1:E1").value <> "T" Then
+    If clsAppRuntime.ScheduleBook.Sheets(sSheetName).Range("E1:E1").value <> "T" Then
         eTestResult = TestResult.Failure
         GoTo teardown
     End If
@@ -110,31 +110,31 @@ err:
     
 teardown:
     Test_BuildScheduleHeaders = eTestResult
-    DeleteSheet clsQuadRuntime.CacheBook, sSheetName
-    clsQuadRuntime.Delete
+    DeleteSheet clsAppRuntime.CacheBook, sSheetName
+    clsAppRuntime.Delete
 End Function
 
 
-Public Function Test_CacheQuadRuntimePtr() As TestResult
+Public Function Test_CacheAppRuntimePtr() As TestResult
 Dim eTestResult As TestResult
-Dim clsQuadRuntime As New App_Runtime
+Dim clsAppRuntime As New App_Runtime
 Dim wbBook As Workbook
 
 setup:
-    clsQuadRuntime.InitProperties sDayEnum:="foobar", bInitializeCache:=True
-    LetQuadRuntimeGlobal clsQuadRuntime
-    Set clsQuadRuntime = Nothing
+    clsAppRuntime.InitProperties sDayEnum:="foobar", bInitializeCache:=True
+    LetAppRuntimeGlobal clsAppRuntime
+    Set clsAppRuntime = Nothing
     
 main:
 
-    Set clsQuadRuntime = GetQuadRuntimeGlobal
+    Set clsAppRuntime = GetAppRuntimeGlobal
 
-    If IsQuadRuntime(clsQuadRuntime) = False Then
+    If IsAppRuntime(clsAppRuntime) = False Then
         eTestResult = TestResult.Failure
         GoTo teardown
     End If
 
-    If clsQuadRuntime.DayEnum <> "foobar" Then
+    If clsAppRuntime.DayEnum <> "foobar" Then
         eTestResult = TestResult.Failure
         GoTo teardown
     End If
@@ -147,8 +147,8 @@ err:
     eTestResult = TestResult.Error
     
 teardown:
-    Test_CacheQuadRuntimePtr = eTestResult
-    clsQuadRuntime.Delete
+    Test_CacheAppRuntimePtr = eTestResult
+    clsAppRuntime.Delete
 
 End Function
 
@@ -161,20 +161,20 @@ Dim rResult As Range
 Dim wsSchedule As Worksheet
 Dim aColumnWidths() As Integer
 Dim iFormatWidth As Integer, iFormatHeight As Integer, iColWidthCount As Integer, iPersonID As Integer
-Dim clsQuadRuntime As New App_Runtime
+Dim clsAppRuntime As New App_Runtime
 
 setup:
-    clsQuadRuntime.InitProperties bInitializeCache:=True
+    clsAppRuntime.InitProperties bInitializeCache:=True
     iPersonID = 70
     
-    Set wsSchedule = BuildSchedule(clsQuadRuntime, QuadSubDataType.Student, iPersonID)
-    Set wsSchedule = BuildSchedule(clsQuadRuntime, QuadSubDataType.Student, iPersonID - 1)
-    Set wsSchedule = BuildSchedule(clsQuadRuntime, QuadSubDataType.Student, iPersonID - 2)
-    Set wsSchedule = BuildSchedule(clsQuadRuntime, QuadSubDataType.Student, iPersonID - 3)
-    Set wsSchedule = BuildSchedule(clsQuadRuntime, QuadSubDataType.Student, iPersonID - 4)
+    Set wsSchedule = BuildSchedule(clsAppRuntime, QuadSubDataType.Student, iPersonID)
+    Set wsSchedule = BuildSchedule(clsAppRuntime, QuadSubDataType.Student, iPersonID - 1)
+    Set wsSchedule = BuildSchedule(clsAppRuntime, QuadSubDataType.Student, iPersonID - 2)
+    Set wsSchedule = BuildSchedule(clsAppRuntime, QuadSubDataType.Student, iPersonID - 3)
+    Set wsSchedule = BuildSchedule(clsAppRuntime, QuadSubDataType.Student, iPersonID - 4)
                               
     With ActiveWorkbook
-        If "view_student_66,schedule_student_66,view_student_67,schedule_student_67,view_student_68,schedule_student_68,view_student_69,schedule_student_69,view_student_70,schedule_student_70,person_student" <> Join(GetSheets(clsQuadRuntime.CacheBook), ",") Then
+        If "view_student_66,schedule_student_66,view_student_67,schedule_student_67,view_student_68,schedule_student_68,view_student_69,schedule_student_69,view_student_70,schedule_student_70,person_student" <> Join(GetSheets(clsAppRuntime.CacheBook), ",") Then
             eTestResult = TestResult.Failure
             GoTo teardown
         End If
@@ -186,9 +186,9 @@ err:
     eTestResult = TestResult.Error
     
 teardown:
-    DeleteSheet clsQuadRuntime.CacheBook, "schedule_" & EnumQuadSubDataType(QuadSubDataType.Student) & "_" & CStr(iPersonID)
-    DeleteSheet clsQuadRuntime.CacheBook, wsSchedule.name
-    clsQuadRuntime.Delete
+    DeleteSheet clsAppRuntime.CacheBook, "schedule_" & EnumQuadSubDataType(QuadSubDataType.Student) & "_" & CStr(iPersonID)
+    DeleteSheet clsAppRuntime.CacheBook, wsSchedule.name
+    clsAppRuntime.Delete
     
 End Function
 Public Function Test_BuildScheduleCell() As TestResult
@@ -199,27 +199,27 @@ Dim rResult As Range
 Dim wsSchedule As Worksheet
 Dim aColumnWidths() As Integer
 Dim iFormatWidth As Integer, iFormatHeight As Integer, iColWidthCount As Integer, iPersonID As Integer
-Dim clsQuadRuntime As New App_Runtime
+Dim clsAppRuntime As New App_Runtime
 Dim dValues As New Dictionary
 
 setup:
     sFuncName = C_MODULE_NAME & "." & "BuildScheduleCell"
     sTemplateRangeName = "f" & "student" & "ScheduleCell"
     
-    clsQuadRuntime.InitProperties
+    clsAppRuntime.InitProperties
     sSheetName = "view_student_70"
-    Set wsSchedule = CreateSheet(clsQuadRuntime.ScheduleBook, sSheetName)
+    Set wsSchedule = CreateSheet(clsAppRuntime.ScheduleBook, sSheetName)
     
     vKeys = Split("sSubjectLongDesc,sCourseNm,sClassFocusArea,sFacultyFirstNm,cdDay,idTimePeriod,idLocation,idSection,cdClassType,iFreq,idClassLecture", COMMA)
     vValues = Split("Homeroom,Homeroom,None,Isaac,M,1,9,165,Seminar,5,993", COMMA)
     Set dValues = InitDict(vKeys, vValues)
     
     ' copy the template format to the clipboard
-    GetScheduleCellFormat clsQuadRuntime, iFormatWidth, iFormatHeight, sTemplateRangeName
+    GetScheduleCellFormat clsAppRuntime, iFormatWidth, iFormatHeight, sTemplateRangeName
     ' get the desired column widths from the template and return in an array
-    aColumnWidths = GetScheduleCellColWidths(clsQuadRuntime, sTemplateRangeName, iColWidthCount)
+    aColumnWidths = GetScheduleCellColWidths(clsAppRuntime, sTemplateRangeName, iColWidthCount)
         
-    BuildScheduleCellView clsQuadRuntime, wsSchedule, dValues, iFormatWidth, iFormatHeight, aColumnWidths
+    BuildScheduleCellView clsAppRuntime, wsSchedule, dValues, iFormatWidth, iFormatHeight, aColumnWidths
                                   
     With wsSchedule
     
@@ -250,8 +250,8 @@ err:
     
 teardown:
     Test_BuildScheduleCell = eTestResult
-    DeleteSheet clsQuadRuntime.CacheBook, sSheetName
-    clsQuadRuntime.Delete
+    DeleteSheet clsAppRuntime.CacheBook, sSheetName
+    clsAppRuntime.Delete
     
 End Function
 
@@ -264,13 +264,13 @@ Dim rResult As Range
 Dim wsSchedule As Worksheet
 Dim aColumnWidths() As Integer
 Dim iFormatWidth As Integer, iFormatHeight As Integer, iColWidthCount As Integer, iPersonID As Integer
-Dim clsQuadRuntime As New App_Runtime
+Dim clsAppRuntime As New App_Runtime
 
-    clsQuadRuntime.InitProperties
+    clsAppRuntime.InitProperties
             
     iPersonID = 70
     
-    Set wsSchedule = BuildSchedule(clsQuadRuntime, QuadSubDataType.Student, iPersonID)
+    Set wsSchedule = BuildSchedule(clsAppRuntime, QuadSubDataType.Student, iPersonID)
                               
     With wsSchedule
         
@@ -301,8 +301,8 @@ err:
     
 teardown:
     Test_BuildSchedule_Student_NotCached = eTestResult
-    DeleteSheet clsQuadRuntime.CacheBook, wsSchedule.name
-    clsQuadRuntime.Delete
+    DeleteSheet clsAppRuntime.CacheBook, wsSchedule.name
+    clsAppRuntime.Delete
     
 End Function
 
@@ -318,18 +318,18 @@ Dim rResult As Range
 Dim wsSchedule As Worksheet
 Dim aColumnWidths() As Integer
 Dim iFormatWidth As Integer, iFormatHeight As Integer, iColWidthCount As Integer, iPersonID As Integer
-Dim clsQuadRuntime As New App_Runtime
+Dim clsAppRuntime As New App_Runtime
 
 setup:
-    clsQuadRuntime.InitProperties bInitializeCache:=True
+    clsAppRuntime.InitProperties bInitializeCache:=True
     iPersonID = 70
     
-    GetScheduleDataFromDB clsQuadRuntime, iPersonID, QuadSubDataType.Student
-    aSchedule = ParseRawData(ReadFile(clsQuadRuntime.ResultFileName))
-    sCacheSheetName = CacheData(clsQuadRuntime, aSchedule, QuadDataType.schedule, QuadSubDataType.Student, iPersonID)
+    GetScheduleDataFromDB clsAppRuntime, iPersonID, QuadSubDataType.Student
+    aSchedule = ParseRawData(ReadFile(clsAppRuntime.ResultFileName))
+    sCacheSheetName = CacheData(clsAppRuntime, aSchedule, QuadDataType.schedule, QuadSubDataType.Student, iPersonID)
     
 main:
-    Set wsSchedule = BuildSchedule(clsQuadRuntime, QuadSubDataType.Student, iPersonID)
+    Set wsSchedule = BuildSchedule(clsAppRuntime, QuadSubDataType.Student, iPersonID)
                               
     With wsSchedule
         Set rResult = .Range("L20:M23")
@@ -358,8 +358,8 @@ err:
     
 teardown:
     Test_BuildSchedule_Student_Cached = eTestResult
-    DeleteSheet clsQuadRuntime.ScheduleBook, wsSchedule.name
-    clsQuadRuntime.Delete
+    DeleteSheet clsAppRuntime.ScheduleBook, wsSchedule.name
+    clsAppRuntime.Delete
     
 End Function
 
@@ -371,17 +371,17 @@ Dim sResultStr As String, sExpectedResult As String, sCacheSheetName As String
 Dim iPersonID As Integer
 Dim eTestResult As TestResult
 Dim aSchedule() As Variant
-Dim clsQuadRuntime As New App_Runtime
+Dim clsAppRuntime As New App_Runtime
 
 setup:
-    clsQuadRuntime.InitProperties bInitializeCache:=True
+    clsAppRuntime.InitProperties bInitializeCache:=True
     iPersonID = 70
     
-    GetScheduleDataFromDB clsQuadRuntime, iPersonID, QuadSubDataType.Student
-    aSchedule = ParseRawData(ReadFile(clsQuadRuntime.ResultFileName))
-    sCacheSheetName = CacheData(clsQuadRuntime, aSchedule, QuadDataType.schedule, QuadSubDataType.Student, iPersonID)
+    GetScheduleDataFromDB clsAppRuntime, iPersonID, QuadSubDataType.Student
+    aSchedule = ParseRawData(ReadFile(clsAppRuntime.ResultFileName))
+    sCacheSheetName = CacheData(clsAppRuntime, aSchedule, QuadDataType.schedule, QuadSubDataType.Student, iPersonID)
  
-    With clsQuadRuntime.CacheBook.Sheets(sCacheSheetName)
+    With clsAppRuntime.CacheBook.Sheets(sCacheSheetName)
         If .Range(.Cells(47, 11), .Cells(47, 11)).value <> 1476 Then
             eTestResult = TestResult.Failure
             GoTo teardown
@@ -396,7 +396,7 @@ err:
     
 teardown:
     Test_CacheData_Schedule = eTestResult
-    clsQuadRuntime.Delete
+    clsAppRuntime.Delete
     
 End Function
 Public Function Test_ParseRawData() As TestResult
@@ -406,15 +406,15 @@ Dim sResultStr As String, sExpectedResult As String
 Dim iPersonID As Integer
 Dim eTestResult As TestResult
 Dim aSchedule() As Variant
-Dim clsQuadRuntime As New App_Runtime
+Dim clsAppRuntime As New App_Runtime
 
 setup:
-    clsQuadRuntime.InitProperties bInitializeCache:=True
+    clsAppRuntime.InitProperties bInitializeCache:=True
     
     iPersonID = 70
     
-    GetScheduleDataFromDB clsQuadRuntime, iPersonID, QuadDataType.schedule
-    aSchedule = ParseRawData(ReadFile(clsQuadRuntime.ResultFileName))
+    GetScheduleDataFromDB clsAppRuntime, iPersonID, QuadDataType.schedule
+    aSchedule = ParseRawData(ReadFile(clsAppRuntime.ResultFileName))
  
     If aSchedule(46, 10) <> 1476 Then
         eTestResult = TestResult.Failure
@@ -429,7 +429,7 @@ err:
     
 teardown:
     Test_ParseRawData = eTestResult
-    clsQuadRuntime.Delete
+    clsAppRuntime.Delete
     
 End Function
 Public Function Test_GetScheduleDataFromDB() As TestResult
@@ -438,18 +438,18 @@ Public Function Test_GetScheduleDataFromDB() As TestResult
 Dim sResultStr As String
 Dim iPersonID As Integer
 Dim eTestResult As TestResult
-Dim clsQuadRuntime As New App_Runtime
+Dim clsAppRuntime As New App_Runtime
 
 setup:
-    clsQuadRuntime.InitProperties bInitializeCache:=True
+    clsAppRuntime.InitProperties bInitializeCache:=True
     iPersonID = 70
 
 main:
-    GetScheduleDataFromDB clsQuadRuntime, iPersonID, QuadSubDataType.Student, _
+    GetScheduleDataFromDB clsAppRuntime, iPersonID, QuadSubDataType.Student, _
                 sPeriod:="1,2", sDay:="M,F"
 
-   If FileExists(clsQuadRuntime.ResultFileName) Then
-        sResultStr = ReadFile(clsQuadRuntime.ResultFileName)
+   If FileExists(clsAppRuntime.ResultFileName) Then
+        sResultStr = ReadFile(clsAppRuntime.ResultFileName)
     Else
         eTestResult = TestResult.Failure
         GoTo teardown
@@ -468,7 +468,7 @@ err:
     
 teardown:
     Test_GetScheduleDataFromDB = eTestResult
-    clsQuadRuntime.Delete
+    clsAppRuntime.Delete
     
 End Function
 Public Function Test_GetScheduleDataFromDB_1Period1Student() As TestResult
@@ -477,17 +477,17 @@ Public Function Test_GetScheduleDataFromDB_1Period1Student() As TestResult
 Dim sResultStr As String, sExpectedResult As String
 Dim iPersonID As Integer
 Dim eTestResult As TestResult
-Dim clsQuadRuntime As New App_Runtime
+Dim clsAppRuntime As New App_Runtime
 
 setup:
-    clsQuadRuntime.InitProperties bInitializeCache:=True
+    clsAppRuntime.InitProperties bInitializeCache:=True
     iPersonID = 70
 
 main:
-    GetScheduleDataFromDB clsQuadRuntime, iPersonID, QuadSubDataType.Student, sPeriod:="1"
+    GetScheduleDataFromDB clsAppRuntime, iPersonID, QuadSubDataType.Student, sPeriod:="1"
     
-    If FileExists(clsQuadRuntime.ResultFileName) Then
-        sResultStr = ReadFile(clsQuadRuntime.ResultFileName)
+    If FileExists(clsAppRuntime.ResultFileName) Then
+        sResultStr = ReadFile(clsAppRuntime.ResultFileName)
     Else
         eTestResult = TestResult.Failure
         GoTo teardown
@@ -508,7 +508,7 @@ err:
     
 teardown:
     Test_GetScheduleDataFromDB_1Period1Student = eTestResult
-    clsQuadRuntime.Delete
+    clsAppRuntime.Delete
 
     
 End Function
