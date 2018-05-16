@@ -98,74 +98,14 @@ Dim rTemplateSource As Range
     clsAppRuntime.ScheduleBook.Windows(1).Visible = True
 End Function
 Public Sub GenerateScheduleAdd(clsAppRuntime As App_Runtime)
-
-Dim sFuncName As String, sSheetName As String
-Dim sDefn As String
+Dim sFuncName As String, sSheetName As String, sDefn As String
 Dim vSource() As String
-'Dim vStudents() As String, vTeachers() As String, vLessons() As String
 Dim wsTmp As Worksheet
 Dim rTarget As Range
-'Dim dDefinitions As Dictionary, dDefnDetails As Dictionary
 Dim eTestResult As TestResult
 
 setup:
-    
     sFuncName = C_MODULE_NAME & "." & "GenerateScheduleAdd"
-    'sSheetName = "test"
-    'Set wsTmp = CreateSheet(clsAppRuntime.TemplateBook, sSheetName, bOverwrite:=True)
-    
-    ' table: Add lesson
-    ' --------------------------------------------------------------------------------
-    ' attr : student name
-    'sDefn = "AddLesson^schedule_student^sStudentFirstNm^String^IsMember^&get_person_student^sStudentFirstNm^^Entry" & DOUBLEDOLLAR
-    'sDefn = sDefn & "AddLesson^schedule_student^sStudentLastNm^String^IsMember^&get_person_student^sStudentLastNm^^Entry" & DOUBLEDOLLAR
-    '' attr : teacher_name
-    'sDefn = sDefn & "AddLesson^schedule_student^sFacultyFirstNm^String^IsMember^&get_person_teacher^sFacultyFirstNm^^Entry" & DOUBLEDOLLAR
-    'sDefn = sDefn & "AddLesson^schedule_student^sFacultyLastNm^String^IsMember^&get_person_teacher^sFacultyLastNm^^Entry" & DOUBLEDOLLAR
-    ' attr : ref data
-    'sDefn = sDefn & "AddLesson^schedule_student^sCourseNm^Integer^IsMember^&get_courses_course^sCourseNm^^Entry" & DOUBLEDOLLAR
-    'sDefn = sDefn & "AddLesson^schedule_student^sSubjectLongDesc^Integer^IsMember^&get_courses_subject^sSubjectLongDesc^^Entry" & DOUBLEDOLLAR
-    'sDefn = sDefn & "AddLesson^schedule_student^idPrep^Integer^IsMember^&get_misc_prep^sPrepNm^^Entry" & DOUBLEDOLLAR
-    'sDefn = sDefn & "AddLesson^schedule_student^idTimePeriod^Integer^IsMember^&get_misc_timeperiod^idTimePeriod^^Entry" & DOUBLEDOLLAR
-    'sDefn = sDefn & "AddLesson^schedule_student^cdDay^Integer^IsMember^&get_misc_day^cdDay^^Entry" & DOUBLEDOLLAR
-    
-    ' Add student
-    'sDefn = sDefn & "AddStudent^person_student^sStudentFirstNm^String^^^^^Entry" & DOUBLEDOLLAR
-    'sDefn = sDefn & "AddStudent^person_student^sStudentLastNm^String^^^^^Entry" & DOUBLEDOLLAR
-    'sDefn = sDefn & "AddStudent^person_student^idStudent^Integer^^^^^Entry" & DOUBLEDOLLAR
-    'sDefn = sDefn & "AddStudent^person_student^idPrep^Integer^IsValidPrep^^^^Entry" & DOUBLEDOLLAR
-    'sDefn = sDefn & "AddStudent^person_student^sPrepNm^String^^^^^Entry" & DOUBLEDOLLAR
-    ' Add teacher
-    'sDefn = sDefn & "AddStudent^person_teacher^sFacultyFirstNm^String^^^^^Entry" & DOUBLEDOLLAR
-    'sDefn = sDefn & "AddStudent^person_teacher^sFacultyLastNm^String^^^^^Entry" & DOUBLEDOLLAR
-    'sDefn = sDefn & "AddStudent^person_teacher^idFaculty^Integer^^^^^Entry" & DOUBLEDOLLAR
-    ' table: Add subject ---------------------------------------------------------------
-    'sDefn = sDefn & "AddSubject^courses_subject^sSubjectLongDesc^String^^^^^Entry" & DOUBLEDOLLAR
-    'sDefn = sDefn & "AddSubject^courses_subject^idSubject^String^^^^^Entry" & DOUBLEDOLLAR
-    ' table: Add course ---------------------------------------------------------------
-    'sDefn = sDefn & "AddCourse^courses_course^sCourseNm^String^^^^^Entry" & DOUBLEDOLLAR
-    'sDefn = sDefn & "AddCourse^courses_course^idCourse^String^^^^^Entry" & DOUBLEDOLLAR
-    'sDefn = sDefn & "AddCourse^courses_course^idSubject^String^^^^^Entry" & DOUBLEDOLLAR
-    ' table: Add timeperiod ---------------------------------------------------------------
-    'sDefn = sDefn & "AddTimePeriod^misc_timeperiod^idTimePeriod^String^^^^^Entry" & DOUBLEDOLLAR
-    'sDefn = sDefn & "AddTimePeriod^misc_timeperiod^dtPeriodStart^String^^^^^Entry" & DOUBLEDOLLAR
-    'sDefn = sDefn & "AddTimePeriod^misc_timeperiod^dtPeriodEnd^String^^^^^Entry" & DOUBLEDOLLAR
-    ' table: Add prep ---------------------------------------------------------------
-    'sDefn = sDefn & "AddPrep^misc_prep^idPrep^String^^^^^Entry" & DOUBLEDOLLAR
-    'sDefn = sDefn & "AddPrep^misc_prep^sPrepNm^String^^^^^Entry" & DOUBLEDOLLAR
-    ' table: Add day ---------------------------------------------------------------
-    'sDefn = sDefn & "AddDay^misc_day^idDay^String^^^^^Entry" & DOUBLEDOLLAR
-    'sDefn = sDefn & "AddDay^misc_day^sDayDesc^String^^^^^Entry" & DOUBLEDOLLAR
-    'sDefn = sDefn & "AddDay^misc_day^cdDay^String^^^^^Entry" & DOUBLEDOLLAR
-    ' button: Add lesson ---------------------------------------------------------------
-    'sDefn = sDefn & "AddLesson^^COMMIT^^^AddLesson^^^Button"
-    
-    'vSource = Init2DStringArrayFromString(sDefn)
-
-    'Set rTarget = RangeFromStrArray(vSource, wsTmp, 0, 1)
-    'CreateNamedRange clsAppRuntime.TemplateBook, rTarget.Address, sSheetName, "Definitions", "True"
-    'Set Form_Utils.dDefinitions = LoadDefinitions(wsTmp, rSource:=rTarget)
-    
     GetDefinition clsAppRuntime, DefnType.Lesson, "test"
 
 main:

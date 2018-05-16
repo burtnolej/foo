@@ -42,7 +42,7 @@ Public Sub GenerateForms(clsAppRuntime As App_Runtime, _
 '>>>
 Dim dActions As Dictionary, dDefnDetails As Dictionary
 Dim sAction As Variant, sKey As Variant, vFormType As Variant
-Dim sCode As String, sFieldName As String, sFuncName As String, sCallbackFunc As String, sDBColName As String, sFormType As String, sTemplateSheetName As String
+Dim sCode As String, sFieldname As String, sFuncName As String, sCallbackFunc As String, sDBColName As String, sFormType As String, sTemplateSheetName As String
 Dim rWidget As Range, rButton As Range
 Dim vGenerated() As String
 Dim wbTmp As Workbook, wbTarget As Workbook
@@ -219,7 +219,7 @@ Public Sub UpdateForm(ParamArray args())
 'param  :
 'rtype  :
 '>>>
-Dim sCacheTableName As String, sValue As String, sLookUpIdRangeName As String, sRecordID As String, sFieldName As String, sFuncName As String, sLookUpFieldName As String
+Dim sCacheTableName As String, sValue As String, sLookUpIdRangeName As String, sRecordID As String, sFieldname As String, sFuncName As String, sLookUpFieldName As String
 Dim clsAppRuntime As App_Runtime
 Dim sKey As Variant
 Dim rTarget As Range
@@ -257,9 +257,9 @@ main:
     
     For Each sKey In dDefinitions.Keys
         If IsWidgetRangeNameForView(CStr(sKey), sFormName, eWidgetType) = True Then
-            sFieldName = GetFieldName(CStr(sKey))
+            sFieldname = GetFieldName(CStr(sKey))
             Set rTarget = clsAppRuntime.ViewBook.Sheets(sFormName).Range(sKey)
-            rTarget.value = dValues.Item(sFieldName)
+            rTarget.value = dValues.Item(sFieldname)
         End If
     Next sKey
     
@@ -388,7 +388,7 @@ End Function
 Public Function GetRecordValuesAsDict(wbSourceBook As Workbook, wbTargetbook As Workbook, _
                 sSheetName As String) As Dictionary
 Dim rEntryWidget As Range
-Dim sFuncName As String, sActionName As String, sFieldName As String
+Dim sFuncName As String, sActionName As String, sFieldname As String
 Dim dValues As New Dictionary
 Dim aNames() As String
 Dim name_ As Variant
@@ -401,9 +401,9 @@ main:
     For Each name_ In aNames
         sActionName = Split(name_, "_")(0)
         If sActionName = "e" & sSheetName Then
-            sFieldName = Split(name_, "_")(1)
+            sFieldname = Split(name_, "_")(1)
             Set rEntryWidget = wbTargetbook.Sheets(sSheetName).Range(name_)
-            dValues.Add sFieldName, rEntryWidget.value
+            dValues.Add sFieldname, rEntryWidget.value
             End If
     Next name_
     

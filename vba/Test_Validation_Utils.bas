@@ -120,7 +120,7 @@ main:
     
     rInput.value = 123
     rInput.name = "eAddStudent_StudentAge"
-    bResult = Validate(clsAppRuntime.AddBook, "test", rInput)
+    bResult = ValidateWidget(clsAppRuntime.AddBook, "test", rInput)
     
     If bResult = False Then
         eTestResult = TestResult.Failure
@@ -129,7 +129,7 @@ main:
     
     rInput.value = "ABC"
     rInput.name = "eAddStudent_StudentAge"
-    bResult = Validate(clsAppRuntime.AddBook, "test", rInput)
+    bResult = ValidateWidget(clsAppRuntime.AddBook, "test", rInput)
     
     If bResult = True Then
         eTestResult = TestResult.Failure

@@ -27,7 +27,7 @@ setup:
     sCode = sCode & "Set wbSource = Workbooks(""vba_source_new.xlsm"")" & vbNewLine
     sCode = sCode & "Set wbTarget = Workbooks(""menu.xlsm"")" & vbNewLine
     sCode = sCode & "sSourceSheetName = ""WidgetStyles""" & vbNewLine
-    sCode = sCode & "Application.Run ""vba_source_new.xlsm!Validate"", Application.ActiveWorkbook, Application.ActiveSheet.Name, Target" & vbNewLine
+    sCode = sCode & "Application.Run ""vba_source_new.xlsm!ValidateWidget"", Application.ActiveWorkbook, Application.ActiveSheet.Name, Target" & vbNewLine
     sCode = sCode & "Application.Run ""vba_source_new.xlsm!IsRecordValid"", wbSource, wbTarget, ""MenuMain"", sSourceSheetName" & vbNewLine
     sCode = sCode & "End Sub" & vbNewLine
     sCode = sCode & "Public Sub Worksheet_SelectionChange(ByVal Target As Range)" & vbNewLine

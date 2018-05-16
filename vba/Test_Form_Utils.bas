@@ -62,8 +62,8 @@ main:
     
         Set rTarget = .Range(.Cells(4, 2), .Cells(4, 2))
         rTarget = "David"
-        Validate clsAppRuntime.AddBook, sTargetSheetName, rTarget
-        'Validate clsAppRuntime.AddBook, sTargetSheetName, rTarget
+        ValidateWidget clsAppRuntime.AddBook, sTargetSheetName, rTarget
+        'ValidateWidget clsAppRuntime.AddBook, sTargetSheetName, rTarget
     
         If GetBgColor(sTargetSheetName, rTarget).AsString <> "0,255,0" Then
             eTestResult = TestResult.Failure
@@ -72,7 +72,7 @@ main:
         
         Set rTarget = .Range(.Cells(5, 2), .Cells(5, 2))
         rTarget = "Stone"
-        Validate clsAppRuntime.AddBook, sTargetSheetName, rTarget
+        ValidateWidget clsAppRuntime.AddBook, sTargetSheetName, rTarget
 
         If GetBgColor(sTargetSheetName, rTarget).AsString <> "0,255,0" Then
             eTestResult = TestResult.Failure
@@ -81,8 +81,8 @@ main:
 
         Set rTarget = .Range(.Cells(2, 2), .Cells(2, 2))
         rTarget = "Bruno"
-        Validate clsAppRuntime.AddBook, sTargetSheetName, rTarget
-        'Validate clsAppRuntime.AddBook, sTargetSheetName, rTarget
+        ValidateWidget clsAppRuntime.AddBook, sTargetSheetName, rTarget
+        'ValidateWidget clsAppRuntime.AddBook, sTargetSheetName, rTarget
     
         If GetBgColor(sTargetSheetName, rTarget).AsString <> "0,255,0" Then
             eTestResult = TestResult.Failure
@@ -153,7 +153,7 @@ main:
     
         Set rTarget = .Range(.Cells(2, 2), .Cells(2, 2))
         rTarget = "Bruno"
-        Validate clsAppRuntime.AddBook, sTargetSheetName, rTarget
+        ValidateWidget clsAppRuntime.AddBook, sTargetSheetName, rTarget
     
         If GetBgColor(sTargetSheetName, rTarget).AsString <> "0,255,0" Then
             eTestResult = TestResult.Failure
@@ -162,7 +162,7 @@ main:
         
         Set rTarget = .Range(.Cells(3, 2), .Cells(3, 2))
         rTarget = "Raskin"
-        Validate clsAppRuntime.AddBook, sTargetSheetName, rTarget
+        ValidateWidget clsAppRuntime.AddBook, sTargetSheetName, rTarget
 
         If GetBgColor(sTargetSheetName, rTarget).AsString <> "0,255,0" Then
             eTestResult = TestResult.Failure
@@ -171,7 +171,7 @@ main:
         
         Set rTarget = .Range(.Cells(4, 2), .Cells(4, 2))
         rTarget = "4"
-        Validate clsAppRuntime.AddBook, sTargetSheetName, rTarget
+        ValidateWidget clsAppRuntime.AddBook, sTargetSheetName, rTarget
 
         If GetBgColor(sTargetSheetName, rTarget).AsString <> "0,255,0" Then
             eTestResult = TestResult.Failure
@@ -246,7 +246,7 @@ main:
     With clsAppRuntime.AddBook.Sheets(sTargetSheetName)
         Set rTarget = .Range(.Cells(2, 2), .Cells(2, 2))
         rTarget = "Jon"
-        Validate clsAppRuntime.AddBook, sTargetSheetName, rTarget
+        ValidateWidget clsAppRuntime.AddBook, sTargetSheetName, rTarget
     
         If GetBgColor(sTargetSheetName, rTarget).AsString <> "0,255,0" Then
             eTestResult = TestResult.Failure
@@ -255,7 +255,7 @@ main:
         
         Set rTarget = .Range(.Cells(3, 2), .Cells(3, 2))
         rTarget = "Betty"
-        Validate clsAppRuntime.AddBook, sTargetSheetName, rTarget
+        ValidateWidget clsAppRuntime.AddBook, sTargetSheetName, rTarget
 
         If GetBgColor(sTargetSheetName, rTarget).AsString <> "0,255,0" Then
             eTestResult = TestResult.Failure
@@ -313,7 +313,7 @@ main:
         Set rTarget = .Range(.Cells(2, 2), .Cells(2, 2))
         rTarget = 123
 
-        Validate clsAppRuntime.AddBook, sTargetSheetName, rTarget
+        ValidateWidget clsAppRuntime.AddBook, sTargetSheetName, rTarget
 
         If GetBgColor(sTargetSheetName, rTarget).AsString <> "0,255,0" Then
             eTestResult = TestResult.Failure
@@ -323,7 +323,7 @@ main:
         Set rTarget = .Range(.Cells(3, 2), .Cells(3, 2))
         rTarget = 4
         
-        Validate clsAppRuntime.AddBook, sTargetSheetName, rTarget
+        ValidateWidget clsAppRuntime.AddBook, sTargetSheetName, rTarget
         
         If GetBgColor(sTargetSheetName, rTarget).AsString <> "0,255,0" Then
             eTestResult = TestResult.Failure
@@ -389,7 +389,7 @@ main:
         Set rTarget = .Range(.Cells(2, 2), .Cells(2, 2))
         rTarget = 123
 
-        Validate clsAppRuntime.AddBook, sTargetSheetName, rTarget
+        ValidateWidget clsAppRuntime.AddBook, sTargetSheetName, rTarget
 
         If GetBgColor(sTargetSheetName, rTarget).AsString <> "0,255,0" Then
             eTestResult = TestResult.Failure
@@ -399,7 +399,7 @@ main:
         Set rTarget = .Range(.Cells(3, 2), .Cells(3, 2))
         rTarget = 4
         
-        Validate clsAppRuntime.AddBook, sTargetSheetName, rTarget
+        ValidateWidget clsAppRuntime.AddBook, sTargetSheetName, rTarget
         
         If GetBgColor(sTargetSheetName, rTarget).AsString <> "0,255,0" Then
             eTestResult = TestResult.Failure
@@ -428,7 +428,7 @@ teardown:
 End Function
 
 
-Function GetEntryWidget(sSheetName As String, sFieldName As String, Optional wbTmp As Workbook) As Range
+Function GetEntryWidget(sSheetName As String, sFieldname As String, Optional wbTmp As Workbook) As Range
 ' just used in testing, puts an entry Widget wherever the current focus is
 Dim sKey As String
 Dim dDefnDetail As Dictionary
@@ -438,7 +438,7 @@ Dim dDefnDetail As Dictionary
     End If
     
     'sKey = GetEntryKey(sSheetName, sFieldName)
-    sKey = GetKey(sSheetName, sFieldName)
+    sKey = GetKey(sSheetName, sFieldname)
     Set dDefnDetail = dDefinitions.Item(sKey)
     Set GetEntryWidget = wbTmp.Sheets(sSheetName).Range(dDefnDetail.Item("address"))
     
@@ -640,7 +640,7 @@ main:
     With clsAppRuntime.ViewBook.Sheets("ViewStudent")
         Set rTarget = .Range(.Cells(2, 3), .Cells(2, 3))
         rTarget = "Bruno"
-        Validate clsAppRuntime.ViewBook, "ViewStudent", rTarget
+        ValidateWidget clsAppRuntime.ViewBook, "ViewStudent", rTarget
     End With
 
     Set rText = clsAppRuntime.ViewBook.Sheets("ViewStudent").Range("C4:C4")
@@ -932,7 +932,7 @@ setup:
     GenerateWidgets clsAppRuntime, sSheetName, wbTmp:=clsAppRuntime.AddBook, sTemplateSheetName:=sTemplateSheetName
     Set rInput = wsTmp.Range(sKey)
     rInput.value = 123
-    bResult = Validate(clsAppRuntime.AddBook, sSheetName, rInput)
+    bResult = ValidateWidget(clsAppRuntime.AddBook, sSheetName, rInput)
     
     If bResult <> True Then
         eTestResult = TestResult.Failure
@@ -943,7 +943,7 @@ setup:
     'GenerateAdd clsAppRuntime, sSheetName, sSheetName, "", wbTmp:=clsAppRuntime.AddBook
     Set rInput = wsTmp.Range(sKey)
     rInput.value = "ABC"
-    bResult = Validate(clsAppRuntime.AddBook, sSheetName, rInput)
+    bResult = ValidateWidget(clsAppRuntime.AddBook, sSheetName, rInput)
     
     If bResult <> False Then
         eTestResult = TestResult.Failure

@@ -165,12 +165,12 @@ End Function
 
 Public Sub UpdatePersonDataInDB(clsAppRuntime As App_Runtime, _
                                eQuadSubDataType As QuadSubDataType, _
-                               sFieldName As String, sFieldVal As Variant, _
+                               sFieldname As String, sFieldVal As Variant, _
                                sPredName As String, sPredVal As Variant)
 Dim sSpName As String
 Dim vRow() As Variant
 
-    vRow = Array(sFieldName, sFieldVal, sPredName, sPredVal)
+    vRow = Array(sFieldname, sFieldVal, sPredName, sPredVal)
     sSpName = "update_basic_" & EnumQuadSubDataType(eQuadSubDataType) & "_info"
     UpdateQuadDataInDB clsAppRuntime, sSpName, bHeaderFlag:=True, vRow:=vRow
                                

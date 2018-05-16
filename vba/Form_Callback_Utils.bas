@@ -29,9 +29,9 @@ main:
             "set wbSource= Workbooks(" & DOUBLEQUOTE & clsAppRuntime.TemplateBookName & DOUBLEQUOTE & ")" & vbNewLine & _
             "set wbTarget= Workbooks(" & DOUBLEQUOTE & sTargetBookName & DOUBLEQUOTE & ")" & vbNewLine & _
             "sSourceSheetName = " & DOUBLEQUOTE & clsAppRuntime.TemplateWidgetSheetName & DOUBLEQUOTE & vbNewLine & _
-            "Application.Run " & DOUBLEQUOTE & clsAppRuntime.MainBookName & "!Validate" & DOUBLEQUOTE & ",wbTarget,sSheetName, Target" & vbNewLine
+            "Application.Run " & DOUBLEQUOTE & clsAppRuntime.MainBookName & "!ValidateWidget" & DOUBLEQUOTE & ",wbTarget,sSheetName, Target" & vbNewLine
             
-           '"Application.Run " & DOUBLEQUOTE & clsAppRuntime.TemplateBook.name & "!Validate" & DOUBLEQUOTE & ",wbTarget,sSheetName, Target" & vbNewLine
+           '"Application.Run " & DOUBLEQUOTE & clsAppRuntime.TemplateBook.name & "!ValidateWidget" & DOUBLEQUOTE & ",wbTarget,sSheetName, Target" & vbNewLine
             
             
     If eWidgetType = WidgetType.Entry Then

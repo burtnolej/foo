@@ -2,30 +2,11 @@ Attribute VB_Name = "Validation_Utils"
 Option Explicit
 Const C_MODULE_NAME = "Validation_Utils"
 
-Public Function Validate(wbBook As Workbook, sSheetName As String, rTarget As Range) As Boolean
-Dim sFuncName As String, sDefnName As String, sActionFuncName As String, sValidType As String
+Public Function Validate(clsAppRuntime As App_Runtime, sDefnName As String, vValueToValidate As Variant) As Boolean
+Dim sFuncName As String, sActionFuncName As String, sValidType As String
 Dim dDefnDetail As Dictionary
 Dim vValidParams() As String
-Dim bValid As Boolean
-Dim eThisErrorType As ErrorType
-Dim mThisModule As VBComponent
-Dim clsAppRuntime As New App_Runtime
 
-setup:
-    clsAppRuntime.InitProperties bInitializeCache:=False
-    
-    EventsToggle False
-    'On Error GoTo err_name
-
-    If UBound(Split(rTarget.name.name, "!")) = 1 Then
-        sDefnName = Split(rTarget.name.name, "!")(1)
-    Else
-        sDefnName = rTarget.name.name
-    End If
-    On Error GoTo 0
-    
-    sFuncName = C_MODULE_NAME & "." & "Validate"
-    
     If dDefinitions Is Nothing Then
         ' when called from a callback and dDefinitons needs to be reconstituted
         FuncLogIt sFuncName, "Definitions not loaded so reloading", C_MODULE_NAME, LogMsgType.INFO
@@ -34,8 +15,7 @@ setup:
     
     If dDefinitions.Exists(sDefnName) = False Then
         ' usually called from tests, where dDefinitions is already set
-        FuncLogIt sFuncName, "Loading definition for  in [" & sDefnName & "]", C_MODULE_NAME, _
-            LogMsgType.Failure
+        FuncLogIt sFuncName, "Loading definition for  in [" & sDefnName & "]", C_MODULE_NAME, LogMsgType.Failure
     Else
         Set dDefnDetail = dDefinitions.Item(sDefnName)
         sValidType = dDefnDetail.Item("validation_type")
@@ -44,45 +24,86 @@ setup:
             vValidParams = dDefnDetail.Item("validation_args")
         End If
         
-        FuncLogIt sFuncName, "Using validation  [" & sValidType & "] [" & sFuncName & "]", C_MODULE_NAME, _
-            LogMsgType.OK
+        FuncLogIt sFuncName, "Using validation  [" & sValidType & "] [" & sFuncName & "]", C_MODULE_NAME, LogMsgType.OK
         
         On Error GoTo err
         If IsSet(clsAppRuntime) Then
             'first passed arg now needs to be clsAppRuntime if IsSet
-            Validate = Application.Run(sFuncName, clsAppRuntime, rTarget.value, vValidParams)
+            Validate = Application.Run(sFuncName, clsAppRuntime, vValueToValidate, vValidParams)
         Else
-            Validate = Application.Run(sFuncName, rTarget.value, dDefnDetail.Item("CacheTableName"), vValidParams)
+            Validate = Application.Run(sFuncName, vValueToValidate, dDefnDetail.Item("CacheTableName"), vValidParams)
         End If
         On Error GoTo 0
-        
-        If Validate = True Then
-            SetBgColorFromString sSheetName, rTarget, C_RGB_VALID, wbTmp:=wbBook
-            
-            If dDefnDetail.Item("ActionName") <> "" Then
-                sActionFuncName = Right(dDefnDetail.Item("ActionName"), Len(dDefnDetail.Item("ActionName")) - 1)
-                Application.Run sActionFuncName, clsAppRuntime, rTarget.value, rTarget.name.name
-            End If
-            
-            Exit Function
-        End If
     End If
-    
-    SetBgColorFromString sSheetName, rTarget, C_RGB_INVALID, wbTmp:=clsAppRuntime.AddBook
-    Validate = False
-    EventsToggle True
     
     Exit Function
 
 err:
+    Validate = False
+        
+End Function
+Public Function ValidateWidget(wbBook As Workbook, sSheetName As String, rTarget As Range) As Boolean
+'<<<
+'purpose: determine if a value entered into a widget is valid or not
+'param  : sSheetName, string; where the form is located
+'param  : rTarget, Range; the Cell containing the widget
+'rtype  :
+'>>>
+Dim sFuncName As String, sDefnName As String, sActionFuncName As String, sValidType As String
+Dim dDefnDetail As Dictionary
+Dim clsAppRuntime As New App_Runtime
+Dim lStartTick As Long
+
+setup:
+    sFuncName = C_MODULE_NAME & "." & "ValidateWidget"
+    lStartTick = FuncLogIt(sFuncName, "", C_MODULE_NAME, LogMsgType.INFUNC)
+    On Error GoTo err
+    clsAppRuntime.InitProperties bInitializeCache:=False
+    EventsToggle False
+    
+    If dDefinitions Is Nothing Then
+        ' when called from a callback and dDefinitons needs to be reconstituted
+        FuncLogIt sFuncName, "Definitions not loaded so reloading", C_MODULE_NAME, LogMsgType.INFO
+        DoLoadDefinitions clsAppRuntime:=clsAppRuntime
+    End If
+
+main:
+    If UBound(Split(rTarget.name.name, "!")) = 1 Then
+        sDefnName = Split(rTarget.name.name, "!")(1)
+    Else
+        sDefnName = rTarget.name.name
+    End If
+    On Error GoTo 0
+    
+    ValidateWidget = Validate(clsAppRuntime, sDefnName, rTarget.value)
+    
+    If ValidateWidget = True Then
+        SetBgColorFromString sSheetName, rTarget, C_RGB_VALID, wbTmp:=wbBook
+    
+        Set dDefnDetail = dDefinitions.Item(sDefnName)
+        If dDefnDetail.Item("ActionName") <> "" Then
+            sActionFuncName = Right(dDefnDetail.Item("ActionName"), Len(dDefnDetail.Item("ActionName")) - 1)
+            Application.Run sActionFuncName, clsAppRuntime, rTarget.value, rTarget.name.name
+        End If
+    
+        Exit Function
+    End If
+
+cleanup:
+    SetBgColorFromString sSheetName, rTarget, C_RGB_INVALID, wbTmp:=clsAppRuntime.AddBook
+    ValidateWidget = False
+    EventsToggle True
+    FuncLogIt sFuncName, "[sSheetName=" & sSheetName & "] [Range=" & rTarget.Address & "] [Value=" & rTarget.value & "] [result=" & CStr(ValidateWidget) & "]", C_MODULE_NAME, LogMsgType.DEBUGGING2
+    FuncLogIt sFuncName, "", C_MODULE_NAME, LogMsgType.OUTFUNC, lLastTick:=lStartTick
+    Exit Function
+    
+err:
     SetBgColorFromString sSheetName, rTarget, C_RGB_ERROR, wbTmp:=clsAppRuntime.AddBook
-    FuncLogIt sFuncName, "Error [" & err.Description & "]", C_MODULE_NAME, _
-            LogMsgType.Failure
+    FuncLogIt sFuncName, "Error [" & err.Description & "]", C_MODULE_NAME, LogMsgType.Failure
     Exit Function
 
 err_name:
-    FuncLogIt sFuncName, "Error with range name for [" & rTarget.Address & "} [" & err.Description & "]", C_MODULE_NAME, _
-            LogMsgType.Failure
+    FuncLogIt sFuncName, "Error with range name for [" & rTarget.Address & "} [" & err.Description & "]", C_MODULE_NAME, LogMsgType.Failure
 End Function
 
 'Public Function IsValidInteger(ByVal iValue As Variant) As Boolean

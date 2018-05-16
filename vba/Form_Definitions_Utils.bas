@@ -157,7 +157,7 @@ Public Function LoadDefinitions(wsTmp As Worksheet, _
                      
 Dim dDefinitions As New Dictionary, dDefnDetail As Dictionary, dDefnActions As New Dictionary, dDefnTables As New Dictionary
 Dim rRow As Range
-Dim sCacheTableName As String, sFieldName As String, sActionName As String, sValidationType As String, sActionFunc As String
+Dim sCacheTableName As String, sFieldname As String, sActionName As String, sValidationType As String, sActionFunc As String
 Dim eWidgetType As WidgetType
 Dim sValidationParam As String, sFuncName As String, sKey As String
 Dim vValidationParams() As String
@@ -179,7 +179,7 @@ main:
             iValidationParamCount = 0
             sActionName = rRow.Columns(1)
             sCacheTableName = rRow.Columns(2)
-            sFieldName = rRow.Columns(3)
+            sFieldname = rRow.Columns(3)
             sValidationType = rRow.Columns(4)
             sValidationParam = rRow.Columns(5)
             sActionFunc = rRow.Columns(8)
@@ -192,19 +192,19 @@ main:
             
             If sCacheTableName = BLANK Then
                 If eWidgetType <> WidgetType.Button Then
-                    err.Raise ErrorMsgType.CACHE_TABLE_NAME_CANNOT_BE_BLANK, Description:="[sFieldName=" & sFieldName & "] [sCacheTableName=" & sCacheTableName & "]"
+                    err.Raise ErrorMsgType.CACHE_TABLE_NAME_CANNOT_BE_BLANK, Description:="[sFieldName=" & sFieldname & "] [sCacheTableName=" & sCacheTableName & "]"
                 End If
             End If
             
-            If sFieldName = BLANK Then
-                err.Raise ErrorMsgType.FIELD_NAME_CANNOT_BE_BLANK, Description:="[sFieldName=" & sFieldName & "]"
+            If sFieldname = BLANK Then
+                err.Raise ErrorMsgType.FIELD_NAME_CANNOT_BE_BLANK, Description:="[sFieldName=" & sFieldname & "]"
             End If
             
             Set dDefnDetail = New Dictionary
             dDefnDetail.Add "validation_type", sValidationType
             dDefnDetail.Add "validation_param", sValidationParam
             dDefnDetail.Add "CacheTableName", sCacheTableName
-            dDefnDetail.Add "FieldName", sFieldName
+            dDefnDetail.Add "FieldName", sFieldname
             dDefnDetail.Add "WidgetType", eWidgetType
             dDefnDetail.Add "ActionName", sActionFunc
             
@@ -220,7 +220,7 @@ main:
                 dDefnDetail.Add "validation_args", vValidationParams
             End If
             
-            sKey = GetKey(sActionName, sFieldName, eWidgetType)
+            sKey = GetKey(sActionName, sFieldname, eWidgetType)
             
             If dDefinitions.Exists(sKey) = True Then
                 FuncLogIt sFuncName, "definition for [" & sKey & "] already loaded", C_MODULE_NAME, LogMsgType.INFO

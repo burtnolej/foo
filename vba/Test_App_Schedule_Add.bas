@@ -15,7 +15,7 @@ Dim i As Integer
         For i = 0 To iNumEntries - 1
             Set rTarget = .Range(.Cells(iFirstRow + i, iCol), .Cells(iFirstRow + i, iCol))
             rTarget = vValues(i)
-            If Validate(wbTmp, sTargetSheetName, rTarget) = False Then
+            If ValidateWidget(wbTmp, sTargetSheetName, rTarget) = False Then
                 FillEntryValues = False
                 Exit Function
             End If
@@ -130,7 +130,7 @@ main:
         ' SFirstName
         Set rTarget = .Range(.Cells(2, 2), .Cells(2, 2))
         rTarget = "Bruno"
-        Validate clsAppRuntime.AddBook, sTargetSheetName, rTarget
+        ValidateWidget clsAppRuntime.AddBook, sTargetSheetName, rTarget
     
         If GetBgColor(sTargetSheetName, rTarget).AsString <> "0,255,0" Then
             eTestResult = TestResult.Failure
@@ -140,7 +140,7 @@ main:
         ' SLastName
         Set rTarget = .Range(.Cells(3, 2), .Cells(3, 2))
         rTarget = "Raskin"
-        Validate clsAppRuntime.AddBook, sTargetSheetName, rTarget
+        ValidateWidget clsAppRuntime.AddBook, sTargetSheetName, rTarget
     
         If GetBgColor(sTargetSheetName, rTarget).AsString <> "0,255,0" Then
             eTestResult = TestResult.Failure
@@ -150,7 +150,7 @@ main:
         ' TFirstName
         Set rTarget = .Range(.Cells(4, 2), .Cells(4, 2))
         rTarget = "David"
-        Validate clsAppRuntime.AddBook, sTargetSheetName, rTarget
+        ValidateWidget clsAppRuntime.AddBook, sTargetSheetName, rTarget
     
         If GetBgColor(sTargetSheetName, rTarget).AsString <> "0,255,0" Then
             eTestResult = TestResult.Failure
@@ -160,7 +160,7 @@ main:
         ' TLastName
         Set rTarget = .Range(.Cells(5, 2), .Cells(5, 2))
         rTarget = "Stone"
-        Validate clsAppRuntime.AddBook, sTargetSheetName, rTarget
+        ValidateWidget clsAppRuntime.AddBook, sTargetSheetName, rTarget
     
         If GetBgColor(sTargetSheetName, rTarget).AsString <> "0,255,0" Then
             eTestResult = TestResult.Failure
@@ -170,7 +170,7 @@ main:
         ' CourseName
         Set rTarget = .Range(.Cells(6, 2), .Cells(6, 2))
         rTarget = "Art"
-        Validate clsAppRuntime.AddBook, sTargetSheetName, rTarget
+        ValidateWidget clsAppRuntime.AddBook, sTargetSheetName, rTarget
     
         If GetBgColor(sTargetSheetName, rTarget).AsString <> "0,255,0" Then
             eTestResult = TestResult.Failure
@@ -180,7 +180,7 @@ main:
         ' SubjectName
         Set rTarget = .Range(.Cells(7, 2), .Cells(7, 2))
         rTarget = "Science"
-        Validate clsAppRuntime.AddBook, sTargetSheetName, rTarget
+        ValidateWidget clsAppRuntime.AddBook, sTargetSheetName, rTarget
     
         If GetBgColor(sTargetSheetName, rTarget).AsString <> "0,255,0" Then
             eTestResult = TestResult.Failure
@@ -190,7 +190,7 @@ main:
         ' Prep
         Set rTarget = .Range(.Cells(8, 2), .Cells(8, 2))
         rTarget = "Luna"
-        Validate clsAppRuntime.AddBook, sTargetSheetName, rTarget
+        ValidateWidget clsAppRuntime.AddBook, sTargetSheetName, rTarget
     
         If GetBgColor(sTargetSheetName, rTarget).AsString <> "0,255,0" Then
             eTestResult = TestResult.Failure
@@ -200,7 +200,7 @@ main:
         ' TimePeriod
         Set rTarget = .Range(.Cells(9, 2), .Cells(9, 2))
         rTarget = "4"
-        Validate clsAppRuntime.AddBook, sTargetSheetName, rTarget
+        ValidateWidget clsAppRuntime.AddBook, sTargetSheetName, rTarget
     
         If GetBgColor(sTargetSheetName, rTarget).AsString <> "0,255,0" Then
             eTestResult = TestResult.Failure
@@ -210,7 +210,7 @@ main:
         ' Day
         Set rTarget = .Range(.Cells(10, 2), .Cells(10, 2))
         rTarget = "M"
-        Validate clsAppRuntime.AddBook, sTargetSheetName, rTarget
+        ValidateWidget clsAppRuntime.AddBook, sTargetSheetName, rTarget
     
         If GetBgColor(sTargetSheetName, rTarget).AsString <> "0,255,0" Then
             eTestResult = TestResult.Failure
@@ -290,7 +290,7 @@ main:
         ' SFirstName
         Set rTarget = .Range(.Cells(2, 2), .Cells(2, 2))
         rTarget = "Bruno"
-        Validate clsAppRuntime.AddBook, sTargetSheetName, rTarget
+        ValidateWidget clsAppRuntime.AddBook, sTargetSheetName, rTarget
     
         If GetBgColor(sTargetSheetName, rTarget).AsString <> "0,255,0" Then
             eTestResult = TestResult.Failure
@@ -300,7 +300,7 @@ main:
         ' SLastName
         Set rTarget = .Range(.Cells(3, 2), .Cells(3, 2))
         rTarget = "Raskin"
-        Validate clsAppRuntime.AddBook, sTargetSheetName, rTarget
+        ValidateWidget clsAppRuntime.AddBook, sTargetSheetName, rTarget
     
         If GetBgColor(sTargetSheetName, rTarget).AsString <> "0,255,0" Then
             eTestResult = TestResult.Failure
@@ -310,7 +310,7 @@ main:
         ' TFirstName
         Set rTarget = .Range(.Cells(4, 2), .Cells(4, 2))
         rTarget = "David"
-        Validate clsAppRuntime.AddBook, sTargetSheetName, rTarget
+        ValidateWidget clsAppRuntime.AddBook, sTargetSheetName, rTarget
     
         If GetBgColor(sTargetSheetName, rTarget).AsString <> "0,255,0" Then
             eTestResult = TestResult.Failure
@@ -320,7 +320,7 @@ main:
         ' TLastName
         Set rTarget = .Range(.Cells(5, 2), .Cells(5, 2))
         rTarget = "Stone"
-        Validate clsAppRuntime.AddBook, sTargetSheetName, rTarget
+        ValidateWidget clsAppRuntime.AddBook, sTargetSheetName, rTarget
     
         If GetBgColor(sTargetSheetName, rTarget).AsString <> "0,255,0" Then
             eTestResult = TestResult.Failure
@@ -330,7 +330,7 @@ main:
         ' CourseName
         Set rTarget = .Range(.Cells(6, 2), .Cells(6, 2))
         rTarget = "Art"
-        Validate clsAppRuntime.AddBook, sTargetSheetName, rTarget
+        ValidateWidget clsAppRuntime.AddBook, sTargetSheetName, rTarget
     
         If GetBgColor(sTargetSheetName, rTarget).AsString <> "0,255,0" Then
             eTestResult = TestResult.Failure
@@ -340,7 +340,7 @@ main:
         ' SubjectName
         Set rTarget = .Range(.Cells(7, 2), .Cells(7, 2))
         rTarget = "Science"
-        Validate clsAppRuntime.AddBook, sTargetSheetName, rTarget
+        ValidateWidget clsAppRuntime.AddBook, sTargetSheetName, rTarget
     
         If GetBgColor(sTargetSheetName, rTarget).AsString <> "0,255,0" Then
             eTestResult = TestResult.Failure
@@ -350,7 +350,7 @@ main:
         ' Prep
         Set rTarget = .Range(.Cells(8, 2), .Cells(8, 2))
         rTarget = "Luna"
-        Validate clsAppRuntime.AddBook, sTargetSheetName, rTarget
+        ValidateWidget clsAppRuntime.AddBook, sTargetSheetName, rTarget
     
         If GetBgColor(sTargetSheetName, rTarget).AsString <> "0,255,0" Then
             eTestResult = TestResult.Failure
@@ -360,7 +360,7 @@ main:
         ' TimePeriod
         Set rTarget = .Range(.Cells(9, 2), .Cells(9, 2))
         rTarget = "4"
-        Validate clsAppRuntime.AddBook, sTargetSheetName, rTarget
+        ValidateWidget clsAppRuntime.AddBook, sTargetSheetName, rTarget
     
         If GetBgColor(sTargetSheetName, rTarget).AsString <> "0,255,0" Then
             eTestResult = TestResult.Failure
@@ -370,7 +370,7 @@ main:
         ' Day
         Set rTarget = .Range(.Cells(10, 2), .Cells(10, 2))
         rTarget = "M"
-        Validate clsAppRuntime.AddBook, sTargetSheetName, rTarget
+        ValidateWidget clsAppRuntime.AddBook, sTargetSheetName, rTarget
     
         If GetBgColor(sTargetSheetName, rTarget).AsString <> "0,255,0" Then
             eTestResult = TestResult.Failure
