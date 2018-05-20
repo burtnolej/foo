@@ -34,7 +34,7 @@ Function TestGetDirtyTableRecords() As TestResult
 Dim sFuncName As String, sSheetName As String, sResultStr As String, sExpectedResultStr As String, sColumns As String, sExecPath As String, sDatabaseName As String, _
     sTableName As String, sFileName As String, sResults As String, sResultFileName As String
 Dim vSource() As String, vRows() As Variant, vColNames() As String, aColumnDefns() As Variant, aRows() As Variant, aColumns() As String, aArgs() As String, vDBRows() As Variant
-Dim vDirtyRows() As String
+Dim vDirtyRows() As Variant
 Dim wsTmp As Worksheet
 Dim rTarget As Range
 Dim dDefinitions As Dictionary, dRecord As Dictionary
@@ -90,8 +90,7 @@ main:
     
     AddTableRecord "Foo", wbAddBook:=clsAppRuntime.AddBook, wbCacheBook:=clsAppRuntime.CacheBook
     
-    ReDim vDirtyRows(0 To 1000, 0 To 2)
-    GetDirtyTableRecords vDirtyRows, "Foo", wbTmp:=clsAppRuntime.CacheBook
+    vDirtyRows = GetDirtyTableRecords("Foo", wbTmp:=clsAppRuntime.CacheBook)
     
     If UBound(vDirtyRows) <> 2 Then
         eTestResult = TestResult.Failure

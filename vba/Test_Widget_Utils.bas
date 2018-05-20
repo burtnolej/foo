@@ -75,7 +75,7 @@ setup:
         Set rSource = .Range(.Cells(2, 1), .Cells(2, 1))
     End With
     
-    rSource.name = "fButtonInvalid"
+    rSource.Name = "fButtonInvalid"
 
     SetBgColor sSheetName, rSource, 255, 255, 0, wbTmp:=clsAppRuntime.CacheBook
     
@@ -125,7 +125,7 @@ setup:
         Set rSource = .Range(.Cells(2, 1), .Cells(2, 1))
     End With
     
-    rSource.name = "fEntryInvalid"
+    rSource.Name = "fEntryInvalid"
 
     SetBgColor sSheetName, rSource, 255, 255, 0, wbTmp:=clsAppRuntime.CacheBook
     
@@ -174,7 +174,7 @@ setup:
         Set rTarget = .Range(.Cells(4, 10), .Cells(4, 10))
         rSource.EntireRow.RowHeight = 10
         rSource.EntireColumn.ColumnWidth = 5
-        rSource.name = "foo"
+        rSource.Name = "foo"
     End With
     
 main:
@@ -227,7 +227,7 @@ setup:
         Set rTarget = .Range(.Cells(10, 10), .Cells(15, 15))
         rSource.EntireRow.RowHeight = 3
         rSource.EntireColumn.ColumnWidth = 3
-        rSource.name = "foo"
+        rSource.Name = "foo"
     End With
     
 main:
@@ -281,7 +281,7 @@ setup:
         rSource.EntireColumn.ColumnWidth = 3
         rSource.Rows(2).EntireRow.RowHeight = 20
         rSource.Columns(2).EntireColumn.ColumnWidth = 20
-        rSource.name = "foo"
+        rSource.Name = "foo"
     End With
     
 main:
@@ -341,7 +341,7 @@ setup:
         rSource.EntireColumn.ColumnWidth = 3
         rSource.Rows(2).EntireRow.RowHeight = 20
         rSource.Columns(2).EntireColumn.ColumnWidth = 20
-        rSource.name = "foo"
+        rSource.Name = "foo"
         rSource.Merge
     End With
     

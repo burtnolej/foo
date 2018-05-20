@@ -86,7 +86,7 @@ main:
         eTestResult = TestResult.Failure
     End If
     
-    If clsAppRuntime.BookName <> wbTmp.name Then
+    If clsAppRuntime.BookName <> wbTmp.Name Then
         eTestResult = TestResult.Failure
     Else
         eTestResult = TestResult.OK
@@ -186,7 +186,7 @@ setup:
     sFilePath = Environ("MYHOME") & "\\app_runtime_cache.txt"
     
 main:
-    clsAppRuntime.InitProperties sBookPath:=sTmpBookPath, sBookName:=wbTmp.name
+    clsAppRuntime.InitProperties sBookPath:=sTmpBookPath, sBookName:=wbTmp.Name
     If clsAppRuntime.BookPath <> wbTmp.Path Then
         eTestResult = TestResult.Failure
     Else
@@ -322,8 +322,8 @@ main:
                                   sTemplateSheetName:=sTemplateSheetName, _
                                   sTemplateWidgetSheetName:=sTemplateWidgetSheetName
                                   
-    Debug.Print clsAppRuntime.TemplateBook.name
-    If clsAppRuntime.TemplateBook.name <> sTemplateName Then
+    Debug.Print clsAppRuntime.TemplateBook.Name
+    If clsAppRuntime.TemplateBook.Name <> sTemplateName Then
         eTestResult = TestResult.Failure
         GoTo teardown
     End If

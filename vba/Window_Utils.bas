@@ -167,7 +167,7 @@ main:
     Exit Sub
     
 err:
-    FuncLogIt sFuncName, "could not make label  [rLabel=" & rLabel.Address & "] [wbTmp=" & wbTmp.name & "]", C_MODULE_NAME, LogMsgType.INFO
+    FuncLogIt sFuncName, "could not make label  [rLabel=" & rLabel.Address & "] [wbTmp=" & wbTmp.Name & "]", C_MODULE_NAME, LogMsgType.INFO
     
 End Sub
 Public Sub SimplifyWindow(winsetTmp As Quad_WindowSettings, _
@@ -213,14 +213,14 @@ main:
             wsTmp.ScrollArea = "A1:ZA1000"
         Else
             If winsetTmp.WindowTitle = "" Then
-                winsetTmp.WindowTitle = "[" & wsTmp.name & "]"
+                winsetTmp.WindowTitle = "[" & wsTmp.Name & "]"
             End If
         
-            Set rVisible = SetScrollAreaToVisibleRange(wbTmp:=wbTmp, sSheetName:=wsTmp.name)
+            Set rVisible = SetScrollAreaToVisibleRange(wbTmp:=wbTmp, sSheetName:=wsTmp.Name)
             
             ' top label
             Set rTopRow = rVisible.Rows(1).Resize(2)
-            MakeLabel winsetTmp, rTopRow, wsTmp.name
+            MakeLabel winsetTmp, rTopRow, wsTmp.Name
             winsetTmp.TopLabel = rTopRow
             
             ' bottom label
@@ -228,19 +228,19 @@ main:
 
             Set rBottomRow = rVisible.Rows(rVisible.Rows.Count).Offset(-1).Resize(2, iLabelWidth)
             winsetTmp.WindowTitle = "STATUS BAR"
-            MakeLabel winsetTmp, rBottomRow, wsTmp.name
+            MakeLabel winsetTmp, rBottomRow, wsTmp.Name
             winsetTmp.BottomLabel = rBottomRow
             
             ' first bottom button
             Set rButton1 = rBottomRow.Offset(, 1).Resize(2, 1)
             winsetTmp.WindowTitle = "X"
-            MakeLabel winsetTmp, rButton1, wsTmp.name
+            MakeLabel winsetTmp, rButton1, wsTmp.Name
             winsetTmp.Button1 = rButton1
                     
             ' second bottom button
             Set rButton2 = rButton1.Offset(, 1).Resize(2)
             winsetTmp.WindowTitle = "Y"
-            MakeLabel winsetTmp, rButton2, wsTmp.name
+            MakeLabel winsetTmp, rButton2, wsTmp.Name
             winsetTmp.Button2 = rButton2
             
         End If
@@ -250,7 +250,7 @@ main:
     Exit Sub
     
 err:
-    FuncLogIt sFuncName, "could not simplify window [wbTmp=" & wbTmp.name & "] [iWindowID=" & CStr(winsetTmp.WindowID) & "]", C_MODULE_NAME, LogMsgType.INFO
+    FuncLogIt sFuncName, "could not simplify window [wbTmp=" & wbTmp.Name & "] [iWindowID=" & CStr(winsetTmp.WindowID) & "]", C_MODULE_NAME, LogMsgType.INFO
 
 End Sub
 Public Function GetScreenDimensions(ByRef lWidth As Long, ByRef lHeight As Long)
@@ -289,7 +289,7 @@ main:
     Exit Sub
     
 err:
-    FuncLogIt sFuncName, "could not set  window state to normal [wbTmp=" & wbTmp.name & "] [iWindowID=" & CStr(iWindowID) & "]", C_MODULE_NAME, LogMsgType.Error
+    FuncLogIt sFuncName, "could not set  window state to normal [wbTmp=" & wbTmp.Name & "] [iWindowID=" & CStr(iWindowID) & "]", C_MODULE_NAME, LogMsgType.Error
 
 End Sub
 
@@ -311,7 +311,7 @@ main:
     Exit Sub
     
 err:
-    FuncLogIt sFuncName, "could not set  window state to normal [wbTmp=" & wbTmp.name & "] [iWindowID=" & CStr(iWindowID) & "]", C_MODULE_NAME, LogMsgType.Error
+    FuncLogIt sFuncName, "could not set  window state to normal [wbTmp=" & wbTmp.Name & "] [iWindowID=" & CStr(iWindowID) & "]", C_MODULE_NAME, LogMsgType.Error
 
 End Sub
 Public Sub SetWindowLocation(lTop As Long, lLeft As Long, _
@@ -336,7 +336,7 @@ main:
     Exit Sub
     
 err:
-    FuncLogIt sFuncName, "could not set window location [wbTmp=" & wbTmp.name & "] [iWindowID=" & CStr(iWindowID) & "]", C_MODULE_NAME, LogMsgType.Error
+    FuncLogIt sFuncName, "could not set window location [wbTmp=" & wbTmp.Name & "] [iWindowID=" & CStr(iWindowID) & "]", C_MODULE_NAME, LogMsgType.Error
 
 End Sub
 
@@ -359,7 +359,7 @@ main:
     Exit Sub
     
 err:
-    FuncLogIt sFuncName, "could not get window location [wbTmp=" & wbTmp.name & "] [iWindowID=" & CStr(iWindowID) & "]", C_MODULE_NAME, LogMsgType.Error
+    FuncLogIt sFuncName, "could not get window location [wbTmp=" & wbTmp.Name & "] [iWindowID=" & CStr(iWindowID) & "]", C_MODULE_NAME, LogMsgType.Error
 
 End Sub
 Public Sub SetWindowSize(lWidth As Long, lHeight As Long, _
@@ -385,7 +385,7 @@ main:
     Exit Sub
     
 err:
-    FuncLogIt sFuncName, "could not set window size [wbTmp=" & wbTmp.name & "] [iWindowID=" & CStr(iWindowID) & "]", C_MODULE_NAME, LogMsgType.Error
+    FuncLogIt sFuncName, "could not set window size [wbTmp=" & wbTmp.Name & "] [iWindowID=" & CStr(iWindowID) & "]", C_MODULE_NAME, LogMsgType.Error
 
 End Sub
 
@@ -409,7 +409,7 @@ main:
     Exit Sub
     
 err:
-    FuncLogIt sFuncName, "could not get window size [wbTmp=" & wbTmp.name & "] [iWindowID=" & CStr(iWindowID) & "]", C_MODULE_NAME, LogMsgType.Error
+    FuncLogIt sFuncName, "could not get window size [wbTmp=" & wbTmp.Name & "] [iWindowID=" & CStr(iWindowID) & "]", C_MODULE_NAME, LogMsgType.Error
 
 End Sub
 Public Sub SetWindowScheme(ByRef dWindows As Dictionary, _

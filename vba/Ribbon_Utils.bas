@@ -118,7 +118,7 @@ Dim iFormatWidth As Integer, iFormatHeight As Integer
 Dim wsSchedule As Worksheet
     
     clsAppRuntime.InitProperties bInitializeCache:=False, sDefinitionSheetName:="Definitions"
-    vStudentIDs = GetColumnValues(clsAppRuntime, QuadDataType.person, QuadSubDataType.Student, "idStudent")
+    vStudentIDs = GetColumnValues(clsAppRuntime, QuadDataType.Person, QuadSubDataType.Student, "idStudent")
 
     sSheetName = "view_" & EnumQuadSubDataType(QuadSubDataType.Student) & "_" & CStr(CInt(vStudentIDs(index)))
     If SheetExists(clsAppRuntime.ScheduleBook, sSheetName) = False Then
@@ -310,7 +310,7 @@ Dim wsTmp As Worksheet
         sRowLabel = .Range(.Cells(iSelectionRowId, 1), .Cells(iSelectionRowId, 1)).value
         sColLabel = .Range(.Cells(1, iSelectionColId), .Cells(1, iSelectionColId)).value
     End With
-    sSheetName = wsTmp.name
+    sSheetName = wsTmp.Name
     
     On Error Resume Next
     sQuadSubDataType = Split(sSheetName, UNDERSCORE)(1)
@@ -331,7 +331,7 @@ Sub rxgal_getItemCount(control As IRibbonControl, ByRef returnedVal)
 Dim vLabelNames As Variant
 Dim clsAppRuntime As New App_Runtime
     clsAppRuntime.InitProperties bInitializeCache:=True
-    vLabelNames = GetColumnValues(clsAppRuntime, QuadDataType.person, QuadSubDataType.Student, "sStudentLastNm")
+    vLabelNames = GetColumnValues(clsAppRuntime, QuadDataType.Person, QuadSubDataType.Student, "sStudentLastNm")
     returnedVal = UBound(vLabelNames) + 1
 End Sub
 
@@ -342,8 +342,8 @@ Dim clsAppRuntime As New App_Runtime
     If index = 0 Then index = 1
     
     clsAppRuntime.InitProperties bInitializeCache:=False
-    vLabelFirstNames = GetColumnValues(clsAppRuntime, QuadDataType.person, QuadSubDataType.Student, "sStudentFirstNm")
-    vLabelLastNames = GetColumnValues(clsAppRuntime, QuadDataType.person, QuadSubDataType.Student, "sStudentLastNm")
+    vLabelFirstNames = GetColumnValues(clsAppRuntime, QuadDataType.Person, QuadSubDataType.Student, "sStudentFirstNm")
+    vLabelLastNames = GetColumnValues(clsAppRuntime, QuadDataType.Person, QuadSubDataType.Student, "sStudentLastNm")
     
     'is this correct at last index ?
     returnedVal = vLabelFirstNames(index) & SPACE & vLabelLastNames(index)
@@ -361,7 +361,7 @@ Dim clsAppRuntime As New App_Runtime
     If index = 0 Then index = 1
     
     clsAppRuntime.InitProperties bInitializeCache:=False
-    vPrepIDs = GetColumnValues(clsAppRuntime, QuadDataType.person, QuadSubDataType.Student, "idPrep")
+    vPrepIDs = GetColumnValues(clsAppRuntime, QuadDataType.Person, QuadSubDataType.Student, "idPrep")
     
     vExtensions = InitStringArray(Array("png", "jpg"))
     sImagePath = Environ("MYHOME") & "\Pictures\icons\"

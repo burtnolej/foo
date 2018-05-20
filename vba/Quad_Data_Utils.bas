@@ -5,7 +5,7 @@ Public Function GetStudentNameFromID(iPersonID As Integer) As String
 Dim clsAppRuntime As New App_Runtime
 
     clsAppRuntime.InitProperties bInitializeCache:=False
-    GetStudentNameFromID = CrossRefQuadData(clsAppRuntime, QuadDataType.person, QuadSubDataType.Student, _
+    GetStudentNameFromID = CrossRefQuadData(clsAppRuntime, QuadDataType.Person, QuadSubDataType.Student, _
             "idStudent", iPersonID, "sStudentLastNm")
 End Function
 
@@ -15,7 +15,7 @@ Dim clsAppRuntime As New App_Runtime
     clsAppRuntime.InitProperties bInitializeCache:=False
     'GetTableRecordID = CrossRefQuadData(clsAppRuntime, QuadDataType.person, QuadSubDataType.Student, _
     '    sLookUpFieldName, vValue, "ID")
-    GetTableRecordID = CrossRefQuadData(clsAppRuntime, QuadDataType.person, QuadSubDataType.Student, _
+    GetTableRecordID = CrossRefQuadData(clsAppRuntime, QuadDataType.Person, QuadSubDataType.Student, _
         sLookUpFieldName, vValue, "RefNo")
 End Function
 
@@ -33,8 +33,8 @@ Dim vLookUpByValues() As String, vLookUpValues() As String
     Set wsCache = GetPersonData(clsAppRuntime, eQuadDataType, eQuadSubDataType, QuadScope.all, _
                                     bInTable:=True)
             
-    sLookUpByRangeName = GetDBColumnRange(wsCache.name, sLookUpByColName)
-    sLookUpRangeName = GetDBColumnRange(wsCache.name, sLookUpColName)
+    sLookUpByRangeName = GetDBColumnRange(wsCache.Name, sLookUpByColName)
+    sLookUpRangeName = GetDBColumnRange(wsCache.Name, sLookUpColName)
     
     vLookUpByValues = ListFromRange(wsCache, sLookUpByRangeName)
     vLookUpValues = ListFromRange(wsCache, sLookUpRangeName)
@@ -56,7 +56,7 @@ Dim aArgs() As String
 End Sub
 
 Public Sub InsertQuadDataToDB(clsAppRuntime As App_Runtime, sSpName As String, _
-                              vRows() As Variant, vColumns() As Variant, _
+                              vRows As Variant, vColumns As Variant, _
                     Optional bHeaderFlag As Boolean = False)
 
 Dim aArgs() As String

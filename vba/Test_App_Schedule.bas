@@ -21,6 +21,7 @@ Dim sScheduleName As String, sSchedulePath As String
 
     clsAppRuntime.InitProperties sScheduleBookName:=sScheduleName, sScheduleBookPath:=sSchedulePath
     iPersonID = 70
+    GetDefinition clsAppRuntime, "Schedule", "Lesson", "test", FormType.Add
     Set wsSchedule = BuildSchedule(clsAppRuntime, QuadSubDataType.Student, iPersonID)
                               
     With wsSchedule
@@ -50,7 +51,7 @@ err:
     
 teardown:
     Test_BuildSchedule_Student_OverideScheduleBook = eTestResult
-    DeleteSheet clsAppRuntime.CacheBook, wsSchedule.name
+    DeleteSheet clsAppRuntime.CacheBook, wsSchedule.Name
     clsAppRuntime.Delete
 
 End Function
@@ -187,7 +188,7 @@ err:
     
 teardown:
     DeleteSheet clsAppRuntime.CacheBook, "schedule_" & EnumQuadSubDataType(QuadSubDataType.Student) & "_" & CStr(iPersonID)
-    DeleteSheet clsAppRuntime.CacheBook, wsSchedule.name
+    DeleteSheet clsAppRuntime.CacheBook, wsSchedule.Name
     clsAppRuntime.Delete
     
 End Function
@@ -301,7 +302,7 @@ err:
     
 teardown:
     Test_BuildSchedule_Student_NotCached = eTestResult
-    DeleteSheet clsAppRuntime.CacheBook, wsSchedule.name
+    DeleteSheet clsAppRuntime.CacheBook, wsSchedule.Name
     clsAppRuntime.Delete
     
 End Function
@@ -326,7 +327,7 @@ setup:
     
     GetScheduleDataFromDB clsAppRuntime, iPersonID, QuadSubDataType.Student
     aSchedule = ParseRawData(ReadFile(clsAppRuntime.ResultFileName))
-    sCacheSheetName = CacheData(clsAppRuntime, aSchedule, QuadDataType.schedule, QuadSubDataType.Student, iPersonID)
+    sCacheSheetName = CacheData(clsAppRuntime, aSchedule, QuadDataType.Schedule, QuadSubDataType.Student, iPersonID)
     
 main:
     Set wsSchedule = BuildSchedule(clsAppRuntime, QuadSubDataType.Student, iPersonID)
@@ -358,7 +359,7 @@ err:
     
 teardown:
     Test_BuildSchedule_Student_Cached = eTestResult
-    DeleteSheet clsAppRuntime.ScheduleBook, wsSchedule.name
+    DeleteSheet clsAppRuntime.ScheduleBook, wsSchedule.Name
     clsAppRuntime.Delete
     
 End Function
@@ -379,7 +380,7 @@ setup:
     
     GetScheduleDataFromDB clsAppRuntime, iPersonID, QuadSubDataType.Student
     aSchedule = ParseRawData(ReadFile(clsAppRuntime.ResultFileName))
-    sCacheSheetName = CacheData(clsAppRuntime, aSchedule, QuadDataType.schedule, QuadSubDataType.Student, iPersonID)
+    sCacheSheetName = CacheData(clsAppRuntime, aSchedule, QuadDataType.Schedule, QuadSubDataType.Student, iPersonID)
  
     With clsAppRuntime.CacheBook.Sheets(sCacheSheetName)
         If .Range(.Cells(47, 11), .Cells(47, 11)).value <> 1476 Then
@@ -413,7 +414,7 @@ setup:
     
     iPersonID = 70
     
-    GetScheduleDataFromDB clsAppRuntime, iPersonID, QuadDataType.schedule
+    GetScheduleDataFromDB clsAppRuntime, iPersonID, QuadDataType.Schedule
     aSchedule = ParseRawData(ReadFile(clsAppRuntime.ResultFileName))
  
     If aSchedule(46, 10) <> 1476 Then

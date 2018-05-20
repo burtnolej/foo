@@ -19,12 +19,12 @@ Dim clsAppRuntime As New App_Runtime
     Set Form_Utils.dDefinitions = LoadDefinitions(clsAppRuntime.TemplateBook.Sheets("Definitions"), _
                 rSource:=clsAppRuntime.TemplateBook.Sheets("Definitions").Range("Definitions"))
                 
-    Set wsCache = GetScheduleData(clsAppRuntime, iPersonID, QuadDataType.schedule, eQuadSubDataType, bInTable:=True)
+    Set wsCache = GetScheduleData(clsAppRuntime, iPersonID, QuadDataType.Schedule, eQuadSubDataType, bInTable:=True)
         
-    vPeriodIds = GetColumnValues(clsAppRuntime, QuadDataType.schedule, QuadSubDataType.Student, _
+    vPeriodIds = GetColumnValues(clsAppRuntime, QuadDataType.Schedule, QuadSubDataType.Student, _
                 "idTimePeriod", iPersonID:=iPersonID)
     vTmp = IndexArrayMulti(vPeriodIds, CStr(iPeriodID))
-    vDayCds = GetColumnValues(clsAppRuntime, QuadDataType.schedule, QuadSubDataType.Student, _
+    vDayCds = GetColumnValues(clsAppRuntime, QuadDataType.Schedule, QuadSubDataType.Student, _
                     "cdDay", iPersonID:=iPersonID)
 
     iIndex = IndexArray(vDayCds, sDayCd, vWhere:=vTmp)
@@ -43,7 +43,7 @@ Dim iPersonID As Integer
     clsAppRuntime.InitProperties bInitializeCache:=False
     sFormatRangeName = "f" & "student" & "ScheduleCell"
     Set dEntryValues = GetRecordValuesAsDict(clsAppRuntime.TemplateBook, clsAppRuntime.AddBook, "AddLesson")
-    iPersonID = CrossRefQuadData(clsAppRuntime, QuadDataType.person, QuadSubDataType.Student, "sStudentFirstNm", dEntryValues.Item("sStudentFirstNm"), "idStudent")
+    iPersonID = CrossRefQuadData(clsAppRuntime, QuadDataType.Person, QuadSubDataType.Student, "sStudentFirstNm", dEntryValues.Item("sStudentFirstNm"), "idStudent")
     Set AddLesson = AddAddLesson(clsAppRuntime, dEntryValues, sFormatRangeName, iPersonID)
     
 End Function
@@ -97,8 +97,8 @@ Dim rTemplateSource As Range
     
     clsAppRuntime.ScheduleBook.Windows(1).Visible = True
 End Function
-Public Sub GenerateScheduleAdd(clsAppRuntime As App_Runtime)
-Dim sFuncName As String, sSheetName As String, sDefn As String
+Public Sub GenerateScheduleAdd(clsAppRuntime As App_Runtime, Optional sSheetName As String = "test")
+Dim sFuncName As String, sDefn As String
 Dim vSource() As String
 Dim wsTmp As Worksheet
 Dim rTarget As Range
@@ -106,7 +106,7 @@ Dim eTestResult As TestResult
 
 setup:
     sFuncName = C_MODULE_NAME & "." & "GenerateScheduleAdd"
-    GetDefinition clsAppRuntime, DefnType.Lesson, "test"
+    GetDefinition clsAppRuntime, "Schedule", "Lesson", sSheetName, FormType.Add
 
 main:
     GenerateForms clsAppRuntime, bLoadRefData:=True

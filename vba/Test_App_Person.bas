@@ -70,7 +70,7 @@ setup:
     On Error GoTo err
     clsAppRuntime.InitProperties bInitializeCache:=True, sDefinitionSheetName:="Definitions"
 
-    If IsValidPersonID(clsAppRuntime, 70, QuadSubDataType.teacher) = False Then
+    If IsValidPersonID(clsAppRuntime, 70, QuadSubDataType.Teacher) = False Then
         eTestResult = TestResult.Failure
         GoTo teardown
     End If
@@ -96,7 +96,7 @@ setup:
     On Error GoTo err
     clsAppRuntime.InitProperties bInitializeCache:=True, sDefinitionSheetName:="Definitions"
     
-    If IsValidPersonID(clsAppRuntime, 999, QuadSubDataType.teacher) = True Then
+    If IsValidPersonID(clsAppRuntime, 999, QuadSubDataType.Teacher) = True Then
         eTestResult = TestResult.Failure
         GoTo teardown
     End If
@@ -336,9 +336,9 @@ setup:
     clsAppRuntime.InitProperties bInitializeCache:=True
 
 main:
-    GetPersonData clsAppRuntime, QuadDataType.person, QuadSubDataType.Student, eQuadScope:=QuadScope.all
+    GetPersonData clsAppRuntime, QuadDataType.Person, QuadSubDataType.Student, eQuadScope:=QuadScope.all
 
-    Set wsCache = GetPersonData(clsAppRuntime, QuadDataType.person, QuadSubDataType.Student, eQuadScope:=QuadScope.all)
+    Set wsCache = GetPersonData(clsAppRuntime, QuadDataType.Person, QuadSubDataType.Student, eQuadScope:=QuadScope.all)
     With wsCache
         If .Range(.Cells(83, 5), .Cells(83, 5)).value <> "Photon" Then
             eTestResult = TestResult.Failure
@@ -354,7 +354,7 @@ err:
     
 teardown:
     Test_GetPersonData_Cached = eTestResult
-    DeleteSheet clsAppRuntime.CacheBook, wsCache.name
+    DeleteSheet clsAppRuntime.CacheBook, wsCache.Name
     clsAppRuntime.Delete
     
 End Function
@@ -373,7 +373,7 @@ setup:
     clsAppRuntime.InitProperties bInitializeCache:=True
 
 main:
-    Set wsCache = GetPersonData(clsAppRuntime, QuadDataType.person, QuadSubDataType.Student, eQuadScope:=QuadScope.all)
+    Set wsCache = GetPersonData(clsAppRuntime, QuadDataType.Person, QuadSubDataType.Student, eQuadScope:=QuadScope.all)
     With wsCache
         If .Range(.Cells(83, 5), .Cells(83, 5)).value <> "Photon" Then
             eTestResult = TestResult.Failure
@@ -389,7 +389,7 @@ err:
     
 teardown:
     Test_GetPersonData_NotCached = eTestResult
-    DeleteSheet clsAppRuntime.CacheBook, wsCache.name
+    DeleteSheet clsAppRuntime.CacheBook, wsCache.Name
     clsAppRuntime.Delete
 
 End Function

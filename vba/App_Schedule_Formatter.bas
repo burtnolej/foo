@@ -3,9 +3,9 @@ Function FmtRowLabel(ByVal sValue As String) As String
 Dim clsAppRuntime As New App_Runtime
 Dim sPeriodStart As String, sPeriodEnd As String
     clsAppRuntime.InitProperties bInitializeCache:=False
-    sPeriodStart = CrossRefQuadData(clsAppRuntime, QuadDataType.misc, QuadSubDataType.TimePeriod, _
+    sPeriodStart = CrossRefQuadData(clsAppRuntime, QuadDataType.Misc, QuadSubDataType.TimePeriod, _
                 "idTimePeriod", sValue, "dtPeriodStart")
-    sPeriodEnd = CrossRefQuadData(clsAppRuntime, QuadDataType.misc, QuadSubDataType.TimePeriod, _
+    sPeriodEnd = CrossRefQuadData(clsAppRuntime, QuadDataType.Misc, QuadSubDataType.TimePeriod, _
                 "idTimePeriod", sValue, "dtPeriodEnd")
                 
     FmtRowLabel = sPeriodStart & "-" & sPeriodEnd

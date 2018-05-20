@@ -2,17 +2,16 @@ Attribute VB_Name = "Form_Definitions_Utils"
 Option Explicit
 Const C_MODULE_NAME = "Form_Definitions_Utils"
 
-Enum DefnType
-    Lesson = 1
-End Enum
 
-Public Const C_DEFN_TYPE = "AddLesson"
-
-Function EnumDefnType(i As Long) As String
-    EnumDefnType = Split(C_DEFN_TYPE, COMMA)(i - 1)
+Function ExecDefinitionFunc(eFormType As FormType, sDataType As String, sSubDataType As String, Optional sDefn As String, Optional sFormName As String) As String
+Dim sFuncName As String
+    sFuncName = "GetDefinition" & WorksheetFunction.Proper(sDataType) & WorksheetFunction.Proper(sSubDataType)
+    ExecDefinitionFunc = Application.Run(sFuncName, eFormType, sDefn, sFormName)
 End Function
 
-Sub GetDefinition(clsAppRuntime As App_Runtime, eDefnType As DefnType, sSheetName As String, Optional wbTmp As Workbook)
+
+Sub GetDefinition(clsAppRuntime As App_Runtime, sDataType As String, sSubDataType As String, sSheetName As String, eFormType As FormType, _
+                Optional wbTmp As Workbook)
 '<<<
 'purpose: load definitions required to support the Add Lesson workflow
 'param  : clsAppRuntime, App_Runtime; App defaults
@@ -27,7 +26,7 @@ Dim lStartTick As Long
 setup:
     lStartTick = FuncLogIt(sFuncName, "", C_MODULE_NAME, LogMsgType.INFUNC)
     On Error GoTo err
-    sFuncName = C_MODULE_NAME & "." & "GetAddLessonDefinition"
+    sFuncName = C_MODULE_NAME & "." & "GetDefinition"
     
     If IsSet(wbTmp) = False Then
         Set wbTmp = clsAppRuntime.TemplateBook
@@ -37,55 +36,7 @@ setup:
     
 main:
 
-    If eDefnType = DefnType.Lesson Then
-        ' table: Add lesson
-        ' --------------------------------------------------------------------------------
-        ' attr : student name
-        sDefn = "AddLesson^schedule_student^sStudentFirstNm^String^IsMember^&get_person_student^sStudentFirstNm^^Entry" & DOUBLEDOLLAR
-        sDefn = sDefn & "AddLesson^schedule_student^sStudentLastNm^String^IsMember^&get_person_student^sStudentLastNm^^Entry" & DOUBLEDOLLAR
-        ' attr : teacher_name
-        sDefn = sDefn & "AddLesson^schedule_student^sFacultyFirstNm^String^IsMember^&get_person_teacher^sFacultyFirstNm^^Entry" & DOUBLEDOLLAR
-        sDefn = sDefn & "AddLesson^schedule_student^sFacultyLastNm^String^IsMember^&get_person_teacher^sFacultyLastNm^^Entry" & DOUBLEDOLLAR
-        ' attr : ref data
-        sDefn = sDefn & "AddLesson^schedule_student^sCourseNm^Integer^IsMember^&get_courses_course^sCourseNm^^Entry" & DOUBLEDOLLAR
-        sDefn = sDefn & "AddLesson^schedule_student^sSubjectLongDesc^Integer^IsMember^&get_courses_subject^sSubjectLongDesc^^Entry" & DOUBLEDOLLAR
-        sDefn = sDefn & "AddLesson^schedule_student^idPrep^Integer^IsMember^&get_misc_prep^sPrepNm^^Entry" & DOUBLEDOLLAR
-        sDefn = sDefn & "AddLesson^schedule_student^idTimePeriod^Integer^IsMember^&get_misc_timeperiod^idTimePeriod^^Entry" & DOUBLEDOLLAR
-        sDefn = sDefn & "AddLesson^schedule_student^cdDay^Integer^IsMember^&get_misc_day^cdDay^^Entry" & DOUBLEDOLLAR
-        
-        ' Add student
-        sDefn = sDefn & "AddStudent^person_student^sStudentFirstNm^String^^^^^Entry" & DOUBLEDOLLAR
-        sDefn = sDefn & "AddStudent^person_student^sStudentLastNm^String^^^^^Entry" & DOUBLEDOLLAR
-        sDefn = sDefn & "AddStudent^person_student^idStudent^Integer^^^^^Entry" & DOUBLEDOLLAR
-        sDefn = sDefn & "AddStudent^person_student^idPrep^Integer^IsValidPrep^^^^Entry" & DOUBLEDOLLAR
-        sDefn = sDefn & "AddStudent^person_student^sPrepNm^String^^^^^Entry" & DOUBLEDOLLAR
-        ' Add teacher
-        sDefn = sDefn & "AddStudent^person_teacher^sFacultyFirstNm^String^^^^^Entry" & DOUBLEDOLLAR
-        sDefn = sDefn & "AddStudent^person_teacher^sFacultyLastNm^String^^^^^Entry" & DOUBLEDOLLAR
-        sDefn = sDefn & "AddStudent^person_teacher^idFaculty^Integer^^^^^Entry" & DOUBLEDOLLAR
-        ' table: Add subject ---------------------------------------------------------------
-        sDefn = sDefn & "AddSubject^courses_subject^sSubjectLongDesc^String^^^^^Entry" & DOUBLEDOLLAR
-        sDefn = sDefn & "AddSubject^courses_subject^idSubject^String^^^^^Entry" & DOUBLEDOLLAR
-        ' table: Add course ---------------------------------------------------------------
-        sDefn = sDefn & "AddCourse^courses_course^sCourseNm^String^^^^^Entry" & DOUBLEDOLLAR
-        sDefn = sDefn & "AddCourse^courses_course^idCourse^String^^^^^Entry" & DOUBLEDOLLAR
-        sDefn = sDefn & "AddCourse^courses_course^idSubject^String^^^^^Entry" & DOUBLEDOLLAR
-        ' table: Add timeperiod ---------------------------------------------------------------
-        sDefn = sDefn & "AddTimePeriod^misc_timeperiod^idTimePeriod^String^^^^^Entry" & DOUBLEDOLLAR
-        sDefn = sDefn & "AddTimePeriod^misc_timeperiod^dtPeriodStart^String^^^^^Entry" & DOUBLEDOLLAR
-        sDefn = sDefn & "AddTimePeriod^misc_timeperiod^dtPeriodEnd^String^^^^^Entry" & DOUBLEDOLLAR
-        ' table: Add prep ---------------------------------------------------------------
-        sDefn = sDefn & "AddPrep^misc_prep^idPrep^String^^^^^Entry" & DOUBLEDOLLAR
-        sDefn = sDefn & "AddPrep^misc_prep^sPrepNm^String^^^^^Entry" & DOUBLEDOLLAR
-        ' table: Add day ---------------------------------------------------------------
-        sDefn = sDefn & "AddDay^misc_day^idDay^String^^^^^Entry" & DOUBLEDOLLAR
-        sDefn = sDefn & "AddDay^misc_day^sDayDesc^String^^^^^Entry" & DOUBLEDOLLAR
-        sDefn = sDefn & "AddDay^misc_day^cdDay^String^^^^^Entry" & DOUBLEDOLLAR
-        ' button: Add lesson ---------------------------------------------------------------
-        sDefn = sDefn & "AddLesson^^COMMIT^^^AddLesson^^^Button"
-    Else
-        err.Raise ErrorMsgType.INVALID_DEFN_TYPE, Description:="[DefnType=" & EnumDefnType(eDefnType) & "]"
-    End If
+    sDefn = ExecDefinitionFunc(eFormType, sDataType, sSubDataType)
     
     vSource = Init2DStringArrayFromString(sDefn)
 
@@ -103,6 +54,10 @@ err:
     err.Raise err.Number, err.Source, err.Description ' cannot recover from this
 
 End Sub
+
+Public Function GetCacheTableNameFromDataType(sDataType As String, sSubDataType As String) As String
+    GetCacheTableNameFromDataType = LCase(sDataType) & UNDERSCORE & LCase(sSubDataType)
+End Function
 
 Public Function GetCacheTableName(sRangeName As String) As String
 '<<<
@@ -157,7 +112,7 @@ Public Function LoadDefinitions(wsTmp As Worksheet, _
                      
 Dim dDefinitions As New Dictionary, dDefnDetail As Dictionary, dDefnActions As New Dictionary, dDefnTables As New Dictionary
 Dim rRow As Range
-Dim sCacheTableName As String, sFieldname As String, sActionName As String, sValidationType As String, sActionFunc As String
+Dim sCacheTableName As String, sFieldName As String, sActionName As String, sValidationType As String, sActionFunc As String
 Dim eWidgetType As WidgetType
 Dim sValidationParam As String, sFuncName As String, sKey As String
 Dim vValidationParams() As String
@@ -179,7 +134,7 @@ main:
             iValidationParamCount = 0
             sActionName = rRow.Columns(1)
             sCacheTableName = rRow.Columns(2)
-            sFieldname = rRow.Columns(3)
+            sFieldName = rRow.Columns(3)
             sValidationType = rRow.Columns(4)
             sValidationParam = rRow.Columns(5)
             sActionFunc = rRow.Columns(8)
@@ -192,19 +147,19 @@ main:
             
             If sCacheTableName = BLANK Then
                 If eWidgetType <> WidgetType.Button Then
-                    err.Raise ErrorMsgType.CACHE_TABLE_NAME_CANNOT_BE_BLANK, Description:="[sFieldName=" & sFieldname & "] [sCacheTableName=" & sCacheTableName & "]"
+                    err.Raise ErrorMsgType.CACHE_TABLE_NAME_CANNOT_BE_BLANK, Description:="[sFieldName=" & sFieldName & "] [sCacheTableName=" & sCacheTableName & "]"
                 End If
             End If
             
-            If sFieldname = BLANK Then
-                err.Raise ErrorMsgType.FIELD_NAME_CANNOT_BE_BLANK, Description:="[sFieldName=" & sFieldname & "]"
+            If sFieldName = BLANK Then
+                err.Raise ErrorMsgType.FIELD_NAME_CANNOT_BE_BLANK, Description:="[sFieldName=" & sFieldName & "]"
             End If
             
             Set dDefnDetail = New Dictionary
             dDefnDetail.Add "validation_type", sValidationType
             dDefnDetail.Add "validation_param", sValidationParam
             dDefnDetail.Add "CacheTableName", sCacheTableName
-            dDefnDetail.Add "FieldName", sFieldname
+            dDefnDetail.Add "FieldName", sFieldName
             dDefnDetail.Add "WidgetType", eWidgetType
             dDefnDetail.Add "ActionName", sActionFunc
             
@@ -220,7 +175,7 @@ main:
                 dDefnDetail.Add "validation_args", vValidationParams
             End If
             
-            sKey = GetKey(sActionName, sFieldname, eWidgetType)
+            sKey = GetWidgetKey(sActionName, sFieldName, eWidgetType)
             
             If dDefinitions.Exists(sKey) = True Then
                 FuncLogIt sFuncName, "definition for [" & sKey & "] already loaded", C_MODULE_NAME, LogMsgType.INFO

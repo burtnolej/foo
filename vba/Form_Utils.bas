@@ -42,7 +42,7 @@ Public Sub GenerateForms(clsAppRuntime As App_Runtime, _
 '>>>
 Dim dActions As Dictionary, dDefnDetails As Dictionary
 Dim sAction As Variant, sKey As Variant, vFormType As Variant
-Dim sCode As String, sFieldname As String, sFuncName As String, sCallbackFunc As String, sDBColName As String, sFormType As String, sTemplateSheetName As String
+Dim sCode As String, sFieldName As String, sFuncName As String, sCallbackFunc As String, sDBColName As String, sFormType As String, sTemplateSheetName As String
 Dim rWidget As Range, rButton As Range
 Dim vGenerated() As String
 Dim wbTmp As Workbook, wbTarget As Workbook
@@ -91,7 +91,7 @@ main:
             End If
         Next vFormType
         
-        FuncLogIt sFuncName, "Creating Form [Form Type=" & sFormType & "] [Target Workbook=" & wbTarget.name & "] [Action = " & sAction & "]", C_MODULE_NAME, LogMsgType.INFO
+        FuncLogIt sFuncName, "Creating Form [Form Type=" & sFormType & "] [Target Workbook=" & wbTarget.Name & "] [Action = " & sAction & "]", C_MODULE_NAME, LogMsgType.INFO
         
         If IsSet(wbTarget) = False Then
             FuncLogIt sFuncName, "invalid formtype  [" & CStr(sAction) & "]", C_MODULE_NAME, LogMsgType.Failure
@@ -103,7 +103,7 @@ main:
         For i = 1 To UBound(Split(C_WIDGET_TYPE, COMMA)) + 1
             eWidgetType = i
 
-            sCode = GetEntryCallbackCode(clsAppRuntime, CStr(sAction), wbTarget.name, eWidgetType:=eWidgetType)
+            sCode = GetEntryCallbackCode(clsAppRuntime, CStr(sAction), wbTarget.Name, eWidgetType:=eWidgetType)
             sTemplateSheetName = FormatForm(clsAppRuntime, CStr(sAction), sFormType:=sFormType)
             
             If eWidgetType = WidgetType.ListText Then
@@ -219,7 +219,7 @@ Public Sub UpdateForm(ParamArray args())
 'param  :
 'rtype  :
 '>>>
-Dim sCacheTableName As String, sValue As String, sLookUpIdRangeName As String, sRecordID As String, sFieldname As String, sFuncName As String, sLookUpFieldName As String
+Dim sCacheTableName As String, sValue As String, sLookUpIdRangeName As String, sRecordID As String, sFieldName As String, sFuncName As String, sLookUpFieldName As String
 Dim clsAppRuntime As App_Runtime
 Dim sKey As Variant
 Dim rTarget As Range
@@ -257,9 +257,9 @@ main:
     
     For Each sKey In dDefinitions.Keys
         If IsWidgetRangeNameForView(CStr(sKey), sFormName, eWidgetType) = True Then
-            sFieldname = GetFieldName(CStr(sKey))
+            sFieldName = GetFieldName(CStr(sKey))
             Set rTarget = clsAppRuntime.ViewBook.Sheets(sFormName).Range(sKey)
-            rTarget.value = dValues.Item(sFieldname)
+            rTarget.value = dValues.Item(sFieldName)
         End If
     Next sKey
     
@@ -373,11 +373,11 @@ main:
     'FormatColRowSize clsAppRuntime.TemplateBook, wbTarget, _
     '        wsForm.name, clsAppRuntime.TemplateSheetName, sFormFormatRangeName
     FormatColRowSize clsAppRuntime.TemplateBook, wbTarget, _
-            wsForm.name, wsFormFormat.name, sFormFormatRangeName
+            wsForm.Name, wsFormFormat.Name, sFormFormatRangeName
             
 cleanup:
-    FormatForm = wsFormFormat.name 'this is so rest the locations of the individual widgets on the form can easilly be found
-    FuncLogIt sFuncName, "[sTargetSheetName=" & sTargetSheetName & "] [sFormFormatRangeName=" & sFormFormatRangeName & "] [wbTarget=" & wbTarget.name & "]", C_MODULE_NAME, LogMsgType.DEBUGGING
+    FormatForm = wsFormFormat.Name 'this is so rest the locations of the individual widgets on the form can easilly be found
+    FuncLogIt sFuncName, "[sTargetSheetName=" & sTargetSheetName & "] [sFormFormatRangeName=" & sFormFormatRangeName & "] [wbTarget=" & wbTarget.Name & "]", C_MODULE_NAME, LogMsgType.DEBUGGING
     FuncLogIt sFuncName, "", C_MODULE_NAME, LogMsgType.OUTFUNC, lLastTick:=lStartTick
 
 
@@ -388,7 +388,7 @@ End Function
 Public Function GetRecordValuesAsDict(wbSourceBook As Workbook, wbTargetbook As Workbook, _
                 sSheetName As String) As Dictionary
 Dim rEntryWidget As Range
-Dim sFuncName As String, sActionName As String, sFieldname As String
+Dim sFuncName As String, sActionName As String, sFieldName As String
 Dim dValues As New Dictionary
 Dim aNames() As String
 Dim name_ As Variant
@@ -401,9 +401,9 @@ main:
     For Each name_ In aNames
         sActionName = Split(name_, "_")(0)
         If sActionName = "e" & sSheetName Then
-            sFieldname = Split(name_, "_")(1)
+            sFieldName = Split(name_, "_")(1)
             Set rEntryWidget = wbTargetbook.Sheets(sSheetName).Range(name_)
-            dValues.Add sFieldname, rEntryWidget.value
+            dValues.Add sFieldName, rEntryWidget.value
             End If
     Next name_
     

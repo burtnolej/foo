@@ -15,7 +15,7 @@ ReDim vModulesNames(0 To 100)
         Set VBProj = xlwb.VBProject
         For Each VBComp In VBProj.VBComponents
             If VBComp.Type = vbext_ct_StdModule Or VBComp.Type = vbext_ct_ClassModule Then
-                DeleteModule xlwb, VBComp.name
+                DeleteModule xlwb, VBComp.Name
             End If
         Next VBComp
     End If
@@ -23,7 +23,7 @@ End Sub
 Public Function CreateModule(xlwb As Workbook, sModuleName As String, sCode As String) As VBComponent
 Dim module As VBComponent
     Set module = xlwb.VBProject.VBComponents.Add(vbext_ct_StdModule)
-    module.name = sModuleName
+    module.Name = sModuleName
     module.CodeModule.AddFromString sCode
     Set CreateModule = module
 End Function
@@ -95,7 +95,7 @@ ReDim vModulesNames(0 To 100)
     Else
         Set VBProj = xlwb.VBProject
         For Each VBComp In VBProj.VBComponents
-            vModulesNames(iCount) = VBComp.name
+            vModulesNames(iCount) = VBComp.Name
             iCount = iCount + 1
         Next VBComp
     End If
@@ -307,7 +307,7 @@ main:
 
     Set VBProj = wb.VBProject
     For Each VBComp In VBProj.VBComponents
-        vModuleNames(iCount) = VBComp.name
+        vModuleNames(iCount) = VBComp.Name
         iCount = iCount + 1
     Next VBComp
 

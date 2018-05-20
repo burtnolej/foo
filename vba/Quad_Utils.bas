@@ -16,25 +16,26 @@ Enum ListType
 End Enum
 
 Enum QuadDataType
-    schedule = 1
-    person = 2
-    courses = 3
-    misc = 4
+    Schedule = 1
+    Person = 2
+    Courses = 3
+    Misc = 4
 End Enum
 
 Const C_QUAD_DATA_TYPE = "schedule,person,courses,misc"
 
 Enum QuadSubDataType
     Student = 1
-    teacher = 2
+    Teacher = 2
     Course = 3
-    subject = 4
+    Subject = 4
     TimePeriod = 5
-    day = 6
+    Day = 6
     Prep = 7
+    Lesson = 8
 End Enum
 
-Const C_QUAD_SUB_DATA_TYPE = "student,teacher,course,subject,timeperiod,day,prep"
+Const C_QUAD_SUB_DATA_TYPE = "student,teacher,course,subject,timeperiod,day,prep,lesson"
 
 Enum QuadScope
     all = 1
@@ -181,7 +182,7 @@ Dim wbCache As Workbook
 Dim wsCache As Worksheet
 Dim iNumRows As Integer, iNumCols As Integer, iColCount As Integer
 Dim rTarget As Range
-Dim nData As name
+Dim nData As Name
 Dim sCacheSheetName As String
 Dim vColNames() As String
 Dim wsCurrentFocus As Worksheet

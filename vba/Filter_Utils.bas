@@ -52,9 +52,9 @@ Public Sub DoFilter(wbTmp As Workbook, sSheetName As String, Target As Range)
         
     DoEventsOff
     
-    AddFilterIndexCol Application.ActiveWorkbook, ActiveWorkbook.ActiveSheet.name, 1000
+    AddFilterIndexCol Application.ActiveWorkbook, ActiveWorkbook.ActiveSheet.Name, 1000
     
-    sSheetName = Application.ActiveSheet.name
+    sSheetName = Application.ActiveSheet.Name
     
     With wbTmp.Sheets(sSheetName)
         .Activate

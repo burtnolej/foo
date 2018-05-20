@@ -23,8 +23,8 @@ Dim iCount As Integer
 
     Set VBProj = wbTmp.VBProject
     For Each VBComp In VBProj.VBComponents
-        If Left(VBComp.name, 5) = "Test_" Then
-            vModulesNames(iCount) = VBComp.name
+        If Left(VBComp.Name, 5) = "Test_" Then
+            vModulesNames(iCount) = VBComp.Name
             iCount = iCount + 1
         End If
     Next VBComp
@@ -175,7 +175,7 @@ Sub DoProjectTestRunner()
 Dim sIncModules As String
     
     MinimumWindowState
-    'sIncModules = "Test_Validation_Utils"
+    'sIncModules = "Test_Table_Utils"
     'ProjectTestRunner sIncModules
     'Exit Sub
     

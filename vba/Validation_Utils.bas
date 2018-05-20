@@ -68,10 +68,10 @@ setup:
     End If
 
 main:
-    If UBound(Split(rTarget.name.name, "!")) = 1 Then
-        sDefnName = Split(rTarget.name.name, "!")(1)
+    If UBound(Split(rTarget.Name.Name, "!")) = 1 Then
+        sDefnName = Split(rTarget.Name.Name, "!")(1)
     Else
-        sDefnName = rTarget.name.name
+        sDefnName = rTarget.Name.Name
     End If
     On Error GoTo 0
     
@@ -83,7 +83,7 @@ main:
         Set dDefnDetail = dDefinitions.Item(sDefnName)
         If dDefnDetail.Item("ActionName") <> "" Then
             sActionFuncName = Right(dDefnDetail.Item("ActionName"), Len(dDefnDetail.Item("ActionName")) - 1)
-            Application.Run sActionFuncName, clsAppRuntime, rTarget.value, rTarget.name.name
+            Application.Run sActionFuncName, clsAppRuntime, rTarget.value, rTarget.Name.Name
         End If
     
         Exit Function

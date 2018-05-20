@@ -35,7 +35,7 @@ main:
             
             
     If eWidgetType = WidgetType.Entry Then
-        GetEntryCallbackCode = GetEntryCallbackCode & "Application.Run " & DOUBLEQUOTE & clsAppRuntime.TemplateBook.name & "!IsRecordValid" & DOUBLEQUOTE & ",wbSource,wbTarget,sSheetName,sSourceSheetName" & vbNewLine
+        GetEntryCallbackCode = GetEntryCallbackCode & "Application.Run " & DOUBLEQUOTE & clsAppRuntime.TemplateBook.Name & "!IsRecordValid" & DOUBLEQUOTE & ",wbSource,wbTarget,sSheetName,sSourceSheetName" & vbNewLine
     End If
     
     GetEntryCallbackCode = GetEntryCallbackCode & "End Sub"

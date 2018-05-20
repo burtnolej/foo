@@ -119,7 +119,7 @@ main:
     End With
     
     rInput.value = 123
-    rInput.name = "eAddStudent_StudentAge"
+    rInput.Name = "eAddStudent_StudentAge"
     bResult = ValidateWidget(clsAppRuntime.AddBook, "test", rInput)
     
     If bResult = False Then
@@ -128,7 +128,7 @@ main:
     End If
     
     rInput.value = "ABC"
-    rInput.name = "eAddStudent_StudentAge"
+    rInput.Name = "eAddStudent_StudentAge"
     bResult = ValidateWidget(clsAppRuntime.AddBook, "test", rInput)
     
     If bResult = True Then

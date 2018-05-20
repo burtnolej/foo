@@ -77,17 +77,17 @@ setup:
     On Error GoTo err
 
 main:
-    Set wsPersonDataCache = GetPersonData(clsAppRuntime, QuadDataType.person, eQuadSubDataType, _
+    Set wsPersonDataCache = GetPersonData(clsAppRuntime, QuadDataType.Person, eQuadSubDataType, _
                 eQuadScope:=QuadScope.all, bInTable:=True)
 
-    If eQuadSubDataType = QuadSubDataType.teacher Then
+    If eQuadSubDataType = QuadSubDataType.Teacher Then
         sLookUpCol = cTeacherLookUpCol
     Else
         sLookUpCol = cStudentLookUpCol
     End If
 
     'clsAppRuntime.InitProperties bInitializeCache:=False
-    vStudentIDs = GetColumnValues(clsAppRuntime, QuadDataType.person, QuadSubDataType.Student, "idStudent")
+    vStudentIDs = GetColumnValues(clsAppRuntime, QuadDataType.Person, QuadSubDataType.Student, "idStudent")
 
     If InArray(vStudentIDs, CStr(iPersonID)) Then
         IsValidPersonID = True
@@ -108,11 +108,11 @@ err:
 End Function
 Public Function get_person_student(clsAppRuntime As App_Runtime, _
                       Optional bInTable As Boolean = True) As Worksheet
-    Set get_person_student = GetPersonData(clsAppRuntime, QuadDataType.person, QuadSubDataType.Student, eQuadScope:=QuadScope.all, bInTable:=bInTable)
+    Set get_person_student = GetPersonData(clsAppRuntime, QuadDataType.Person, QuadSubDataType.Student, eQuadScope:=QuadScope.all, bInTable:=bInTable)
 End Function
 Public Function get_person_teacher(clsAppRuntime As App_Runtime, _
                       Optional bInTable As Boolean = True) As Worksheet
-    Set get_person_teacher = GetPersonData(clsAppRuntime, QuadDataType.person, QuadSubDataType.teacher, eQuadScope:=QuadScope.all, bInTable:=bInTable)
+    Set get_person_teacher = GetPersonData(clsAppRuntime, QuadDataType.Person, QuadSubDataType.Teacher, eQuadScope:=QuadScope.all, bInTable:=bInTable)
 End Function
                      
 'Public Function GetPersonData(clsAppRuntime As App_Runtime, _
@@ -165,12 +165,12 @@ End Function
 
 Public Sub UpdatePersonDataInDB(clsAppRuntime As App_Runtime, _
                                eQuadSubDataType As QuadSubDataType, _
-                               sFieldname As String, sFieldVal As Variant, _
+                               sFieldName As String, sFieldVal As Variant, _
                                sPredName As String, sPredVal As Variant)
 Dim sSpName As String
 Dim vRow() As Variant
 
-    vRow = Array(sFieldname, sFieldVal, sPredName, sPredVal)
+    vRow = Array(sFieldName, sFieldVal, sPredName, sPredVal)
     sSpName = "update_basic_" & EnumQuadSubDataType(eQuadSubDataType) & "_info"
     UpdateQuadDataInDB clsAppRuntime, sSpName, bHeaderFlag:=True, vRow:=vRow
                                
@@ -178,8 +178,8 @@ End Sub
 
 Public Sub InsertPersonDataToDB(clsAppRuntime As App_Runtime, _
                                eQuadSubDataType As QuadSubDataType, _
-                               vRows() As Variant, _
-                               vColumns() As Variant)
+                               vRows As Variant, _
+                               vColumns As Variant)
                                
 Dim sSpName As String
 
@@ -187,6 +187,7 @@ Dim sSpName As String
     InsertQuadDataToDB clsAppRuntime, sSpName, bHeaderFlag:=True, vRows:=vRows, vColumns:=vColumns
                                
 End Sub
+
 Public Sub DeletePersonDataFromDB(clsAppRuntime As App_Runtime, _
                                eQuadSubDataType As QuadSubDataType, _
                                iPersonID As String)

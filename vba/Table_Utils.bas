@@ -56,6 +56,22 @@ End Sub
 Public Sub FormatCreatedTime(wsTmp As Worksheet, rCell As Range)
     MakeCellLongDate wsTmp, rCell
 End Sub
+
+Public Function GetTableName(sDataType As String, sSubDataType As String) As String
+    GetTableName = LCase(sDataType) & UNDERSCORE & LCase(sSubDataType)
+End Function
+Public Function GetTable(clsAppRuntime As App_Runtime, sDataType As String, sSubDataType As String) As Worksheet
+Dim sTableName As String
+    sTableName = GetTableName(sDataType, sSubDataType)
+    
+    ' if Table does not exist
+    If SheetExists(clsAppRuntime.CacheBook, sTableName) = False Then
+        Set GetTable = CreateTable(sTableName, wbTmp:=clsAppRuntime.CacheBook)
+    Else
+        Set GetTable = GetSheet(clsAppRuntime.CacheBook, sTableName)
+    End If
+    
+End Function
 Public Function Row2Dict(wsDataSheet As Worksheet, sRangeName As String, iRowId As Integer) As Dictionary
 Dim vColumnNames As Variant, vDataRow As Variant, vColumnNamesTransposed As Variant, vDataRowTransposed As Variant
 Dim rColumns As Range, rData As Range, rDataRow As Range
@@ -94,12 +110,12 @@ setup:
     'FuncLogIt sFuncName, "[sLookUpColName=" & sLookUpColName & "] [iPersonID=" & iPersonID & "]", C_MODULE_NAME, LogMsgType.INFUNC
 
 main:
-    If eQuadDataType = QuadDataType.schedule Then
+    If eQuadDataType = QuadDataType.Schedule Then
         Set wsCache = GetScheduleData(clsAppRuntime, iPersonID, eQuadDataType, eQuadSubDataType, bInTable:=True)
     Else
         Set wsCache = GetPersonData(clsAppRuntime, eQuadDataType, eQuadSubDataType, QuadScope.all, bInTable:=True)
     End If
-    sLookUpRangeName = GetDBColumnRange(wsCache.name, sLookUpColName)
+    sLookUpRangeName = GetDBColumnRange(wsCache.Name, sLookUpColName)
     GetColumnValues = ListFromRange(wsCache, sLookUpRangeName)
                        
 endfunc:
@@ -137,7 +153,7 @@ cleanup:
   
 End Function
 
-Public Function GetTableWidgetKeys(sTableName As String) As String()
+Public Function GetTableWidgetKeys(sTableName As String, Optional bFieldNameOnly As Boolean = False) As String()
 '<<<
 'purpose: a field can appear in Definitions multiple times so need to eliminate dupes
 'param  :
@@ -147,7 +163,7 @@ Public Function GetTableWidgetKeys(sTableName As String) As String()
 Dim vWidgetKeys() As String
 Dim iWidgetKeyCount As Integer
 Dim lStartTick As Long
-Dim sFuncName As String, sFieldname As String
+Dim sFuncName As String, sFieldName As String
 Dim sKey As Variant
 
 setup:
@@ -159,10 +175,14 @@ main:
     For Each sKey In dDefinitions.Keys()
         If dDefinitions.Item(sKey).Item("CacheTableName") = sTableName Then
         
-            sFieldname = GetFieldName(CStr(sKey))
+            sFieldName = GetFieldName(CStr(sKey))
             
-            If InArray(vWidgetKeys, sFieldname, bLike:=True) = False Then
-                vWidgetKeys(iWidgetKeyCount) = CStr(sKey)
+            If InArray(vWidgetKeys, sFieldName, bLike:=True) = False Then
+                If bFieldNameOnly = True Then
+                    vWidgetKeys(iWidgetKeyCount) = Split(CStr(sKey), UNDERSCORE)(1)
+                Else
+                    vWidgetKeys(iWidgetKeyCount) = CStr(sKey)
+                End If
                 iWidgetKeyCount = iWidgetKeyCount + 1
             End If
         End If
@@ -178,7 +198,7 @@ cleanup:
 End Function
 
         
-Public Function GetDBColumnRange(ByVal sTableName, sFieldname, _
+Public Function GetDBColumnRange(ByVal sTableName, sFieldName, _
         Optional eColumnType As ColumnType = ColumnType.Db) As String
 '<<<
 'purpose:
@@ -198,7 +218,7 @@ main:
         sTableName = Right(sTableName, Len(sTableName) - 5)
     End If
 
-    If sFieldname = "ID" Or sFieldname = "RefNo" Or sFieldname = "SyncState" Or sFieldname = "CreatedTime" Or sFieldname = "LastUpdatedTime" Then
+    If sFieldName = "ID" Or sFieldName = "RefNo" Or sFieldName = "SyncState" Or sFieldName = "CreatedTime" Or sFieldName = "LastUpdatedTime" Then
         eColumnType = ColumnType.INFO
     End If
     
@@ -208,29 +228,34 @@ main:
         sSuffix = "i"
     End If
     
-    GetDBColumnRange = sSuffix & sTableName & sFieldname
+    GetDBColumnRange = sSuffix & sTableName & sFieldName
 
 cleanup:
     FuncLogIt sFuncName, "", C_MODULE_NAME, LogMsgType.OUTFUNC, lLastTick:=lStartTick
-    FuncLogIt sFuncName, "[sTableName=" & sTableName & "] [sFieldName=" & sFieldname & "] [Result=" & GetDBColumnRange & "]", C_MODULE_NAME, LogMsgType.DEBUGGING2
+    FuncLogIt sFuncName, "[sTableName=" & sTableName & "] [sFieldName=" & sFieldName & "] [Result=" & GetDBColumnRange & "]", C_MODULE_NAME, LogMsgType.DEBUGGING2
   
 End Function
 
-Public Sub GetDirtyTableRecords(ByRef vRows() As String, sTableName As String, Optional wbTmp As Workbook)
-Dim sFuncName As String, sFieldname As String, sFieldValue As String, sColRange As String
+Public Function GetDirtyTableRecords(sTableName As String, _
+                            Optional wbTmp As Workbook, _
+                            Optional bResetDirtyFlag As Boolean = False) As Variant
+Dim sFuncName As String, sFieldName As String, sFieldValue As String, sColRange As String
 Dim wsTable As Worksheet
 Dim sKey As Variant
-Dim dDefnDetails As Dictionary
+Dim dDefnDetails As Dictionary, dRecordValues As Dictionary
 Dim rSyncState As Range
 Dim iNextFree As Integer, iRow As Integer, iNumDirtyRows As Integer, i As Integer
-Dim vValues() As String
+Dim vValues() As String, vRows() As Variant
 
 setup:
 
     If IsSet(wbTmp) = False Then
         Set wbTmp = ActiveWorkbook
     End If
+
+    ReDim vRows(0 To 1000, 0 To 12)
     
+main:
     sFuncName = C_MODULE_NAME & "." & "GetDirtyTableRecords"
     Set wsTable = GetSheet(wbTmp, sTableName)
     
@@ -250,14 +275,19 @@ setup:
             Next i
 
             iNumDirtyRows = iNumDirtyRows + 1
+            If bResetDirtyFlag = True Then
+                rSyncState.Rows(iRow).value = "DB"
+            End If
         End If
     Next iRow
-    vRows = ReDim2DArray(vRows, iNumDirtyRows, UBound(vRows, 2) + 1)
     
-End Sub
+cleanup:
+    GetDirtyTableRecords = ReDim2DArray(vRows, iNumDirtyRows, UBound(vValues) + 1, bVariant:=True)
+    
+End Function
 Public Function GetTableRecord(sTableName As String, iID As Integer, Optional wbTmp As Workbook, _
                 Optional vValues As Variant) As Dictionary
-Dim sFuncName As String, sColRange As String, sFieldname As String, sFieldValue As String
+Dim sFuncName As String, sColRange As String, sFieldName As String, sFieldValue As String
 Dim i As Integer, iNumValues As Integer
 Dim wsTable As Worksheet
 Dim sKey As Variant
@@ -286,11 +316,11 @@ main:
         
         'If dDefinitions.Item(sKey).Item("CacheTableName") = sTableName Then
             Set dDefnDetails = dDefinitions.Item(vWidgetKeys(i))
-            sFieldname = dDefnDetails.Item("FieldName")
-            sColRange = GetDBColumnRange(sTableName, sFieldname)
+            sFieldName = dDefnDetails.Item("FieldName")
+            sColRange = GetDBColumnRange(sTableName, sFieldName)
             sFieldValue = wsTable.Range(sColRange).Rows(iID + 1)
             'sFieldValue = wsTable.Range(sColRange).Rows(iID)
-            dRecord.Add sFieldname, sFieldValue
+            dRecord.Add sFieldName, sFieldValue
             iNumValues = iNumValues + 1
         'End If
         Next i
@@ -417,7 +447,7 @@ main:
         With wsTable
             Set rTarget = .Range(.Cells(1, 1), .Cells(iMaxRow, iMaxCol))
             rTarget = vRows
-            rTarget.name = "data"
+            rTarget.Name = "data"
         End With
         
         Set AddTableRecordAuto = rTarget
@@ -428,8 +458,9 @@ Public Function AddTableRecordFromDict(wsTable As Worksheet, _
                                        sTableName As String, _
                                        dValues As Dictionary) As Integer
 Dim sKey As Variant
-Dim iNextFree As Integer
+Dim iNextFree As Integer, i As Integer
 Dim sFuncName As String, sColRange As String
+Dim aDefaultFields() As String
 
 setup:
     sFuncName = C_MODULE_NAME & "." & "AddTableRecordFromDict"
@@ -438,7 +469,7 @@ main:
 
     iNextFree = 2
     On Error Resume Next
-    iNextFree = wsTable.Range("i" & sTableName & "NextFree").value + 1
+    iNextFree = wsTable.Range("i" & sTableName & "NextFree").Rows(1).value + 1
     On Error GoTo 0
     
     'iNextFree = wsTable.Range("i" & sTableName & "NextFree").value + 1
@@ -448,6 +479,13 @@ main:
         wsTable.Range(sColRange).Rows(iNextFree) = dValues.Item(sKey)
     Next sKey
     
+    aDefaultFields = Split(C_DB_DEFAULT_FIELDS, ",")
+    For i = 0 To UBound(aDefaultFields)
+        sColRange = GetDBColumnRange(sTableName, aDefaultFields(i), ColumnType.INFO)
+        wsTable.Range(sColRange).Rows(iNextFree) = Application.Run("Calc" & aDefaultFields(i), sTableName, wsTable.Parent)
+    Next i
+
+
     wsTable.Range("i" & sTableName & "NextFree").value = iNextFree
 
     AddTableRecordFromDict = iNextFree
@@ -491,13 +529,6 @@ main:
         End If
             
         For i = 0 To UBound(vWidgetKeys)
-        
-        'For Each sKey In dDefinitions.Keys()
-            'If dDefinitions.Item(sKey).Exists("CacheTableName") = False Then
-            '    FuncLogIt sFuncName, "entry [" & sKey & "] does not have a \'CacheTableName\' record", C_MODULE_NAME, LogMsgType.Error
-            '    Exit Function
-            'End If
-            
             If dDefinitions.Item(vWidgetKeys(i)).Item("CacheTableName") = sTableName Then
                 Set dDefnDetails = dDefinitions.Item(vWidgetKeys(i))
                 sColRange = GetDBColumnRange(sTableName, dDefnDetails.Item("FieldName"))
@@ -527,7 +558,7 @@ main:
 err:
     
 End Function
-Public Sub CreateTableColumn(wsTmp As Worksheet, iCol As Integer, ByVal sTableName As String, sFieldname As String, _
+Public Sub CreateTableColumn(wsTmp As Worksheet, iCol As Integer, ByVal sTableName As String, sFieldName As String, _
                 Optional wbTmp As Workbook, _
                 Optional vDataID As Variant, _
                 Optional eColumnType As ColumnType = ColumnType.Db, _
@@ -561,7 +592,7 @@ main:
     
     
     With wsTmp
-        .Range(.Cells(1, iCol), .Cells(1, iCol)).value = sFieldname ' draw headings
+        .Range(.Cells(1, iCol), .Cells(1, iCol)).value = sFieldName ' draw headings
         'Set rColumn = .Range(.Cells(iFirstDataLine, iCol), .Cells(10000, iCol))
         Set rColumn = .Range(.Cells(1, iCol), .Cells(10000, iCol))
     End With
@@ -569,12 +600,12 @@ main:
     If IsSet(vDataID) Then
         sTableName = sTableName & UNDERSCORE & CStr(vDataID)
     End If
-    sRangeName = sSuffix & sTableName & sFieldname
+    sRangeName = sSuffix & sTableName & sFieldName
         
-    CreateNamedRange wbTmp, rColumn.Address, wsTmp.name, sRangeName, "True"
+    CreateNamedRange wbTmp, rColumn.Address, wsTmp.Name, sRangeName, "True"
 
 cleanup:
-    FuncLogIt sFuncName, "[iCol=" & CStr(iCol) & "] [sTableName=" & sTableName & "] [sFieldName=" & sFieldname & "]", C_MODULE_NAME, LogMsgType.DEBUGGING2
+    FuncLogIt sFuncName, "[iCol=" & CStr(iCol) & "] [sTableName=" & sTableName & "] [sFieldName=" & sFieldName & "]", C_MODULE_NAME, LogMsgType.DEBUGGING2
     FuncLogIt sFuncName, "", C_MODULE_NAME, LogMsgType.OUTFUNC, lLastTick:=lStartTick
     Exit Sub
 
@@ -659,7 +690,7 @@ Public Sub CreateTables(Optional wbTmp As Workbook, _
 
 Dim dTables As Dictionary
 Dim sTableName As Variant
-Dim sFieldname As String
+Dim sFieldName As String
 Dim sFuncName As String
 Dim iCount As Integer
 Dim wsTmp

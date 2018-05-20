@@ -26,9 +26,10 @@ setup:
     sFuncName = C_MODULE_NAME & "." & "BuildSchedule"
     sTemplateRangeName = "f" & EnumQuadSubDataType(eQuadSubDataType) & "ScheduleCell"
     FuncLogIt sFuncName, "Template range name not set so defaulting to  [" & sTemplateRangeName & "]", C_MODULE_NAME, LogMsgType.INFO
-    
+
+        
 main:
-    If IsDataCached(clsAppRuntime, QuadDataType.schedule, eQuadSubDataType, iPersonID) = False Then
+    If IsDataCached(clsAppRuntime, QuadDataType.Schedule, eQuadSubDataType, iPersonID) = False Then
         FuncLogIt sFuncName, "Data cache NOT found for [" & EnumQuadSubDataType(eQuadSubDataType) & "_" & CStr(iPersonID) & "]", C_MODULE_NAME, LogMsgType.INFO
 
         ' get the raw data from the database and return the filename that holds the results
@@ -37,11 +38,11 @@ main:
         ' parse the raw data in the result file and return an array of the data
         aSchedule = ParseRawData(ReadFile(clsAppRuntime.ResultFileName))
         ' store the parsed raw data in a back sheet, return the sheet name
-        sCacheSheetName = CacheData(clsAppRuntime, aSchedule, QuadDataType.schedule, _
+        sCacheSheetName = CacheData(clsAppRuntime, aSchedule, QuadDataType.Schedule, _
                             eQuadSubDataType, iPersonID, bInTable:=True)
     Else
         FuncLogIt sFuncName, "Data cache found for [" & EnumQuadSubDataType(eQuadSubDataType) & "_" & CStr(iPersonID) & "]", C_MODULE_NAME, LogMsgType.INFO
-        sCacheSheetName = CacheData(clsAppRuntime, aSchedule, QuadDataType.schedule, eQuadSubDataType, _
+        sCacheSheetName = CacheData(clsAppRuntime, aSchedule, QuadDataType.Schedule, eQuadSubDataType, _
                             iPersonID, bCacheNameOnly:=True)
     End If
     ' get the template widths and heights
@@ -67,7 +68,7 @@ setup:
     sFuncName = C_MODULE_NAME & "." & "GetScheduleData"
     
 main:
-    If IsDataCached(clsAppRuntime, QuadDataType.schedule, eQuadSubDataType, iPersonID) = False Then
+    If IsDataCached(clsAppRuntime, QuadDataType.Schedule, eQuadSubDataType, iPersonID) = False Then
         FuncLogIt sFuncName, "Data cache NOT found for [" & EnumQuadSubDataType(eQuadSubDataType) & "_" & CStr(iPersonID) & "]", C_MODULE_NAME, LogMsgType.INFO
 
         ' get the raw data from the database and return the filename that holds the results
@@ -76,11 +77,11 @@ main:
         ' parse the raw data in the result file and return an array of the data
         aSchedule = ParseRawData(ReadFile(clsAppRuntime.ResultFileName))
         ' store the parsed raw data in a back sheet, return the sheet name
-        sCacheSheetName = CacheData(clsAppRuntime, aSchedule, QuadDataType.schedule, _
+        sCacheSheetName = CacheData(clsAppRuntime, aSchedule, QuadDataType.Schedule, _
                             eQuadSubDataType, iDataID:=iPersonID, bInTable:=bInTable)
     Else
         FuncLogIt sFuncName, "Data cache found for [" & EnumQuadSubDataType(eQuadSubDataType) & "_" & CStr(iPersonID) & "]", C_MODULE_NAME, LogMsgType.INFO
-        sCacheSheetName = CacheData(clsAppRuntime, aSchedule, QuadDataType.schedule, eQuadSubDataType, _
+        sCacheSheetName = CacheData(clsAppRuntime, aSchedule, QuadDataType.Schedule, eQuadSubDataType, _
                             iPersonID, bCacheNameOnly:=True, bInTable:=bInTable)
     End If
     
@@ -111,7 +112,7 @@ main:
     If eQuadSubDataType = QuadSubDataType.Student Then
         sSpName = "student_schedule"
         dSpArgs.Add "students", InitVariantArray(Array(sPersonId))
-    ElseIf eQuadSubDataType = QuadSubDataType.teacher Then
+    ElseIf eQuadSubDataType = QuadSubDataType.Teacher Then
         sSpName = "teacher_schedule"
         dSpArgs.Add "teachers", InitVariantArray(Array(sPersonId))
     End If
@@ -207,7 +208,7 @@ Dim sFormatTemplateRange As String
         
         rScheduleFormatTargetRange.PasteSpecial Paste:=xlPasteAll, operation:=xlNone, SkipBlanks:=False, Transpose:=False
         FormatColRowSize clsAppRuntime.TemplateBook, clsAppRuntime.ScheduleBook, _
-                wsSchedule.name, clsAppRuntime.TemplateSheetName, sFormatTemplateRange, _
+                wsSchedule.Name, clsAppRuntime.TemplateSheetName, sFormatTemplateRange, _
                 iTargetFirstRow:=iScheduleCurrentRow, iTargetFirstCol:=iScheduleCurrentCol
         
         ' evaluate the data functions to get the content
@@ -297,7 +298,7 @@ Dim vEnumValues() As String
             rScheduleFormatTargetRange.PasteSpecial Paste:=xlPasteAll, operation:=xlNone, SkipBlanks:=False, Transpose:=False
             
             FormatColRowSize clsAppRuntime.TemplateBook, clsAppRuntime.ScheduleBook, _
-                    wsSchedule.name, clsAppRuntime.TemplateSheetName, sFormatTemplateRange, _
+                    wsSchedule.Name, clsAppRuntime.TemplateSheetName, sFormatTemplateRange, _
                     iTargetFirstRow:=iScheduleCurrentRow, iTargetFirstCol:=iScheduleCurrentCol
         
             ' evaluate the data functions to get the content
@@ -314,7 +315,7 @@ Dim vEnumValues() As String
                 Set rMarker = wsSchedule.Range(.Cells(1, iScheduleCurrentCol), .Cells(1, iScheduleCurrentCol + iFormatWidth - 1))
             End If
             rMarker.value = vEnumValues(i - 1)
-            SetFgColor wsSchedule.name, rMarker.Address, 255, 255, 255, wbTmp:=clsAppRuntime.ScheduleBook
+            SetFgColor wsSchedule.Name, rMarker.Address, 255, 255, 255, wbTmp:=clsAppRuntime.ScheduleBook
         Next i
     End With
     

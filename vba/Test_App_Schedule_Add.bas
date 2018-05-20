@@ -44,7 +44,7 @@ setup:
     ReDim vEntryValues(0 To 8)
     
 main:
-    GenerateScheduleAdd clsAppRuntime
+    GenerateScheduleAdd clsAppRuntime, sSheetName
     
     EventsToggle True
     Set Form_Utils.dDefinitions = Nothing

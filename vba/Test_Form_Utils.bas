@@ -230,13 +230,13 @@ setup:
     sDefn = sDefn & "Jon^45^1" & DOUBLEDOLLAR
     sDefn = sDefn & "Quinton^6^2"
     vStudents = Init2DStringArrayFromString(sDefn, bVariant:=True)
-    sCacheSheetName = CacheData(clsAppRuntime, vStudents, QuadDataType.person, QuadSubDataType.Student, bInTable:=True)
+    sCacheSheetName = CacheData(clsAppRuntime, vStudents, QuadDataType.Person, QuadSubDataType.Student, bInTable:=True)
     
     sDefn = "Name^Age^Prep" & DOUBLEDOLLAR
     sDefn = sDefn & "Nancy^46^1" & DOUBLEDOLLAR
     sDefn = sDefn & "Betty^36^2"
     vTeachers = Init2DStringArrayFromString(sDefn, bVariant:=True)
-    sCacheSheetName = CacheData(clsAppRuntime, vTeachers, QuadDataType.person, QuadSubDataType.teacher, bInTable:=True)
+    sCacheSheetName = CacheData(clsAppRuntime, vTeachers, QuadDataType.Person, QuadSubDataType.Teacher, bInTable:=True)
     
 main:
 
@@ -428,7 +428,7 @@ teardown:
 End Function
 
 
-Function GetEntryWidget(sSheetName As String, sFieldname As String, Optional wbTmp As Workbook) As Range
+Function GetEntryWidget(sSheetName As String, sFieldName As String, Optional wbTmp As Workbook) As Range
 ' just used in testing, puts an entry Widget wherever the current focus is
 Dim sKey As String
 Dim dDefnDetail As Dictionary
@@ -438,7 +438,7 @@ Dim dDefnDetail As Dictionary
     End If
     
     'sKey = GetEntryKey(sSheetName, sFieldName)
-    sKey = GetKey(sSheetName, sFieldname)
+    sKey = GetWidgetKey(sSheetName, sFieldName)
     Set dDefnDetail = dDefinitions.Item(sKey)
     Set GetEntryWidget = wbTmp.Sheets(sSheetName).Range(dDefnDetail.Item("address"))
     
@@ -508,7 +508,7 @@ main:
     
     Set rButton = clsAppRuntime.MenuBook.Sheets("MenuMain").Range("D5:D5")
     
-    If rButton.name.name <> "MenuMain!bMenuMain_Show_AddTeacher" Then
+    If rButton.Name.Name <> "MenuMain!bMenuMain_Show_AddTeacher" Then
         eTestResult = TestResult.Failure
         GoTo teardown
     End If
@@ -570,7 +570,7 @@ main:
         
     Set rText = clsAppRuntime.ViewBook.Sheets("ViewStudent").Range("C4:C4")
     
-    If rText.name.name <> "ViewStudent!tViewStudent_sStudentFirstNm" Then
+    If rText.Name.Name <> "ViewStudent!tViewStudent_sStudentFirstNm" Then
         eTestResult = TestResult.Failure
         GoTo teardown
     End If
@@ -645,7 +645,7 @@ main:
 
     Set rText = clsAppRuntime.ViewBook.Sheets("ViewStudent").Range("C4:C4")
     
-    If rText.name.name <> "ViewStudent!tViewStudent_sStudentFirstNm" Then
+    If rText.Name.Name <> "ViewStudent!tViewStudent_sStudentFirstNm" Then
         eTestResult = TestResult.Failure
         GoTo teardown
     End If
@@ -927,7 +927,7 @@ setup:
     
     sKey = "e" & sSheetName & "_" & sFieldName1
     
-    sTemplateSheetName = clsAppRuntime.TemplateBook.Names("fAdd").RefersToRange.Worksheet.name
+    sTemplateSheetName = clsAppRuntime.TemplateBook.Names("fAdd").RefersToRange.Worksheet.Name
     
     GenerateWidgets clsAppRuntime, sSheetName, wbTmp:=clsAppRuntime.AddBook, sTemplateSheetName:=sTemplateSheetName
     Set rInput = wsTmp.Range(sKey)

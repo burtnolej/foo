@@ -28,7 +28,7 @@ setup:
     Set rTarget = RangeFromStrArray(vSource, wsTmp, 0, 1)
     Set Form_Utils.dDefinitions = LoadDefinitions(wsTmp, rSource:=rTarget)
     
-    If CrossRefQuadData(clsAppRuntime, QuadDataType.person, _
+    If CrossRefQuadData(clsAppRuntime, QuadDataType.Person, _
                     QuadSubDataType.Student, "idStudent", 1, "sStudentLastNm") <> "Gromek" Then
         eTestResult = TestResult.Failure
         GoTo teardown
@@ -86,7 +86,7 @@ setup:
     
     GetPersonDataFromDB clsAppRuntime, QuadSubDataType.Student, eQuadScope:=QuadScope.all
     aPersonData = ParseRawData(ReadFile(clsAppRuntime.ResultFileName))
-    sCacheSheetName = CacheData(clsAppRuntime, aPersonData, QuadDataType.person, QuadSubDataType.Student, bInTable:=True)
+    sCacheSheetName = CacheData(clsAppRuntime, aPersonData, QuadDataType.Person, QuadSubDataType.Student, bInTable:=True)
         
     With clsAppRuntime.CacheBook.Sheets(sCacheSheetName)
         If .Range(.Cells(83, 2), .Cells(83, 2)).value <> "Tzvi" Then

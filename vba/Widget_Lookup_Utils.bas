@@ -1,7 +1,7 @@
 Attribute VB_Name = "Widget_Lookup_Utils"
 Option Explicit
 Const C_MODULE_NAME = "Widget_Lookup_Utils"
-Function GetKey(sSheetName As String, sFieldname As String, Optional eWidgetType As WidgetType = WidgetType.Entry) As String
+Function GetWidgetKey(sSheetName As String, sFieldName As String, Optional eWidgetType As WidgetType = WidgetType.Entry) As String
 Dim sKeySuffix As String
 
     If eWidgetType = WidgetType.Entry Then
@@ -16,7 +16,7 @@ Dim sKeySuffix As String
         sKeySuffix = "s"
     End If
     
-    GetKey = sKeySuffix & sSheetName & "_" & sFieldname
+    GetWidgetKey = sKeySuffix & sSheetName & "_" & sFieldName
 End Function
 'Function GetEntryKey(sSheetName As String, sFieldName As String) As String
 'Dim sKey As String

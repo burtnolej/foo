@@ -217,7 +217,7 @@ cleanup:
     End If
     GetWidgetLocationRanges = aNames
     
-    FuncLogIt sFuncName, " [wbTmp" & wbTmp.name & "] [sFormType=" & sFormType & "] [eWidgetType=" & EnumWidgetType(eWidgetType) & "] [Result=" & CStr(UBound(GetWidgetLocationRanges) + 1) & "]", C_MODULE_NAME, LogMsgType.DEBUGGING2
+    FuncLogIt sFuncName, " [wbTmp" & wbTmp.Name & "] [sFormType=" & sFormType & "] [eWidgetType=" & EnumWidgetType(eWidgetType) & "] [Result=" & CStr(UBound(GetWidgetLocationRanges) + 1) & "]", C_MODULE_NAME, LogMsgType.DEBUGGING2
     FuncLogIt sFuncName, "", C_MODULE_NAME, LogMsgType.OUTFUNC, lLastTick:=lStartTick
     Exit Function
         
@@ -389,7 +389,7 @@ Public Function GenerateViewList(wbSourceBook As Workbook, wbTargetbook As Workb
                          Optional iEntryRowOffset As Integer = 0, _
                          Optional iEntryColOffset As Integer = -1, _
                          Optional iHeight As Integer = 0) As Range
-Dim sViewRangeName As String, sFieldname As String
+Dim sViewRangeName As String, sFieldName As String
 
    With wbTargetbook.Sheets(sSheetName)
         Set rWidget = .Range(.Cells(iRow, iCol), .Cells(iRow + iHeight, iCol))
@@ -414,7 +414,7 @@ Public Function GenerateView(wbSourceBook As Workbook, wbTargetbook As Workbook,
                                sKey As String, _
                          Optional iEntryRowOffset As Integer = 0, _
                          Optional iEntryColOffset As Integer = -1) As Range
-Dim sViewRangeName As String, sFieldname As String
+Dim sViewRangeName As String, sFieldName As String
 
    With wbTargetbook.Sheets(sSheetName)
         Set rWidget = .Range(.Cells(iRow, iCol), .Cells(iRow, iCol))
@@ -422,8 +422,8 @@ Dim sViewRangeName As String, sFieldname As String
         CreateNamedRange wbTargetbook, rWidget.Address, sSheetName, sViewRangeName, "True"
         
         Set rLabel = rWidget.Offset(iEntryRowOffset, iEntryColOffset)
-        sFieldname = Split(sKey, "_")(1)
-        rLabel.value = sFieldname
+        sFieldName = Split(sKey, "_")(1)
+        rLabel.value = sFieldName
         
     End With
     
@@ -506,7 +506,7 @@ Dim cRGB As RGBColor
     IsEntryValid = True
 
 End Function
-Public Function SetEntryValue(sAction As String, sFieldname As String, vValue As Variant, _
+Public Function SetEntryValue(sAction As String, sFieldName As String, vValue As Variant, _
     Optional wbTmp As Workbook) As Integer
 Dim dDefnDetails As Dictionary
 Dim sEntryKey As String
@@ -521,7 +521,7 @@ setup:
     sFuncName = C_MODULE_NAME & "." & "SetEntryValue"
     
     'sEntryKey = GetEntryKey(sAction, sFieldName)
-    sEntryKey = GetKey(sAction, sFieldname)
+    sEntryKey = GetWidgetKey(sAction, sFieldName)
     
                 
     If dDefinitions.Exists(sEntryKey) = False Then
@@ -559,7 +559,7 @@ Public Function GenerateEntryWidget(sKey As String, iLabelRow As Integer, iLabel
 'param  : sAction, String; user action that entrys need to be generated for (like NewLesson)
 '>>>
 Dim rWidget As Range, rLabel As Range
-Dim sFieldname As String
+Dim sFieldName As String
 Dim sFuncName As String
 
 setup:
@@ -577,8 +577,8 @@ main:
         CreateNamedRange wbTmp, rWidget.Address, CStr(sAction), CStr(sKey), "True"
         
         Set rLabel = rWidget.Offset(iEntryRowOffset, iEntryColOffset)
-        sFieldname = Split(sKey, "_")(1)
-        rLabel.value = sFieldname
+        sFieldName = Split(sKey, "_")(1)
+        rLabel.value = sFieldName
     End With
 
     Set GenerateEntryWidget = rWidget

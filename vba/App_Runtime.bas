@@ -1097,7 +1097,7 @@ End Sub
 Function BookOpen(sBookName As String)
 
     On Error GoTo err
-    If Workbooks(sBookName).name = sBookName Then
+    If Workbooks(sBookName).Name = sBookName Then
         BookOpen = True
         Exit Function
     End If
