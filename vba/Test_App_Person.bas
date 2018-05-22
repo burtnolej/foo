@@ -9,7 +9,59 @@ Attribute VB_Name = "Test_App_Person"
 'Test_CacheData_Person
 
 Option Explicit
+Const C_MODULE_NAME = "Test_App_Person"
 
+Public Function Txxxxest_GeneratePersonView() As TestResult
+'<<<
+'purpose: simple wrapper to launch a Student View workflow
+'>>>
+Dim clsAppRuntime As New App_Runtime
+Dim sSheetName As String, sFuncName As String
+Dim wsView As Worksheet
+Dim sScheduleName As String, sSchedulePath As String, sNewSchedulePath As String
+Dim lStartTick As Long
+Dim eTestResult As TestResult
+Dim rTarget As Range
+
+setup:
+    ChDir "C:\Users\burtnolej\Documents\runtime"
+    sFuncName = C_MODULE_NAME & "." & "GeneratePersonView"
+    sSheetName = "test"
+    clsAppRuntime.InitProperties bInitializeCache:=True, _
+                                  sDefinitionSheetName:=sSheetName, _
+                                  sBookName:="vba_source_new.xlsm", _
+                                  sBookPath:="C:\Users\burtnolej\Documents\GitHub\quadviewer", _
+                                  bSetWindows:=False
+
+main:
+    GeneratePersonView clsAppRuntime
+
+    With clsAppRuntime.ViewBook.Sheets("ViewStudent")
+        Set rTarget = .Range(.Cells(2, 3), .Cells(2, 3))
+        rTarget = "Bruno"
+        ValidateWidget clsAppRuntime.ViewBook, "ViewStudent", rTarget
+    End With
+
+    With clsAppRuntime.ViewBook.Sheets("ViewStudent")
+        Set rTarget = .Range(.Cells(4, 6), .Cells(4, 6))
+        If rTarget.value <> "Raskin" Then
+            eTestResult = TestResult.Failure
+            GoTo teardown
+        End If
+    End With
+            
+    eTestResult = TestResult.OK
+    GoTo teardown
+
+err:
+    eTestResult = TestResult.Error
+    
+teardown:
+    Test_GeneratePersonView = eTestResult
+    clsAppRuntime.Delete
+End Function
+    
+    
 Public Function Test_IsValidPersonID_Student() As TestResult
 Dim eTestResult As TestResult
 Dim clsAppRuntime As New App_Runtime

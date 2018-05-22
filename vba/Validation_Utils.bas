@@ -20,6 +20,13 @@ Dim vValidParams() As String
         Set dDefnDetail = dDefinitions.Item(sDefnName)
         sValidType = dDefnDetail.Item("validation_type")
         sFuncName = dDefnDetail.Item("validation_param")
+        
+        If sFuncName = "" Then
+            Validate = True
+            FuncLogIt sFuncName, "Validation func not defined for [" & sDefnName & "]", C_MODULE_NAME, LogMsgType.OK
+            Exit Function
+        End If
+        
         If IsSet(dDefnDetail.Item("validation_args")) = True Then
             vValidParams = dDefnDetail.Item("validation_args")
         End If
@@ -131,31 +138,6 @@ err:
 End Function
 Public Function IsValidString(ParamArray args()) As Boolean
     IsValidString = True
-End Function
-Public Function IsValidPrep(ParamArray args()) As Boolean
-Dim sFuncName As String
-Dim aPreps() As String
-Dim iValue As Variant
- 
-setup:
-    sFuncName = C_MODULE_NAME & "." & "IsValidPrep"
-    iValue = args(1)
-main:
-    aPreps = Split(C_PREPS, ",")
-    'If IsValidInteger(iValue) = True Then
-    If IsValidInteger(args(0), args(1)) = True Then
-    'If IsValidInteger(args(0), args(1), args(2)) = True Then
-    
-        If InArray(aPreps, iValue) = True Then
-            IsValidPrep = True
-            FuncLogIt sFuncName, "Value [" & CStr(iValue) & "] is valid", C_MODULE_NAME, LogMsgType.OK
-            Exit Function
-        End If
-    End If
-err:
-    IsValidPrep = False
-    FuncLogIt sFuncName, "Value [" & CStr(iValue) & "] is invalid", C_MODULE_NAME, LogMsgType.OK
-
 End Function
 
 Public Function IsMember(ParamArray args()) As Boolean

@@ -9,6 +9,7 @@ Attribute VB_Name = "Quad_Utils"
 Const C_MODULE_NAME = "Quad_Utils"
 
 Public Const C_PREPS = "1,2,3,4,5"
+Public Const C_GRADE_LEVELS = "1,2,3,4,5,6,7,8,9,10,11,12"
 
 Enum ListType
     Students = 1
@@ -33,9 +34,10 @@ Enum QuadSubDataType
     Day = 6
     Prep = 7
     Lesson = 8
+    Studentlevel = 9
 End Enum
 
-Const C_QUAD_SUB_DATA_TYPE = "student,teacher,course,subject,timeperiod,day,prep,lesson"
+Const C_QUAD_SUB_DATA_TYPE = "student,teacher,course,subject,timeperiod,day,prep,lesson,studentlevel"
 
 Enum QuadScope
     all = 1

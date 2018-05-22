@@ -62,7 +62,7 @@ err:
     err.Raise err.Number, err.Source, err.Description ' cannot recover from this
     
 End Function
-Public Function GetDefinitionMiscPrep(eFormType As FormType, Optional sDefn As String, Optional sFormName As String)
+Public Function GetDefinitionMiscPrep(eFormType As FormType, Optional sDefn As String, Optional sFormName As String) As String
 Dim sFuncName As String, sSubDataType As String, sDataType As String, sCacheTableName As String
 Dim lStartTick As Long
 
@@ -269,18 +269,31 @@ main:
     
     If sDefn <> "" Then sDefn = sDefn & DOUBLEDOLLAR
 
-    If eFormType = FormType.Add Then
-        sDefn = sDefn & sFormName & HAT & sCacheTableName & HAT & "sStudentFirstNm^String^^^^^Entry" & DOUBLEDOLLAR
-        sDefn = sDefn & sFormName & HAT & sCacheTableName & HAT & "sStudentLastNm^String^^^^^Entry" & DOUBLEDOLLAR
-        sDefn = sDefn & sFormName & HAT & sCacheTableName & HAT & "idStudent^Integer^^^^^Entry" & DOUBLEDOLLAR
-        sDefn = sDefn & sFormName & HAT & sCacheTableName & HAT & "idPrep^Integer^IsValidPrep^^^^Entry" & DOUBLEDOLLAR
-        'sDefn = sDefn & sFormName & HAT & sCacheTableName & HAT & "sPrepNm^String^^^^^Entry"
-        sDefn = sDefn & sFormName & HAT & sCacheTableName & HAT & "iGradeLevel^String^^^^^Entry"
+    If eFormType = FormType.View Then
+        sDefn = sDefn & "ViewStudent" & HAT & sCacheTableName & HAT & "sStudentFirstNm^String^IsMember^&get_person_student^sStudentFirstNm^&UpdateViewStudentForm^Selector" & DOUBLEDOLLAR
+        sDefn = sDefn & "ViewStudent" & HAT & sCacheTableName & HAT & "sStudentFirstNm^^^^^^Text" & DOUBLEDOLLAR
+        sDefn = sDefn & "ViewStudent" & HAT & sCacheTableName & HAT & "idStudent^^^^^^Text" & DOUBLEDOLLAR
+        sDefn = sDefn & "ViewStudent" & HAT & sCacheTableName & HAT & "idPrep^^^^^^Text" & DOUBLEDOLLAR
+        sDefn = sDefn & "AddStudent" & HAT & sCacheTableName & HAT & "iGradeLevel^^^^^^Text"
+    End If
+    
+    If eFormType = FormType.Add Or eFormType = FormType.View Then
+    
+        If GetLastChar(sDefn) <> DOLLAR And Len(sDefn) <> 0 Then sDefn = sDefn & DOUBLEDOLLAR
+            
+        'If sDefn <> "" Then sDefn = sDefn & DOUBLEDOLLAR
+        
+        sDefn = sDefn & "AddStudent" & HAT & sCacheTableName & HAT & "sStudentFirstNm^String^^^^^Entry" & DOUBLEDOLLAR
+        sDefn = sDefn & "AddStudent" & HAT & sCacheTableName & HAT & "sStudentLastNm^String^^^^^Entry" & DOUBLEDOLLAR
+        sDefn = sDefn & "AddStudent" & HAT & sCacheTableName & HAT & "idStudent^Integer^^^^^Entry" & DOUBLEDOLLAR
+        sDefn = sDefn & "AddStudent" & HAT & sCacheTableName & HAT & "idPrep^Integer^IsMember^&get_misc_prep^idPrep^^Entry" & DOUBLEDOLLAR
+        sDefn = sDefn & "AddStudent" & HAT & sCacheTableName & HAT & "iGradeLevel^Integer^IsValidGradeLevel^^^^Entry"
+        
+        sDefn = GetDefinitionMiscPrep(eFormType, sDefn)
     Else
         err.Raise DefinitionErrorMsgType.INVALID_FORMTYPE, Description:="[FormType=" & EnumFormType(eFormType) & "]"
     End If
-
-
+    
 cleanup:
     GetDefinitionPersonStudent = sDefn
     FuncLogIt sFuncName, "[sDefn=" & sDefn & "] [eFormType=" & EnumFormType(eFormType) & "] [result=" & sDefn & "]", C_MODULE_NAME, LogMsgType.DEBUGGING2

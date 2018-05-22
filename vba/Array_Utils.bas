@@ -359,11 +359,23 @@ Dim sPadChar As String
 End Function
 
 Public Function Delim2Array(sScheduleStr As String, Optional bVariant As Boolean = False) As Variant
+'<<<
+'purpose:
+'param  :
+'param  :
+'rtype  :
+'>>>
 Dim iNumRows As Integer, iNumCols As Integer, i As Integer, j As Integer
-Dim vRows As Variant
-Dim vFields As Variant
-Dim aSchedule As Variant
+Dim vRows As Variant, vFields As Variant, aSchedule As Variant
+Dim sFuncName As String
+Dim lStartTick As Long
 
+setup:
+    sFuncName = C_MODULE_NAME & "." & "Delim2Array"
+    lStartTick = FuncLogIt(sFuncName, "", C_MODULE_NAME, LogMsgType.INFUNC)
+    On Error GoTo err
+    
+main:
     vRows = Split(sScheduleStr, DOUBLEDOLLAR)
     iNumRows = UBound(vRows)
     iNumCols = UBound(Split(vRows(0), HAT))
@@ -382,7 +394,17 @@ Dim aSchedule As Variant
         Next j
     Next i
     
+cleanup:
     Delim2Array = aSchedule
+    FuncLogIt sFuncName, "[sScheduleStr=" & sScheduleStr & "] [Processed=" & CStr(iNumRows) & "]", C_MODULE_NAME, LogMsgType.DEBUGGING2
+    FuncLogIt sFuncName, "", C_MODULE_NAME, LogMsgType.OUTFUNC, lLastTick:=lStartTick
+    Exit Function
+        
+err:
+    FuncLogIt sFuncName, "Failed at [row=" & CStr(i) & "][col=" & CStr(j) & "]", C_MODULE_NAME, LogMsgType.Error
+    err.Raise err.Number, err.Source, err.Description ' cannot recover from this
+    
+
 End Function
 Public Function Init2DStringArrayFromString(sInitVals As String, Optional bVariant As Boolean = False) As Variant
 '<<<

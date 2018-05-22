@@ -2,6 +2,7 @@ Attribute VB_Name = "String_Utils"
 Public Const DOUBLEQUOTE = """"
 Public Const HAT = "^"
 Public Const DOUBLEDOLLAR = "$$"
+Public Const DOLLAR = "$"
 Public Const COMMA = ","
 Public Const SPACE = " "
 Public Const BLANK = ""
@@ -124,6 +125,10 @@ Dim i As Long
             Exit Function
         End If
     Next i
+End Function
+Public Function GetLastChar(sInputStr As String) As String
+Dim iLen As Integer
+    GetLastChar = Right(sInputStr, 1)
 End Function
 
 Public Function RemoveEndSpaces(sInputStr As String) As String

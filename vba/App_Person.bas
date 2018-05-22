@@ -14,11 +14,8 @@ Public Sub GeneratePersonView(clsAppRuntime As App_Runtime)
 '       :                 also contains any variables that need to be passed continually
 'rtype  :
 '>>>
-Dim sFuncName As String, sSheetName As String
-Dim sDefn As String
-Dim vSource() As String
-Dim wsTmp As Worksheet, wsView As Worksheet
-Dim rTarget As Range
+Dim sFuncName As String, sSheetName As String, sDefn As String, sDataType As String, sSubDataType As String
+Dim wsTmp As Worksheet
 Dim eTestResult As TestResult
 Dim lStartTick As Long
 
@@ -27,85 +24,18 @@ setup:
     sFuncName = C_MODULE_NAME & "." & "GeneratePersonView"
     lStartTick = FuncLogIt(sFuncName, "", C_MODULE_NAME, LogMsgType.INFUNC)
     sSheetName = "test"
-    Set wsTmp = CreateSheet(clsAppRuntime.TemplateBook, sSheetName, bOverwrite:=True)
-
-    sDefn = "ViewStudent^person_student^sStudentFirstNm^String^IsMember^&get_person_student^sStudentFirstNm^&UpdateViewStudentForm^Selector" & DOUBLEDOLLAR
-    sDefn = sDefn & "ViewStudent^person_student^sStudentFirstNm^^^^^^Text" & DOUBLEDOLLAR
-    sDefn = sDefn & "ViewStudent^person_student^idStudent^^^^^^Text" & DOUBLEDOLLAR
-    sDefn = sDefn & "ViewStudent^person_student^idPrep^^^^^^Text" & DOUBLEDOLLAR
-    sDefn = sDefn & "AddStudent^person_student^sStudentFirstNm^String^^^^^Entry" & DOUBLEDOLLAR
-    sDefn = sDefn & "AddStudent^person_student^sStudentLastNm^String^^^^^Entry" & DOUBLEDOLLAR
-    sDefn = sDefn & "AddStudent^person_student^idStudent^Integer^^^^^Entry" & DOUBLEDOLLAR
-    sDefn = sDefn & "AddStudent^person_student^idPrep^Integer^IsValidPrep^^^^Entry" & DOUBLEDOLLAR
-    sDefn = sDefn & "AddStudent^person_student^sPrepNm^String^^^^^Entry"
+    CreateSheet clsAppRuntime.TemplateBook, sSheetName, bOverwrite:=True
     
-    vSource = Init2DStringArrayFromString(sDefn)
-
-    Set rTarget = RangeFromStrArray(vSource, wsTmp, 0, 1)
-    CreateNamedRange clsAppRuntime.TemplateBook, rTarget.Address, sSheetName, "Definitions", "True"
-    Set Form_Utils.dDefinitions = LoadDefinitions(wsTmp, rSource:=rTarget)
-
 main:
+    sDataType = "Person"
+    sSubDataType = "Student"
+    GetDefinition clsAppRuntime, sDataType, sSubDataType, sSheetName, FormType.View
     GenerateForms clsAppRuntime, bLoadRefData:=True
 
 cleanup:
     FuncLogIt sFuncName, "", C_MODULE_NAME, LogMsgType.OUTFUNC, lLastTick:=lStartTick
     
 End Sub
-
-
-Public Function IsValidPersonID(clsAppRuntime As App_Runtime, _
-                                iPersonID As Integer, _
-                                eQuadSubDataType As QuadSubDataType) As Boolean
-'<<<
-' purpose: tests if the given person ID exists; retreives data to perform the test
-'        : currently uses the non table mechanism for storing data and looking up
-' param  : clsAppRuntime, App_Runtime; all config controlling names of books, sheets, ranges for
-'        :                 also contains any variables that need to be passed continually
-' param  : eQuadSubDataType, QuadSubDataType; what type of person are we querying
-' param  : iPersonID, Integer; id to be checked
-' returns: boolean
-'>>>
-
-Dim sFuncName As String, sLookUpCol As String
-Dim wsPersonDataCache As Worksheet
-Dim vStudentIDs() As String
-
-setup:
-    sFuncName = C_MODULE_NAME & "." & "IsValidPersonID"
-    FuncLogIt sFuncName, "[iPersonID=" & iPersonID & "] [eQuadSubDataType=" & eQuadSubDataType & "]", C_MODULE_NAME, LogMsgType.INFUNC
-    On Error GoTo err
-
-main:
-    Set wsPersonDataCache = GetPersonData(clsAppRuntime, QuadDataType.Person, eQuadSubDataType, _
-                eQuadScope:=QuadScope.all, bInTable:=True)
-
-    If eQuadSubDataType = QuadSubDataType.Teacher Then
-        sLookUpCol = cTeacherLookUpCol
-    Else
-        sLookUpCol = cStudentLookUpCol
-    End If
-
-    'clsAppRuntime.InitProperties bInitializeCache:=False
-    vStudentIDs = GetColumnValues(clsAppRuntime, QuadDataType.Person, QuadSubDataType.Student, "idStudent")
-
-    If InArray(vStudentIDs, CStr(iPersonID)) Then
-        IsValidPersonID = True
-        FuncLogIt sFuncName, "Student ID [" & CStr(iPersonID) & "] is VALID", C_MODULE_NAME, LogMsgType.INFO
-        Exit Function
-    End If
-    
-    IsValidPersonID = False
-    FuncLogIt sFuncName, "Student ID [" & CStr(iPersonID) & "] is INVALID ", C_MODULE_NAME, LogMsgType.INFO
-    
-cleanup:
-    On Error GoTo 0
-    Exit Function
-
-err:
-    FuncLogIt sFuncName, "[iPersonID=" & iPersonID & "] [eQuadSubDataType=" & eQuadSubDataType & "]", C_MODULE_NAME, LogMsgType.Error
-
-End Function
 Public Function get_person_student(clsAppRuntime As App_Runtime, _
                       Optional bInTable As Boolean = True) As Worksheet
     Set get_person_student = GetPersonData(clsAppRuntime, QuadDataType.Person, QuadSubDataType.Student, eQuadScope:=QuadScope.all, bInTable:=bInTable)
@@ -115,10 +45,6 @@ Public Function get_person_teacher(clsAppRuntime As App_Runtime, _
     Set get_person_teacher = GetPersonData(clsAppRuntime, QuadDataType.Person, QuadSubDataType.Teacher, eQuadScope:=QuadScope.all, bInTable:=bInTable)
 End Function
                      
-'Public Function GetPersonData(clsAppRuntime As App_Runtime, _
-'                              eQuadSubDataType As QuadSubDataType, _
-'                     Optional eQuadScope As QuadScope = QuadScope.specified, _
-'                     Optional bInTable As Boolean = False) As Worksheet
 Public Function GetPersonData(clsAppRuntime As App_Runtime, _
                               eQuadDataType As QuadDataType, _
                               eQuadSubDataType As QuadSubDataType, _
