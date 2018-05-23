@@ -9,6 +9,7 @@ Private Sub CreateNamedRangesForLoaderSheet(sSheetName As String, rTarget As Ran
     CreateNamedRange wbTmp, rTarget.Offset(, 2).Resize(1, rTarget.Columns.Count - 2).Address, sSheetName, "lHeader", "True"
 
 End Sub
+
 Public Function Test_App_Loader_Schedule_Lesson() As TestResult
 Dim sSheetName As String, sResultStr As String, sFuncName As String, sDefn As String, sSearchCode As String, sModuleCode As String, sExpectedResultStr As String, sLoaderData As String
 Dim vSource() As String
@@ -31,10 +32,21 @@ setup:
     sSheetName = GetLoaderSheetName(sDataType, sSubDataType)
     
     Set wsTmp = CreateSheet(clsAppRuntime.CacheBook, sSheetName, bOverwrite:=True)
-    sLoaderData = "DataType^SubDataType^sStudentFirstNm^sStudentLastNm^sFacultyFirstNm^sFacultyLastNm^sCourseNm^sSubjectLongDesc^idPrep^idTimePeriod^cdDay" & DOUBLEDOLLAR
-    sLoaderData = sLoaderData & "Schedule^Student^Bruno^Raskin^David^Stone^Art^Art^Luna^4^M" & DOUBLEDOLLAR
-    sLoaderData = sLoaderData & "Schedule^Student^Bruno^Raskin^David^Stone^Art^Art^Luna^4^T" & DOUBLEDOLLAR
-    sLoaderData = sLoaderData & "Schedule^Student^Bruno^Raskin^David^Stone^Art^Art^Luna^4^W"
+
+    'sLoaderData = "DataType^SubDataType^sSubjectLongDesc^sCourseNm^sClassFocusArea^sFacultyFirstNm^cdDay^idTimePeriod^idLocation^idSection^cdClassType^iFreq^idClassLecture" & DOUBLEDOLLAR
+    'sLoaderData = sLoaderData & "Schedule^Student^Art^Art^DummyFA^David^M^4^DummyL^DummyS^DummyCT^DummyF^DummyCL" & DOUBLEDOLLAR
+    'sLoaderData = sLoaderData & "Schedule^Student^Art^Art^DummyFA^David^T^4^DummyL^DummyS^DummyCT^DummyF^DummyCL" & DOUBLEDOLLAR
+    'sLoaderData = sLoaderData & "Schedule^Student^Art^Art^DummyFA^David^W^4^DummyL^DummyS^DummyCT^DummyF^DummyCL"
+    
+    sLoaderData = "DataType^SubDataType^cdDay^idTimePeriod^idLocation^idSection" & DOUBLEDOLLAR
+    sLoaderData = sLoaderData & "Schedule^Student^F^7^1^700" & DOUBLEDOLLAR
+    sLoaderData = sLoaderData & "Schedule^Student^F^8^2^700" & DOUBLEDOLLAR
+    sLoaderData = sLoaderData & "Schedule^Student^F^9^3^700"
+    
+    'sLoaderData = "DataType^SubDataType^sStudentFirstNm^sStudentLastNm^sFacultyFirstNm^sFacultyLastNm^sCourseNm^sSubjectLongDesc^idPrep^idTimePeriod^cdDay" & DOUBLEDOLLAR
+    'sLoaderData = sLoaderData & "Schedule^Student^Bruno^Raskin^David^Stone^Art^Art^Luna^4^M" & DOUBLEDOLLAR
+    'sLoaderData = sLoaderData & "Schedule^Student^Bruno^Raskin^David^Stone^Art^Art^Luna^4^T" & DOUBLEDOLLAR
+    'sLoaderData = sLoaderData & "Schedule^Student^Bruno^Raskin^David^Stone^Art^Art^Luna^4^W"
     vSource = Init2DStringArrayFromString(sLoaderData)
     Set rTarget = RangeFromStrArray(vSource, wsTmp, 0, 0)
     CreateNamedRangesForLoaderSheet sSheetName, rTarget, clsAppRuntime.CacheBook
@@ -80,8 +92,41 @@ setup:
     
     DataLoader sDataType, sSubDataType, wbTmp:=clsAppRuntime.CacheBook, bValidateFields:=False
     
+    GetPersonDataFromDB clsAppRuntime, QuadSubDataType.Student, eQuadScope:=QuadScope.specified, _
+                        iPersonID:=666
+    
+    If FileExists(clsAppRuntime.ResultFileName) Then
+        sResultStr = ReadFile(clsAppRuntime.ResultFileName)
+    Else
+        eTestResult = TestResult.Failure
+        GoTo teardown
+    End If
+
+    If Split(Split(sResultStr, "$$")(1), "^")(0) <> "foo" Then
+        eTestResult = TestResult.Failure
+        GoTo teardown
+    End If
+    
+    GetPersonDataFromDB clsAppRuntime, QuadSubDataType.Student, eQuadScope:=QuadScope.specified, _
+                        iPersonID:=667
+    
+    If FileExists(clsAppRuntime.ResultFileName) Then
+        sResultStr = ReadFile(clsAppRuntime.ResultFileName)
+    Else
+        eTestResult = TestResult.Failure
+        GoTo teardown
+    End If
+
+    If Split(Split(sResultStr, "$$")(1), "^")(0) <> "blah" Then
+        eTestResult = TestResult.Failure
+        GoTo teardown
+    End If
+    
+    eTestResult = TestResult.OK
     
 teardown:
+    DeletePersonDataFromDB clsAppRuntime, QuadSubDataType.Student, iPersonID:="666"
+    DeletePersonDataFromDB clsAppRuntime, QuadSubDataType.Student, iPersonID:="667"
     Test_App_Loader_Person_Student = eTestResult
     clsAppRuntime.Delete
     

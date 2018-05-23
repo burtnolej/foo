@@ -26,7 +26,6 @@ err:
     FuncLogIt sFuncName, "Value [" & CStr(iValue) & "] is invalid", C_MODULE_NAME, LogMsgType.OK
 
 End Function
-
 Public Function IsValidGradeLevel(ParamArray args()) As Boolean
 Dim sFuncName As String
 Dim aGrades() As String
@@ -49,5 +48,24 @@ err:
     IsValidGradeLevel = False
     FuncLogIt sFuncName, "Value [" & CStr(iValue) & "] is invalid", C_MODULE_NAME, LogMsgType.OK
 
+End Function
+
+Public Function IsValidClassLecture(ParamArray args()) As Boolean
+    IsValidClassLecture = True
+End Function
+Public Function IsValidFreq(ParamArray args()) As Boolean
+    IsValidFreq = True
+End Function
+Public Function IsValidClassType(ParamArray args()) As Boolean
+    IsValidClassType = True
+End Function
+Public Function IsValidSection(ParamArray args()) As Boolean
+    IsValidSection = True
+End Function
+Public Function IsValidLocation(ParamArray args()) As Boolean
+    IsValidLocation = True
+End Function
+Public Function IsValidClassFocusArea(ParamArray args()) As Boolean
+    IsValidClassFocusArea = True
 End Function
 

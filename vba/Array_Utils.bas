@@ -344,7 +344,7 @@ Dim sPadChar As String
         If IsArray(aWidths) = True Then
             iWidth = aWidths(i)
         Else
-            iWidth = Len(aVals(i))
+            iWidth = Len(CStr(aVals(i)))
         End If
         
         sresult_ = PadStr(aVals(i), "right", iWidth, sPadChar)
@@ -373,7 +373,7 @@ Dim lStartTick As Long
 setup:
     sFuncName = C_MODULE_NAME & "." & "Delim2Array"
     lStartTick = FuncLogIt(sFuncName, "", C_MODULE_NAME, LogMsgType.INFUNC)
-    On Error GoTo err
+    On Error GoTo 0
     
 main:
     vRows = Split(sScheduleStr, DOUBLEDOLLAR)
@@ -387,6 +387,10 @@ main:
     End If
     
     For i = 0 To iNumRows
+        If i = 832 Then
+            Debug.Print
+        End If
+        
         vFields = Split(vRows(i), HAT)
         
         For j = 0 To iNumCols
@@ -396,7 +400,7 @@ main:
     
 cleanup:
     Delim2Array = aSchedule
-    FuncLogIt sFuncName, "[sScheduleStr=" & sScheduleStr & "] [Processed=" & CStr(iNumRows) & "]", C_MODULE_NAME, LogMsgType.DEBUGGING2
+    FuncLogIt sFuncName, "[Processed=" & CStr(iNumRows) & "]", C_MODULE_NAME, LogMsgType.DEBUGGING2
     FuncLogIt sFuncName, "", C_MODULE_NAME, LogMsgType.OUTFUNC, lLastTick:=lStartTick
     Exit Function
         

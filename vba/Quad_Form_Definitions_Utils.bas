@@ -79,7 +79,7 @@ main:
     
     If sDefn <> "" Then sDefn = sDefn & DOUBLEDOLLAR
 
-    If eFormType = FormType.Add Then
+    If eFormType = FormType.Add Or eFormType = FormType.View Then
         sDefn = sDefn & sFormName & HAT & sCacheTableName & HAT & "idPrep^String^^^^^Entry" & DOUBLEDOLLAR
         sDefn = sDefn & sFormName & HAT & sCacheTableName & HAT & "sPrepNm^String^^^^^Entry"
     Else
@@ -134,6 +134,98 @@ err:
     err.Raise err.Number, err.Source, err.Description ' cannot recover from this
     
 End Function
+
+
+Public Function GetDefinitionCoursesSection(eFormType As FormType, Optional sDefn As String, Optional sFormName As String)
+Dim sFuncName As String, sSubDataType As String, sDataType As String, sCacheTableName As String
+Dim lStartTick As Long
+
+setup:
+    sFuncName = C_MODULE_NAME & "." & "GetDefinitionCoursesSection"
+    lStartTick = FuncLogIt(sFuncName, "", C_MODULE_NAME, LogMsgType.INFUNC)
+    On Error GoTo err
+    sSubDataType = EnumQuadSubDataType(QuadSubDataType.Section)
+    sDataType = EnumQuadDataType(QuadDataType.Courses)
+    
+main:
+    sFormName = GetFormName(eFormType, WorksheetFunction.Proper(sSubDataType))
+    sCacheTableName = GetCacheTableNameFromDataType(sDataType, sSubDataType)
+    
+    If sDefn <> "" Then sDefn = sDefn & DOUBLEDOLLAR
+
+    If eFormType = FormType.Add Then
+        sDefn = sDefn & sFormName & HAT & sCacheTableName & HAT & "idSection^String^^^^^Entry" & DOUBLEDOLLAR
+        sDefn = sDefn & sFormName & HAT & sCacheTableName & HAT & "idAcadPeriod^String^^^^^Entry" & DOUBLEDOLLAR
+        sDefn = sDefn & sFormName & HAT & sCacheTableName & HAT & "idSubject^String^^^^^Entry" & DOUBLEDOLLAR
+        
+        sDefn = sDefn & sFormName & HAT & sCacheTableName & HAT & "idCourse^String^^^^^Entry" & DOUBLEDOLLAR
+        sDefn = sDefn & sFormName & HAT & sCacheTableName & HAT & "idClassType^String^^^^^Entry" & DOUBLEDOLLAR
+        sDefn = sDefn & sFormName & HAT & sCacheTableName & HAT & "idLeadTeacher^String^^^^^Entry" & DOUBLEDOLLAR
+
+        sDefn = sDefn & sFormName & HAT & sCacheTableName & HAT & "idPrepRangeFrom^String^^^^^Entry" & DOUBLEDOLLAR
+        sDefn = sDefn & sFormName & HAT & sCacheTableName & HAT & "idPrepRangeTo^String^^^^^Entry" & DOUBLEDOLLAR
+        sDefn = sDefn & sFormName & HAT & sCacheTableName & HAT & "iFreq^String^^^^^Entry" & DOUBLEDOLLAR
+        
+        sDefn = sDefn & sFormName & HAT & sCacheTableName & HAT & "sFreqUnit^String^^^^^Entry" & DOUBLEDOLLAR
+        sDefn = sDefn & sFormName & HAT & sCacheTableName & HAT & "iMaxCapacity^String^^^^^Entry" & DOUBLEDOLLAR
+        sDefn = sDefn & sFormName & HAT & sCacheTableName & HAT & "dtSectionStart^String^^^^^Entry" & DOUBLEDOLLAR
+        sDefn = sDefn & sFormName & HAT & sCacheTableName & HAT & "dtSectionEnd^String^^^^^Entry"
+        
+    Else
+        err.Raise DefinitionErrorMsgType.INVALID_FORMTYPE, Description:="[FormType=" & EnumFormType(eFormType) & "]"
+    End If
+        
+cleanup:
+    GetDefinitionCoursesSection = sDefn
+    FuncLogIt sFuncName, "[sDefn=" & sDefn & "] [eFormType=" & EnumFormType(eFormType) & "] [result=" & sDefn & "]", C_MODULE_NAME, LogMsgType.DEBUGGING2
+    FuncLogIt sFuncName, "", C_MODULE_NAME, LogMsgType.OUTFUNC, lLastTick:=lStartTick
+    Exit Function
+        
+err:
+    FuncLogIt sFuncName, "[" & err.Description & "]  raised", C_MODULE_NAME, LogMsgType.Error
+    err.Raise err.Number, err.Source, err.Description ' cannot recover from this
+
+End Function
+
+Public Function GetDefinitionMiscLocation(eFormType As FormType, Optional sDefn As String, Optional sFormName As String)
+Dim sFuncName As String, sSubDataType As String, sDataType As String, sCacheTableName As String
+Dim lStartTick As Long
+
+setup:
+    sFuncName = C_MODULE_NAME & "." & "GetDefinitionMiscLocation"
+    lStartTick = FuncLogIt(sFuncName, "", C_MODULE_NAME, LogMsgType.INFUNC)
+    On Error GoTo err
+    sSubDataType = EnumQuadSubDataType(QuadSubDataType.Location)
+    sDataType = EnumQuadDataType(QuadDataType.Misc)
+    
+main:
+    sFormName = GetFormName(eFormType, WorksheetFunction.Proper(sSubDataType))
+    sCacheTableName = GetCacheTableNameFromDataType(sDataType, sSubDataType)
+    
+    If sDefn <> "" Then sDefn = sDefn & DOUBLEDOLLAR
+    If eFormType = FormType.Add Then
+        sDefn = sDefn & sFormName & HAT & sCacheTableName & HAT & "idLocation^String^^^^^Entry" & DOUBLEDOLLAR
+        sDefn = sDefn & sFormName & HAT & sCacheTableName & HAT & "idBuilding^String^^^^^Entry" & DOUBLEDOLLAR
+        sDefn = sDefn & sFormName & HAT & sCacheTableName & HAT & "sFloorNbr^String^^^^^Entry" & DOUBLEDOLLAR
+        sDefn = sDefn & sFormName & HAT & sCacheTableName & HAT & "sRoomNbr^String^^^^^Entry" & DOUBLEDOLLAR
+        sDefn = sDefn & sFormName & HAT & sCacheTableName & HAT & "sRoomDesc^String^^^^^Entry" & DOUBLEDOLLAR
+        sDefn = sDefn & sFormName & HAT & sCacheTableName & HAT & "iMaxCapacity^String^^^^^Entry"
+    Else
+        err.Raise DefinitionErrorMsgType.INVALID_FORMTYPE, Description:="[FormType=" & EnumFormType(eFormType) & "]"
+    End If
+        
+cleanup:
+    GetDefinitionMiscLocation = sDefn
+    FuncLogIt sFuncName, "[sDefn=" & sDefn & "] [eFormType=" & EnumFormType(eFormType) & "] [result=" & sDefn & "]", C_MODULE_NAME, LogMsgType.DEBUGGING2
+    FuncLogIt sFuncName, "", C_MODULE_NAME, LogMsgType.OUTFUNC, lLastTick:=lStartTick
+    Exit Function
+        
+err:
+    FuncLogIt sFuncName, "[" & err.Description & "]  raised", C_MODULE_NAME, LogMsgType.Error
+    err.Raise err.Number, err.Source, err.Description ' cannot recover from this
+
+End Function
+        
 Public Function GetDefinitionCoursesSubject(eFormType As FormType, Optional sDefn As String, Optional sFormName As String)
 Dim sFuncName As String, sSubDataType As String, sDataType As String, sCacheTableName As String
 Dim lStartTick As Long
@@ -225,16 +317,44 @@ main:
     
     If sDefn <> "" Then sDefn = sDefn & DOUBLEDOLLAR
 
-    If eFormType = FormType.Add Then
-        sDefn = sDefn & sFormName & HAT & sCacheTableName & HAT & "sStudentFirstNm^String^IsMember^&get_person_student^sStudentFirstNm^^Entry" & DOUBLEDOLLAR
-        sDefn = sDefn & sFormName & HAT & sCacheTableName & HAT & "sStudentLastNm^String^IsMember^&get_person_student^sStudentLastNm^^Entry" & DOUBLEDOLLAR
-        sDefn = sDefn & sFormName & HAT & sCacheTableName & HAT & "sFacultyFirstNm^String^IsMember^&get_person_teacher^sFacultyFirstNm^^Entry" & DOUBLEDOLLAR
-        sDefn = sDefn & sFormName & HAT & sCacheTableName & HAT & "sFacultyLastNm^String^IsMember^&get_person_teacher^sFacultyLastNm^^Entry" & DOUBLEDOLLAR
-        sDefn = sDefn & sFormName & HAT & sCacheTableName & HAT & "sCourseNm^Integer^IsMember^&get_courses_course^sCourseNm^^Entry" & DOUBLEDOLLAR
-        sDefn = sDefn & sFormName & HAT & sCacheTableName & HAT & "sSubjectLongDesc^Integer^IsMember^&get_courses_subject^sSubjectLongDesc^^Entry" & DOUBLEDOLLAR
-        sDefn = sDefn & sFormName & HAT & sCacheTableName & HAT & "idPrep^Integer^IsMember^&get_misc_prep^sPrepNm^^Entry" & DOUBLEDOLLAR
-        sDefn = sDefn & sFormName & HAT & sCacheTableName & HAT & "idTimePeriod^Integer^IsMember^&get_misc_timeperiod^idTimePeriod^^Entry" & DOUBLEDOLLAR
-        sDefn = sDefn & sFormName & HAT & sCacheTableName & HAT & "cdDay^Integer^IsMember^&get_misc_day^cdDay^^Entry"
+    If eFormType = FormType.View Then
+        sDefn = sDefn & sFormName & HAT & sCacheTableName & HAT & "sSubjectLongDesc^Integer^IsMember^&get_courses_subject^sSubjectLongDesc^^View" & DOUBLEDOLLAR
+        sDefn = sDefn & sFormName & HAT & sCacheTableName & HAT & "sCourseNm^Integer^IsMember^&get_courses_course^sCourseNm^^View" & DOUBLEDOLLAR
+        sDefn = sDefn & sFormName & HAT & sCacheTableName & HAT & "sClassFocusArea^String^IsValidClassFocusArea^^^^View" & DOUBLEDOLLAR
+        sDefn = sDefn & sFormName & HAT & sCacheTableName & HAT & "sFacultyFirstNm^String^IsMember^&get_person_teacher^sFacultyFirstNm^^View" & DOUBLEDOLLAR
+        sDefn = sDefn & sFormName & HAT & sCacheTableName & HAT & "cdDay^Integer^IsMember^&get_misc_day^cdDay^^View" & DOUBLEDOLLAR
+        sDefn = sDefn & sFormName & HAT & sCacheTableName & HAT & "idTimePeriod^Integer^IsMember^&get_misc_timeperiod^idTimePeriod^^View" & DOUBLEDOLLAR
+        sDefn = sDefn & sFormName & HAT & sCacheTableName & HAT & "idLocation^Integer^IsValidLocation^^^^View" & DOUBLEDOLLAR
+        sDefn = sDefn & sFormName & HAT & sCacheTableName & HAT & "idSection^Integer^IsValidSection^^^^View" & DOUBLEDOLLAR
+        sDefn = sDefn & sFormName & HAT & sCacheTableName & HAT & "cdClassType^Integer^IsValidClassType^^^^View" & DOUBLEDOLLAR
+        sDefn = sDefn & sFormName & HAT & sCacheTableName & HAT & "iFreq^Integer^IsValidFreq^^^^View" & DOUBLEDOLLAR
+        sDefn = sDefn & sFormName & HAT & sCacheTableName & HAT & "idClassLecture^Integer^IsValidClassLecture^^^^View"
+        
+        'sDefn = sDefn & sFormName & HAT & sCacheTableName & HAT & "sStudentFirstNm^String^IsMember^&get_person_student^sStudentFirstNm^^Entry" & DOUBLEDOLLAR
+        'sDefn = sDefn & sFormName & HAT & sCacheTableName & HAT & "sStudentLastNm^String^IsMember^&get_person_student^sStudentLastNm^^Entry" & DOUBLEDOLLAR
+        'sDefn = sDefn & sFormName & HAT & sCacheTableName & HAT & "sFacultyFirstNm^String^IsMember^&get_person_teacher^sFacultyFirstNm^^Entry" & DOUBLEDOLLAR
+        'sDefn = sDefn & sFormName & HAT & sCacheTableName & HAT & "sFacultyLastNm^String^IsMember^&get_person_teacher^sFacultyLastNm^^Entry" & DOUBLEDOLLAR
+        'sDefn = sDefn & sFormName & HAT & sCacheTableName & HAT & "sCourseNm^Integer^IsMember^&get_courses_course^sCourseNm^^Entry" & DOUBLEDOLLAR
+        'sDefn = sDefn & sFormName & HAT & sCacheTableName & HAT & "sSubjectLongDesc^Integer^IsMember^&get_courses_subject^sSubjectLongDesc^^Entry" & DOUBLEDOLLAR
+        'sDefn = sDefn & sFormName & HAT & sCacheTableName & HAT & "idPrep^Integer^IsMember^&get_misc_prep^sPrepNm^^Entry" & DOUBLEDOLLAR
+        'sDefn = sDefn & sFormName & HAT & sCacheTableName & HAT & "idTimePeriod^Integer^IsMember^&get_misc_timeperiod^idTimePeriod^^Entry" & DOUBLEDOLLAR
+        'sDefn = sDefn & sFormName & HAT & sCacheTableName & HAT & "cdDay^Integer^IsMember^&get_misc_day^cdDay^^Entry"
+ 
+    End If
+    
+    If eFormType = FormType.View Or eFormType = FormType.Add Then
+    
+        If GetLastChar(sDefn) <> DOLLAR And Len(sDefn) <> 0 Then sDefn = sDefn & DOUBLEDOLLAR
+        
+        sDefn = sDefn & sFormName & HAT & sCacheTableName & HAT & "idLocation^Integer^IsMember^&get_misc_location^idLocation^^Entry" & DOUBLEDOLLAR
+        sDefn = sDefn & sFormName & HAT & sCacheTableName & HAT & "idSection^Integer^IsMember^&get_courses_section^idSection^^Entry" & DOUBLEDOLLAR
+        sDefn = sDefn & sFormName & HAT & sCacheTableName & HAT & "cdDay^Integer^IsMember^&get_misc_day^cdDay^^Entry" & DOUBLEDOLLAR
+        sDefn = sDefn & sFormName & HAT & sCacheTableName & HAT & "idTimePeriod^Integer^IsMember^&get_misc_timeperiod^idTimePeriod^^Entry"
+        
+        sDefn = GetDefinitionCoursesSection(FormType.Add, sDefn)
+        sDefn = GetDefinitionMiscTimePeriod(FormType.Add, sDefn)
+        sDefn = GetDefinitionMiscDay(FormType.Add, sDefn)
+        sDefn = GetDefinitionMiscLocation(FormType.Add, sDefn)
     Else
         err.Raise DefinitionErrorMsgType.INVALID_FORMTYPE, Description:="[FormType=" & EnumFormType(eFormType) & "]"
     End If
@@ -289,7 +409,7 @@ main:
         sDefn = sDefn & "AddStudent" & HAT & sCacheTableName & HAT & "idPrep^Integer^IsMember^&get_misc_prep^idPrep^^Entry" & DOUBLEDOLLAR
         sDefn = sDefn & "AddStudent" & HAT & sCacheTableName & HAT & "iGradeLevel^Integer^IsValidGradeLevel^^^^Entry"
         
-        sDefn = GetDefinitionMiscPrep(eFormType, sDefn)
+        sDefn = GetDefinitionMiscPrep(FormType.Add, sDefn)
     Else
         err.Raise DefinitionErrorMsgType.INVALID_FORMTYPE, Description:="[FormType=" & EnumFormType(eFormType) & "]"
     End If
@@ -349,7 +469,6 @@ Dim sSubDataType As String
     
 main:
     sFormName = GetFormName(eFormType, WorksheetFunction.Proper(sSubDataType))
-
 
     sDefn = ExecDefinitionFunc(eFormType, EnumQuadDataType(QuadDataType.Schedule), EnumQuadSubDataType(QuadSubDataType.Student), sDefn:=sDefn, sFormName:="AddLesson")
     sDefn = ExecDefinitionFunc(eFormType, EnumQuadDataType(QuadDataType.Person), EnumQuadSubDataType(QuadSubDataType.Student), sDefn:=sDefn)

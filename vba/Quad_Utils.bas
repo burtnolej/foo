@@ -35,9 +35,11 @@ Enum QuadSubDataType
     Prep = 7
     Lesson = 8
     Studentlevel = 9
+    Location = 10
+    Section = 11
 End Enum
 
-Const C_QUAD_SUB_DATA_TYPE = "student,teacher,course,subject,timeperiod,day,prep,lesson,studentlevel"
+Const C_QUAD_SUB_DATA_TYPE = "student,teacher,course,subject,timeperiod,day,prep,lesson,studentlevel,location,section"
 
 Enum QuadScope
     all = 1

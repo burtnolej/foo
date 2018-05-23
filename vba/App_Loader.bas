@@ -32,7 +32,7 @@ setup:
     sFuncName = C_MODULE_NAME & "." & "Loader"
     sDefnSheetName = "LoaderDefn"
     lStartTick = FuncLogIt(sFuncName, "", C_MODULE_NAME, LogMsgType.INFUNC)
-    On Error GoTo err
+    'On Error GoTo err
     
     If IsSet(wbTmp) = False Then
         Set wbTmp = ActiveWorkbook
@@ -70,7 +70,6 @@ main:
             'sWidgetKey = GetWidgetKey("AddLesson", sFieldName, WidgetType.Entry) ' i.e eAddLesson_sFacultyFirstNm
             sWidgetKey = GetWidgetKey(sFormName, sFieldName, WidgetType.Entry) ' i.e eAddLesson_sFacultyFirstNm
 
-            
             If bValidateFields = True Then
                 bFieldValid = Validate(clsAppRuntime, sWidgetKey, vValueToValidate) ' i.e. David
             Else
@@ -104,7 +103,7 @@ main:
     InsertPersonDataToDB clsAppRuntime, QuadSubDataType.Student, vDirtyRows, vColumnNames
 
 cleanup:
-    FuncLogIt sFuncName, "[sLoaderSheetName=" & sLoaderSheetName & "] [Records Loaded=" & CStr(iRecordsLoaded) & "]", C_MODULE_NAME, LogMsgType.DEBUGGING2
+    FuncLogIt sFuncName, "[sLoaderSheetName=" & sLoaderSheetName & "] [Records Loaded=" & CStr(UBound(vDirtyRows) + 1) & "]", C_MODULE_NAME, LogMsgType.DEBUGGING2
     'FuncLogIt sFuncName, "", C_MODULE_NAME, LogMsgType.OUTFUNC, lLastTick:=lStartTick
     Exit Sub
         

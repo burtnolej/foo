@@ -11,7 +11,7 @@ Attribute VB_Name = "Test_App_Person"
 Option Explicit
 Const C_MODULE_NAME = "Test_App_Person"
 
-Public Function Txxxxest_GeneratePersonView() As TestResult
+Public Function Test_GeneratePersonView() As TestResult
 '<<<
 'purpose: simple wrapper to launch a Student View workflow
 '>>>
