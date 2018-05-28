@@ -255,7 +255,10 @@ class Log():
             _f_locals = stack()[1][0].f_locals
             if _f_locals.has_key('self'): 
                 #logmesg['class'] = _f_locals["self"].__class__.__name__
-                logmesg['class'] = _f_locals["self"].__name__
+                if logmesg.has_key('class') == True:
+                    logmesg['class'] = _f_locals["self"].__name__
+                else:
+                    logmesg['class'] = _f_locals["self"].__class__.__name__
                 _f_locals.pop('self')
             else:
                 logmesg['class'] = ""

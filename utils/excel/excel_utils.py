@@ -211,16 +211,19 @@ class ExcelBase(object):
                 if getattr(cls,"_validate_"+_field)(encoding=encoding) == [-1]:
                     log.log(PRIORITY.FAILURE,msg="mandatory field could not be validated  ["+_field+"]")
                     raise Exception("mandatory field could not be validated  ["+_field+"]")
+                else:
+                    log.log(PRIORITY.INFO,msg="parsed mandatory ["+str(_field)+"="+str(getattr(cls,_field))+"]")
             
             # then validate all optional fields
             for _field in all_fields:
                 if _field not in mandatory_fields:
-                    getattr(cls,"_validate_"+_field)(encoding=encoding)
-
+                    if getattr(cls,"_validate_"+_field)(encoding=encoding) != [-1]:
+                        log.log(PRIORITY.INFO,msg="parsed optional ["+str(_field)+"="+str(getattr(cls,_field))+"]")
+                    
             # check to see if an explicit runtime path is set for databases and log files
             setattr(cls,"runtime_path",runtime_path)
-            log.log(PRIORITY.INFO,msg="setting runtime_path to ["+runtime_path+"]")   
-
+            log.log(PRIORITY.INFO,msg="setting runtime_path to ["+runtime_path+"]")
+            
         except TypeError, e:
             log.log(PRIORITY.FAILURE,msg="TypeError encoding issues? ["+str(e.message)+"]")   
             return([-1])            

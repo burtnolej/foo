@@ -32,6 +32,12 @@ class Test_GetPrepInfo(Test_Base):
         columns,results = get_all_basic_prep_info(self.database)
         self.assertEquals(len(results),9)
         
+class Test_GetStudentLevelInfo(Test_Base):
+    def test_(self):
+        columns,results = get_all_basic_studentlevel_info(self.database)
+        
+        self.assertEquals(results[0],[42, 1, 2, u'20170912', u'20180622'])
+        
 class Test_GetCourseInfo(Test_Base):
     def test_(self):
         expected_results =  [[u'Ancient Civilations', 1, 4]]
@@ -48,6 +54,17 @@ class Test_GetAllCourseInfo(Test_Base):
     def test_(self):
         columns,results = get_all_basic_course_info(self.database)
         self.assertEquals(len(results),108)
+        
+class Test_GetAllSectionInfo(Test_Base):
+    def test_(self):
+        columns,results = get_all_basic_section_info(self.database)
+        self.assertEquals(len(results),833)   
+        
+class Test_GetAllLocationInfo(Test_Base):
+    def test_(self):
+        columns,results = get_all_basic_location_info(self.database)
+        
+        self.assertEquals(len(results),41)      
 
 class Test_GetAllSubjectInfo(Test_Base):
     def test_(self):
@@ -204,10 +221,26 @@ class Test_GetStudentScheduleArgs_Columns(Test_Base):
         args = {'students':[70],'days':['"M"'],'periods':[1]}
         columns,results = get_student_schedule(self.database,**args)
         self.assertEquals(columns,expected_results)
-    
+
+class Test_InsertBasicScheduleStudent(Test_Base):
+    def test_(self):
+        expected_results = [[u'Work Period', u'Work Period', u'NOTSET', u'TBC', u'F', 7, 1, 700, u'Seminar', 1, 10001], [u'Work Period', u'Work Period', u'NOTSET', u'TBC', u'F', 8, 2, 700, u'Seminar', 1, 10002], [u'Work Period', u'Work Period', u'NOTSET', u'TBC', u'F', 9, 3, 700, u'Seminar', 1, 10003]]
+        
+        rows = [[10001,2,994,5,7,1,700],[10002,2,994,5,8,2,700],[10003,2,994,5,9,3,700]]
+            
+        insert_basic_student_schedule_info(self.database,rows, columns=["idClassLecture","idStudent","idFaculty","idDay","idTimePeriod","idLocation","idSection"])
+                                           
+        columns,results = get_student_schedule(self.database,
+                                                          students=[2],
+                                                          days=['"F"'],
+                                                          periods=[7,8,9])    
+        self.assertEqual(results,expected_results)  
+        
+        delete_basic_classlecture_info(self.database,classlectures=[10001,10002,10003])
+        
 if __name__ == "__main__":
     suite = unittest.TestSuite()   
-    
+
     suite.addTest(unittest.TestLoader().loadTestsFromTestCase(Test_UpdateStudent))
     suite.addTest(unittest.TestLoader().loadTestsFromTestCase(Test_UpdateBasicStudentInfo_StudentLevel))
     
@@ -229,8 +262,14 @@ if __name__ == "__main__":
     suite.addTest(unittest.TestLoader().loadTestsFromTestCase(Test_GetSubjectInfo))
     suite.addTest(unittest.TestLoader().loadTestsFromTestCase(Test_GetAllCourseInfo))
     suite.addTest(unittest.TestLoader().loadTestsFromTestCase(Test_GetAllSubjectInfo))
-
+    
     suite.addTest(unittest.TestLoader().loadTestsFromTestCase(Test_GetPrepInfo))
     suite.addTest(unittest.TestLoader().loadTestsFromTestCase(Test_GetDayInfo))
     suite.addTest(unittest.TestLoader().loadTestsFromTestCase(Test_GetTimePeriodInfo))
+    suite.addTest(unittest.TestLoader().loadTestsFromTestCase(Test_GetStudentLevelInfo))
+    
+    suite.addTest(unittest.TestLoader().loadTestsFromTestCase(Test_GetAllSectionInfo))
+    suite.addTest(unittest.TestLoader().loadTestsFromTestCase(Test_GetAllLocationInfo))
+    suite.addTest(unittest.TestLoader().loadTestsFromTestCase(Test_InsertBasicScheduleStudent))
+    
     unittest.TextTestRunner(verbosity=2).run(suite)    

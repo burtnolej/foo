@@ -84,12 +84,13 @@ class DataStoredProcBase(ExcelBase):
         """purpose: parse nvp's that need to be passed to the sp_func_name """
         assert hasattr(self,'sp_args'), sp_args
         import xml.etree.ElementTree as xmltree
-        valid_args = ['days','periods','teacchers','students']
+        valid_args = ['days','periods','teacchers','students','classlectures']
         
         sp_args_dict = xmlstr2dict(decode(self.sp_args,encoding),doublequote=True)
         
         for arg in sp_args_dict.keys():
             if arg not in valid_args:
+                log.log(PRIORITY.FAILURE,msg="arg is not a valid sp args ["+str(sp_args_dict)+"]")
                 return [-1]
                 
         setattr(self,'sp_args',sp_args_dict)
@@ -213,17 +214,22 @@ class DataStoredProc(DataStoredProcBase):
         from sys import modules
         module = modules[self.sp_module]
         
+        # access the database
         func = getattr(module,self.sp_name)
+        log.log(PRIORITY.INFO,msg="accessing db with [func="+str(func)+"] and [args=" + str(self.sp_args)+"]")
+        
         columns,results = func(self.database,**self.sp_args)
-                    
         _result_file =self._get_parse_result_file(**kwargs)
-
+        log.log(PRIORITY.INFO,msg="db query returned [num rows="+str(len(results))+"]")
+    
         if hasattr(self,"header_flag"):
             if getattr(self,"header_flag") == True:
                 results.insert(0,columns)
-                
+  
+        # if appropriate proved results in a file
         if _result_file != -1:
             self._create_output_file(_result_file,results)
+            log.log(PRIORITY.INFO,msg="using output file [_result_file="+_result_file+"]")
  
         return(results)
 
