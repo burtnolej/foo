@@ -7,6 +7,52 @@ Option Explicit
 'Test_BuildSchedule_Student_NotCached
 'Test_BuildSchedule_Student_Multi
 Const C_MODULE_NAME = "Test_App_Schedule"
+
+Public Function Test_InsertScheduleDataToDB() As TestResult
+Dim eTestResult As TestResult
+Dim clsAppRuntime As New App_Runtime
+Dim vRows() As Variant, vColumns() As Variant
+Dim sResultStr As String
+
+setup:
+    On Error GoTo err
+    clsAppRuntime.InitProperties bInitializeCache:=True
+
+    vRows = Init2DVariantArray([{2,994,5,7,1,700;2,994,5,8,2,700;2,994,5,9,3,700}])
+    vColumns = InitVariantArray(Array("idStudent", "idFaculty", "idDay", "idTimePeriod", "idLocation", "idSection"))
+     
+main:
+    
+    InsertScheduleDataToDB clsAppRuntime, QuadSubDataType.Student, vRows, vColumns
+    
+    GetScheduleDataFromDB clsAppRuntime, 2, QuadSubDataType.Student, "7", "F"
+
+    If FileExists(clsAppRuntime.ResultFileName) Then
+        sResultStr = ReadFile(clsAppRuntime.ResultFileName)
+    Else
+        eTestResult = TestResult.Failure
+        GoTo teardown
+    End If
+        
+    If sResultStr <> "sSubjectLongDesc^sCourseNm^sClassFocusArea^sFacultyFirstNm^cdDay^idTimePeriod^idLocation^idSection^cdClassType^iFreq^idClassLecture$$Work Period^Work Period^NOTSET^TBC^F^7^1^700^Seminar^1^10000" Then
+        eTestResult = TestResult.Failure
+        GoTo teardown
+    End If
+    
+    eTestResult = TestResult.OK
+    GoTo teardown
+
+err:
+    eTestResult = TestResult.Error
+    
+teardown:
+    Test_InsertScheduleDataToDB = eTestResult
+    clsAppRuntime.Delete
+    DeleteClassLectureDataFromDB clsAppRuntime, 10000
+    DeleteClassLectureDataFromDB clsAppRuntime, 10001
+    DeleteClassLectureDataFromDB clsAppRuntime, 10002
+    
+End Function
 Public Function Test_BuildSchedule_Student_OverideScheduleBook() As TestResult
 '"" get a full schedule for 1 student, parse and put into a backsheet
 '""

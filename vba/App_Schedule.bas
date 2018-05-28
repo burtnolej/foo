@@ -9,6 +9,52 @@ Attribute VB_Name = "App_Schedule"
 Option Explicit
 Const C_MODULE_NAME = "App_Schedule"
 
+Public Function GetNextClassLectureID() As Integer
+' this should do a max on the table column
+    GetNextClassLectureID = 10000
+End Function
+
+Public Sub DeleteClassLectureDataFromDB(clsAppRuntime As App_Runtime, _
+                               iClassLectureID As String)
+'<<<
+'>>>
+Dim sDatabasePath As String, sSpName As String, sResults As String
+Dim dSpArgs As New Dictionary
+
+    sSpName = "delete_basic_classlecture_info"
+    dSpArgs.Add "classlectures", InitVariantArray(Array(iClassLectureID))
+
+    GetQuadDataFromDB clsAppRuntime, sSpName, bHeaderFlag:=True, dSpArgs:=dSpArgs
+
+End Sub
+Public Sub InsertScheduleDataToDB(clsAppRuntime As App_Runtime, _
+                                  eQuadSubDataType As QuadSubDataType, _
+                                  vRows As Variant, _
+                                  vColumns As Variant)
+Dim sSpName As String
+Dim iWidth As Integer, iHeight As Integer, iNextClassLectureID As Integer, i As Integer
+
+    iWidth = UBound(vRows, 2)
+    iHeight = UBound(vRows)
+    iNextClassLectureID = GetNextClassLectureID
+    
+    vRows = ReDim2DArray(vRows, iHeight, iWidth + 1, bVariant:=True, bExpand:=True)
+    
+    For i = 1 To iHeight
+      vRows(i, iWidth + 1) = iNextClassLectureID
+      iNextClassLectureID = iNextClassLectureID + 1
+    Next i
+
+    iHeight = UBound(vColumns) + 1
+    
+    ReDim Preserve vColumns(0 To iHeight)
+    vColumns(iHeight) = "idClassLecture"
+    
+    sSpName = "insert_basic_" & LCase(EnumQuadSubDataType(eQuadSubDataType)) & "_schedule_info"
+    InsertQuadDataToDB clsAppRuntime, sSpName, bHeaderFlag:=True, vRows:=vRows, vColumns:=vColumns
+                               
+End Sub
+
 Public Function BuildSchedule(clsAppRuntime As App_Runtime, _
                               eQuadSubDataType As QuadSubDataType, _
                               iPersonID As Integer) As Worksheet
@@ -184,7 +230,7 @@ End Function
 
 Function BuildScheduleCellView(clsAppRuntime As App_Runtime, _
                           wsSchedule As Worksheet, _
-                          dValues As Dictionary, _
+                          ByVal dValues As Dictionary, _
                           iFormatWidth As Integer, iFormatHeight As Integer, _
                           aColumnWidths() As Integer, _
                 Optional eQuadSubDataType As QuadSubDataType = QuadSubDataType.Student, _
@@ -210,6 +256,7 @@ Dim sFormatTemplateRange As String
         FormatColRowSize clsAppRuntime.TemplateBook, clsAppRuntime.ScheduleBook, _
                 wsSchedule.Name, clsAppRuntime.TemplateSheetName, sFormatTemplateRange, _
                 iTargetFirstRow:=iScheduleCurrentRow, iTargetFirstCol:=iScheduleCurrentCol
+        
         
         ' evaluate the data functions to get the content
         For Each rWidget In rScheduleFormatTargetRange.Cells

@@ -346,6 +346,7 @@ main:
     
         If GetLastChar(sDefn) <> DOLLAR And Len(sDefn) <> 0 Then sDefn = sDefn & DOUBLEDOLLAR
         
+        sDefn = sDefn & sFormName & HAT & sCacheTableName & HAT & "idStudent^Integer^IsMember^&get_person_student^idStudent^^Entry" & DOUBLEDOLLAR
         sDefn = sDefn & sFormName & HAT & sCacheTableName & HAT & "idLocation^Integer^IsMember^&get_misc_location^idLocation^^Entry" & DOUBLEDOLLAR
         sDefn = sDefn & sFormName & HAT & sCacheTableName & HAT & "idSection^Integer^IsMember^&get_courses_section^idSection^^Entry" & DOUBLEDOLLAR
         sDefn = sDefn & sFormName & HAT & sCacheTableName & HAT & "cdDay^Integer^IsMember^&get_misc_day^cdDay^^Entry" & DOUBLEDOLLAR

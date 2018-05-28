@@ -10,7 +10,7 @@ Private Sub CreateNamedRangesForLoaderSheet(sSheetName As String, rTarget As Ran
 
 End Sub
 
-Public Function Test_App_Loader_Schedule_Lesson() As TestResult
+Public Function TXXXest_App_Loader_Schedule_Lesson() As TestResult
 Dim sSheetName As String, sResultStr As String, sFuncName As String, sDefn As String, sSearchCode As String, sModuleCode As String, sExpectedResultStr As String, sLoaderData As String
 Dim vSource() As String
 Dim wsTmp As Worksheet

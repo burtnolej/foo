@@ -64,7 +64,7 @@ err:
 
 End Function
 Public Function ListFromRange(wsTmp As Worksheet, sSourceAddress As String, _
-                    Optional bNamedRange As Boolean = False) As String()
+                    Optional bNamedRange As Boolean = False, Optional bBreakOnSpace As Boolean = True) As String()
 Dim vTmpRange As Variant
 Dim sFuncName As String
 
@@ -79,7 +79,10 @@ main:
     For i = 1 To UBound(vTmpRange)
         If vTmpRange(i, 1) = "" Then
             vTmpRange = ReDim2DArray(vTmpRange, i - 1, 1, iStartRow:=1, iStartCol:=1)
-            GoTo lastvaluefound
+            
+            If bBreakOnSpace = True Then
+                GoTo lastvaluefound
+            End If
         End If
     Next i
     

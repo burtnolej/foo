@@ -19,22 +19,45 @@ Function FmtColLabel(ByVal sValue As String) As String
 End Function
 
 Function FmtSSCourseName(ByVal dFields As Dictionary) As String
-'Science
-    FmtSSCourseName = dFields.Item("sCourseNm")
+Dim clsAppRuntime As New App_Runtime
+Dim iCourseID As Integer
+    clsAppRuntime.InitProperties bInitializeCache:=False
+    
+    If dFields.Exists("sCourseNm") = False Then
+        iCourseID = CrossRefQuadData(clsAppRuntime, QuadDataType.Courses, QuadSubDataType.Section, _
+                    "idSection", dFields.Item("idSection"), "idCourse")
+        FmtSSCourseName = CrossRefQuadData(clsAppRuntime, QuadDataType.Courses, QuadSubDataType.Course, _
+                    "idCourse", iCourseID, "sCourseNm")
+                    
+    Else
+        FmtSSCourseName = dFields.Item("sCourseNm")
+    End If
+
 End Function
 Function FmtSSName(ByVal dFields As Dictionary) As String
 '""" the schedule drawer iterates over the schedule data table and based on the template
 '    calls this routine to generate the content
 ':param: dFields, dictionary, available data fields associated with this day/period pair
 'John [ 1:1 ]
+Dim clsAppRuntime As New App_Runtime
 Dim sClassType As String
+
+    clsAppRuntime.InitProperties bInitializeCache:=False
+    
+
     If dFields.Exists("cdClassType") = False Then
         sClassType = "NotSet"
     Else
         sClassType = dFields.Item("cdClassType")
     End If
     
-    FmtSSName = dFields.Item("sFacultyFirstNm") & "[" & sClassType & "]"
+    If dFields.Exists("sFacultyFirstNm") = False Then
+        FmtSSName = CrossRefQuadData(clsAppRuntime, QuadDataType.Courses, QuadSubDataType.Section, _
+                    "idSection", dFields.Item("idSection"), "idLeadTeacher")
+    Else
+        FmtSSName = dFields.Item("sFacultyFirstNm") & "[" & sClassType & "]"
+    End If
+    
 End Function
 Function FmtSSLoc(ByVal dFields As Dictionary) As String
 'Room: 420B

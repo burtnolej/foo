@@ -3,18 +3,6 @@ Option Explicit
 Const C_MODULE_NAME = "App_Schedule_Add"
 
 
-Public Sub InsertScheduleDataToDB(clsAppRuntime As App_Runtime, _
-                                  eQuadSubDataType As QuadSubDataType, _
-                                  vRows As Variant, _
-                                  vColumns As Variant)
-                               
-Dim sSpName As String
-
-    sSpName = "insert_basic_" & EnumQuadSubDataType(eQuadSubDataType) & "_info"
-    InsertQuadDataToDB clsAppRuntime, sSpName, bHeaderFlag:=True, vRows:=vRows, vColumns:=vColumns
-                               
-End Sub
-
 Public Sub EditLesson(iPersonID As Integer, _
                       sDayCd As String, _
                       iPeriodID As Integer, _
@@ -56,8 +44,8 @@ Dim iPersonID As Integer
     clsAppRuntime.InitProperties bInitializeCache:=False
     sFormatRangeName = "f" & "student" & "ScheduleCell"
     Set dEntryValues = GetRecordValuesAsDict(clsAppRuntime.TemplateBook, clsAppRuntime.AddBook, "AddLesson")
-    iPersonID = CrossRefQuadData(clsAppRuntime, QuadDataType.Person, QuadSubDataType.Student, "sStudentFirstNm", dEntryValues.Item("sStudentFirstNm"), "idStudent")
-    Set AddLesson = AddAddLesson(clsAppRuntime, dEntryValues, sFormatRangeName, iPersonID)
+    'iPersonID = CrossRefQuadData(clsAppRuntime, QuadDataType.Person, QuadSubDataType.Student, "sStudentFirstNm", dEntryValues.Item("sStudentFirstNm"), "idStudent")
+    Set AddLesson = AddAddLesson(clsAppRuntime, dEntryValues, sFormatRangeName, dEntryValues.Item("idStudent"))
     
 End Function
         

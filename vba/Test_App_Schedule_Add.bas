@@ -49,43 +49,43 @@ main:
     EventsToggle True
     Set Form_Utils.dDefinitions = Nothing
     clsAppRuntime.CloseRuntimeCacheFile
-    
+
     With clsAppRuntime.AddBook.Sheets(sTargetSheetName)
-        vEntryValues = InitStringArray(Array("Bruno", "Raskin", "David", "Stone", "Art", "Art", "Luna", "4", "M"))
-        FillEntryValues vEntryValues, 2, 2, sTargetSheetName, 9, wbTmp:=clsAppRuntime.AddBook
-    
+        vEntryValues = InitStringArray(Array("2", "1", "700", "F", "7"))
+        FillEntryValues vEntryValues, 2, 2, sTargetSheetName, 5, wbTmp:=clsAppRuntime.AddBook
+
         IsRecordValid clsAppRuntime.TemplateBook, clsAppRuntime.AddBook, "AddLesson", clsAppRuntime.TemplateWidgetSheetName
 
         Set rWidget = AddLesson()
         
-        vEntryValues = InitStringArray(Array("Bruno", "Raskin", "David", "Stone", "Math", "Math", "Luna", "4", "T"))
-        FillEntryValues vEntryValues, 2, 2, sTargetSheetName, 9, wbTmp:=clsAppRuntime.AddBook
+        vEntryValues = InitStringArray(Array("2", "2", "700", "F", "8"))
+        FillEntryValues vEntryValues, 2, 2, sTargetSheetName, 5, wbTmp:=clsAppRuntime.AddBook
         
         Set rWidget = AddLesson()
         
-        vEntryValues = InitStringArray(Array("Bruno", "Raskin", "David", "Stone", "History", "History", "Luna", "4", "W"))
-        FillEntryValues vEntryValues, 2, 2, sTargetSheetName, 9, wbTmp:=clsAppRuntime.AddBook
+        vEntryValues = InitStringArray(Array("2", "3", "700", "F", "9"))
+        FillEntryValues vEntryValues, 2, 2, sTargetSheetName, 5, wbTmp:=clsAppRuntime.AddBook
         
         Set rWidget = AddLesson()
         
-        If rWidget.Address <> "$H$16:$I$19" Then
+        If rWidget.Address <> "$L$36:$M$39" Then
             eTestResult = TestResult.Failure
             GoTo teardown
         End If
         
-        If rWidget.Columns(2).Rows(1).value <> "History" Then
+        If rWidget.Columns(2).Rows(1).value <> "Pre Algebra" Then
             eTestResult = TestResult.Failure
             GoTo teardown
         End If
         
         Set dRecordValues = GetTableRecord("schedule_student", 1, wbTmp:=clsAppRuntime.CacheBook)
         
-        If dRecordValues.Exists("sFacultyLastNm") = False Then
+        If dRecordValues.Exists("idStudent") = False Then
         eTestResult = TestResult.Failure
             GoTo teardown
         End If
         
-        If dRecordValues.Item("sFacultyLastNm") <> "Stone" Then
+        If dRecordValues.Item("cdDay") <> "F" Then
         eTestResult = TestResult.Failure
             GoTo teardown
         End If
@@ -126,10 +126,17 @@ main:
     clsAppRuntime.CloseRuntimeCacheFile
 
     With clsAppRuntime.AddBook.Sheets(sTargetSheetName)
-    
-        ' SFirstName
+
+'idStudent 2
+'idLocation
+'idSection
+'cdDay
+'idTimePeriod
+
+
+        ' idStudent
         Set rTarget = .Range(.Cells(2, 2), .Cells(2, 2))
-        rTarget = "Bruno"
+        rTarget = "2"
         ValidateWidget clsAppRuntime.AddBook, sTargetSheetName, rTarget
     
         If GetBgColor(sTargetSheetName, rTarget).AsString <> "0,255,0" Then
@@ -137,9 +144,9 @@ main:
             GoTo teardown
         End If
         
-        ' SLastName
+        ' idLocation
         Set rTarget = .Range(.Cells(3, 2), .Cells(3, 2))
-        rTarget = "Raskin"
+        rTarget = "1"
         ValidateWidget clsAppRuntime.AddBook, sTargetSheetName, rTarget
     
         If GetBgColor(sTargetSheetName, rTarget).AsString <> "0,255,0" Then
@@ -147,9 +154,9 @@ main:
             GoTo teardown
         End If
 
-        ' TFirstName
+        ' idSection
         Set rTarget = .Range(.Cells(4, 2), .Cells(4, 2))
-        rTarget = "David"
+        rTarget = "700"
         ValidateWidget clsAppRuntime.AddBook, sTargetSheetName, rTarget
     
         If GetBgColor(sTargetSheetName, rTarget).AsString <> "0,255,0" Then
@@ -157,58 +164,8 @@ main:
             GoTo teardown
         End If
         
-        ' TLastName
+        ' cdDay
         Set rTarget = .Range(.Cells(5, 2), .Cells(5, 2))
-        rTarget = "Stone"
-        ValidateWidget clsAppRuntime.AddBook, sTargetSheetName, rTarget
-    
-        If GetBgColor(sTargetSheetName, rTarget).AsString <> "0,255,0" Then
-            eTestResult = TestResult.Failure
-            GoTo teardown
-        End If
-    
-        ' CourseName
-        Set rTarget = .Range(.Cells(6, 2), .Cells(6, 2))
-        rTarget = "Art"
-        ValidateWidget clsAppRuntime.AddBook, sTargetSheetName, rTarget
-    
-        If GetBgColor(sTargetSheetName, rTarget).AsString <> "0,255,0" Then
-            eTestResult = TestResult.Failure
-            GoTo teardown
-        End If
-        
-        ' SubjectName
-        Set rTarget = .Range(.Cells(7, 2), .Cells(7, 2))
-        rTarget = "Science"
-        ValidateWidget clsAppRuntime.AddBook, sTargetSheetName, rTarget
-    
-        If GetBgColor(sTargetSheetName, rTarget).AsString <> "0,255,0" Then
-            eTestResult = TestResult.Failure
-            GoTo teardown
-        End If
-        
-        ' Prep
-        Set rTarget = .Range(.Cells(8, 2), .Cells(8, 2))
-        rTarget = "Luna"
-        ValidateWidget clsAppRuntime.AddBook, sTargetSheetName, rTarget
-    
-        If GetBgColor(sTargetSheetName, rTarget).AsString <> "0,255,0" Then
-            eTestResult = TestResult.Failure
-            GoTo teardown
-        End If
-        
-        ' TimePeriod
-        Set rTarget = .Range(.Cells(9, 2), .Cells(9, 2))
-        rTarget = "4"
-        ValidateWidget clsAppRuntime.AddBook, sTargetSheetName, rTarget
-    
-        If GetBgColor(sTargetSheetName, rTarget).AsString <> "0,255,0" Then
-            eTestResult = TestResult.Failure
-            GoTo teardown
-        End If
-
-        ' Day
-        Set rTarget = .Range(.Cells(10, 2), .Cells(10, 2))
         rTarget = "M"
         ValidateWidget clsAppRuntime.AddBook, sTargetSheetName, rTarget
     
@@ -216,34 +173,45 @@ main:
             eTestResult = TestResult.Failure
             GoTo teardown
         End If
+    
+        ' idTimePeriod
+        Set rTarget = .Range(.Cells(6, 2), .Cells(6, 2))
+        rTarget = "7"
+        ValidateWidget clsAppRuntime.AddBook, sTargetSheetName, rTarget
+    
+        If GetBgColor(sTargetSheetName, rTarget).AsString <> "0,255,0" Then
+            eTestResult = TestResult.Failure
+            GoTo teardown
+        End If
         
+ 
         IsRecordValid clsAppRuntime.TemplateBook, clsAppRuntime.AddBook, "AddLesson", clsAppRuntime.TemplateWidgetSheetName
 
         Set rWidget = AddLesson()
         
-        If clsAppRuntime.ScheduleBook.Sheets("view_student_13").Range("E16:E16").value <> "Art" Then
+        If clsAppRuntime.ScheduleBook.Sheets("view_student_2").Range("E28:E28").value <> "Pre Algebra" Then
             eTestResult = TestResult.Failure
             GoTo teardown
         End If
         
-        If rWidget.Address <> "$D$16:$E$19" Then
+        If rWidget.Address <> "$D$28:$E$31" Then
             eTestResult = TestResult.Failure
             GoTo teardown
         End If
         
-        If rWidget.Columns(2).Rows(1).value <> "Art" Then
+        If rWidget.Columns(2).Rows(1).value <> "Pre Algebra" Then
             eTestResult = TestResult.Failure
             GoTo teardown
         End If
         
         Set dRecordValues = GetTableRecord("schedule_student", 1, wbTmp:=clsAppRuntime.CacheBook)
         
-        If dRecordValues.Exists("sFacultyLastNm") = False Then
+        If dRecordValues.Exists("idStudent") = False Then
         eTestResult = TestResult.Failure
             GoTo teardown
         End If
         
-        If dRecordValues.Item("sFacultyLastNm") <> "Stone" Then
+        If dRecordValues.Item("idTimePeriod") <> "7" Then
         eTestResult = TestResult.Failure
             GoTo teardown
         End If
@@ -286,10 +254,10 @@ main:
     'need to test that the extra row has been added
     
     With clsAppRuntime.AddBook.Sheets(sTargetSheetName)
-    
-        ' SFirstName
+
+        ' idStudent
         Set rTarget = .Range(.Cells(2, 2), .Cells(2, 2))
-        rTarget = "Bruno"
+        rTarget = "2"
         ValidateWidget clsAppRuntime.AddBook, sTargetSheetName, rTarget
     
         If GetBgColor(sTargetSheetName, rTarget).AsString <> "0,255,0" Then
@@ -297,9 +265,9 @@ main:
             GoTo teardown
         End If
         
-        ' SLastName
+        ' idLocation
         Set rTarget = .Range(.Cells(3, 2), .Cells(3, 2))
-        rTarget = "Raskin"
+        rTarget = "1"
         ValidateWidget clsAppRuntime.AddBook, sTargetSheetName, rTarget
     
         If GetBgColor(sTargetSheetName, rTarget).AsString <> "0,255,0" Then
@@ -307,9 +275,9 @@ main:
             GoTo teardown
         End If
 
-        ' TFirstName
+        ' idSection
         Set rTarget = .Range(.Cells(4, 2), .Cells(4, 2))
-        rTarget = "David"
+        rTarget = "700"
         ValidateWidget clsAppRuntime.AddBook, sTargetSheetName, rTarget
     
         If GetBgColor(sTargetSheetName, rTarget).AsString <> "0,255,0" Then
@@ -317,58 +285,8 @@ main:
             GoTo teardown
         End If
         
-        ' TLastName
+        ' cdDay
         Set rTarget = .Range(.Cells(5, 2), .Cells(5, 2))
-        rTarget = "Stone"
-        ValidateWidget clsAppRuntime.AddBook, sTargetSheetName, rTarget
-    
-        If GetBgColor(sTargetSheetName, rTarget).AsString <> "0,255,0" Then
-            eTestResult = TestResult.Failure
-            GoTo teardown
-        End If
-    
-        ' CourseName
-        Set rTarget = .Range(.Cells(6, 2), .Cells(6, 2))
-        rTarget = "Art"
-        ValidateWidget clsAppRuntime.AddBook, sTargetSheetName, rTarget
-    
-        If GetBgColor(sTargetSheetName, rTarget).AsString <> "0,255,0" Then
-            eTestResult = TestResult.Failure
-            GoTo teardown
-        End If
-        
-        ' SubjectName
-        Set rTarget = .Range(.Cells(7, 2), .Cells(7, 2))
-        rTarget = "Science"
-        ValidateWidget clsAppRuntime.AddBook, sTargetSheetName, rTarget
-    
-        If GetBgColor(sTargetSheetName, rTarget).AsString <> "0,255,0" Then
-            eTestResult = TestResult.Failure
-            GoTo teardown
-        End If
-        
-        ' Prep
-        Set rTarget = .Range(.Cells(8, 2), .Cells(8, 2))
-        rTarget = "Luna"
-        ValidateWidget clsAppRuntime.AddBook, sTargetSheetName, rTarget
-    
-        If GetBgColor(sTargetSheetName, rTarget).AsString <> "0,255,0" Then
-            eTestResult = TestResult.Failure
-            GoTo teardown
-        End If
-        
-        ' TimePeriod
-        Set rTarget = .Range(.Cells(9, 2), .Cells(9, 2))
-        rTarget = "4"
-        ValidateWidget clsAppRuntime.AddBook, sTargetSheetName, rTarget
-    
-        If GetBgColor(sTargetSheetName, rTarget).AsString <> "0,255,0" Then
-            eTestResult = TestResult.Failure
-            GoTo teardown
-        End If
-
-        ' Day
-        Set rTarget = .Range(.Cells(10, 2), .Cells(10, 2))
         rTarget = "M"
         ValidateWidget clsAppRuntime.AddBook, sTargetSheetName, rTarget
     
@@ -376,29 +294,45 @@ main:
             eTestResult = TestResult.Failure
             GoTo teardown
         End If
-        
-        IsRecordValid clsAppRuntime.TemplateBook, clsAppRuntime.AddBook, "AddLesson", clsAppRuntime.TemplateWidgetSheetName
-
-        Set rWidget = AddLesson()
-        
-        If rWidget.Address <> "$D$16:$E$19" Then
+    
+        ' idTimePeriod
+        Set rTarget = .Range(.Cells(6, 2), .Cells(6, 2))
+        rTarget = "7"
+        ValidateWidget clsAppRuntime.AddBook, sTargetSheetName, rTarget
+    
+        If GetBgColor(sTargetSheetName, rTarget).AsString <> "0,255,0" Then
             eTestResult = TestResult.Failure
             GoTo teardown
         End If
         
-        If rWidget.Columns(2).Rows(1).value <> "Art" Then
+ 
+        IsRecordValid clsAppRuntime.TemplateBook, clsAppRuntime.AddBook, "AddLesson", clsAppRuntime.TemplateWidgetSheetName
+
+        Set rWidget = AddLesson()
+        
+        If clsAppRuntime.ScheduleBook.Sheets("view_student_2").Range("E28:E28").value <> "Pre Algebra" Then
+            eTestResult = TestResult.Failure
+            GoTo teardown
+        End If
+        
+        If rWidget.Address <> "$D$28:$E$31" Then
+            eTestResult = TestResult.Failure
+            GoTo teardown
+        End If
+        
+        If rWidget.Columns(2).Rows(1).value <> "Pre Algebra" Then
             eTestResult = TestResult.Failure
             GoTo teardown
         End If
         
         Set dRecordValues = GetTableRecord("schedule_student", 1, wbTmp:=clsAppRuntime.CacheBook)
         
-        If dRecordValues.Exists("sFacultyLastNm") = False Then
+        If dRecordValues.Exists("idStudent") = False Then
         eTestResult = TestResult.Failure
             GoTo teardown
         End If
         
-        If dRecordValues.Item("sFacultyLastNm") <> "Stone" Then
+        If dRecordValues.Item("idTimePeriod") <> "7" Then
         eTestResult = TestResult.Failure
             GoTo teardown
         End If
@@ -435,9 +369,9 @@ main:
     Set Form_Utils.dDefinitions = LoadDefinitions(ActiveWorkbook.Sheets("Definitions"), _
                 rSource:=ActiveWorkbook.Sheets("Definitions").Range("Definitions"))
 
-    EditLesson 70, "M", 1
+    EditLesson 2, "M", 1
 
-    If clsAppRuntime.AddBook.Sheets("AddLesson").Range("eAddLesson_sFacultyFirstNm").value = "Isaac" Then
+    If clsAppRuntime.AddBook.Sheets("AddLesson").Range("eAddLesson_sFacultyFirstNm").value = "Ilyssa" Then
         eTestResult = TestResult.OK
         GoTo teardown
     Else
