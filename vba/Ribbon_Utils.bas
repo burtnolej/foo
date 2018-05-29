@@ -126,11 +126,11 @@ Dim wsSchedule As Worksheet
     End If
     
     sTemplateRowRangeName = "f" & "student" & "ScheduleRowLabel"
-    GetScheduleWidgetFormat clsAppRuntime, iFormatWidth, iFormatHeight, sTemplateRowRangeName
+    GetScheduleCellFormat clsAppRuntime, iFormatWidth, iFormatHeight, sTemplateRowRangeName
     BuildScheduleHeaderView clsAppRuntime, wsSchedule, clsAppRuntime.PeriodEnum, iFormatWidth, iFormatHeight
 
     sTemplateColRangeName = "f" & "student" & "ScheduleColLabel"
-    GetScheduleWidgetFormat clsAppRuntime, iFormatWidth, iFormatHeight, sTemplateColRangeName
+    GetScheduleCellFormat clsAppRuntime, iFormatWidth, iFormatHeight, sTemplateColRangeName
     BuildScheduleHeaderView clsAppRuntime, wsSchedule, clsAppRuntime.DayEnum, iFormatWidth, iFormatHeight, iStartCol:=4, iStartRow:=2, bVz:=False
     
     BuildSchedule clsAppRuntime, _
@@ -333,6 +333,7 @@ Dim clsAppRuntime As New App_Runtime
     clsAppRuntime.InitProperties bInitializeCache:=True
     vLabelNames = GetColumnValues(clsAppRuntime, QuadDataType.Person, QuadSubDataType.Student, "sStudentLastNm")
     returnedVal = UBound(vLabelNames) + 1
+    'clsAppRuntime.TemplateBook.Activate
 End Sub
 
 Sub rxgal_getItemLabel(control As IRibbonControl, index As Integer, ByRef returnedVal)

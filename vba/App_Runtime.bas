@@ -1080,7 +1080,8 @@ main:
     End If
     
     ' added on 4/17/18 to get dynamic menus to work
-    Me.TemplateBook.Activate
+    Workbooks(Me.MainBookName).Activate
+    'Me.TemplateBook.Activate
 
 cleanup:
     FuncLogIt sFuncName, "", C_MODULE_NAME, LogMsgType.OUTFUNC, lLastTick:=lStartTick
