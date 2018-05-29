@@ -97,7 +97,7 @@ Dim sSpName As String
 Dim vRow() As Variant
 
     vRow = Array(sFieldName, sFieldVal, sPredName, sPredVal)
-    sSpName = "update_basic_" & EnumQuadSubDataType(eQuadSubDataType) & "_info"
+    sSpName = "update_" & EnumQuadSubDataType(eQuadSubDataType) & ""
     UpdateQuadDataInDB clsAppRuntime, sSpName, bHeaderFlag:=True, vRow:=vRow
                                
 End Sub
@@ -109,7 +109,7 @@ Public Sub InsertPersonDataToDB(clsAppRuntime As App_Runtime, _
                                
 Dim sSpName As String
 
-    sSpName = "insert_basic_" & EnumQuadSubDataType(eQuadSubDataType) & "_info"
+    sSpName = "insert_" & EnumQuadSubDataType(eQuadSubDataType) & ""
     InsertQuadDataToDB clsAppRuntime, sSpName, bHeaderFlag:=True, vRows:=vRows, vColumns:=vColumns
                                
 End Sub
@@ -122,7 +122,7 @@ Public Sub DeletePersonDataFromDB(clsAppRuntime As App_Runtime, _
 Dim sDatabasePath As String, sSpName As String, sResults As String
 Dim dSpArgs As New Dictionary
 
-    sSpName = "delete_basic_" & EnumQuadSubDataType(eQuadSubDataType) & "_info"
+    sSpName = "delete_" & EnumQuadSubDataType(eQuadSubDataType) & ""
     dSpArgs.Add EnumQuadSubDataType(eQuadSubDataType) & "s", InitVariantArray(Array(iPersonID))
 
     GetQuadDataFromDB clsAppRuntime, sSpName, bHeaderFlag:=True, dSpArgs:=dSpArgs
@@ -144,7 +144,7 @@ Public Sub GetPersonDataFromDB(clsAppRuntime As App_Runtime, _
 Dim sDatabasePath As String, sSpName As String, sResults As String
 Dim dSpArgs As New Dictionary
 
-    sSpName = "basic_" & EnumQuadSubDataType(eQuadSubDataType) & "_info"
+    sSpName = "" & EnumQuadSubDataType(eQuadSubDataType) & ""
 
     If eQuadScope = QuadScope.all Then
         sSpName = "all_" & sSpName

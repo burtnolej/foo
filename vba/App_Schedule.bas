@@ -21,7 +21,7 @@ Public Sub DeleteClassLectureDataFromDB(clsAppRuntime As App_Runtime, _
 Dim sDatabasePath As String, sSpName As String, sResults As String
 Dim dSpArgs As New Dictionary
 
-    sSpName = "delete_basic_classlecture_info"
+    sSpName = "delete_classlecture"
     dSpArgs.Add "classlectures", InitVariantArray(Array(iClassLectureID))
 
     GetQuadDataFromDB clsAppRuntime, sSpName, bHeaderFlag:=True, dSpArgs:=dSpArgs
@@ -50,7 +50,7 @@ Dim iWidth As Integer, iHeight As Integer, iNextClassLectureID As Integer, i As 
     ReDim Preserve vColumns(0 To iHeight)
     vColumns(iHeight) = "idClassLecture"
     
-    sSpName = "insert_basic_" & LCase(EnumQuadSubDataType(eQuadSubDataType)) & "_schedule_info"
+    sSpName = "insert_" & LCase(EnumQuadSubDataType(eQuadSubDataType)) & "_schedule"
     InsertQuadDataToDB clsAppRuntime, sSpName, bHeaderFlag:=True, vRows:=vRows, vColumns:=vColumns
                                
 End Sub
