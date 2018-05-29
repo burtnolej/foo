@@ -5,7 +5,6 @@ from app.quad.utils.excel.excel_data_utils import *
 from utils.misc_basic.misc_utils import os_dir_exists, write_text_to_file, append_text_to_file, encode, os_file_delete, os_file_to_string, os_file_exists, put_2darray_in_file
 from utils.database.database_util import Database
 
-
 from types import FunctionType, MethodType,StringType
 from sys import modules
 

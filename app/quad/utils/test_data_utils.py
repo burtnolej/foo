@@ -10,6 +10,7 @@ assert(os_dir_exists(ROOTDIR,"test_misc")) # test files go here
 TESTDIR = path.join(ROOTDIR,"test_misc")
 TESTDBNAME = "QuadQA.db"
 
+
 class Test_Base(unittest.TestCase):
     def setUp(self):
         self.database = Database(path.join(TESTDIR,TESTDBNAME))

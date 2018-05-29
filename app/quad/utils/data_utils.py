@@ -113,6 +113,7 @@ def update_student(database,row):
     pred_name= row[2]
     pred_value = row[3]
     
+    
     _update_table(database,"Student",field_name,field_value,pred_name,pred_value)
     _update_table(database,"StudentLevel",field_name,field_value,pred_name,pred_value)
     return [],[]
