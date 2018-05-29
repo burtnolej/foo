@@ -19,75 +19,75 @@ class Test_Base(unittest.TestCase):
 
 class Test_GetDayInfo(Test_Base):
     def test_(self):
-        columns,results = get_all_basic_day_info(self.database)
+        columns,results = get_all_day(self.database)
         self.assertEquals(len(results),5)
 
 class Test_GetTimePeriodInfo(Test_Base):
     def test_(self):
-        columns,results = get_all_basic_timeperiod_info(self.database)
+        columns,results = get_all_timeperiod(self.database)
         self.assertEquals(len(results),11)
 
 class Test_GetPrepInfo(Test_Base):
     def test_(self):
-        columns,results = get_all_basic_prep_info(self.database)
+        columns,results = get_all_prep(self.database)
         self.assertEquals(len(results),9)
         
 class Test_GetStudentLevelInfo(Test_Base):
     def test_(self):
-        columns,results = get_all_basic_studentlevel_info(self.database)
+        columns,results = get_all_studentlevel(self.database)
         
         self.assertEquals(results[0],[42, 1, 2, u'20170912', u'20180622'])
         
 class Test_GetCourseInfo(Test_Base):
     def test_(self):
         expected_results =  [[u'Ancient Civilations', 1, 4]]
-        columns,results = get_basic_course_info(self.database)
+        columns,results = get_course(self.database)
         self.assertEquals(results,expected_results)
 
 class Test_GetSubjectInfo(Test_Base):
     def test_(self):
         expected_results =   [[u'ELA', 1]]
-        columns,results = get_basic_subject_info(self.database)
+        columns,results = get_subject(self.database)
         self.assertEquals(results,expected_results)
     
 class Test_GetAllCourseInfo(Test_Base):
     def test_(self):
-        columns,results = get_all_basic_course_info(self.database)
+        columns,results = get_all_course(self.database)
         self.assertEquals(len(results),108)
         
 class Test_GetAllSectionInfo(Test_Base):
     def test_(self):
-        columns,results = get_all_basic_section_info(self.database)
+        columns,results = get_all_section(self.database)
         self.assertEquals(len(results),833)   
         
 class Test_GetAllLocationInfo(Test_Base):
     def test_(self):
-        columns,results = get_all_basic_location_info(self.database)
+        columns,results = get_all_location(self.database)
         
         self.assertEquals(len(results),41)      
 
 class Test_GetAllSubjectInfo(Test_Base):
     def test_(self):
-        columns,results = get_all_basic_subject_info(self.database)
+        columns,results = get_all_subject(self.database)
         self.assertEquals(len(results),16)
         
 class Test_GetAllBasicStudentInfo(Test_Base):
     def test_(self):
         expected_results = [[u'Donovan', u'Greene', 70, 7, u'Photon']]
-        columns,results = get_all_basic_student_info(self.database)
+        columns,results = get_all_student(self.database)
         self.assertEqual(len(results),82)
 
 class Test_InsertBasicStudentInfo(Test_Base):
     def test_(self):
         expected_results = [[u'foo', u'bar', 666, 2, u'Luna'], [u'blah', u'blah', 667, 3, u'Aurora']]
         rows = [[666, u'\"foo\"', u'\"bar\"',2,6], [667, u'\"blah\"', u'\"blah\"',3,6]]
-        insert_basic_student_info(self.database,rows, 
+        insert_student(self.database,rows, 
                         columns = ["idStudent","sStudentFirstNm","sStudentLastNm","idPrep","iGradeLevel"])
 
-        columns,results = get_basic_student_info(self.database,students=[666,667])    
+        columns,results = get_student(self.database,students=[666,667])    
         self.assertEqual(results,expected_results)  
         
-        delete_basic_student_info(self.database,[666,667])
+        delete_student(self.database,[666,667])
 
 class Test_InsertStudent(Test_Base):
     def test_(self):
@@ -122,15 +122,15 @@ class Test_UpdateBasicStudentInfo_StudentLevel(Test_Base):
     def test_(self):
         expected_results = [[u'foo', u'bar', 666, 2, u'Luna'], [u'blah', u'blah', 667, 2, u'Luna']]
         rows = [[666, u'\"foo\"', u'\"bar\"',2,6], [667, u'\"blah\"', u'\"blah\"',3,6]]
-        insert_basic_student_info(self.database,rows, 
+        insert_student(self.database,rows, 
                         columns = ["idStudent","sStudentFirstNm","sStudentLastNm","idPrep","iGradeLevel"])
 
-        update_basic_student_info(self.database,["idPrep",2,"idStudent",667])
+        update_student(self.database,["idPrep",2,"idStudent",667])
     
-        columns,results = get_basic_student_info(self.database,students=[666,667])    
+        columns,results = get_student(self.database,students=[666,667])    
         self.assertEqual(results,expected_results)  
         
-        delete_basic_student_info(self.database,[666,667])
+        delete_student(self.database,[666,667])
         
 class Test_InsertStudent_ExtraColumns(Test_Base):
     # this is where insert student is part of a bigger insert and it needs to take
@@ -167,25 +167,25 @@ class Test_InsertStudentLevel(Test_Base):
 class Test_GetBasicStudentInfo(Test_Base):
     def test_(self):
         expected_results = [[u'Donovan', u'Greene', 70, 7, u'Photon']]
-        columns,results = get_basic_student_info(self.database)
+        columns,results = get_student(self.database)
         self.assertEquals(results,expected_results)
 
 class Test_GetAllBasicStudentInfo(Test_Base):
     def test_(self):
         expected_results = [[u'Donovan', u'Greene', 70, 7, u'Photon']]
-        columns,results = get_all_basic_student_info(self.database)
+        columns,results = get_all_student(self.database)
         self.assertEqual(len(results),82)
         
 class Test_GetAllBasicTeacherInfo(Test_Base):
     def test_(self):
         expected_results = [[u'Nicole', u'Consaga', 30]]
-        columns,results = get_all_basic_teacher_info(self.database)
+        columns,results = get_all_teacher(self.database)
         self.assertEqual(len(results),99)
         
 class Test_GetBasicTeacherInfo(Test_Base):
     def test_(self):
         expected_results = [[u'Nicole', u'Consaga', 30]]
-        columns,results = get_basic_teacher_info(self.database)
+        columns,results = get_teacher(self.database)
         self.assertEquals(results,expected_results)
 
 class Test_GetStudentSchedule(Test_Base):
@@ -228,7 +228,7 @@ class Test_InsertBasicScheduleStudent(Test_Base):
         
         rows = [[10001,2,994,5,7,1,700],[10002,2,994,5,8,2,700],[10003,2,994,5,9,3,700]]
             
-        insert_basic_student_schedule_info(self.database,rows, columns=["idClassLecture","idStudent","idFaculty","idDay","idTimePeriod","idLocation","idSection"])
+        insert_student_schedule(self.database,rows, columns=["idClassLecture","idStudent","idFaculty","idDay","idTimePeriod","idLocation","idSection"])
                                            
         columns,results = get_student_schedule(self.database,
                                                           students=[2],
@@ -236,7 +236,7 @@ class Test_InsertBasicScheduleStudent(Test_Base):
                                                           periods=[7,8,9])    
         self.assertEqual(results,expected_results)  
         
-        delete_basic_classlecture_info(self.database,classlectures=[10001,10002,10003])
+        delete_classlecture(self.database,classlectures=[10001,10002,10003])
         
 if __name__ == "__main__":
     suite = unittest.TestSuite()   

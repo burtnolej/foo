@@ -51,7 +51,7 @@ class Test_DataStoredProc_InsertStudent(unittest.TestCase):
     def test_(self):
         write_text_to_file(self.filename,"database_name:"+encode(path.join(TESTDIR,TESTDBNAME),self.encoding) + "\n")
 
-        append_text_to_file(self.filename,"sp_name:"+encode("insert_basic_student_info",self.encoding) + "\n") 
+        append_text_to_file(self.filename,"sp_name:"+encode("insert_student",self.encoding) + "\n") 
         append_text_to_file(self.filename,"delete_flag:"+encode("False",self.encoding) + "\n") 
         append_text_to_file(self.filename,"header_flag:"+encode("False",self.encoding) + "\n") 
         append_text_to_file(self.filename,"columns:"+"$$".join([field for field in self.columns]) + "\n")
@@ -63,7 +63,7 @@ class Test_DataStoredProc_InsertStudent(unittest.TestCase):
         DataStoredProc.sp_args = {}
     
         write_text_to_file(self.filename,"database_name:"+encode(path.join(TESTDIR,TESTDBNAME),self.encoding) + "\n")
-        append_text_to_file(self.filename,"sp_name:"+encode("basic_student_info",self.encoding) + "\n") 
+        append_text_to_file(self.filename,"sp_name:"+encode("student",self.encoding) + "\n") 
         append_text_to_file(self.filename,"delete_flag:"+encode("False",self.encoding) + "\n") 
         append_text_to_file(self.filename,"sp_args:"+encode("<root><students>667</students></root>",self.encoding) + "\n") 
     
@@ -74,7 +74,7 @@ class Test_DataStoredProc_InsertStudent(unittest.TestCase):
     def tearDown(self):
         write_text_to_file(self.filename,"database_name:"+encode(path.join(TESTDIR,TESTDBNAME),self.encoding) + "\n")
     
-        append_text_to_file(self.filename,"sp_name:"+encode("delete_basic_student_info",self.encoding) + "\n") 
+        append_text_to_file(self.filename,"sp_name:"+encode("delete_student",self.encoding) + "\n") 
         append_text_to_file(self.filename,"delete_flag:"+encode("False",self.encoding) + "\n") 
         append_text_to_file(self.filename,"sp_args:"+encode("<root><students>666</students><students>667</students></root>",self.encoding) + "\n") 
     
@@ -95,7 +95,7 @@ class Test_DataStoredProc_UpdateStudent(unittest.TestCase):
                    
         write_text_to_file(self.filename,"database_name:"+encode(path.join(TESTDIR,TESTDBNAME),self.encoding) + "\n")
     
-        append_text_to_file(self.filename,"sp_name:"+encode("insert_basic_student_info",self.encoding) + "\n") 
+        append_text_to_file(self.filename,"sp_name:"+encode("insert_student",self.encoding) + "\n") 
         append_text_to_file(self.filename,"delete_flag:"+encode("False",self.encoding) + "\n") 
         append_text_to_file(self.filename,"columns:"+"$$".join([field for field in self.columns]) + "\n")
     
@@ -107,7 +107,7 @@ class Test_DataStoredProc_UpdateStudent(unittest.TestCase):
     def test_(self):
         write_text_to_file(self.filename,"database_name:"+encode(path.join(TESTDIR,TESTDBNAME),self.encoding) + "\n")
     
-        append_text_to_file(self.filename,"sp_name:"+encode("update_basic_student_info",self.encoding) + "\n") 
+        append_text_to_file(self.filename,"sp_name:"+encode("update_student",self.encoding) + "\n") 
         append_text_to_file(self.filename,"delete_flag:"+encode("False",self.encoding) + "\n") 
         append_text_to_file(self.filename,"row:"+"$$".join([str(field) for field in self.row]) + "\n")
         
@@ -115,7 +115,7 @@ class Test_DataStoredProc_UpdateStudent(unittest.TestCase):
         DataStoredProc.sp_args = {}
         
         write_text_to_file(self.filename,"database_name:"+encode(path.join(TESTDIR,TESTDBNAME),self.encoding) + "\n")
-        append_text_to_file(self.filename,"sp_name:"+encode("basic_student_info",self.encoding) + "\n") 
+        append_text_to_file(self.filename,"sp_name:"+encode("student",self.encoding) + "\n") 
         append_text_to_file(self.filename,"delete_flag:"+encode("False",self.encoding) + "\n") 
         append_text_to_file(self.filename,"sp_args:"+encode("<root><students>666</students></root>",self.encoding) + "\n") 
     
@@ -126,7 +126,7 @@ class Test_DataStoredProc_UpdateStudent(unittest.TestCase):
     def tearDown(self):
         write_text_to_file(self.filename,"database_name:"+encode(path.join(TESTDIR,TESTDBNAME),self.encoding) + "\n")
     
-        append_text_to_file(self.filename,"sp_name:"+encode("delete_basic_student_info",self.encoding) + "\n") 
+        append_text_to_file(self.filename,"sp_name:"+encode("delete_student",self.encoding) + "\n") 
         append_text_to_file(self.filename,"delete_flag:"+encode("False",self.encoding) + "\n") 
         append_text_to_file(self.filename,"sp_args:"+encode("<root><students>666</students><students>667</students></root>",self.encoding) + "\n") 
     
@@ -143,14 +143,14 @@ class Test_DataStoredProc_DeleteStudent(unittest.TestCase):
     def test_(self):
         write_text_to_file(self.filename,"database_name:"+encode(path.join(TESTDIR,TESTDBNAME),self.encoding) + "\n")
 
-        append_text_to_file(self.filename,"sp_name:"+encode("delete_basic_student_info",self.encoding) + "\n") 
+        append_text_to_file(self.filename,"sp_name:"+encode("delete_student",self.encoding) + "\n") 
         append_text_to_file(self.filename,"delete_flag:"+encode("False",self.encoding) + "\n") 
         append_text_to_file(self.filename,"sp_args:"+encode("<root><students>666</students><students>667</students></root>",self.encoding) + "\n") 
         
         result = DataStoredProc.stored_proc_by_file(self.filename,result_file=self.result_filename)
 
         write_text_to_file(self.filename,"database_name:"+encode(path.join(TESTDIR,TESTDBNAME),self.encoding) + "\n")
-        append_text_to_file(self.filename,"sp_name:"+encode("basic_student_info",self.encoding) + "\n") 
+        append_text_to_file(self.filename,"sp_name:"+encode("student",self.encoding) + "\n") 
         append_text_to_file(self.filename,"delete_flag:"+encode("False",self.encoding) + "\n") 
         append_text_to_file(self.filename,"sp_args:"+encode("<root><students>666</students></root>",self.encoding) + "\n") 
     
