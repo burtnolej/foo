@@ -79,20 +79,16 @@ def _filter_data(rows,columns,table):
     
     return required_rows,required_columns
 
-''' ----- STUDENT ----- 
- _qry_student
+def _update_table(database,tbl_name,field_name,field_value,pred_name,pred_value):
+    update_config = [field_name,field_value,pred_name,pred_value]
 
-get_all_student
-get_student
+    with database:
+        columns = [column for column,column_type in tbl_cols_get(database,tbl_name)]
+    
+        if field_name in columns:
+            tbl_rows_update(database,tbl_name,update_config)
 
-insert_student
-delete_student
-
-_insert_student
-_delete_student
-
-_insert_student_level
-_delete_student_level '''
+''' ----- STUDENT [GET]-----  '''
 
 def _qry_student(students,allstudents=False):
     sql = ('select st.sStudentFirstNm, st.sStudentLastNm, st.idStudent, stl.idPrep, pc.sPrepNm '
@@ -106,6 +102,22 @@ def _qry_student(students,allstudents=False):
            'and stl.idPrep = pc.idPrep and pc.cdRowStatus = "act" ')
     return sql
 
+def get_all_student(database):
+    return get_student(database, allstudents=True)
+
+def get_student(database,students=[70],allstudents=False):
+    assert isinstance(students,ListType), students
+    assert is_valid_student(students), students
+    assert isinstance(database,Database), database
+    
+    sql = _qry_student(students,allstudents)
+    with database:
+        columns,results,_ = tbl_query(database,sql)
+    
+    return columns,results
+
+''' ----- STUDENT [UPDATE]-----  '''
+
 def update_student(database,row):
     
     field_name= row[0]
@@ -113,24 +125,28 @@ def update_student(database,row):
     pred_name= row[2]
     pred_value = row[3]
     
-    
     _update_table(database,"Student",field_name,field_value,pred_name,pred_value)
     _update_table(database,"StudentLevel",field_name,field_value,pred_name,pred_value)
     return [],[]
 
-def _update_table(database,tbl_name,field_name,field_value,pred_name,pred_value):
-    update_config = [field_name,field_value,pred_name,pred_value]
-
-    with database:
-        columns = [column for column,column_type in tbl_cols_get(database,tbl_name)]
-    
-        if field_name in columns:
-            tbl_rows_update(database,tbl_name,update_config)
+''' ----- STUDENT [DELETE]-----  '''
 
 def delete_student(database,students):
     _delete_student(database,students)
     _delete_student_level(database,students)
     return [],[]
+
+def _delete_student(database,students,allstudents=False):
+    for studentid in students:
+        with database:
+            tbl_row_delete(database,"Student",[["idStudent","=",studentid]])
+
+def _delete_student_level(database,students,allstudents=False):
+    for studentid in students:
+        with database:
+            tbl_row_delete(database,"StudentLevel",[["idStudent","=",studentid]])
+
+''' ----- STUDENT [INSERT]-----  '''
 
 def insert_student(database,rows,
                               columns=["idStudent","sStudentFirstNm","sStudentLastNm","idPrep"], 
@@ -198,34 +214,10 @@ def _insert_student_level(database,rows,columns=["idStudent","idPrep","iGradeLev
         #rows = _quotestrs(rows)
         tbl_rows_insert(database,"StudentLevel",columns,rows)          
                       
-        
-def _delete_student(database,students,allstudents=False):
-    for studentid in students:
-        with database:
-            tbl_row_delete(database,"Student",[["idStudent","=",studentid]])
-
-def _delete_student_level(database,students,allstudents=False):
-    for studentid in students:
-        with database:
-            tbl_row_delete(database,"StudentLevel",[["idStudent","=",studentid]])
-            
-def get_all_student(database):
-    return get_student(database, allstudents=True)
-
-def get_student(database,students=[70],allstudents=False):
-    assert isinstance(students,ListType), students
-    assert is_valid_student(students), students
-    assert isinstance(database,Database), database
-    
-    sql = _qry_student(students,allstudents)
-    with database:
-        columns,results,_ = tbl_query(database,sql)
-    
-    return columns,results
-
 ''' ----- END STUDENT ----- '''
 
-''' ----- LESSON ----- '''
+''' ----- STUDENT SCHEDULE [GET] ----- '''
+
 def get_student_schedule(database,students=[70],
                          days=['"M"','"T"','"W"','"R"','"F"'],
                          periods=[1,2,3,4,5,6,7,8,9,11]):
@@ -258,6 +250,8 @@ def _qry_student_schedule(students,days,periods):
            'order by cl.idDay, cl.idTimePeriod ').format(",".join(map(str,students)),",".join(map(str,days)),",".join(map(str,periods)))
     return sql
 
+''' ----- STUDENT SCHEDULE [DELETE] ----- '''
+
 def delete_classlecture(database,classlectures):
     _delete_class_lecture_student_enroll(database,classlectures) 
     _delete_class_lecture_teacher_enroll(database,classlectures)
@@ -279,6 +273,8 @@ def _delete_class_lecture(database,classlectures,allclasslectures=False):
     for idclasslecture in classlectures:
         with database:
             tbl_row_delete(database,"ClassLecture",[["idClassLecture","=",idclasslecture]])
+
+''' ----- STUDENT SCHEDULE [INSERT] ----- '''
 
 def insert_student_schedule(database,rows,
                               columns=["idClassLecture","idStudent","idFaculty","idDay","idTimePeriod","idSection",
@@ -315,7 +311,6 @@ def _insert_class_lecture_student_enroll(database,rows,
     required_rows,columns = _construct_record(table,rows,columns)
     
     with database:
-        #required_rows = _quotestrs(required_rows)
         tbl_rows_insert(database,"ClassLectureStudentEnroll",columns,required_rows)
         
 def _insert_class_lecture_teacher_enroll(database,rows,
@@ -380,8 +375,7 @@ def _insert_class_lecture(database,rows,
         #required_rows = _quotestrs(required_rows)
         tbl_rows_insert(database,"ClassLecture",columns,required_rows)
 
-''' ----- END LESSON ----- '''
-
+''' ----- END STUDENT SCHEDULE ----- '''
 
 def get_all_teacher(database):
     return get_teacher(database,allteachers=True)
