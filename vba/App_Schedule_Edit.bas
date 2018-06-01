@@ -17,8 +17,6 @@ Dim clsAppRuntime As New App_Runtime
     clsAppRuntime.InitProperties bInitializeCache:=False
     'Set Form_Utils.dDefinitions = LoadDefinitions(clsAppRuntime.TemplateBook.Sheets("Definitions"), _
     '            rSource:=clsAppRuntime.TemplateBook.Sheets("Definitions").Range("Definitions"))
-            
-    'currently just pulling in studentid 70 by default
     
     Set wsCache = GetScheduleData(clsAppRuntime, iPersonID, QuadDataType.Schedule, eQuadSubDataType, bInTable:=True)
         

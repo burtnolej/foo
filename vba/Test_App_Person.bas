@@ -309,7 +309,7 @@ main:
         GoTo teardown
     End If
 
-    If sResultStr <> "sStudentFirstNm^sStudentLastNm^idStudent^idPrep^sPrepNm$$blah^blah^667^2^Luna" Then
+    If sResultStr <> "sStudentFirstNm^sStudentLastNm^idStudent^idPrep^iGradeLevel^sPrepNm$$blah^blah^667^2^6^Luna" Then
         eTestResult = TestResult.Failure
         GoTo teardown
     End If
@@ -356,8 +356,8 @@ main:
         eTestResult = TestResult.Failure
         GoTo teardown
     End If
-        
-    If sResultStr <> "sStudentFirstNm^sStudentLastNm^idStudent^idPrep^sPrepNm$$foo^bar^666^2^Luna" Then
+    
+    If sResultStr <> "sStudentFirstNm^sStudentLastNm^idStudent^idPrep^iGradeLevel^sPrepNm$$foo^bar^666^2^6^Luna" Then
         eTestResult = TestResult.Failure
         GoTo teardown
     End If
@@ -439,7 +439,7 @@ main:
 
     Set wsCache = GetPersonData(clsAppRuntime, QuadDataType.Person, QuadSubDataType.Student, eQuadScope:=QuadScope.all)
     With wsCache
-        If .Range(.Cells(83, 5), .Cells(83, 5)).value <> "Photon" Then
+        If .Range(.Cells(83, 6), .Cells(83, 6)).value <> "Photon" Then
             eTestResult = TestResult.Failure
             GoTo teardown
         Else
@@ -478,7 +478,7 @@ setup:
 main:
     Set wsCache = GetPersonData(clsAppRuntime, QuadDataType.Person, QuadSubDataType.Student, eQuadScope:=QuadScope.all)
     With wsCache
-        If .Range(.Cells(83, 5), .Cells(83, 5)).value <> "Photon" Then
+        If .Range(.Cells(83, 6), .Cells(83, 6)).value <> "Photon" Then
             eTestResult = TestResult.Failure
             GoTo teardown
         Else

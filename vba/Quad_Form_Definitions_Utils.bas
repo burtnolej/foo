@@ -413,17 +413,13 @@ main:
     If sDefn <> "" Then sDefn = sDefn & DOUBLEDOLLAR
 
     If eFormType = FormType.View Then
-        'sDefn = sDefn & "ViewStudent" & HAT & sCacheTableName & HAT & "sStudentFirstNm^String^IsMember^&get_person_student^sStudentFirstNm^&UpdateViewStudentForm^Selector" & DOUBLEDOLLAR
-        'sDefn = sDefn & "ViewStudent" & HAT & sCacheTableName & HAT & "sStudentFirstNm^^^^^^Text" & DOUBLEDOLLAR
-        'sDefn = sDefn & "ViewStudent" & HAT & sCacheTableName & HAT & "idStudent^^^^^^Text" & DOUBLEDOLLAR
-        'sDefn = sDefn & "ViewStudent" & HAT & sCacheTableName & HAT & "idPrep^^^^^^Text" & DOUBLEDOLLAR
-        'sDefn = sDefn & "AddStudent" & HAT & sCacheTableName & HAT & "iGradeLevel^^^^^^Text"
         
         sDefn = sDefn & sFormName & HAT & sCacheTableName & HAT & "sStudentFirstNm^String^IsMember^&get_person_student^sStudentFirstNm^&UpdateViewStudentForm^Selector" & DOUBLEDOLLAR
         sDefn = sDefn & sFormName & HAT & sCacheTableName & HAT & "sStudentLastNm^^^^^^Text" & DOUBLEDOLLAR
         sDefn = sDefn & sFormName & HAT & sCacheTableName & HAT & "idStudent^^^^^^Text" & DOUBLEDOLLAR
         sDefn = sDefn & sFormName & HAT & sCacheTableName & HAT & "idPrep^^^^^^Text" & DOUBLEDOLLAR
-        sDefn = sDefn & sFormName & HAT & sCacheTableName & HAT & "iGradeLevel^^^^^^Text"
+        sDefn = sDefn & sFormName & HAT & sCacheTableName & HAT & "iGradeLevel^^^^^^Text" & DOUBLEDOLLAR
+        sDefn = sDefn & sFormName & HAT & sCacheTableName & HAT & "sPrepNm^^^^^^Text" & DOUBLEDOLLAR
         
     End If
     
@@ -431,19 +427,12 @@ main:
     
         If GetLastChar(sDefn) <> DOLLAR And Len(sDefn) <> 0 Then sDefn = sDefn & DOUBLEDOLLAR
             
-        'If sDefn <> "" Then sDefn = sDefn & DOUBLEDOLLAR
-        
-        'sDefn = sDefn & "AddStudent" & HAT & sCacheTableName & HAT & "sStudentFirstNm^String^^^^^Entry" & DOUBLEDOLLAR
-        'sDefn = sDefn & "AddStudent" & HAT & sCacheTableName & HAT & "sStudentLastNm^String^^^^^Entry" & DOUBLEDOLLAR
-        'sDefn = sDefn & "AddStudent" & HAT & sCacheTableName & HAT & "idStudent^Integer^^^^^Entry" & DOUBLEDOLLAR
-        'sDefn = sDefn & "AddStudent" & HAT & sCacheTableName & HAT & "idPrep^Integer^IsMember^&get_misc_prep^idPrep^^Entry" & DOUBLEDOLLAR
-        'sDefn = sDefn & "AddStudent" & HAT & sCacheTableName & HAT & "iGradeLevel^Integer^IsValidGradeLevel^^^^Entry"
-        
         sDefn = sDefn & "Add_Person_Student" & HAT & sCacheTableName & HAT & "sStudentFirstNm^String^^^^^Entry" & DOUBLEDOLLAR
         sDefn = sDefn & "Add_Person_Student" & HAT & sCacheTableName & HAT & "sStudentLastNm^String^^^^^Entry" & DOUBLEDOLLAR
         sDefn = sDefn & "Add_Person_Student" & HAT & sCacheTableName & HAT & "idStudent^Integer^^^^^Entry" & DOUBLEDOLLAR
         sDefn = sDefn & "Add_Person_Student" & HAT & sCacheTableName & HAT & "idPrep^Integer^IsMember^&get_misc_prep^idPrep^^Entry" & DOUBLEDOLLAR
-        sDefn = sDefn & "Add_Person_Student" & HAT & sCacheTableName & HAT & "iGradeLevel^Integer^IsValidGradeLevel^^^^Entry"
+        sDefn = sDefn & "Add_Person_Student" & HAT & sCacheTableName & HAT & "iGradeLevel^Integer^IsValidGradeLevel^^^^Entry" & DOUBLEDOLLAR
+        sDefn = sDefn & "Add_Person_Student" & HAT & sCacheTableName & HAT & "sPrepNm^String^IsPrepNm^^^^Entry"
         
         sDefn = GetDefinitionMiscPrep(FormType.Add, sDefn)
     Else
@@ -509,11 +498,11 @@ main:
     sCacheTableName = GetCacheTableNameFromDataType(sDataType, sSubDataType)
 
     If eFormType = FormType.ViewList Then
+        sDefn = sDefn & sFormName & HAT & sCacheTableName & HAT & "idStudent^Integer^IsMember^&get_person_student^idStudent^&UpdateListViewScheduleLessonForm^Selector" & DOUBLEDOLLAR
         sDefn = sDefn & sFormName & HAT & sCacheTableName & HAT & "idStudent^^^^^^ListText" & DOUBLEDOLLAR
         sDefn = sDefn & sFormName & HAT & sCacheTableName & HAT & "idFaculty^^^^^^ListText" & DOUBLEDOLLAR
         sDefn = sDefn & sFormName & HAT & sCacheTableName & HAT & "idSection^^^^^^ListText" & DOUBLEDOLLAR
         sDefn = sDefn & sFormName & HAT & sCacheTableName & HAT & "idLocation^^^^^^ListText" & DOUBLEDOLLAR
-
         sDefn = sDefn & sFormName & HAT & sCacheTableName & HAT & "idDay^^^^^^ListText" & DOUBLEDOLLAR
         sDefn = sDefn & sFormName & HAT & sCacheTableName & HAT & "idTimePeriod^^^^^^ListText"
     End If
@@ -525,24 +514,11 @@ main:
         sDefn = sDefn & "Add_Schedule_Lesson" & HAT & sCacheTableName & HAT & "idStudent^Integer^IsMember^&get_person_student^idStudent^^Entry" & DOUBLEDOLLAR
         sDefn = sDefn & "Add_Schedule_Lesson" & HAT & sCacheTableName & HAT & "idFaculty^Integer^IsMember^&get_person_teacher^idFaculty^^Entry" & DOUBLEDOLLAR
         sDefn = sDefn & "Add_Schedule_Lesson" & HAT & sCacheTableName & HAT & "idSection^Integer^IsMember^&get_courses_section^idSection^^Entry" & DOUBLEDOLLAR
-
         sDefn = sDefn & "Add_Schedule_Lesson" & HAT & sCacheTableName & HAT & "idLocation^Integer^IsMember^&get_misc_location^idLocation^^Entry" & DOUBLEDOLLAR
         sDefn = sDefn & "Add_Schedule_Lesson" & HAT & sCacheTableName & HAT & "idDay^Integer^IsMember^&get_misc_day^idDay^^Entry" & DOUBLEDOLLAR
         sDefn = sDefn & "Add_Schedule_Lesson" & HAT & sCacheTableName & HAT & "idTimePeriod^Integer^IsMember^&get_misc_timeperiod^idTimePeriod^^Entry"
     End If
     
-    'sDefn = ExecDefinitionFunc(eFormType, EnumQuadDataType(QuadDataType.Schedule), EnumQuadSubDataType(QuadSubDataType.Student), sDefn:=sDefn, sFormName:="AddLesson")
-    'sDefn = ExecDefinitionFunc(eFormType, EnumQuadDataType(QuadDataType.Person), EnumQuadSubDataType(QuadSubDataType.Student), sDefn:=sDefn)
-    'sDefn = ExecDefinitionFunc(eFormType, EnumQuadDataType(QuadDataType.Person), EnumQuadSubDataType(QuadSubDataType.Teacher), sDefn:=sDefn)
-    'sDefn = ExecDefinitionFunc(eFormType, EnumQuadDataType(QuadDataType.Courses), EnumQuadSubDataType(QuadSubDataType.Course), sDefn:=sDefn)
-    'sDefn = ExecDefinitionFunc(eFormType, EnumQuadDataType(QuadDataType.Courses), EnumQuadSubDataType(QuadSubDataType.Subject), sDefn:=sDefn)
-    'sDefn = ExecDefinitionFunc(eFormType, EnumQuadDataType(QuadDataType.Courses), EnumQuadSubDataType(QuadSubDataType.Section), sDefn:=sDefn)
-    'sDefn = ExecDefinitionFunc(eFormType, EnumQuadDataType(QuadDataType.Misc), EnumQuadSubDataType(QuadSubDataType.TimePeriod), sDefn:=sDefn)
-    'sDefn = ExecDefinitionFunc(eFormType, EnumQuadDataType(QuadDataType.Misc), EnumQuadSubDataType(QuadSubDataType.Prep), sDefn:=sDefn)
-    'sDefn = ExecDefinitionFunc(eFormType, EnumQuadDataType(QuadDataType.Misc), EnumQuadSubDataType(QuadSubDataType.Location), sDefn:=sDefn)
-    'sDefn = ExecDefinitionFunc(eFormType, EnumQuadDataType(QuadDataType.Misc), EnumQuadSubDataType(QuadSubDataType.Day), sDefn:=sDefn)
-    'sDefn = ExecDefinitionFunc(eFormType, EnumQuadDataType(QuadDataType.Schedule), EnumQuadSubDataType(QuadSubDataType.Student), sDefn:=sDefn) & DOUBLEDOLLAR
-
     sDefn = ExecDefinitionFunc(FormType.Add, EnumQuadDataType(QuadDataType.Person), EnumQuadSubDataType(QuadSubDataType.Student), sDefn:=sDefn)
     sDefn = ExecDefinitionFunc(FormType.Add, EnumQuadDataType(QuadDataType.Person), EnumQuadSubDataType(QuadSubDataType.Teacher), sDefn:=sDefn)
     sDefn = ExecDefinitionFunc(FormType.Add, EnumQuadDataType(QuadDataType.Courses), EnumQuadSubDataType(QuadSubDataType.Course), sDefn:=sDefn)

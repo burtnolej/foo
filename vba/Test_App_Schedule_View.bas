@@ -33,7 +33,7 @@ setup:
 
 main:
     GenerateScheduleLessonListView clsAppRuntime, 2
-    
+        
     Set rViewListColumn = clsAppRuntime.ViewBook.Sheets("ViewList_Schedule_Lesson").Range("lViewList_Schedule_Lesson_idStudent")
     
     If rViewListColumn.Rows(1).value <> "2" Then

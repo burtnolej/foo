@@ -25,11 +25,12 @@ main:
 
     EditLesson 2, "1", 1, eQuadSubDataType:=QuadSubDataType.Lesson
 
-    If clsAppRuntime.AddBook.Sheets("Add_Schedule_Lesson").Range("eAdd_Schedule_Lesson_idStudent").value = "70" Then
+    If clsAppRuntime.AddBook.Sheets("Add_Schedule_Lesson").Range("eAdd_Schedule_Lesson_idStudent").value = "2" Then
         eTestResult = TestResult.OK
         GoTo teardown
     Else
         eTestResult = TestResult.Failure
+        GoTo teardown
     End If
 
 err:

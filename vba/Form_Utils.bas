@@ -107,21 +107,7 @@ main:
             sTemplateSheetName = FormatForm(clsAppRuntime, CStr(sAction), sFormType:=sFormType)
             
             If eWidgetType = WidgetType.ListText Then
-            
-                ' only try to draw widgets if the Action matches the provided FormType
-                'If GetFormTypeFromAction(CStr(sAction)) = "ViewList" Then
-                
-                    ' the headers are better off being drawn in the generate widgets as each column is drawn
-                    'Set rFormat = clsAppRuntime.TemplateBook.Sheets(sTemplateSheetName).Range("fViewListHeader")
-                    
-                    iHeaderCount = 1
-                    'For Each rCell In rFormat.Cells
-                        'wsTmp.Range(rCell.Address).value = vHeaderValues(1, iHeaderCount)
-                        'iHeaderCount = iHeaderCount + 1
-                    'Next rCell
-                    
-                    GenerateWidgets clsAppRuntime, CStr(sAction), wbTmp:=wbTarget, vValues:=vValues, eWidgetType:=eWidgetType, sFormType:=sFormType, sTemplateSheetName:=sTemplateSheetName
-                'End If
+                GenerateWidgets clsAppRuntime, CStr(sAction), wbTmp:=wbTarget, vValues:=vValues, eWidgetType:=eWidgetType, sFormType:=sFormType, sTemplateSheetName:=sTemplateSheetName
             ElseIf eWidgetType = WidgetType.Text Then
                 GenerateWidgets clsAppRuntime, CStr(sAction), wbTmp:=wbTarget, dDefaultValues:=dDefaultValues, eWidgetType:=eWidgetType, sFormType:=sFormType, sTemplateSheetName:=sTemplateSheetName
             ElseIf eWidgetType = WidgetType.Button Then

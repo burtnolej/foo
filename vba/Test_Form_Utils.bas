@@ -470,7 +470,7 @@ teardown:
 End Function
 Function TestGenerateViewSelectForm() As TestResult
 ' multiple Add forms
-Dim sSheetName As String, sResultStr As String, sFuncName As String, sDefn As String, sSearchCode As String, sModuleCode As String, sExpectedResultStr As String
+Dim sSheetName As String, sResultStr As String, sFuncName As String, sDefn As String, sSearchCode As String, sModuleCode As String, sExpectedResultStr As String, sDataType As String, sSubDataType As String
 Dim vSource() As String
 Dim wsTmp As Worksheet
 Dim rTarget As Range, rAdd As Range, rButton As Range
@@ -482,28 +482,17 @@ setup:
     sSheetName = "test"
     clsAppRuntime.InitProperties bInitializeCache:=True, sDefinitionSheetName:=sSheetName
     'On Error GoTo err:
-    sFuncName = C_MODULE_NAME & "." & "TestGenerateMenuForm"
+    sFuncName = C_MODULE_NAME & "." & "GenerateViewSelectForm"
     
-    Set wsTmp = CreateSheet(clsAppRuntime.TemplateBook, sSheetName, bOverwrite:=True)
-    sDefn = "View_Person_Student^person_student^sStudentFirstNm^String^IsMember^&get_person_student^sStudentFirstNm^&UpdateViewStudentForm^Selector" & DOUBLEDOLLAR
-    sDefn = sDefn & "View_Person_Student^person_student^sStudentFirstNm^^^^^^Text" & DOUBLEDOLLAR
-    sDefn = sDefn & "View_Person_Student^person_student^idStudent^^^^^^Text" & DOUBLEDOLLAR
-    sDefn = sDefn & "View_Person_Student^person_student^idPrep^^^^^^Text" & DOUBLEDOLLAR
-    sDefn = sDefn & "Add_Person_Student^person_student^sStudentFirstNm^String^^^^^Entry" & DOUBLEDOLLAR
-    sDefn = sDefn & "Add_Person_Student^person_student^sStudentLastNm^String^^^^^Entry" & DOUBLEDOLLAR
-    sDefn = sDefn & "Add_Person_Student^person_student^idStudent^Integer^^^^^Entry" & DOUBLEDOLLAR
-    sDefn = sDefn & "Add_Person_Student^person_student^idPrep^Integer^IsValidPrep^^^^Entry" & DOUBLEDOLLAR
-    sDefn = sDefn & "Add_Person_Student^person_student^sPrepNm^String^^^^^Entry"
-     
-    vSource = Init2DStringArrayFromString(sDefn)
-
-    Set rTarget = RangeFromStrArray(vSource, wsTmp, 0, 1)
-    CreateNamedRange clsAppRuntime.TemplateBook, rTarget.Address, sSheetName, "Definitions", "True"
-    Set Form_Utils.dDefinitions = LoadDefinitions(wsTmp, rSource:=rTarget)
-
-    dTmp.Add "sStudentFirstNm", "Jon"
+    sDataType = "Person"
+    sSubDataType = "Student"
+    GetDefinition clsAppRuntime, sDataType, sSubDataType, sSheetName, FormType.View
+    
+    dTmp.Add "sStudentLastNm", "Butler"
     dTmp.Add "idStudent", "666"
     dTmp.Add "idPrep", "3"
+    dTmp.Add "iGradeLevel", "8"
+    
     dDefaultValues.Add "View_Schedule_Student", dTmp
     
 main:
@@ -519,12 +508,12 @@ main:
 
     Set rText = clsAppRuntime.ViewBook.Sheets("View_Person_Student").Range("C4:C4")
     
-    If rText.Name.Name <> "View_Person_Student!tView_Person_Student_sStudentFirstNm" Then
+    If rText.Name.Name <> "View_Person_Student!tView_Person_Student_sStudentLastNm" Then
         eTestResult = TestResult.Failure
         GoTo teardown
     End If
     
-    If rText.value <> "Bruno" Then
+    If rText.value <> "Raskin" Then
         eTestResult = TestResult.Failure
         GoTo teardown
     End If
