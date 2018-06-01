@@ -58,7 +58,7 @@ setup:
     sExecPath = Environ("MYHOME") & "\GitHub\quadviewer\utils\excel\"
     sResultFileName = Environ("MYHOME") & "\\uufoo.txt_result"
     
-    vSource = Init2DStringArray([{"AddFoo","Foo","FooName","List","IsMember","","","","Entry";"AddFoo","Foo","FooAge","Integer","IsValidInteger","","","","Entry";"AddFoo","Foo","FooID","Integer","IsValidInteger","","","","Entry"}])
+    vSource = Init2DStringArray([{"Add_Foo_","Foo","FooName","List","IsMember","","","","Entry";"Add_Foo_","Foo","FooAge","Integer","IsValidInteger","","","","Entry";"Add_Foo_","Foo","FooID","Integer","IsValidInteger","","","","Entry"}])
 
     Set rTarget = RangeFromStrArray(vSource, wsTmp, 0, 1)
     vRows = Init2DVariantArray([{"FooName","FooAge","FooID";"Jon","43","1";"Quinton","6","2"}])
@@ -72,23 +72,26 @@ main:
     
     GenerateForms clsAppRuntime
         
-    SetEntryValue "AddFoo", "FooAge", 123, wbTmp:=clsAppRuntime.AddBook
-    SetEntryValue "AddFoo", "FooName", "blahblah", wbTmp:=clsAppRuntime.AddBook
-    SetEntryValue "AddFoo", "FooID", "1", wbTmp:=clsAppRuntime.AddBook
+    SetEntryValue "Add_Foo_", "FooAge", 123, wbTmp:=clsAppRuntime.AddBook
+    SetEntryValue "Add_Foo_", "FooName", "blahblah", wbTmp:=clsAppRuntime.AddBook
+    SetEntryValue "Add_Foo_", "FooID", "1", wbTmp:=clsAppRuntime.AddBook
     
-    AddTableRecord "Foo", wbAddBook:=clsAppRuntime.AddBook, wbCacheBook:=clsAppRuntime.CacheBook
+    AddTableRecord "Foo", wbAddBook:=clsAppRuntime.AddBook, wbCacheBook:=clsAppRuntime.CacheBook, _
+                    sFormName:="Add_Foo_"
     
-    SetEntryValue "AddFoo", "FooAge", 666, wbTmp:=clsAppRuntime.AddBook
-    SetEntryValue "AddFoo", "FooName", "foofoo", wbTmp:=clsAppRuntime.AddBook
-    SetEntryValue "AddFoo", "FooID", "2", wbTmp:=clsAppRuntime.AddBook
+    SetEntryValue "Add_Foo_", "FooAge", 666, wbTmp:=clsAppRuntime.AddBook
+    SetEntryValue "Add_Foo_", "FooName", "foofoo", wbTmp:=clsAppRuntime.AddBook
+    SetEntryValue "Add_Foo_", "FooID", "2", wbTmp:=clsAppRuntime.AddBook
     
-    AddTableRecord "Foo", wbAddBook:=clsAppRuntime.AddBook, wbCacheBook:=clsAppRuntime.CacheBook
+    AddTableRecord "Foo", wbAddBook:=clsAppRuntime.AddBook, wbCacheBook:=clsAppRuntime.CacheBook, _
+                    sFormName:="Add_Foo_"
     
-    SetEntryValue "AddFoo", "FooAge", 444, wbTmp:=clsAppRuntime.AddBook
-    SetEntryValue "AddFoo", "FooName", "barbar", wbTmp:=clsAppRuntime.AddBook
-    SetEntryValue "AddFoo", "FooID", "3", wbTmp:=clsAppRuntime.AddBook
+    SetEntryValue "Add_Foo_", "FooAge", 444, wbTmp:=clsAppRuntime.AddBook
+    SetEntryValue "Add_Foo_", "FooName", "barbar", wbTmp:=clsAppRuntime.AddBook
+    SetEntryValue "Add_Foo_", "FooID", "3", wbTmp:=clsAppRuntime.AddBook
     
-    AddTableRecord "Foo", wbAddBook:=clsAppRuntime.AddBook, wbCacheBook:=clsAppRuntime.CacheBook
+    AddTableRecord "Foo", wbAddBook:=clsAppRuntime.AddBook, wbCacheBook:=clsAppRuntime.CacheBook, _
+                    sFormName:="Add_Foo_"
     
     vDirtyRows = GetDirtyTableRecords("Foo", wbTmp:=clsAppRuntime.CacheBook)
     
@@ -143,7 +146,7 @@ setup:
     sSheetName = "test"
     Set wsTmp = CreateSheet(clsAppRuntime.TemplateBook, sSheetName, bOverwrite:=True)
                                   
-    vSource = Init2DStringArray([{"AddFoo","Foo","FooName","List","IsMember","","","","Entry";"AddFoo","Foo","FooAge","Integer","IsValidInteger","","","","Entry";"AddBar","Bar","BarName","List","IsMember","","","","Entry"}])
+    vSource = Init2DStringArray([{"Add_Foo_","Foo","FooName","List","IsMember","","","","Entry";"Add_Foo_","Foo","FooAge","Integer","IsValidInteger","","","","Entry";"Add_Bar_","Bar","BarName","List","IsMember","","","","Entry"}])
 
     Set rTarget = RangeFromStrArray(vSource, wsTmp, 0, 1)
     vRows = Init2DVariantArray([{"Name","Age";"Jon","43";"Quinton","6";"NanNan","70";"GranPops","69";"Nancy","46"}])
@@ -225,7 +228,7 @@ setup:
     sSheetName = "test"
     Set wsTmp = CreateSheet(clsAppRuntime.TemplateBook, sSheetName, bOverwrite:=True)
                                   
-    vSource = Init2DStringArray([{"AddFoo","Foo","FooName","List","IsMember","","","","Entry";"AddFoo","Foo","FooAge","Integer","IsValidInteger","","","","Entry";"AddBar","Bar","BarName","List","IsMember","","","","Entry"}])
+    vSource = Init2DStringArray([{"Add_Foo_","Foo","FooName","List","IsMember","","","","Entry";"Add_Foo_","Foo","FooAge","Integer","IsValidInteger","","","","Entry";"Add_Bar_","Bar","BarName","List","IsMember","","","","Entry"}])
 
 
     Set rTarget = RangeFromStrArray(vSource, wsTmp, 0, 1)
@@ -298,7 +301,7 @@ setup:
     sFuncName = C_MODULE_NAME & "." & "AddTableRecordManual"
     sSheetName = "test"
     Set wsTmp = CreateSheet(ActiveWorkbook, sSheetName, bOverwrite:=True)
-    vSource = Init2DStringArray([{"AddFoo","Foo","FooName","List","IsMember","","","","Entry";"AddFoo","Foo","FooAge","Integer","IsValidInteger","","","","Entry"}])
+    vSource = Init2DStringArray([{"Add_Foo_","Foo","FooName","List","IsMember","","","","Entry";"Add_Foo_","Foo","FooAge","Integer","IsValidInteger","","","","Entry"}])
     Set rTarget = RangeFromStrArray(vSource, wsTmp, 0, 1)
 
 main:
@@ -308,11 +311,11 @@ main:
     
     GenerateForms clsAppRuntime
     
-    SetEntryValue "AddFoo", "FooAge", 123, wbTmp:=clsAppRuntime.AddBook
-    SetEntryValue "AddFoo", "FooName", "blahblah", wbTmp:=clsAppRuntime.AddBook
+    SetEntryValue "Add_Foo_", "FooAge", 123, wbTmp:=clsAppRuntime.AddBook
+    SetEntryValue "Add_Foo_", "FooName", "blahblah", wbTmp:=clsAppRuntime.AddBook
     
     AddTableRecord "Foo", wbAddBook:=clsAppRuntime.AddBook, _
-        wbCacheBook:=clsAppRuntime.CacheBook
+        wbCacheBook:=clsAppRuntime.CacheBook, sFormName:="Add_Foo_"
     
     Set dRecord = GetTableRecord("Foo", 1, wbTmp:=clsAppRuntime.CacheBook)
     
@@ -371,7 +374,7 @@ setup:
     sFuncName = C_MODULE_NAME & "." & "CreateTables"
     sSheetName = "test"
     Set wsTmp = CreateSheet(ActiveWorkbook, sSheetName, bOverwrite:=True)
-    vSource = Init2DStringArray([{"AddFoo","Foo","FooName","List","IsMember","","","","Entry";"AddFoo","Foo","FooAge","Integer","IsValidInteger","","","","Entry";"AddBar","Bar","BarName","List","IsMember","","","","Entry"}])
+    vSource = Init2DStringArray([{"Add_Foo_","Foo","FooName","List","IsMember","","","","Entry";"Add_Foo_","Foo","FooAge","Integer","IsValidInteger","","","","Entry";"Add_Bar_","Bar","BarName","List","IsMember","","","","Entry"}])
     Set rTarget = RangeFromStrArray(vSource, wsTmp, 0, 1)
 
 main:
@@ -442,11 +445,11 @@ Dim eTestResult As TestResult
 
     sTableName = "person_student"
    ' new student
-    sDefn = sDefn & "AddStudent^person_student^sStudentFirstNm^String^^^^^Entry" & DOUBLEDOLLAR
-    sDefn = sDefn & "AddStudent^person_student^sStudentLastNm^String^^^^^Entry" & DOUBLEDOLLAR
-    sDefn = sDefn & "AddStudent^person_student^idStudent^Integer^^^^^Entry" & DOUBLEDOLLAR
-    sDefn = sDefn & "AddStudent^person_student^idPrep^Integer^IsValidPrep^^^^Entry" & DOUBLEDOLLAR
-    sDefn = sDefn & "AddStudent^person_student^sPrepNm^String^^^^^Entry"
+    sDefn = sDefn & "Add_Student_^person_student^sStudentFirstNm^String^^^^^Entry" & DOUBLEDOLLAR
+    sDefn = sDefn & "Add_Student_^person_student^sStudentLastNm^String^^^^^Entry" & DOUBLEDOLLAR
+    sDefn = sDefn & "Add_Student_^person_student^idStudent^Integer^^^^^Entry" & DOUBLEDOLLAR
+    sDefn = sDefn & "Add_Student_^person_student^idPrep^Integer^IsValidPrep^^^^Entry" & DOUBLEDOLLAR
+    sDefn = sDefn & "Add_Student_^person_student^sPrepNm^String^^^^^Entry"
     vSource = Init2DStringArrayFromString(sDefn)
     
     Set rTarget = RangeFromStrArray(vSource, wsTmp, 0, 1)
@@ -497,7 +500,7 @@ setup:
     sFuncName = C_MODULE_NAME & "." & "TestAddTableMultipleRecordManual"
     sSheetName = "test"
     Set wsTmp = CreateSheet(ActiveWorkbook, sSheetName, bOverwrite:=True)
-    vSource = Init2DStringArray([{"AddFoo","Foo","FooName","List","IsMember","","","","Entry";"AddFoo","Foo","FooAge","Integer","IsValidInteger","","","","Entry";"AddBar","Bar","BarName","List","IsMember","","","","Entry"}])
+    vSource = Init2DStringArray([{"Add_Foo_","Foo","FooName","List","IsMember","","","","Entry";"Add_Foo_","Foo","FooAge","Integer","IsValidInteger","","","","Entry";"Add_Bar_","Bar","BarName","List","IsMember","","","","Entry"}])
     Set rTarget = RangeFromStrArray(vSource, wsTmp, 0, 1)
 
 main:
@@ -506,20 +509,20 @@ main:
     CreateTables clsAppRuntime.CacheBook
     GenerateForms clsAppRuntime
         
-    SetEntryValue "AddFoo", "FooAge", 123, wbTmp:=clsAppRuntime.AddBook
-    SetEntryValue "AddFoo", "FooName", "blahblah", wbTmp:=clsAppRuntime.AddBook
+    SetEntryValue "Add_Foo_", "FooAge", 123, wbTmp:=clsAppRuntime.AddBook
+    SetEntryValue "Add_Foo_", "FooName", "blahblah", wbTmp:=clsAppRuntime.AddBook
     
-    AddTableRecord "Foo", wbAddBook:=clsAppRuntime.AddBook, wbCacheBook:=clsAppRuntime.CacheBook
+    AddTableRecord "Foo", wbAddBook:=clsAppRuntime.AddBook, wbCacheBook:=clsAppRuntime.CacheBook, sFormName:="Add_Foo_"
     
-    SetEntryValue "AddFoo", "FooAge", 666, wbTmp:=clsAppRuntime.AddBook
-    SetEntryValue "AddFoo", "FooName", "foofoo", wbTmp:=clsAppRuntime.AddBook
+    SetEntryValue "Add_Foo_", "FooAge", 666, wbTmp:=clsAppRuntime.AddBook
+    SetEntryValue "Add_Foo_", "FooName", "foofoo", wbTmp:=clsAppRuntime.AddBook
     
-    AddTableRecord "Foo", wbAddBook:=clsAppRuntime.AddBook, wbCacheBook:=clsAppRuntime.CacheBook
+    AddTableRecord "Foo", wbAddBook:=clsAppRuntime.AddBook, wbCacheBook:=clsAppRuntime.CacheBook, sFormName:="Add_Foo_"
     
-    SetEntryValue "AddFoo", "FooAge", 444, wbTmp:=clsAppRuntime.AddBook
-    SetEntryValue "AddFoo", "FooName", "barbar", wbTmp:=clsAppRuntime.AddBook
+    SetEntryValue "Add_Foo_", "FooAge", 444, wbTmp:=clsAppRuntime.AddBook
+    SetEntryValue "Add_Foo_", "FooName", "barbar", wbTmp:=clsAppRuntime.AddBook
     
-    AddTableRecord "Foo", wbAddBook:=clsAppRuntime.AddBook, wbCacheBook:=clsAppRuntime.CacheBook
+    AddTableRecord "Foo", wbAddBook:=clsAppRuntime.AddBook, wbCacheBook:=clsAppRuntime.CacheBook, sFormName:="Add_Foo_"
     
     Set dRecord = GetTableRecord("Foo", 1, wbTmp:=clsAppRuntime.CacheBook)
     
@@ -590,7 +593,7 @@ setup:
     sFuncName = C_MODULE_NAME & "." & "TestAddTableRecordManualOntoDBLoad"
     sSheetName = "test"
     Set wsTmp = CreateSheet(ActiveWorkbook, sSheetName, bOverwrite:=True)
-    vSource = Init2DStringArray([{"AddFoo","Foo","FooName","List","IsMember","","","","Entry";"AddFoo","Foo","FooAge","Integer","IsValidInteger","","","","Entry";"AddBar","Bar","BarName","List","IsMember","","","","Entry"}])
+    vSource = Init2DStringArray([{"Add_Foo_","Foo","FooName","List","IsMember","","","","Entry";"Add_Foo_","Foo","FooAge","Integer","IsValidInteger","","","","Entry";"Add_Bar_","Bar","BarName","List","IsMember","","","","Entry"}])
     Set rTarget = RangeFromStrArray(vSource, wsTmp, 0, 1)
     vRows = Init2DVariantArray([{"FooName","FooAge";"Jon","43";"Quinton","6"}])
     vColNames = InitStringArray(Array("FooName", "FooAge"))
@@ -603,20 +606,20 @@ main:
 
     GenerateForms clsAppRuntime
         
-    SetEntryValue "AddFoo", "FooAge", 123, wbTmp:=clsAppRuntime.AddBook
-    SetEntryValue "AddFoo", "FooName", "blahblah", wbTmp:=clsAppRuntime.AddBook
+    SetEntryValue "Add_Foo_", "FooAge", 123, wbTmp:=clsAppRuntime.AddBook
+    SetEntryValue "Add_Foo_", "FooName", "blahblah", wbTmp:=clsAppRuntime.AddBook
     
-    AddTableRecord "Foo", wbAddBook:=clsAppRuntime.AddBook, wbCacheBook:=clsAppRuntime.CacheBook
+    AddTableRecord "Foo", wbAddBook:=clsAppRuntime.AddBook, wbCacheBook:=clsAppRuntime.CacheBook, sFormName:="Add_Foo_"
     
-    SetEntryValue "AddFoo", "FooAge", 666, wbTmp:=clsAppRuntime.AddBook
-    SetEntryValue "AddFoo", "FooName", "foofoo", wbTmp:=clsAppRuntime.AddBook
+    SetEntryValue "Add_Foo_", "FooAge", 666, wbTmp:=clsAppRuntime.AddBook
+    SetEntryValue "Add_Foo_", "FooName", "foofoo", wbTmp:=clsAppRuntime.AddBook
     
-    AddTableRecord "Foo", wbAddBook:=clsAppRuntime.AddBook, wbCacheBook:=clsAppRuntime.CacheBook
+    AddTableRecord "Foo", wbAddBook:=clsAppRuntime.AddBook, wbCacheBook:=clsAppRuntime.CacheBook, sFormName:="Add_Foo_"
     
-    SetEntryValue "AddFoo", "FooAge", 444, wbTmp:=clsAppRuntime.AddBook
-    SetEntryValue "AddFoo", "FooName", "barbar", wbTmp:=clsAppRuntime.AddBook
+    SetEntryValue "Add_Foo_", "FooAge", 444, wbTmp:=clsAppRuntime.AddBook
+    SetEntryValue "Add_Foo_", "FooName", "barbar", wbTmp:=clsAppRuntime.AddBook
     
-    AddTableRecord "Foo", wbAddBook:=clsAppRuntime.AddBook, wbCacheBook:=clsAppRuntime.CacheBook
+    AddTableRecord "Foo", wbAddBook:=clsAppRuntime.AddBook, wbCacheBook:=clsAppRuntime.CacheBook, sFormName:="Add_Foo_"
     
     Set dRecord = GetTableRecord("Foo", 1, wbTmp:=clsAppRuntime.CacheBook)
     
@@ -699,7 +702,7 @@ setup:
     sFuncName = C_MODULE_NAME & "." & "TestAddTableMultipleRecordMultiTableManual"
     sSheetName = "test"
     Set wsTmp = CreateSheet(ActiveWorkbook, sSheetName, bOverwrite:=True)
-    vSource = Init2DStringArray([{"AddFoo","Foo","FooName","List","IsMember","","","","Entry";"AddFoo","Foo","FooAge","Integer","IsValidInteger","","","","Entry";"AddBar","Bar","BarName","List","IsMember","","","","Entry"}])
+    vSource = Init2DStringArray([{"Add_Foo_","Foo","FooName","List","IsMember","","","","Entry";"Add_Foo_","Foo","FooAge","Integer","IsValidInteger","","","","Entry";"Add_Bar_","Bar","BarName","List","IsMember","","","","Entry"}])
     Set rTarget = RangeFromStrArray(vSource, wsTmp, 0, 1)
 
 main:
@@ -709,33 +712,33 @@ main:
     GenerateForms clsAppRuntime
     
     ' Table Foo
-    SetEntryValue "AddFoo", "FooAge", 123, wbTmp:=clsAppRuntime.AddBook
-    SetEntryValue "AddFoo", "FooName", "blahblah", wbTmp:=clsAppRuntime.AddBook
+    SetEntryValue "Add_Foo_", "FooAge", 123, wbTmp:=clsAppRuntime.AddBook
+    SetEntryValue "Add_Foo_", "FooName", "blahblah", wbTmp:=clsAppRuntime.AddBook
     
-    AddTableRecord "Foo", wbAddBook:=clsAppRuntime.AddBook, wbCacheBook:=clsAppRuntime.CacheBook
+    AddTableRecord "Foo", wbAddBook:=clsAppRuntime.AddBook, wbCacheBook:=clsAppRuntime.CacheBook, sFormName:="Add_Foo_"
     
-    SetEntryValue "AddFoo", "FooAge", 666, wbTmp:=clsAppRuntime.AddBook
-    SetEntryValue "AddFoo", "FooName", "foofoo", wbTmp:=clsAppRuntime.AddBook
+    SetEntryValue "Add_Foo_", "FooAge", 666, wbTmp:=clsAppRuntime.AddBook
+    SetEntryValue "Add_Foo_", "FooName", "foofoo", wbTmp:=clsAppRuntime.AddBook
     
-    AddTableRecord "Foo", wbAddBook:=clsAppRuntime.AddBook, wbCacheBook:=clsAppRuntime.CacheBook
+    AddTableRecord "Foo", wbAddBook:=clsAppRuntime.AddBook, wbCacheBook:=clsAppRuntime.CacheBook, sFormName:="Add_Foo_"
     
-    SetEntryValue "AddFoo", "FooAge", 444, wbTmp:=clsAppRuntime.AddBook
-    SetEntryValue "AddFoo", "FooName", "barbar", wbTmp:=clsAppRuntime.AddBook
+    SetEntryValue "Add_Foo_", "FooAge", 444, wbTmp:=clsAppRuntime.AddBook
+    SetEntryValue "Add_Foo_", "FooName", "barbar", wbTmp:=clsAppRuntime.AddBook
     
-    AddTableRecord "Foo", wbAddBook:=clsAppRuntime.AddBook, wbCacheBook:=clsAppRuntime.CacheBook
+    AddTableRecord "Foo", wbAddBook:=clsAppRuntime.AddBook, wbCacheBook:=clsAppRuntime.CacheBook, sFormName:="Add_Foo_"
     
     ' Table Bar
-    SetEntryValue "AddBar", "BarName", "blahblah", wbTmp:=clsAppRuntime.AddBook
+    SetEntryValue "Add_Bar_", "BarName", "blahblah", wbTmp:=clsAppRuntime.AddBook
     
-    AddTableRecord "Bar", wbAddBook:=clsAppRuntime.AddBook, wbCacheBook:=clsAppRuntime.CacheBook
+    AddTableRecord "Bar", wbAddBook:=clsAppRuntime.AddBook, wbCacheBook:=clsAppRuntime.CacheBook, sFormName:="Add_Bar_"
     
-    SetEntryValue "AddBar", "BarName", "foofoo", wbTmp:=clsAppRuntime.AddBook
+    SetEntryValue "Add_Bar_", "BarName", "foofoo", wbTmp:=clsAppRuntime.AddBook
     
-    AddTableRecord "Bar", wbAddBook:=clsAppRuntime.AddBook, wbCacheBook:=clsAppRuntime.CacheBook
+    AddTableRecord "Bar", wbAddBook:=clsAppRuntime.AddBook, wbCacheBook:=clsAppRuntime.CacheBook, sFormName:="Add_Bar_"
     
-    SetEntryValue "AddBar", "BarName", "barbar", wbTmp:=clsAppRuntime.AddBook
+    SetEntryValue "Add_Bar_", "BarName", "barbar", wbTmp:=clsAppRuntime.AddBook
     
-    AddTableRecord "Bar", wbAddBook:=clsAppRuntime.AddBook, wbCacheBook:=clsAppRuntime.CacheBook
+    AddTableRecord "Bar", wbAddBook:=clsAppRuntime.AddBook, wbCacheBook:=clsAppRuntime.CacheBook, sFormName:="Add_Bar_"
     
     Set dRecord = GetTableRecord("Foo", 3, wbTmp:=clsAppRuntime.CacheBook)
     
@@ -788,7 +791,7 @@ setup:
     sFuncName = C_MODULE_NAME & "." & "AddTableRecordFail"
     sSheetName = "test"
     Set wsTmp = CreateSheet(ActiveWorkbook, sSheetName, bOverwrite:=True)
-    vSource = Init2DStringArray([{"AddFoo","Foo","FooName","List","IsMember","","","","Entry";"AddFoo","Foo","FooAge","Integer","IsValidInteger","","","","Entry";"AddBar","Bar","BarName","List","IsMember","","","","Entry"}])
+    vSource = Init2DStringArray([{"Add_Foo_","Foo","FooName","List","IsMember","","","","Entry";"Add_Foo_","Foo","FooAge","Integer","IsValidInteger","","","","Entry";"Add_Bar_","Bar","BarName","List","IsMember","","","","Entry"}])
     Set rTarget = RangeFromStrArray(vSource, wsTmp, 0, 1)
 
 main:
@@ -797,7 +800,7 @@ main:
     CreateTables clsAppRuntime.CacheBook
     GenerateForms clsAppRuntime
     
-    iResultCode = SetEntryValue("AddFoo", "BadFieldName", 123, wbTmp:=clsAppRuntime.AddBook)
+    iResultCode = SetEntryValue("Add_Foo_", "BadFieldName", 123, wbTmp:=clsAppRuntime.AddBook)
     
     If iResultCode <> -1 Then
         eTestResult = TestResult.Failure

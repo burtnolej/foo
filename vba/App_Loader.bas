@@ -38,7 +38,7 @@ setup:
         Set wbTmp = ActiveWorkbook
     End If
     eFormType = FormType.Add
-    sFormName = GetFormName(eFormType, WorksheetFunction.Proper(sSubDataType))
+    sFormName = GetFormName(eFormType, WorksheetFunction.Proper(sDataType), WorksheetFunction.Proper(sSubDataType))
 
     clsAppRuntime.InitProperties bInitializeCache:=True, sDefinitionSheetName:=sDefnSheetName
     
@@ -100,8 +100,13 @@ main:
     ' write to DB
     vDirtyRows = GetDirtyTableRecords(wsCacheTable.Name, clsAppRuntime.CacheBook, bResetDirtyFlag:=True)
     vColumnNames = GetTableWidgetKeys(wsCacheTable.Name, bFieldNameOnly:=True)
-    InsertPersonDataToDB clsAppRuntime, QuadSubDataType.Student, vDirtyRows, vColumnNames
-
+    
+    If sDataType = "Schedule" Then
+        InsertScheduleLessonDataToDB clsAppRuntime, QuadSubDataType.Student, vDirtyRows, vColumnNames
+    Else
+        InsertPersonDataToDB clsAppRuntime, QuadSubDataType.Student, vDirtyRows, vColumnNames
+    End If
+    
 cleanup:
     FuncLogIt sFuncName, "[sLoaderSheetName=" & sLoaderSheetName & "] [Records Loaded=" & CStr(UBound(vDirtyRows) + 1) & "]", C_MODULE_NAME, LogMsgType.DEBUGGING2
     'FuncLogIt sFuncName, "", C_MODULE_NAME, LogMsgType.OUTFUNC, lLastTick:=lStartTick

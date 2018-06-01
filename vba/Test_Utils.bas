@@ -175,15 +175,18 @@ Sub DoProjectTestRunner()
 Dim sIncModules As String
     
     MinimumWindowState
-    sIncModules = "Test_App_Schedule_Add"
-    ProjectTestRunner sIncModules
-    Exit Sub
+    'sIncModules = "Test_App_Schedule_Add"
+    'sIncModules = sIncModules & ",Test_App_Schedule_Add"
+    'ProjectTestRunner sIncModules
+    'Exit Sub
     
-    sIncModules = "Test_App_Schedule"
+    sIncModules = "Test_App_Schedule_View"
+    sIncModules = sIncModules & ",Test_App_Schedule_Edit"
     sIncModules = sIncModules & ",Test_App_Schedule_Add"
     sIncModules = sIncModules & ",Test_App_Person"
     sIncModules = sIncModules & ",Test_App_Person_Add"
     sIncModules = sIncModules & ",Test_App_Courses"
+    sIncModules = sIncModules & ",Test_App_Loader"
     sIncModules = sIncModules & ",Test_Array_Utils"
     'sIncModules = sIncModules & ",Test_DB_Utils"
     sIncModules = sIncModules & ",Test_Form_Utils"

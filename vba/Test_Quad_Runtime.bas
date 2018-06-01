@@ -322,7 +322,6 @@ main:
                                   sTemplateSheetName:=sTemplateSheetName, _
                                   sTemplateWidgetSheetName:=sTemplateWidgetSheetName
                                   
-    Debug.Print clsAppRuntime.TemplateBook.Name
     If clsAppRuntime.TemplateBook.Name <> sTemplateName Then
         eTestResult = TestResult.Failure
         GoTo teardown

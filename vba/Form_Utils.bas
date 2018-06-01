@@ -43,12 +43,12 @@ Public Sub GenerateForms(clsAppRuntime As App_Runtime, _
 Dim dActions As Dictionary, dDefnDetails As Dictionary
 Dim sAction As Variant, sKey As Variant, vFormType As Variant
 Dim sCode As String, sFieldName As String, sFuncName As String, sCallbackFunc As String, sDBColName As String, sFormType As String, sTemplateSheetName As String
-Dim rWidget As Range, rButton As Range
+Dim rWidget As Range, rButton As Range, rCell As Range, rFormat As Range
 Dim vGenerated() As String
 Dim wbTmp As Workbook, wbTarget As Workbook
 Dim eWidgetType As WidgetType
 Dim wsTmp As Worksheet
-Dim i As Integer
+Dim i As Integer, iHeaderCount As Integer
 Dim lStartTick As Long
 
 setup:
@@ -107,7 +107,21 @@ main:
             sTemplateSheetName = FormatForm(clsAppRuntime, CStr(sAction), sFormType:=sFormType)
             
             If eWidgetType = WidgetType.ListText Then
-                GenerateWidgets clsAppRuntime, CStr(sAction), wbTmp:=wbTarget, vValues:=vValues, eWidgetType:=eWidgetType, sFormType:=sFormType, sTemplateSheetName:=sTemplateSheetName
+            
+                ' only try to draw widgets if the Action matches the provided FormType
+                'If GetFormTypeFromAction(CStr(sAction)) = "ViewList" Then
+                
+                    ' the headers are better off being drawn in the generate widgets as each column is drawn
+                    'Set rFormat = clsAppRuntime.TemplateBook.Sheets(sTemplateSheetName).Range("fViewListHeader")
+                    
+                    iHeaderCount = 1
+                    'For Each rCell In rFormat.Cells
+                        'wsTmp.Range(rCell.Address).value = vHeaderValues(1, iHeaderCount)
+                        'iHeaderCount = iHeaderCount + 1
+                    'Next rCell
+                    
+                    GenerateWidgets clsAppRuntime, CStr(sAction), wbTmp:=wbTarget, vValues:=vValues, eWidgetType:=eWidgetType, sFormType:=sFormType, sTemplateSheetName:=sTemplateSheetName
+                'End If
             ElseIf eWidgetType = WidgetType.Text Then
                 GenerateWidgets clsAppRuntime, CStr(sAction), wbTmp:=wbTarget, dDefaultValues:=dDefaultValues, eWidgetType:=eWidgetType, sFormType:=sFormType, sTemplateSheetName:=sTemplateSheetName
             ElseIf eWidgetType = WidgetType.Button Then
@@ -152,7 +166,7 @@ Dim clsAppRuntime As App_Runtime
 Dim lStartTick As Long
 Dim eWidgetType As WidgetType
 Dim eFormType As FormType
-Dim sSubDataType As String, sView As String, sFuncName As String, sValue As String, sLookUpIdRangeName As String, sTableName As String
+Dim sSubDataType As String, sView As String, sFuncName As String, sValue As String, sLookUpIdRangeName As String, sTableName As String, sDataType As String
 
 setup:
     sFuncName = C_MODULE_NAME & "." & "UpdateViewStudentForm"
@@ -166,11 +180,12 @@ main:
     
     'its an update Student view function
     sSubDataType = "Student"
+    sDataType = "Person"
     eWidgetType = WidgetType.Text
     'its an update view function
     eFormType = FormType.View
     
-    UpdateForm clsAppRuntime, sValue, sLookUpIdRangeName, sSubDataType, eWidgetType, eFormType
+    UpdateForm clsAppRuntime, sValue, sLookUpIdRangeName, sSubDataType, eWidgetType, eFormType, sDataType
 
 cleanup:
     FuncLogIt sFuncName, "[sValue=" & sValue & "] [sLookUpIdRangeName=" & sLookUpIdRangeName & "]", C_MODULE_NAME, LogMsgType.DEBUGGING
@@ -179,7 +194,7 @@ cleanup:
 
 End Sub
 
-Public Function GetFormName(eFormType As FormType, sSubDataType As String) As String
+Public Function GetFormName(eFormType As FormType, sDataType As String, sSubDataType As String) As String
 '<<<
 'purpose: A FormName is the name of the Sheet that is generated
 'param  : eFormType, FormType; i.e. 3
@@ -199,7 +214,8 @@ setup:
     End If
     
 main:
-    GetFormName = EnumFormType(eFormType) & sSubDataType
+    
+    GetFormName = EnumFormType(eFormType) & UNDERSCORE & sDataType & UNDERSCORE & sSubDataType
     
 cleanup:
     FuncLogIt sFuncName, "[eFormType=" & eFormType & "] [sSubDataType=" & sSubDataType & "] [Result=" & GetFormName & "]", C_MODULE_NAME, LogMsgType.DEBUGGING2
@@ -219,7 +235,7 @@ Public Sub UpdateForm(ParamArray args())
 'param  :
 'rtype  :
 '>>>
-Dim sCacheTableName As String, sValue As String, sLookUpIdRangeName As String, sRecordID As String, sFieldName As String, sFuncName As String, sLookUpFieldName As String
+Dim sCacheTableName As String, sValue As String, sLookUpIdRangeName As String, sRecordID As String, sFieldName As String, sFuncName As String, sLookUpFieldName As String, sDataType As String
 Dim clsAppRuntime As App_Runtime
 Dim sKey As Variant
 Dim rTarget As Range
@@ -240,10 +256,12 @@ main:
     sSubDataType = args(3) ' i.e. Student
     eWidgetType = args(4) ' i.e. 3  for Text
     eFormType = args(5) ' i.e. 3 for View
+    sDataType = args(6) ' i.e. Person
     
     clsAppRuntime.InitProperties bInitializeCache:=False
-
-    sFormName = GetFormName(eFormType, sSubDataType)
+ 
+ 
+    sFormName = GetFormName(eFormType, WorksheetFunction.Proper(sDataType), WorksheetFunction.Proper(sSubDataType))
     
     ' how to get the cache table for this lookup
     sCacheTableName = GetCacheTableName(sLookUpIdRangeName) ' i.e. person_student
@@ -256,10 +274,12 @@ main:
     Set dValues = GetTableRecord(sCacheTableName, CInt(sRecordID) - 1, wbTmp:=clsAppRuntime.CacheBook)
     
     For Each sKey In dDefinitions.Keys
-        If IsWidgetRangeNameForView(CStr(sKey), sFormName, eWidgetType) = True Then
-            sFieldName = GetFieldName(CStr(sKey))
-            Set rTarget = clsAppRuntime.ViewBook.Sheets(sFormName).Range(sKey)
-            rTarget.value = dValues.Item(sFieldName)
+        If InArray(Array("tables", "actions"), sKey) = False Then
+            If IsWidgetRangeNameForView(CStr(sKey), sFormName, eWidgetType) = True Then
+                sFieldName = GetFieldName(CStr(sKey))
+                Set rTarget = clsAppRuntime.ViewBook.Sheets(sFormName).Range(sKey)
+                rTarget.value = dValues.Item(sFieldName)
+            End If
         End If
     Next sKey
     
@@ -383,8 +403,6 @@ cleanup:
 
 End Function
 
-
-
 Public Function GetRecordValuesAsDict(wbSourceBook As Workbook, wbTargetbook As Workbook, _
                 sSheetName As String) As Dictionary
 Dim rEntryWidget As Range
@@ -399,9 +417,14 @@ setup:
 main:
     aNames = GetSheetNamedRanges(wbTargetbook, sSheetName)
     For Each name_ In aNames
-        sActionName = Split(name_, "_")(0)
-        If sActionName = "e" & sSheetName Then
-            sFieldName = Split(name_, "_")(1)
+        sActionName = GetActionFromWidgetKey(name_)
+        'sActionName = Split(name_, "_")(0)
+        
+        ' we just want to match entry fields so 1st char + ActionName
+        If Left(name_, 1) & sActionName = "e" & sSheetName Then
+            'sFieldName = Split(name_, "_")(1)
+            sFieldName = GetFieldName(CStr(name_))
+            
             Set rEntryWidget = wbTargetbook.Sheets(sSheetName).Range(name_)
             dValues.Add sFieldName, rEntryWidget.value
             End If
@@ -424,7 +447,8 @@ main:
 
     aNames = GetSheetNamedRanges(wbTargetbook, sSheetName)
     For Each name_ In aNames
-        If Split(name_, "_")(0) = "e" & sSheetName Then
+        If Left(name_, 1) & GetActionFromWidgetKey(name_) = "e" & sSheetName Then
+        'If Split(name_, "_")(0) = "e" & sSheetName Then
             Set rEntryWidget = wbTargetbook.Sheets(sSheetName).Range(name_)
             Set cRGB = GetBgColor(sSheetName, rEntryWidget)
             If cRGB.AsString <> C_RGB_VALID Then
@@ -451,7 +475,8 @@ Public Sub UpdateDefaultValues(sKey As String, dDefaultValues As Dictionary, sAc
 Dim sDBColName As String
     If IsSet(dDefaultValues) = True Then ' add default value if one exists
         If dDefaultValues.Exists(sAction) = True Then
-            sDBColName = Split(sKey, "_")(1)
+            sDBColName = GetFieldName(sKey)
+            'sDBColName = Split(sKey, "_")(1)
             If dDefaultValues.Item(sAction).Exists(sDBColName) = True Then
                 rWidget.value = dDefaultValues.Item(sAction).Item(sDBColName)
             End If

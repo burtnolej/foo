@@ -143,7 +143,9 @@ setup:
 main:
     IsWidgetRangeNameForView = False
     sWidgetSuffix = LCase(Left(EnumWidgetType(eWidgetType), 1))
-    If Split(sWidgetRangeName, UNDERSCORE)(0) = sWidgetSuffix & sTableName Then
+
+    If sWidgetSuffix & GetActionFromWidgetKey(sWidgetRangeName) = sWidgetSuffix & sTableName Then
+    'If Split(sWidgetRangeName, UNDERSCORE)(0) = sWidgetSuffix & sTableName Then
         IsWidgetRangeNameForView = True
     End If
 
@@ -153,14 +155,16 @@ cleanup:
   
 End Function
 
-Public Function GetTableWidgetKeys(sTableName As String, Optional bFieldNameOnly As Boolean = False) As String()
+Public Function GetTableWidgetKeys(sTableName As String, _
+        Optional bFieldNameOnly As Boolean = False, _
+        Optional eFormType As FormType) As String()
 '<<<
 'purpose: a field can appear in Definitions multiple times so need to eliminate dupes
 'param  :
 'param  :
 'rtype  :
 '>>>
-Dim vWidgetKeys() As String
+Dim vWidgetKeys() As String, sSuffix As String
 Dim iWidgetKeyCount As Integer
 Dim lStartTick As Long
 Dim sFuncName As String, sFieldName As String
@@ -172,14 +176,23 @@ setup:
     ReDim vWidgetKeys(0 To 100)
 main:
     
+    'If eFormType = 0 Then
+    '    sSuffix = ""
+    'Else
+    '    sSuffix = LCase(Left(EnumFormType(eFormType), 1))
+    'End If
+    
+    sSuffix = "e"
+        
     For Each sKey In dDefinitions.Keys()
-        If dDefinitions.Item(sKey).Item("CacheTableName") = sTableName Then
+        If Left(sKey, 1) & dDefinitions.Item(sKey).Item("CacheTableName") = sSuffix & sTableName Then
         
             sFieldName = GetFieldName(CStr(sKey))
             
             If InArray(vWidgetKeys, sFieldName, bLike:=True) = False Then
                 If bFieldNameOnly = True Then
-                    vWidgetKeys(iWidgetKeyCount) = Split(CStr(sKey), UNDERSCORE)(1)
+                    vWidgetKeys(iWidgetKeyCount) = GetFieldName(CStr(sKey))
+                    'vWidgetKeys(iWidgetKeyCount) = Split(CStr(sKey), UNDERSCORE)(1)
                 Else
                     vWidgetKeys(iWidgetKeyCount) = CStr(sKey)
                 End If
@@ -491,6 +504,7 @@ main:
     AddTableRecordFromDict = iNextFree
 End Function
 Public Function AddTableRecord(sTableName As String, _
+                      Optional sFormName As String, _
                       Optional wbAddBook As Workbook, _
                       Optional wbCacheBook As Workbook) As Integer
 ' used for inserting rows from a user add screen
@@ -512,7 +526,11 @@ setup:
         Set wbCacheBook = ActiveWorkbook
     End If
     
-    Set wsAdd = GetSheet(wbAddBook, "Add" & sTableName)
+    If sFormName = "" Then
+        Set wsAdd = GetSheet(wbAddBook, "Add" & sTableName)
+    Else
+        Set wsAdd = GetSheet(wbAddBook, sFormName)
+    End If
     Set wsTable = GetSheet(wbCacheBook, sTableName)
     
 main:
@@ -660,7 +678,8 @@ setup:
     End If
             
     With wsTmp
-        vWidgetKeys = GetTableWidgetKeys(sTableName)
+        'vWidgetKeys = GetTableWidgetKeys(sTableName)
+        vWidgetKeys = GetTableWidgetKeys(sTableName, eFormType:=FormType.Add)
         
         For i = 0 To UBound(vWidgetKeys)
             CreateTableColumn wsTmp, i + 1, sTableName, dDefinitions.Item(vWidgetKeys(i)).Item("FieldName"), wbTmp:=clsAppRuntime.CacheBook, vDataID:=vDataID

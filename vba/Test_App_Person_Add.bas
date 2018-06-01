@@ -15,11 +15,15 @@ setup:
     ResetAppRuntimeGlobal
     sFuncName = C_MODULE_NAME & "." & "Test_AddPerson_Student"
     sSheetName = "test"
-    clsAppRuntime.InitProperties bInitializeCache:=True, sDefinitionSheetName:=sSheetName
-    sTargetSheetName = "AddStudent"
     sDataType = "Person"
     sSubDataType = "Student"
     
+    'clsAppRuntime.InitProperties bInitializeCache:=True, sDefinitionSheetName:=sSheetName
+    clsAppRuntime.InitProperties bInitializeCache:=True, sDefinitionSheetName:=sSheetName
+    GetDefinition clsAppRuntime, sDataType, sSubDataType, sSheetName, FormType.View
+    
+    sTargetSheetName = "Add_Person_Student"
+
 main:
     GeneratePersonAdd clsAppRuntime
     

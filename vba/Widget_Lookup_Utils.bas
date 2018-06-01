@@ -1,6 +1,14 @@
 Attribute VB_Name = "Widget_Lookup_Utils"
 Option Explicit
 Const C_MODULE_NAME = "Widget_Lookup_Utils"
+
+Function GetActionFromWidgetKey(sWidgetKey) As String
+Dim vSplits() As String
+
+    vSplits = Split(sWidgetKey, UNDERSCORE)
+    
+    GetActionFromWidgetKey = Right(vSplits(0), Len(vSplits(0)) - 1) & UNDERSCORE & vSplits(1) & UNDERSCORE & vSplits(2)
+End Function
 Function GetWidgetKey(sSheetName As String, sFieldName As String, Optional eWidgetType As WidgetType = WidgetType.Entry) As String
 Dim sKeySuffix As String
 
@@ -95,6 +103,9 @@ cleanup:
 
 End Function
 
+Function GetFormTypeFromAction(sAction As String) As String
+    GetFormTypeFromAction = Split(sAction, UNDERSCORE)(0)
+End Function
 Function GetFormTypeFromRangeName(sRangeName As String) As FormType
 '<<<
 'purpose: [WorksheetName|TableName]!s+[ActionName]_[FieldName] i.e. "ViewStudent!sViewStudent_sStudentFirstNm"

@@ -18,36 +18,8 @@ setup:
     sFuncName = C_MODULE_NAME & "." & "GenerateForms"
     sSheetName = "test"
     clsAppRuntime.InitProperties bInitializeCache:=True, sDefinitionSheetName:=sSheetName
-    
-    sTargetSheetName = "AddLesson"
-    Set wsTmp = CreateSheet(clsAppRuntime.TemplateBook, sSheetName, bOverwrite:=True)
-    
-    ' table: Add lesson ---------------------------------------------------------------
-    ' attr : student name
-    sDefn = "AddLesson^Lesson^SFirstName^String^IsMember^&get_person_student^sStudentFirstNm^^Entry" & DOUBLEDOLLAR
-    sDefn = sDefn & "AddLesson^Lesson^SLastName^String^IsMember^&get_person_student^sStudentLastNm^^Entry" & DOUBLEDOLLAR
-    ' attr : teacher_name
-    sDefn = sDefn & "AddLesson^Lesson^TFirstName^String^IsMember^&get_person_teacher^sFacultyFirstNm^^Entry" & DOUBLEDOLLAR
-    sDefn = sDefn & "AddLesson^Lesson^TLastName^String^IsMember^&get_person_teacher^sFacultyLastNm^^Entry" & DOUBLEDOLLAR
-    ' attr : prep
-    sDefn = sDefn & "AddLesson^Lesson^Prep^Integer^IsValidPrep^^^^Entry" & DOUBLEDOLLAR
-    ' table: Add student ---------------------------------------------------------------
-    sDefn = sDefn & "AddStudent^person_student^sStudentFirstNm^String^^^^^Entry" & DOUBLEDOLLAR
-    sDefn = sDefn & "AddStudent^person_student^sStudentLastNm^String^^^^^Entry" & DOUBLEDOLLAR
-    sDefn = sDefn & "AddStudent^person_student^idStudent^Integer^^^^^Entry" & DOUBLEDOLLAR
-    sDefn = sDefn & "AddStudent^person_student^idPrep^Integer^IsValidPrep^^^^Entry" & DOUBLEDOLLAR
-    sDefn = sDefn & "AddStudent^person_student^sPrepNm^String^^^^^Entry" & DOUBLEDOLLAR
-    ' table: Add teacher ---------------------------------------------------------------
-    sDefn = sDefn & "AddTeacher^person_teacher^sFacultyFirstNm^String^^^^^Entry" & DOUBLEDOLLAR
-    sDefn = sDefn & "AddTeacher^person_teacher^sFacultyLastNm^String^^^^^Entry" & DOUBLEDOLLAR
-    sDefn = sDefn & "AddTeacher^person_teacher^idFaculty^Integer^^^^^Entry"
-    
-    vSource = Init2DStringArrayFromString(sDefn)
-
-    Set rTarget = RangeFromStrArray(vSource, wsTmp, 0, 1)
-    CreateNamedRange clsAppRuntime.TemplateBook, rTarget.Address, sSheetName, "Definitions", "True"
-    Set Form_Utils.dDefinitions = LoadDefinitions(wsTmp, rSource:=rTarget)
-
+    GetDefinition clsAppRuntime, "Schedule", "Lesson", sSheetName, FormType.Add
+    sTargetSheetName = "Add_Schedule_Lesson"
 
 main:
     GenerateForms clsAppRuntime, bLoadRefData:=True
@@ -58,20 +30,20 @@ main:
     clsAppRuntime.CloseRuntimeCacheFile
     
     With clsAppRuntime.AddBook.Sheets(sTargetSheetName)
-    'With clsAppRuntime.AddBook.Sheets(sTargetSheetName)
-    
-        Set rTarget = .Range(.Cells(4, 2), .Cells(4, 2))
-        rTarget = "David"
+
+        'eAdd_Schedule_Lesson_idStudent
+        Set rTarget = .Range(.Cells(2, 2), .Cells(2, 2))
+        rTarget = "2"
         ValidateWidget clsAppRuntime.AddBook, sTargetSheetName, rTarget
-        'ValidateWidget clsAppRuntime.AddBook, sTargetSheetName, rTarget
     
         If GetBgColor(sTargetSheetName, rTarget).AsString <> "0,255,0" Then
             eTestResult = TestResult.Failure
             GoTo teardown
         End If
         
-        Set rTarget = .Range(.Cells(5, 2), .Cells(5, 2))
-        rTarget = "Stone"
+        'eAdd_Schedule_Lesson_idFaculty
+        Set rTarget = .Range(.Cells(3, 2), .Cells(3, 2))
+        rTarget = "994"
         ValidateWidget clsAppRuntime.AddBook, sTargetSheetName, rTarget
 
         If GetBgColor(sTargetSheetName, rTarget).AsString <> "0,255,0" Then
@@ -79,10 +51,20 @@ main:
             GoTo teardown
         End If
 
-        Set rTarget = .Range(.Cells(2, 2), .Cells(2, 2))
-        rTarget = "Bruno"
+        'eAdd_Schedule_Lesson_idLocation
+        Set rTarget = .Range(.Cells(5, 2), .Cells(5, 2))
+        rTarget = "1"
         ValidateWidget clsAppRuntime.AddBook, sTargetSheetName, rTarget
-        'ValidateWidget clsAppRuntime.AddBook, sTargetSheetName, rTarget
+    
+        If GetBgColor(sTargetSheetName, rTarget).AsString <> "0,255,0" Then
+            eTestResult = TestResult.Failure
+            GoTo teardown
+        End If
+        
+        'eAdd_Schedule_Lesson_idSection
+        Set rTarget = .Range(.Cells(4, 2), .Cells(4, 2))
+        rTarget = "700"
+        ValidateWidget clsAppRuntime.AddBook, sTargetSheetName, rTarget
     
         If GetBgColor(sTargetSheetName, rTarget).AsString <> "0,255,0" Then
             eTestResult = TestResult.Failure
@@ -105,93 +87,7 @@ teardown:
     
 End Function
 
-Function TestGenerateFormsLoadRefDataFromDB() As TestResult
-' uses a db ref table; invoked using the & prefix
-Dim sFuncName As String, sSheetName As String, sResultStr As String, sExpectedResultStr As String, sTargetSheetName As String
-Dim sDefn As String
-Dim vSource() As String, vStudents() As String, vTeachers() As String, vLessons() As String
-Dim wsTmp As Worksheet
-Dim rTarget As Range
-Dim dDefinitions As Dictionary, dDefnDetails As Dictionary
-Dim eTestResult As TestResult
-Dim clsAppRuntime As New App_Runtime
 
-setup:
-    ResetAppRuntimeGlobal
-    
-    sFuncName = C_MODULE_NAME & "." & "GenerateForms"
-    sSheetName = "test"
-    clsAppRuntime.InitProperties bInitializeCache:=True, sDefinitionSheetName:=sSheetName
-    
-    sTargetSheetName = "AddLesson"
-    Set wsTmp = CreateSheet(clsAppRuntime.TemplateBook, sSheetName, bOverwrite:=True)
-    
-    sDefn = "AddLesson^Lesson^SFirstName^String^IsMember^&get_person_student^sStudentFirstNm^^Entry" & DOUBLEDOLLAR
-    sDefn = sDefn & "AddLesson^Lesson^LastName^String^IsMember^&get_person_student^sStudentLastNm^^Entry" & DOUBLEDOLLAR
-    sDefn = sDefn & "AddLesson^Lesson^Prep^Integer^IsValidPrep^^^^Entry" & DOUBLEDOLLAR
-    sDefn = sDefn & "AddStudent^person_student^sStudentFirstNm^String^^^^^Entry" & DOUBLEDOLLAR
-    sDefn = sDefn & "AddStudent^person_student^sStudentLastNm^String^^^^^Entry" & DOUBLEDOLLAR
-    sDefn = sDefn & "AddStudent^person_student^idStudent^Integer^^^^^Entry" & DOUBLEDOLLAR
-    sDefn = sDefn & "AddStudent^person_student^idPrep^Integer^IsValidPrep^^^^Entry" & DOUBLEDOLLAR
-    sDefn = sDefn & "AddStudent^person_student^sPrepNm^String^^^^^Entry"
-    
-    vSource = Init2DStringArrayFromString(sDefn)
-
-    Set rTarget = RangeFromStrArray(vSource, wsTmp, 0, 1)
-    CreateNamedRange clsAppRuntime.TemplateBook, rTarget.Address, sSheetName, "Definitions", "True"
-    Set Form_Utils.dDefinitions = LoadDefinitions(wsTmp, rSource:=rTarget)
-
-main:
-    GenerateForms clsAppRuntime, bLoadRefData:=True
-
-    ' reset to simulate worksheet callbacks in normal runtime; force defaults need to be reloaded
-    EventsToggle True
-    Set Form_Utils.dDefinitions = Nothing
-    clsAppRuntime.CloseRuntimeCacheFile
-    
-    With clsAppRuntime.AddBook.Sheets(sTargetSheetName)
-    
-        Set rTarget = .Range(.Cells(2, 2), .Cells(2, 2))
-        rTarget = "Bruno"
-        ValidateWidget clsAppRuntime.AddBook, sTargetSheetName, rTarget
-    
-        If GetBgColor(sTargetSheetName, rTarget).AsString <> "0,255,0" Then
-            eTestResult = TestResult.Failure
-            GoTo teardown
-        End If
-        
-        Set rTarget = .Range(.Cells(3, 2), .Cells(3, 2))
-        rTarget = "Raskin"
-        ValidateWidget clsAppRuntime.AddBook, sTargetSheetName, rTarget
-
-        If GetBgColor(sTargetSheetName, rTarget).AsString <> "0,255,0" Then
-            eTestResult = TestResult.Failure
-            GoTo teardown
-        End If
-        
-        Set rTarget = .Range(.Cells(4, 2), .Cells(4, 2))
-        rTarget = "4"
-        ValidateWidget clsAppRuntime.AddBook, sTargetSheetName, rTarget
-
-        If GetBgColor(sTargetSheetName, rTarget).AsString <> "0,255,0" Then
-            eTestResult = TestResult.Failure
-            GoTo teardown
-        Else
-            eTestResult = TestResult.OK
-            GoTo teardown
-        End If
-    End With
-    
-err:
-    eTestResult = TestResult.Error
-    
-teardown:
-    TestGenerateFormsLoadRefDataFromDB = eTestResult
-    DeleteForms wbTmp:=clsAppRuntime.AddBook
-    DeleteSheet clsAppRuntime.AddBook, sSheetName
-    clsAppRuntime.Delete
-    
-End Function
 Function TestGenerateFormsIsMember() As TestResult
 ' 1 Add form but record that requires IsMember validation
 Dim sFuncName As String, sSheetName As String, sResultStr As String, sExpectedResultStr As String, sTargetSheetName As String
@@ -206,44 +102,30 @@ Dim clsAppRuntime As New App_Runtime
 setup:
     ResetAppRuntimeGlobal
     clsAppRuntime.InitProperties bInitializeCache:=True
-        
+    sSheetName = "test"
+    GetDefinition clsAppRuntime, "Person", "Student", sSheetName, FormType.Add
+    
     'On Error GoTo err:
     sFuncName = C_MODULE_NAME & "." & "GenerateForms"
-    sSheetName = "test"
-    sTargetSheetName = "AddLesson"
-    Set wsTmp = CreateSheet(clsAppRuntime.TemplateBook, sSheetName, bOverwrite:=True)
     
-    sDefn = "AddStudent^person_student^Name^String^^^^^Entry" & DOUBLEDOLLAR
-    sDefn = sDefn & "AddStudent^person_student^Age^Integer^IsInteger^^^^Entry" & DOUBLEDOLLAR
-    sDefn = sDefn & "AddStudent^person_student^Prep^Integer^IsValidPrep^^^^Entry" & DOUBLEDOLLAR
-    sDefn = sDefn & "AddTeacher^person_teacher^Name^String^^^^^Entry" & DOUBLEDOLLAR
-    sDefn = sDefn & "AddTeacher^person_teacher^Age^Integer^IsInteger^^^^Entry" & DOUBLEDOLLAR
-    sDefn = sDefn & "AddTeacher^person_teacher^Prep^Integer^IsValidPrep^^^^Entry" & DOUBLEDOLLAR
-    sDefn = sDefn & "AddLesson^Lesson^StudentName^String^IsMember^person_student^Name^^Entry" & DOUBLEDOLLAR
-    sDefn = sDefn & "AddLesson^Lesson^TeacherName^String^IsMember^person_teacher^Name^^Entry"
-    vSource = Init2DStringArrayFromString(sDefn)
-    
-    Set rTarget = RangeFromStrArray(vSource, wsTmp, 0, 1)
-    Set Form_Utils.dDefinitions = LoadDefinitions(wsTmp, rSource:=rTarget)
+    sTargetSheetName = "Add_Person_Student"
+
     
     sDefn = "Name^Age^Prep" & DOUBLEDOLLAR
     sDefn = sDefn & "Jon^45^1" & DOUBLEDOLLAR
     sDefn = sDefn & "Quinton^6^2"
     vStudents = Init2DStringArrayFromString(sDefn, bVariant:=True)
     sCacheSheetName = CacheData(clsAppRuntime, vStudents, QuadDataType.Person, QuadSubDataType.Student, bInTable:=True)
-    
-    sDefn = "Name^Age^Prep" & DOUBLEDOLLAR
-    sDefn = sDefn & "Nancy^46^1" & DOUBLEDOLLAR
-    sDefn = sDefn & "Betty^36^2"
-    vTeachers = Init2DStringArrayFromString(sDefn, bVariant:=True)
-    sCacheSheetName = CacheData(clsAppRuntime, vTeachers, QuadDataType.Person, QuadSubDataType.Teacher, bInTable:=True)
-    
+
 main:
 
     GenerateForms clsAppRuntime, bLoadRefData:=False
     
     EventsToggle True
     With clsAppRuntime.AddBook.Sheets(sTargetSheetName)
+    
+    
+        'eAdd_Person_Student_sStudentFirstNm
         Set rTarget = .Range(.Cells(2, 2), .Cells(2, 2))
         rTarget = "Jon"
         ValidateWidget clsAppRuntime.AddBook, sTargetSheetName, rTarget
@@ -252,15 +134,7 @@ main:
             eTestResult = TestResult.Failure
             GoTo teardown
         End If
-        
-        Set rTarget = .Range(.Cells(3, 2), .Cells(3, 2))
-        rTarget = "Betty"
-        ValidateWidget clsAppRuntime.AddBook, sTargetSheetName, rTarget
 
-        If GetBgColor(sTargetSheetName, rTarget).AsString <> "0,255,0" Then
-            eTestResult = TestResult.Failure
-            GoTo teardown
-        End If
     End With
     eTestResult = TestResult.OK
     GoTo teardown
@@ -291,12 +165,12 @@ Dim clsAppRuntime As New App_Runtime
 setup:
     'On Error GoTo err:
     sFuncName = C_MODULE_NAME & "." & "GenerateForms"
-    sTargetSheetName = "AddStudent"
+    sTargetSheetName = "Add_Student_Schedule"
     ResetAppRuntimeGlobal
     clsAppRuntime.InitProperties bInitializeCache:=True
     sSheetName = "test"
     Set wsTmp = CreateSheet(clsAppRuntime.TemplateBook, sSheetName, bOverwrite:=True)
-    vSource = Init2DStringArray([{"AddStudent","Student","StudentAge","Integer","IsValidInteger";"AddStudent","Student","StudentPrep","IntegerRange","IsValidPrep"}])
+    vSource = Init2DStringArray([{"Add_Student_Schedule","Student","StudentAge","Integer","IsValidInteger";"Add_Student_Schedule","Student","StudentPrep","IntegerRange","IsValidPrep"}])
     Set rTarget = RangeFromStrArray(vSource, wsTmp, 0, 1)
     Set Form_Utils.dDefinitions = LoadDefinitions(wsTmp, rSource:=rTarget, bIgnoreWidgetType:=True)
 
@@ -330,7 +204,7 @@ main:
             GoTo teardown
         End If
         
-        IsRecordValid clsAppRuntime.TemplateBook, clsAppRuntime.AddBook, "AddStudent", clsAppRuntime.TemplateWidgetSheetName
+        IsRecordValid clsAppRuntime.TemplateBook, clsAppRuntime.AddBook, sTargetSheetName, clsAppRuntime.TemplateWidgetSheetName
         
         ' no buttons implemented so need to hardcode where the button will be on the screen
         If GetBgColor(sTargetSheetName, clsAppRuntime.AddBook.Sheets(sTargetSheetName).Range("H2:H2")).AsString <> "51,204,51" Then
@@ -367,12 +241,12 @@ Dim clsAppRuntime As New App_Runtime
 setup:
     'On Error GoTo err:
     sFuncName = C_MODULE_NAME & "." & "GenerateForms"
-    sTargetSheetName = "AddStudent"
+    sTargetSheetName = "Add_Student_Schedule"
     ResetAppRuntimeGlobal
     clsAppRuntime.InitProperties bInitializeCache:=True
     sSheetName = "test"
     Set wsTmp = CreateSheet(clsAppRuntime.TemplateBook, sSheetName, bOverwrite:=True)
-    vSource = Init2DStringArray([{"AddStudent","Student","StudentAge","Integer","IsValidInteger","","","","Entry";"AddStudent","Student","StudentPrep","IntegerRange","IsValidPrep","","","","Entry";"AddStudent","","COMMIT","","","AddStudent","","","Button"}])
+    vSource = Init2DStringArray([{"Add_Student_Schedule","Student","StudentAge","Integer","IsValidInteger","","","","Entry";"Add_Student_Schedule","Student","StudentPrep","IntegerRange","IsValidPrep","","","","Entry";"Add_Student_Schedule","","COMMIT","","","AddStudent","","","Button"}])
     Set rTarget = RangeFromStrArray(vSource, wsTmp, 0, 1)
     Set Form_Utils.dDefinitions = LoadDefinitions(wsTmp, rSource:=rTarget)
 
@@ -406,7 +280,7 @@ main:
             GoTo teardown
         End If
         
-        IsRecordValid clsAppRuntime.TemplateBook, clsAppRuntime.AddBook, "AddStudent", clsAppRuntime.TemplateWidgetSheetName
+        IsRecordValid clsAppRuntime.TemplateBook, clsAppRuntime.AddBook, "Add_Student_Schedule", clsAppRuntime.TemplateWidgetSheetName
         
         If GetBgColor(sTargetSheetName, clsAppRuntime.AddBook.Sheets(sTargetSheetName).Range("H2:H2")).AsString <> "51,204,51" Then
             eTestResult = TestResult.Failure
@@ -461,18 +335,18 @@ setup:
     sFuncName = C_MODULE_NAME & "." & "TestGenerateMenuForm"
     sSheetName = "test"
     Set wsTmp = CreateSheet(clsAppRuntime.TemplateBook, sSheetName, bOverwrite:=True)
-    sDefn = "AddLesson^schedule_student^sStudentFirstNm^String^IsMember^&get_person_student^sStudentFirstNm^^Entry" & DOUBLEDOLLAR
-    sDefn = sDefn & "AddStudent^Student^StudentAge^Integer^IsValidInteger^^^^Entry" & DOUBLEDOLLAR
-    sDefn = sDefn & "AddStudent^Student^StudentPrep^IntegerRange^IsValidPrep^^^^Entry" & DOUBLEDOLLAR
-    sDefn = sDefn & "AddStudent^^COMMIT^^^AddStudent^^^Button" & DOUBLEDOLLAR
-    sDefn = sDefn & "AddTeacher^Teacher^TeacherAge^Integer^IsValidInteger^^^^Entry" & DOUBLEDOLLAR
-    sDefn = sDefn & "AddTeacher^Teacher^TeacherPrep^IntegerRange^IsValidPrep^^^^Entry" & DOUBLEDOLLAR
-    sDefn = sDefn & "AddTeacher^^COMMIT^^^AddTeacher^^^Button" & DOUBLEDOLLAR
-    sDefn = sDefn & "MenuMain^^Toggle_Schedule_Window^^^ToggleScheduleWindow^^^Button" & DOUBLEDOLLAR
-    sDefn = sDefn & "MenuMain^^Toggle_Add_Window^^^ToggleAddWindow^^^Button" & DOUBLEDOLLAR
-    sDefn = sDefn & "MenuMain^^Toggle_Cache_Window^^^ToggleCacheWindow^^^Button" & DOUBLEDOLLAR
-    sDefn = sDefn & "MenuMain^^Show_AddStudent^^^ShowAddStudent^^^Button" & DOUBLEDOLLAR
-    sDefn = sDefn & "MenuMain^^Show_AddTeacher^^^ShowAddTeacher^^^Button"
+    sDefn = "Add_Student_Schedule^schedule_student^sStudentFirstNm^String^IsMember^&get_person_student^sStudentFirstNm^^Entry" & DOUBLEDOLLAR
+    sDefn = sDefn & "Add_Person_Student^Student^StudentAge^Integer^IsValidInteger^^^^Entry" & DOUBLEDOLLAR
+    sDefn = sDefn & "Add_Person_Student^Student^StudentPrep^IntegerRange^IsValidPrep^^^^Entry" & DOUBLEDOLLAR
+    sDefn = sDefn & "Add_Person_Student^^COMMIT^^^AddStudent^^^Button" & DOUBLEDOLLAR
+    sDefn = sDefn & "Add_Person_Teacher^Teacher^TeacherAge^Integer^IsValidInteger^^^^Entry" & DOUBLEDOLLAR
+    sDefn = sDefn & "Add_Person_Teacher^Teacher^TeacherPrep^IntegerRange^IsValidPrep^^^^Entry" & DOUBLEDOLLAR
+    sDefn = sDefn & "Add_Person_Teacher^^COMMIT^^^AddTeacher^^^Button" & DOUBLEDOLLAR
+    sDefn = sDefn & "Menu_Main_^^Toggle_Schedule_Window^^^ToggleScheduleWindow^^^Button" & DOUBLEDOLLAR
+    sDefn = sDefn & "Menu_Main_^^Toggle_Add_Window^^^ToggleAddWindow^^^Button" & DOUBLEDOLLAR
+    sDefn = sDefn & "Menu_Main_^^Toggle_Cache_Window^^^ToggleCacheWindow^^^Button" & DOUBLEDOLLAR
+    sDefn = sDefn & "Menu_Main_^^Show_AddStudent^^^ShowAddStudent^^^Button" & DOUBLEDOLLAR
+    sDefn = sDefn & "Menu_Main_^^Show_AddTeacher^^^ShowAddTeacher^^^Button"
     
     vSource = Init2DStringArrayFromString(sDefn)
 
@@ -506,9 +380,9 @@ main:
         GoTo teardown
     End If
     
-    Set rButton = clsAppRuntime.MenuBook.Sheets("MenuMain").Range("D5:D5")
+    Set rButton = clsAppRuntime.MenuBook.Sheets("Menu_Main_").Range("D5:D5")
     
-    If rButton.Name.Name <> "MenuMain!bMenuMain_Show_AddTeacher" Then
+    If rButton.Name.Name <> "Menu_Main_!bMenu_Main__Show_AddTeacher" Then
         eTestResult = TestResult.Failure
         GoTo teardown
     End If
@@ -545,13 +419,13 @@ setup:
     sFuncName = C_MODULE_NAME & "." & "TestGenerateMenuForm"
     sSheetName = "test"
     Set wsTmp = CreateSheet(clsAppRuntime.TemplateBook, sSheetName, bOverwrite:=True)
-    sDefn = "AddLesson^schedule_student^sStudentFirstNm^String^IsMember^&get_person_student^sStudentFirstNm^^Entry" & DOUBLEDOLLAR
-    sDefn = sDefn & "AddStudent^person_student^StudentAge^Integer^IsValidInteger^^^^Entry" & DOUBLEDOLLAR
-    sDefn = sDefn & "AddStudent^person_student^StudentPrep^IntegerRange^IsValidPrep^^^^Entry" & DOUBLEDOLLAR
-    sDefn = sDefn & "AddStudent^^COMMIT^^^AddStudent^^^Button" & DOUBLEDOLLAR
-    sDefn = sDefn & "ViewStudent^person_student^sStudentFirstNm^^^^^^Text" & DOUBLEDOLLAR
-    sDefn = sDefn & "ViewStudent^person_student^StudentAge^^^^^^Text" & DOUBLEDOLLAR
-    sDefn = sDefn & "ViewStudent^person_student^StudentPrep^^^^^^Text"
+    sDefn = "Add_Person_Student^schedule_student^sStudentFirstNm^String^IsMember^&get_person_student^sStudentFirstNm^^Entry" & DOUBLEDOLLAR
+    sDefn = sDefn & "Add_Person_Student^person_student^StudentAge^Integer^IsValidInteger^^^^Entry" & DOUBLEDOLLAR
+    sDefn = sDefn & "Add_Person_Student^person_student^StudentPrep^IntegerRange^IsValidPrep^^^^Entry" & DOUBLEDOLLAR
+    sDefn = sDefn & "Add_Person_Student^^COMMIT^^^AddStudent^^^Button" & DOUBLEDOLLAR
+    sDefn = sDefn & "View_Person_Student^person_student^sStudentFirstNm^^^^^^Text" & DOUBLEDOLLAR
+    sDefn = sDefn & "View_Person_Student^person_student^StudentAge^^^^^^Text" & DOUBLEDOLLAR
+    sDefn = sDefn & "View_Person_Student^person_student^StudentPrep^^^^^^Text"
      
     vSource = Init2DStringArrayFromString(sDefn)
 
@@ -562,15 +436,15 @@ setup:
     dTmp.Add "sStudentFirstNm", "Jon"
     dTmp.Add "StudentAge", "46"
     dTmp.Add "StudentPrep", "3"
-    dDefaultValues.Add "ViewStudent", dTmp
+    dDefaultValues.Add "View_Person_Student", dTmp
     
 main:
     
     GenerateForms clsAppRuntime, dDefaultValues:=dDefaultValues
         
-    Set rText = clsAppRuntime.ViewBook.Sheets("ViewStudent").Range("C4:C4")
+    Set rText = clsAppRuntime.ViewBook.Sheets("View_Person_Student").Range("C4:C4")
     
-    If rText.Name.Name <> "ViewStudent!tViewStudent_sStudentFirstNm" Then
+    If rText.Name.Name <> "View_Person_Student!tView_Person_Student_sStudentFirstNm" Then
         eTestResult = TestResult.Failure
         GoTo teardown
     End If
@@ -611,15 +485,15 @@ setup:
     sFuncName = C_MODULE_NAME & "." & "TestGenerateMenuForm"
     
     Set wsTmp = CreateSheet(clsAppRuntime.TemplateBook, sSheetName, bOverwrite:=True)
-    sDefn = "ViewStudent^person_student^sStudentFirstNm^String^IsMember^&get_person_student^sStudentFirstNm^&UpdateViewStudentForm^Selector" & DOUBLEDOLLAR
-    sDefn = sDefn & "ViewStudent^person_student^sStudentFirstNm^^^^^^Text" & DOUBLEDOLLAR
-    sDefn = sDefn & "ViewStudent^person_student^idStudent^^^^^^Text" & DOUBLEDOLLAR
-    sDefn = sDefn & "ViewStudent^person_student^idPrep^^^^^^Text" & DOUBLEDOLLAR
-    sDefn = sDefn & "AddStudent^person_student^sStudentFirstNm^String^^^^^Entry" & DOUBLEDOLLAR
-    sDefn = sDefn & "AddStudent^person_student^sStudentLastNm^String^^^^^Entry" & DOUBLEDOLLAR
-    sDefn = sDefn & "AddStudent^person_student^idStudent^Integer^^^^^Entry" & DOUBLEDOLLAR
-    sDefn = sDefn & "AddStudent^person_student^idPrep^Integer^IsValidPrep^^^^Entry" & DOUBLEDOLLAR
-    sDefn = sDefn & "AddStudent^person_student^sPrepNm^String^^^^^Entry"
+    sDefn = "View_Person_Student^person_student^sStudentFirstNm^String^IsMember^&get_person_student^sStudentFirstNm^&UpdateViewStudentForm^Selector" & DOUBLEDOLLAR
+    sDefn = sDefn & "View_Person_Student^person_student^sStudentFirstNm^^^^^^Text" & DOUBLEDOLLAR
+    sDefn = sDefn & "View_Person_Student^person_student^idStudent^^^^^^Text" & DOUBLEDOLLAR
+    sDefn = sDefn & "View_Person_Student^person_student^idPrep^^^^^^Text" & DOUBLEDOLLAR
+    sDefn = sDefn & "Add_Person_Student^person_student^sStudentFirstNm^String^^^^^Entry" & DOUBLEDOLLAR
+    sDefn = sDefn & "Add_Person_Student^person_student^sStudentLastNm^String^^^^^Entry" & DOUBLEDOLLAR
+    sDefn = sDefn & "Add_Person_Student^person_student^idStudent^Integer^^^^^Entry" & DOUBLEDOLLAR
+    sDefn = sDefn & "Add_Person_Student^person_student^idPrep^Integer^IsValidPrep^^^^Entry" & DOUBLEDOLLAR
+    sDefn = sDefn & "Add_Person_Student^person_student^sPrepNm^String^^^^^Entry"
      
     vSource = Init2DStringArrayFromString(sDefn)
 
@@ -630,22 +504,22 @@ setup:
     dTmp.Add "sStudentFirstNm", "Jon"
     dTmp.Add "idStudent", "666"
     dTmp.Add "idPrep", "3"
-    dDefaultValues.Add "ViewStudent", dTmp
+    dDefaultValues.Add "View_Schedule_Student", dTmp
     
 main:
 
     GenerateForms clsAppRuntime, dDefaultValues:=dDefaultValues
     
     EventsToggle True
-    With clsAppRuntime.ViewBook.Sheets("ViewStudent")
+    With clsAppRuntime.ViewBook.Sheets("View_Person_Student")
         Set rTarget = .Range(.Cells(2, 3), .Cells(2, 3))
         rTarget = "Bruno"
-        ValidateWidget clsAppRuntime.ViewBook, "ViewStudent", rTarget
+        ValidateWidget clsAppRuntime.ViewBook, "View_Person_Student", rTarget
     End With
 
-    Set rText = clsAppRuntime.ViewBook.Sheets("ViewStudent").Range("C4:C4")
+    Set rText = clsAppRuntime.ViewBook.Sheets("View_Person_Student").Range("C4:C4")
     
-    If rText.Name.Name <> "ViewStudent!tViewStudent_sStudentFirstNm" Then
+    If rText.Name.Name <> "View_Person_Student!tView_Person_Student_sStudentFirstNm" Then
         eTestResult = TestResult.Failure
         GoTo teardown
     End If
@@ -687,13 +561,13 @@ setup:
     sFuncName = C_MODULE_NAME & "." & "TestGenerateViewListForm"
     sSheetName = "test"
     Set wsTmp = CreateSheet(clsAppRuntime.TemplateBook, sSheetName, bOverwrite:=True)
-    sDefn = "AddLesson^schedule_student^sStudentFirstNm^String^IsMember^&get_person_student^sStudentFirstNm^^Entry" & DOUBLEDOLLAR
-    sDefn = sDefn & "AddStudent^Student^StudentAge^Integer^IsValidInteger^^^^Entry" & DOUBLEDOLLAR
-    sDefn = sDefn & "AddStudent^Student^StudentPrep^IntegerRange^IsValidPrep^^^^Entry" & DOUBLEDOLLAR
-    sDefn = sDefn & "AddStudent^^COMMIT^^^AddStudent^^^Button" & DOUBLEDOLLAR
-    sDefn = sDefn & "ViewListStudents^Student^sStudentFirstNm^^^^^^ListText" & DOUBLEDOLLAR
-    sDefn = sDefn & "ViewListStudents^Student^StudentAge^^^^^^ListText" & DOUBLEDOLLAR
-    sDefn = sDefn & "ViewListStudents^Student^StudentPrep^^^^^^ListText"
+    sDefn = "Add_Schedule_Lesson^schedule_student^sStudentFirstNm^String^IsMember^&get_person_student^sStudentFirstNm^^Entry" & DOUBLEDOLLAR
+    sDefn = sDefn & "Add_Person_Student^Student^StudentAge^Integer^IsValidInteger^^^^Entry" & DOUBLEDOLLAR
+    sDefn = sDefn & "Add_Person_Student^Student^StudentPrep^IntegerRange^IsValidPrep^^^^Entry" & DOUBLEDOLLAR
+    sDefn = sDefn & "Add_Person_Student^^COMMIT^^^AddStudent^^^Button" & DOUBLEDOLLAR
+    sDefn = sDefn & "ViewList_Person_Student^Student^sStudentFirstNm^^^^^^ListText" & DOUBLEDOLLAR
+    sDefn = sDefn & "ViewList_Person_Student^Student^StudentAge^^^^^^ListText" & DOUBLEDOLLAR
+    sDefn = sDefn & "ViewList_Person_Student^Student^StudentPrep^^^^^^ListText"
      
     vSource = Init2DStringArrayFromString(sDefn)
 
@@ -707,7 +581,7 @@ main:
 
     GenerateForms clsAppRuntime, vValues:=vValues
 
-    Set rColumn = clsAppRuntime.ViewBook.Sheets("ViewListStudents").Range("lViewListStudents_sStudentFirstNm")
+    Set rColumn = clsAppRuntime.ViewBook.Sheets("ViewList_Person_Student").Range("lViewList_Person_Student_sStudentFirstNm")
     
     If rColumn.Rows(1).value <> "Jon" Then
         eTestResult = TestResult.Failure
@@ -718,7 +592,7 @@ main:
         GoTo teardown
     End If
     
-    Set rColumn = clsAppRuntime.ViewBook.Sheets("ViewListStudents").Range("lViewListStudents_StudentPrep")
+    Set rColumn = clsAppRuntime.ViewBook.Sheets("ViewList_Person_Student").Range("lViewList_Person_Student_StudentPrep")
 
     If rColumn.Rows(1).value <> "3" Then
         eTestResult = TestResult.Failure
@@ -761,13 +635,13 @@ setup:
     sFuncName = C_MODULE_NAME & "." & "GenerateViewListForm_PassingWrongValues"
     sSheetName = "test"
     Set wsTmp = CreateSheet(clsAppRuntime.TemplateBook, sSheetName, bOverwrite:=True)
-    sDefn = "AddLesson^schedule_student^sStudentFirstNm^String^IsMember^&get_person_student^sStudentFirstNm^^Entry" & DOUBLEDOLLAR
-    sDefn = sDefn & "AddStudent^Student^StudentAge^Integer^IsValidInteger^^^^Entry" & DOUBLEDOLLAR
-    sDefn = sDefn & "AddStudent^Student^StudentPrep^IntegerRange^IsValidPrep^^^^Entry" & DOUBLEDOLLAR
-    sDefn = sDefn & "AddStudent^^COMMIT^^^AddStudent^^^Button" & DOUBLEDOLLAR
-    sDefn = sDefn & "ViewListStudents^Student^sStudentFirstNm^^^^^^ListText" & DOUBLEDOLLAR
-    sDefn = sDefn & "ViewListStudents^Student^StudentAge^^^^^^ListText" & DOUBLEDOLLAR
-    sDefn = sDefn & "ViewListStudents^Student^StudentPrep^^^^^^ListText"
+    sDefn = "Add_Schedule_Lesson^schedule_student^sStudentFirstNm^String^IsMember^&get_person_student^sStudentFirstNm^^Entry" & DOUBLEDOLLAR
+    sDefn = sDefn & "Add_Person_Student^Student^StudentAge^Integer^IsValidInteger^^^^Entry" & DOUBLEDOLLAR
+    sDefn = sDefn & "Add_Person_Student^Student^StudentPrep^IntegerRange^IsValidPrep^^^^Entry" & DOUBLEDOLLAR
+    sDefn = sDefn & "Add_Person_Student^^COMMIT^^^AddStudent^^^Button" & DOUBLEDOLLAR
+    sDefn = sDefn & "ViewList_Person_Students^Student^sStudentFirstNm^^^^^^ListText" & DOUBLEDOLLAR
+    sDefn = sDefn & "ViewList_Person_Students^Student^StudentAge^^^^^^ListText" & DOUBLEDOLLAR
+    sDefn = sDefn & "ViewList_Person_Students^Student^StudentPrep^^^^^^ListText"
      
     vSource = Init2DStringArrayFromString(sDefn)
 
@@ -917,11 +791,11 @@ setup:
     clsAppRuntime.InitProperties bInitializeCache:=True
     'On Error GoTo err:
     sFuncName = C_MODULE_NAME & "." & "IsRecordValid"
-    sSheetName = "TestAddStudent"
+    sSheetName = "Add_Person_Student"
     sFieldName1 = "StudentAge"
     sFieldName2 = "StudentName"
     Set wsTmp = CreateSheet(clsAppRuntime.AddBook, sSheetName, bOverwrite:=True)
-    vSource = Init2DStringArray([{"TestAddStudent","Student","StudentAge","Integer","IsValidInteger";"TestAddStudent","Student","StudentName","Integer","IsValidInteger"}])
+    vSource = Init2DStringArray([{"Add_Person_Student","Student","StudentAge","Integer","IsValidInteger";"Add_Person_Student","Student","StudentName","Integer","IsValidInteger"}])
     Set rTarget = RangeFromStrArray(vSource, wsTmp, 0, 1)
     Set Form_Utils.dDefinitions = LoadDefinitions(wsTmp, rSource:=rTarget, bIgnoreWidgetType:=True)
     
@@ -1008,7 +882,7 @@ setup:
     
     sSheetName = "test"
     Set wsTmp = CreateSheet(clsAppRuntime.TemplateBook, sSheetName, bOverwrite:=True)
-    vSource = Init2DStringArray([{"AddStudent","Student","StudentAge","Integer","IsValidInteger","","","","Entry";"AddStudent","Student","StudentPrep","IntegerRange","IsValidPrep","","","","Entry"}])
+    vSource = Init2DStringArray([{"Add_Person_Student","Student","StudentAge","Integer","IsValidInteger","","","","Entry";"Add_Person_Student","Student","StudentPrep","IntegerRange","IsValidPrep","","","","Entry"}])
     Set rTarget = RangeFromStrArray(vSource, wsTmp, 0, 1)
     Set Form_Utils.dDefinitions = LoadDefinitions(wsTmp, rSource:=rTarget)
 
@@ -1028,7 +902,7 @@ main:
     
     GenerateForms clsAppRuntime
     
-    With clsAppRuntime.AddBook.Sheets("AddStudent")
+    With clsAppRuntime.AddBook.Sheets("Add_Person_Student")
         Set rFormat = .Range("$I$50:$I$50")
         If GetBgColor("AddStudent", rFormat).AsString <> "123,34,200" Then
             eTestResult = TestResult.Failure

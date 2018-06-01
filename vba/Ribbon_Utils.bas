@@ -331,6 +331,7 @@ Sub rxgal_getItemCount(control As IRibbonControl, ByRef returnedVal)
 Dim vLabelNames As Variant
 Dim clsAppRuntime As New App_Runtime
     clsAppRuntime.InitProperties bInitializeCache:=True
+    GetDefinition clsAppRuntime, "Schedule", "Lesson", "Definitions", FormType.Add
     vLabelNames = GetColumnValues(clsAppRuntime, QuadDataType.Person, QuadSubDataType.Student, "sStudentLastNm")
     returnedVal = UBound(vLabelNames) + 1
     'clsAppRuntime.TemplateBook.Activate

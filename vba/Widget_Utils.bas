@@ -305,9 +305,13 @@ main:
             vKeySplits = Split(sKey, "_")
             sWidgetTypeSuffix = Left(vKeySplits(0), 1)
 
-            If Right(vKeySplits(0), Len(vKeySplits(0)) - 1) <> sAction Then
+            If GetActionFromWidgetKey(sKey) <> sAction Then
                 GoTo nextdefn
             End If
+            
+            'If Right(vKeySplits(0), Len(vKeySplits(0)) - 1) <> sAction Then
+            '    GoTo nextdefn
+            'End If
             
             If InArray(Array("actions", "tables"), sKey) Then
                 GoTo nextdefn
@@ -344,11 +348,12 @@ main:
                 End If
 
                 Set rListColumn = GenerateViewList(clsAppRuntime.TemplateBook, wbTarget, sAction, iRow, iCol, clsAppRuntime.TemplateWidgetSheetName, CStr(sKey), iHeight:=iHeight)
-                    
+
                 For iRow = 1 To UBound(vValues)
-                        On Error Resume Next
-                        rListColumn.Rows(iRow).value = vValues(iRow, iWidgetCount)
-                        On Error GoTo 0
+                    'On Error Resume Next
+                    'rListColumn.Rows(iRow).value = vValues(iRow, iWidgetCount + 1)
+                    rListColumn.Rows(iRow).value = vValues(iRow, iWidgetCount + LBound(vValues, 2))
+                    'On Error GoTo 0
                 Next iRow
             Else
                 err.Raise 999, Description:="WidgetType suffix [" & sWidgetTypeSuffix & "] not implemented"
@@ -395,11 +400,6 @@ Dim sViewRangeName As String, sFieldName As String
         Set rWidget = .Range(.Cells(iRow, iCol), .Cells(iRow + iHeight, iCol))
         sViewRangeName = sKey
         CreateNamedRange wbTargetbook, rWidget.Address, sSheetName, sViewRangeName, "True"
-        
-        'Set rLabel = rWidget.Offset(iEntryRowOffset, iEntryColOffset)
-        'sFieldName = Split(sKey, "_")(1)
-        'rLabel.value = sFieldName
-        
     End With
     
     Set GenerateViewList = rWidget

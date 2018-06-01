@@ -21,12 +21,15 @@ End Sub
 Public Sub AddPerson(clsAppRuntime, Optional sSubDataType As String = "Student", Optional sSheetName As String = "test")
 Dim dEntryValues As Dictionary
 Dim wsTable As Worksheet
-Dim sTableName As String
+Dim sTableName As String, sFormName As String
 
     clsAppRuntime.InitProperties bInitializeCache:=False
-    Set dEntryValues = GetRecordValuesAsDict(clsAppRuntime.TemplateBook, clsAppRuntime.AddBook, "Add" & sSubDataType)
     
     sTableName = GetTableName(EnumQuadDataType(QuadDataType.Person), sSubDataType)
+
+    sFormName = GetFormName(FormType.Add, WorksheetFunction.Proper(EnumQuadDataType(QuadDataType.Person)), sSubDataType)
+    
+    Set dEntryValues = GetRecordValuesAsDict(clsAppRuntime.TemplateBook, clsAppRuntime.AddBook, sFormName)
     
     ' if Table does not exist
     If SheetExists(clsAppRuntime.CacheBook, sTableName) = False Then
