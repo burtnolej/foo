@@ -207,14 +207,17 @@ setup:
 
 main:
     sSpName = "schedule_lesson"
-    If eQuadSubDataType = QuadSubDataType.Student Then
-        'sSpName = "student_schedule"
-        
-        dSpArgs.Add "students", InitVariantArray(Array(sPersonId))
-    ElseIf eQuadSubDataType = QuadSubDataType.Teacher Then
-        'sSpName = "teacher_schedule"
-        dSpArgs.Add "teachers", InitVariantArray(Array(sPersonId))
-    End If
+    'If eQuadSubDataType = QuadSubDataType.Student Then
+    '    'sSpName = "student_schedule"
+    '
+    '    dSpArgs.Add "students", InitVariantArray(Array(sPersonId))
+    'ElseIf eQuadSubDataType = QuadSubDataType.Teacher Then
+    '    'sSpName = "teacher_schedule"
+    '    dSpArgs.Add "teachers", InitVariantArray(Array(sPersonId))
+    'End If
+
+    dSpArgs.Add "students", InitVariantArray(Array(sPersonId))
+
     FuncLogIt sFuncName, "schedule type is [" & EnumQuadSubDataType(eQuadSubDataType) & "] using sp [" & sSpName & "]", C_MODULE_NAME, LogMsgType.INFO
     
     If sPeriod <> "" Then

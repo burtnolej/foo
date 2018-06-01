@@ -41,6 +41,15 @@ main:
         GoTo teardown
     End If
     
+    eTestResult = TestResult.OK
+    GoTo teardown
+    
+err:
+    eTestResult = TestResult.Error
+    
+teardown:
+    Test_GenerateScheduleLessonListView = eTestResult
+    clsAppRuntime.Delete
     
 End Function
 
