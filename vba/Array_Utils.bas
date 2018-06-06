@@ -94,18 +94,37 @@ found:
 notfound:
     IndexArray = -1
 End Function
-Function IndexArrayMulti(aSearch As Variant, sValue As String) As Integer()
+Function IndexArrayMulti(aSearch As Variant, sValue As String, _
+                    Optional bLike = False, _
+                    Optional bEndsWith = False) As Integer()
 Dim vHits() As Integer
 Dim iCount As Integer
 
     ReDim vHits(0 To 10000)
     For i = 0 To UBound(aSearch)
-        If aSearch(i) = sValue Then
-            vHits(iCount) = i
-            iCount = iCount + 1
+        
+        If bLike = False And bEndsWith = False Then
+            If aSearch(i) = sValue Then
+                vHits(iCount) = i
+                iCount = iCount + 1
+            End If
+        ElseIf bLike = True Then
+            If aSearch(i) Like ASTERISK & sValue & ASTERISK Then
+                vHits(iCount) = i
+                iCount = iCount + 1
+            End If
+        ElseIf bEndsWith = True Then
+            If EndsWith(CStr(aSearch(i)), sValue) Then
+                vHits(iCount) = i
+                iCount = iCount + 1
+            End If
         End If
     Next
-    ReDim Preserve vHits(0 To iCount - 1)
+    If iCount = 0 Then
+        ReDim vHits(0)
+    Else
+        ReDim Preserve vHits(0 To iCount - 1)
+    End If
     IndexArrayMulti = vHits
 End Function
 Public Function AddArrays(iWidth As Integer, ParamArray X()) As Variant
@@ -116,12 +135,16 @@ Dim iRow As Integer, iCol As Integer
 
     ReDim aResult(0 To 10000, 0 To iWidth)
     For Each aTmp In X
-        For iRow = LBound(aTmp) To UBound(aTmp)
-            For iCol = LBound(aTmp, 2) To UBound(aTmp, 2)
-                aResult(iRowCount, iCol - LBound(aTmp, 2)) = aTmp(iRow, iCol)
-            Next iCol
-            iRowCount = iRowCount + 1
-        Next iRow
+        If UBound(aTmp) = 0 And aTmp(0, iWidth - 1) = "" Then
+            ' passed in an empty array
+        Else
+            For iRow = LBound(aTmp) To UBound(aTmp)
+                For iCol = LBound(aTmp, 2) To UBound(aTmp, 2)
+                    aResult(iRowCount, iCol - LBound(aTmp, 2)) = aTmp(iRow, iCol)
+                Next iCol
+                iRowCount = iRowCount + 1
+            Next iRow
+        End If
     Next aTmp
     
     AddArrays = ReDim2DArray(aResult, iRowCount, iWidth)
@@ -268,6 +291,22 @@ err:
     HasNDimensions = False
 
 End Function
+
+Public Function GetColumnFrom2DArray(aSource As Variant, iColNum As Integer) As Variant
+Dim vTarget As Variant
+Dim iLength As Integer, iFirstRow As Integer, i As Integer
+
+    iFirstRow = LBound(aSource)
+    iLength = UBound(aSource) - iFirstRow
+   
+    ReDim vTarget(0 To iLength)
+    For i = iFirstRow To UBound(aSource)
+        vTarget(i - iFirstRow) = aSource(i, iColNum)
+    Next i
+    
+    GetColumnFrom2DArray = vTarget
+End Function
+
 Public Function ConvertArrayFromRangeto1D(a2DVals As Variant, _
                     Optional bHz As Boolean = False) As String()
 Dim iTmp() As String
@@ -387,9 +426,9 @@ main:
     End If
     
     For i = 0 To iNumRows
-        If i = 832 Then
-            Debug.Print
-        End If
+        'If i = 832 Then
+        '    Debug.Print
+        'End If
         
         vFields = Split(vRows(i), HAT)
         

@@ -2,6 +2,21 @@ Attribute VB_Name = "Quad_Form_Definitions_Utils"
 Option Explicit
 Const C_MODULE_NAME = "Quad_Form_Definitions_Utils"
 
+' GetDefinitionMiscTimePeriod
+' GetDefinitionMiscPrep
+' GetDefinitionMiscDay
+' GetDefinitionMiscLocation
+
+' GetDefinitionCoursesSection
+' GetDefinitionCoursesSubject
+' GetDefinitionCoursesCourse
+
+' GetDefinitionPersonStudent
+' GetDefinitionPersonTeacher
+
+' GetDefinitionScheduleLesson
+' GetDefinitionScheduleStudent
+
 Enum DefinitionErrorMsgType
     BAD_SUBDATATYPE = 10001
     INVALID_FORMTYPE = 10002
@@ -153,15 +168,12 @@ main:
         sDefn = sDefn & sFormName & HAT & sCacheTableName & HAT & "idSection^String^^^^^Entry" & DOUBLEDOLLAR
         sDefn = sDefn & sFormName & HAT & sCacheTableName & HAT & "idAcadPeriod^String^^^^^Entry" & DOUBLEDOLLAR
         sDefn = sDefn & sFormName & HAT & sCacheTableName & HAT & "idSubject^String^^^^^Entry" & DOUBLEDOLLAR
-        
         sDefn = sDefn & sFormName & HAT & sCacheTableName & HAT & "idCourse^String^^^^^Entry" & DOUBLEDOLLAR
         sDefn = sDefn & sFormName & HAT & sCacheTableName & HAT & "idClassType^String^^^^^Entry" & DOUBLEDOLLAR
         sDefn = sDefn & sFormName & HAT & sCacheTableName & HAT & "idLeadTeacher^String^^^^^Entry" & DOUBLEDOLLAR
-
         sDefn = sDefn & sFormName & HAT & sCacheTableName & HAT & "idPrepRangeFrom^String^^^^^Entry" & DOUBLEDOLLAR
         sDefn = sDefn & sFormName & HAT & sCacheTableName & HAT & "idPrepRangeTo^String^^^^^Entry" & DOUBLEDOLLAR
         sDefn = sDefn & sFormName & HAT & sCacheTableName & HAT & "iFreq^String^^^^^Entry" & DOUBLEDOLLAR
-        
         sDefn = sDefn & sFormName & HAT & sCacheTableName & HAT & "sFreqUnit^String^^^^^Entry" & DOUBLEDOLLAR
         sDefn = sDefn & sFormName & HAT & sCacheTableName & HAT & "iMaxCapacity^String^^^^^Entry" & DOUBLEDOLLAR
         sDefn = sDefn & sFormName & HAT & sCacheTableName & HAT & "dtSectionStart^String^^^^^Entry" & DOUBLEDOLLAR
@@ -330,20 +342,7 @@ main:
     If eFormType = FormType.View Or eFormType = FormType.Add Then
     
         If GetLastChar(sDefn) <> DOLLAR And Len(sDefn) <> 0 Then sDefn = sDefn & DOUBLEDOLLAR
-        
-        ' 5/31 07:16
-        'sDefn = sDefn & sFormName & HAT & sCacheTableName & HAT & "sSubjectLongDesc^Integer^IsMember^&get_courses_subject^sSubjectLongDesc^^Entry" & DOUBLEDOLLAR
-        'sDefn = sDefn & sFormName & HAT & sCacheTableName & HAT & "sCourseNm^Integer^IsMember^&get_courses_course^sCourseNm^^Entry" & DOUBLEDOLLAR
-        'sDefn = sDefn & sFormName & HAT & sCacheTableName & HAT & "sClassFocusArea^String^IsValidClassFocusArea^^^^Entry" & DOUBLEDOLLAR
-        'sDefn = sDefn & sFormName & HAT & sCacheTableName & HAT & "sFacultyFirstNm^String^IsMember^&get_person_teacher^sFacultyFirstNm^^Entry" & DOUBLEDOLLAR
-        'sDefn = sDefn & sFormName & HAT & sCacheTableName & HAT & "cdDay^Integer^IsMember^&get_misc_day^cdDay^^Entry" & DOUBLEDOLLAR
-        'sDefn = sDefn & sFormName & HAT & sCacheTableName & HAT & "idTimePeriod^Integer^IsMember^&get_misc_timeperiod^idTimePeriod^^Entry" & DOUBLEDOLLAR
-        'sDefn = sDefn & sFormName & HAT & sCacheTableName & HAT & "idLocation^Integer^IsValidLocation^^^^Entry" & DOUBLEDOLLAR
-        'sDefn = sDefn & sFormName & HAT & sCacheTableName & HAT & "idSection^Integer^IsValidSection^^^^Entry" & DOUBLEDOLLAR
-        'sDefn = sDefn & sFormName & HAT & sCacheTableName & HAT & "cdClassType^Integer^IsValidClassType^^^^Entry" & DOUBLEDOLLAR
-        'sDefn = sDefn & sFormName & HAT & sCacheTableName & HAT & "iFreq^Integer^IsValidFreq^^^^Entry" & DOUBLEDOLLAR
-        'sDefn = sDefn & sFormName & HAT & sCacheTableName & HAT & "idClassLecture^Integer^IsValidClassLecture^^^^Entry"
-        
+    
         sDefn = sDefn & "Add_Schedule_Student" & HAT & sCacheTableName & HAT & "sSubjectLongDesc^Integer^IsMember^&get_courses_subject^sSubjectLongDesc^^Entry" & DOUBLEDOLLAR
         sDefn = sDefn & "Add_Schedule_Student" & HAT & sCacheTableName & HAT & "sCourseNm^Integer^IsMember^&get_courses_course^sCourseNm^^Entry" & DOUBLEDOLLAR
         sDefn = sDefn & "Add_Schedule_Student" & HAT & sCacheTableName & HAT & "sClassFocusArea^String^IsValidClassFocusArea^^^^Entry" & DOUBLEDOLLAR

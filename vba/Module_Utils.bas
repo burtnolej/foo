@@ -163,7 +163,8 @@ Dim sFuncName As String
     
 End Function
 Function GetProcsInModules(wb As Workbook, Optional sModuleName As String, _
-            Optional bTestsOnly As Boolean = False) As Dictionary
+            Optional bTestsOnly As Boolean = False, _
+            Optional bAddBookName As Boolean = False) As Dictionary
 Dim VBProj As VBIDE.VBProject
 Dim VBComp As VBIDE.VBComponent
 Dim vModuleNames() As String
@@ -209,6 +210,10 @@ main:
                     'dDetails.Add "BodyLine", VBComp.CodeModule.ProcBodyLine(sProcName, vbext_pk_Proc)
                     dDetails.Add "VBComp", VBComp
                     dDetails.Add "CodeModule", VBComp.CodeModule
+                    
+                    If bAddBookName = True Then
+                        dDetails.Add "BookName", wb.Name
+                    End If
                     dProc.Add sProcName, dDetails
                 End If
             End If

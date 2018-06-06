@@ -48,6 +48,19 @@ Dim w As Variant
     DoEventsOn
     
 End Function
+Public Function BookOpen(sName As String) As Boolean
+
+    BookOpen = True
+    On Error GoTo returnfalse
+    If Workbooks.Item(sName).Name = sName Then
+    End If
+    On Error GoTo 0
+    Exit Function
+    
+returnfalse:
+    Debug.Print
+    BookOpen = False
+End Function
 Public Function BookExists(sName As String) As Boolean
     BookExists = FileExists(sName)
 End Function

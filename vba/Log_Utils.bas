@@ -112,7 +112,7 @@ Dim rSource As Range
     
 End Sub
 
-Public Function FuncLogIt(sFuncName As String, sLogMsg As String, sModuleName, eLogMsgType As LogMsgType, _
+Public Function FuncLogIt(ByVal sFuncName As String, sLogMsg As String, sModuleName, eLogMsgType As LogMsgType, _
             Optional sKey As String, Optional lLastTick As Long = -1) As Long
 Dim aLogVals() As String, aLogFilter() As String
 Dim aLogWidths() As Integer

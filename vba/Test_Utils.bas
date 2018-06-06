@@ -175,17 +175,17 @@ Sub DoProjectTestRunner()
 Dim sIncModules As String
     
     MinimumWindowState
-    'sIncModules = "Test_App_Person"
-    'sIncModules = sIncModules & ",Test_App_Person_Add"
-    'ProjectTestRunner sIncModules
-    'Exit Sub
+    sIncModules = "Test_Exec_Func"
+    'sIncModules = sIncModules & ",Test_Quad_Person_Add"
+    ProjectTestRunner sIncModules
+    Exit Sub
     
-    sIncModules = "Test_App_Schedule_View"
-    sIncModules = sIncModules & ",Test_App_Schedule_Edit"
-    sIncModules = sIncModules & ",Test_App_Schedule_Add"
-    sIncModules = sIncModules & ",Test_App_Person"
-    sIncModules = sIncModules & ",Test_App_Person_Add"
-    sIncModules = sIncModules & ",Test_App_Courses"
+    sIncModules = "Test_Quad_Schedule_View"
+    sIncModules = sIncModules & ",Test_Quad_Schedule_Edit"
+    sIncModules = sIncModules & ",Test_Quad_Schedule_Add"
+    sIncModules = sIncModules & ",Test_Quad_Person"
+    sIncModules = sIncModules & ",Test_Quad_Person_Add"
+    sIncModules = sIncModules & ",Test_Quad_Courses"
     sIncModules = sIncModules & ",Test_App_Loader"
     sIncModules = sIncModules & ",Test_Array_Utils"
     'sIncModules = sIncModules & ",Test_DB_Utils"
@@ -205,6 +205,8 @@ Dim sIncModules As String
     sIncModules = sIncModules & ",Test_XML_utils"
     sIncModules = sIncModules & ",Test_Window_Utils"
     sIncModules = sIncModules & ",Test_Validation_Utils"
+    sIncModules = sIncModules & ",Test_Exec_Func"
+    
 
     ProjectTestRunner sIncModules
 
