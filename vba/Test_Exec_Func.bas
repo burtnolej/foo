@@ -18,6 +18,7 @@ Const C_MODULE_NAME = "Test_Exec_Func"
 
 'Book:test_procs2.xlsm : Module:tmp1
 'Public Function Quad__DummyCreateFile(dArgs As Dictionary) As Worksheet
+'CrossRef__DummyCreateFile
 
 ' Test description
 '-----------------------------------------------------------------------------------
@@ -759,5 +760,131 @@ teardown:
     'DeleteBook sBookName
     CloseBook wbTmp2
     DeleteFile GetHomePath & "\foo.txt"
+    
+End Function
+
+Function Test_Exec_Proc_Version_Multi_Book_CrossRef_Back() As TestResult
+'-----------------------------------------------------------------------------------
+' Name     : Test_Exec_Proc_Version_Multi_Book_CrossRef_Back
+' Purpose  : Test that in a 2 book / 2 module scenario that a version in another book can be called
+'          : explicitly and that can reference functions back in the master book
+' Approach : ver_series=Quad  & proc_name=DummyCreateFile
+' ExpResult: Pass
+'-----------------------------------------------------------------------------------
+Dim VBProj As VBIDE.VBProject
+Dim VBComp As VBIDE.VBComponent
+Dim wbTmp As Workbook, wbTmp2 As Workbook
+Dim sBookName As String, sRootDirectory As String, sCode As String, sModuleName As String, sFuncName As String
+Dim eTestResult As TestResult
+Dim clsExecProc As New Exec_Proc
+Dim vResults As Variant
+Dim dArgs As New Dictionary
+    
+setup:
+    sFuncName = C_MODULE_NAME & "." & "Exec_Proc_Run"
+    Set wbTmp = OpenBook("vba_source_new.xlsm", sPath:="C:\Users\burtnolej\Documents")
+    Set wbTmp2 = OpenBook("test_procs2.xlsm", sPath:="C:\Users\burtnolej\Documents")
+
+main:
+    clsExecProc.InitProperties wbTmp:=wbTmp, wbTmp2:=wbTmp2
+    
+    dArgs.Add "sFileName", "foo.txt"
+    dArgs.Add "sFilePath", GetHomePath
+    dArgs.Add "ver_series", "CrossRef"
+    dArgs.Add "wbMaster", wbTmp
+
+    clsExecProc.ExecProc "DummyCreateFile", dArgs
+    If MyVarType(dArgs.Item("result")) <> 9 Then
+        Test_Exec_Proc_Version_Multi_Book_CrossRef_Back = TestResult.Failure
+        GoTo teardown
+    End If
+
+    If dArgs.Item("exec_version") <> "CrossRef" Then
+        Test_Exec_Proc_Version_Multi_Book_CrossRef_Back = TestResult.Failure
+        GoTo teardown
+    End If
+    
+    If dArgs.Item("exec_book") <> "test_procs2.xlsm" Then
+        Test_Exec_Proc_Version_Multi_Book_CrossRef_Back = TestResult.Failure
+        GoTo teardown
+    End If
+    
+    If dArgs.Item("exec_module") <> "tmp1" Then
+        Test_Exec_Proc_Version_Multi_Book_CrossRef_Back = TestResult.Failure
+        GoTo teardown
+    End If
+    
+    Test_Exec_Proc_Version_Multi_Book_CrossRef_Back = TestResult.OK
+    GoTo teardown
+
+teardown:
+    'CloseBook wbTmp
+    CloseBook wbTmp2
+    DeleteFile GetHomePath & "\foo.txt"
+    
+End Function
+
+
+
+
+Function Test_Exec_Proc_Version_Multi_Book_CrossRef_ObjInst() As TestResult
+'-----------------------------------------------------------------------------------
+' Name     : Test_Exec_Proc_Version_Multi_Book_CrossRef_Back
+' Purpose  : Test that in a 2 book / 2 module scenario that a version in another book can be called
+'          : explicitly and that can reference functions back in the master book
+' Approach : ver_series=Quad  & proc_name=DummyCreateFile
+' ExpResult: Pass
+'-----------------------------------------------------------------------------------
+Dim VBProj As VBIDE.VBProject
+Dim VBComp As VBIDE.VBComponent
+Dim wbTmp As Workbook, wbTmp2 As Workbook
+Dim sBookName As String, sRootDirectory As String, sCode As String, sModuleName As String, sFuncName As String
+Dim eTestResult As TestResult
+Dim clsExecProc As New Exec_Proc
+Dim vResults As Variant
+Dim dArgs As New Dictionary
+    
+setup:
+    sFuncName = C_MODULE_NAME & "." & "Exec_Proc_Run"
+    Set wbTmp = OpenBook("vba_source_new.xlsm", sPath:="C:\Users\burtnolej\Documents")
+    Set wbTmp2 = OpenBook("test_procs2.xlsm", sPath:="C:\Users\burtnolej\Documents")
+
+main:
+    clsExecProc.InitProperties wbTmp:=wbTmp, wbTmp2:=wbTmp2
+    
+    dArgs.Add "iRed", 255
+    dArgs.Add "iGreen", 255
+    dArgs.Add "iBlue", 255
+    dArgs.Add "ver_series", "CrossRefClassInst"
+    dArgs.Add "wbMaster", wbTmp
+
+    clsExecProc.ExecProc "SetRGBColor", dArgs
+    
+    If MyVarType(dArgs.Item("result")) <> 9 Then
+        Test_Exec_Proc_Version_Multi_Book_CrossRef_ObjInst = TestResult.Failure
+        GoTo teardown
+    End If
+
+    If dArgs.Item("exec_version") <> "CrossRefClassInst" Then
+        Test_Exec_Proc_Version_Multi_Book_CrossRef_ObjInst = TestResult.Failure
+        GoTo teardown
+    End If
+    
+    If dArgs.Item("exec_book") <> "test_procs2.xlsm" Then
+        Test_Exec_Proc_Version_Multi_Book_CrossRef_ObjInst = TestResult.Failure
+        GoTo teardown
+    End If
+    
+    If dArgs.Item("exec_module") <> "tmp1" Then
+        Test_Exec_Proc_Version_Multi_Book_CrossRef_ObjInst = TestResult.Failure
+        GoTo teardown
+    End If
+    
+    Test_Exec_Proc_Version_Multi_Book_CrossRef_ObjInst = TestResult.OK
+    GoTo teardown
+
+teardown:
+    'CloseBook wbTmp
+    CloseBook wbTmp2
     
 End Function
