@@ -1,4 +1,16 @@
 Attribute VB_Name = "Dict_Utils"
+
+
+Public Sub AddDict(ByRef dTmp As Dictionary, sKey As String, vVal As Variant, Optional bUpdate As Boolean = True)
+    
+    If bUpdate = True Then
+        If dTmp.Exists(sKey) Then
+            dTmp.Remove (sKey)
+        End If
+    End If
+    
+    dTmp.Add sKey, vVal
+End Sub
 Function Dict2Array(dTmp As Dictionary, aFields() As String) As String()
 ' For 2 level nested dictionary. aKeys is a string array containing the sub fields we want to pull out from the next level dict
 Dim aKeys() As String

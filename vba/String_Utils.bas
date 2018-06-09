@@ -1,16 +1,5 @@
 Attribute VB_Name = "String_Utils"
-Public Const DOUBLEQUOTE = """"
-Public Const QUOTE = "'"
-Public Const HAT = "^"
-Public Const DOUBLEDOLLAR = "$$"
-Public Const DOLLAR = "$"
-Public Const COMMA = ","
-Public Const SPACE = " "
-Public Const BLANK = ""
-Public Const UNDERSCORE = "_"
-Public Const ASTERISK = "*"
-Public Const PERIOD = "."
-Public Const BANG = "!"
+
 
 
 Function InParagraph(sSearchParagraphs As String, sSourceParagraph) As Boolean

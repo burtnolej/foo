@@ -6,7 +6,7 @@ Attribute VB_Name = "Exec_Proc"
 Attribute VB_GlobalNameSpace = False
 Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = False
-Attribute VB_Exposed = False
+Attribute VB_Exposed = True
 Option Explicit
 
 Const C_MODULE_NAME = "Exec_Proc"
@@ -216,9 +216,13 @@ exec:
     'dArgs.Add "result", Application.Run(sExecName, dArgs)
     Application.Run sExecName, dArgs
     
-    dArgs.Add "exec_version", sVerSeries
-    dArgs.Add "exec_book", sBookName
-    dArgs.Add "exec_module", sModuleName
+    AddDict dArgs, "exec_version", sVerSeries
+    AddDict dArgs, "exec_book", sBookName
+    AddDict dArgs, "exec_module", sModuleName
+
+    'dArgs.Add "exec_version", sVerSeries
+    'dArgs.Add "exec_book", sBookName
+    'dArgs.Add "exec_module", sModuleName
 
     ' this is needed because errors cannot be thrown through Application.Run
     

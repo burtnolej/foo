@@ -349,9 +349,15 @@ End Function
 
 Public Function WriteFile(sPath As String, sText As String)
 Dim oFile As Object
+Dim sFuncName As String
+
+    sFuncName = "WriteFile"
     Set oFile = OpenFile(sPath, 2)
     oFile.Write (sText)
     Set oFile = Nothing
+    
+    FuncLogIt sFuncName, "Written [sText=" & sText & "] to  err [sPath=" & sPath & "]", C_MODULE_NAME, LogMsgType.DEBUGGING
+    
 End Function
 Public Function WriteFileObject(oFile As Object, sText As String)
     oFile.Write (sText)

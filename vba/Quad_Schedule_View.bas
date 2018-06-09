@@ -207,14 +207,6 @@ setup:
 
 main:
     sSpName = "schedule_lesson"
-    'If eQuadSubDataType = QuadSubDataType.Student Then
-    '    'sSpName = "student_schedule"
-    '
-    '    dSpArgs.Add "students", InitVariantArray(Array(sPersonId))
-    'ElseIf eQuadSubDataType = QuadSubDataType.Teacher Then
-    '    'sSpName = "teacher_schedule"
-    '    dSpArgs.Add "teachers", InitVariantArray(Array(sPersonId))
-    'End If
 
     dSpArgs.Add "students", InitVariantArray(Array(sPersonId))
 
@@ -233,7 +225,6 @@ main:
     GetQuadDataFromDB clsAppRuntime, sSpName, dSpArgs:=dSpArgs, bHeaderFlag:=True
 
 End Sub
-
 
 Public Sub GetPersonScheduleDataFromDB(clsAppRuntime As App_Runtime, _
                                  sPersonId As Integer, _

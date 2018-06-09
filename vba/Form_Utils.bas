@@ -4,23 +4,6 @@ Const C_MODULE_NAME = "Form_Utils"
 Const C_GOBUTTON_ROW = 2
 Const C_GOBUTTON_COL = 8
 
-Enum FormType
-    Add = 1
-    Menu = 2
-    View = 3
-    ViewList = 4
-End Enum
-
-Const C_FORM_TYPE = "Add,Menu,View,ViewList"
-Public dDefinitions As Dictionary
-
-Function EnumFormType(i As Long) As String
-    EnumFormType = Split(C_FORM_TYPE, COMMA)(i - 1)
-End Function
-Function GetFormTypeEnumFromValue(sValue As String) As Long
-    GetFormTypeEnumFromValue = IndexArray(C_FORM_TYPE, sValue)
-End Function
-
 Public dDefinitions As Dictionary
 
 Public Sub GenerateForms(clsAppRuntime As App_Runtime, _
@@ -50,6 +33,7 @@ Dim eWidgetType As WidgetType
 Dim wsTmp As Worksheet
 Dim i As Integer, iHeaderCount As Integer
 Dim lStartTick As Long
+Dim s As QuadDataType
 
 setup:
     sFuncName = C_MODULE_NAME & "." & "GenerateForms"
@@ -77,6 +61,7 @@ main:
         Else
             sCallbackFunc = sAction
         End If
+        
         
         ' create the Add sheet and add call back code
         For Each vFormType In Split(C_FORM_TYPE, COMMA)

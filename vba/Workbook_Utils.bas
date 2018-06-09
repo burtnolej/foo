@@ -84,7 +84,7 @@ Dim ffFileFormat As XlFileFormat
         sName = sName & ".xls"
         ffFileFormat = xlExcel12
     Else
-        err.Raise Error_Utils.BAD_FILE_EXTENSION, "unsupported file extension"
+        err.Raise ErrorMsgType.BAD_FILE_EXTENSION, "unsupported file extension"
     End If
     
     Set CreateBook = Workbooks.Add
