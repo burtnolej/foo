@@ -19,3 +19,20 @@ Dim i As Integer
     
     Set AddArgs = dArgs
 End Function
+
+
+Public Sub AddErrorToDict(ByRef dTmp As Dictionary, Optional iErrorCode As Integer, _
+                    Optional sErrorDesc As String, Optional vResult As Variant = -1)
+    
+    dTmp.Add "result", vResult
+    
+    If iErrorCode <> 0 Then
+        dTmp.Add "error_code", iErrorCode
+    End If
+    
+    If sErrorDesc <> "" Then
+        dTmp.Add "error_desc", sErrorDesc
+    End If
+    
+End Sub
+

@@ -147,7 +147,7 @@ Dim sFuncName As String
 Dim vControls() As Variant
 Dim aControlIDSplit() As String
 Dim clsAppRuntime As App_Runtime
-
+Dim dArgs As Dictionary
 setup:
     sFuncName = "OnAction"
     GetLogFile
@@ -163,9 +163,12 @@ setup:
             FuncLogIt sFuncName, "SchedBut ID is incorrectly formed [" & control.id & "] needs to have 3 parts delimed by _", C_MODULE_NAME, LogMsgType.Error
         Else
             Set clsAppRuntime = GetAppRuntimeGlobal(bInitFlag:=True)
-            BuildSchedule clsAppRuntime, _
-                            eQuadSubDataType:=GetQuadSubDataTypeEnumFromValue(aControlIDSplit(1)), _
-                            iPersonID:=CInt(aControlIDSplit(2))
+            
+            AddArgs dArgs, False, "clsAppRuntime", clsAppRuntime, "eQuadSubDataType", GetQuadSubDataTypeEnumFromValue(aControlIDSplit(1)), "iPersonID", CInt(aControlIDSplit(2))
+            Application.Run C_BUILD_SCHEDULE, dArgs
+            'BuildSchedule clsAppRuntime, _
+            '                eQuadSubDataType:=GetQuadSubDataTypeEnumFromValue(aControlIDSplit(1)), _
+            '                iPersonID:=CInt(aControlIDSplit(2))
         End If
              
     ElseIf control.id = "GenerateEntryForm" Then

@@ -106,9 +106,14 @@ cleanup:
     
 End Sub
 
-Public Function BuildSchedule(clsAppRuntime As App_Runtime, _
-                              eQuadSubDataType As QuadSubDataType, _
-                              iPersonID As Integer) As Worksheet
+
+
+'Public Function BuildSchedule(clsAppRuntime As App_Runtime, _
+'                              eQuadSubDataType As QuadSubDataType, _
+'                              iPersonID As Integer) As Worksheet
+
+Public Function BuildSchedule(dArgs As Dictionary) As Worksheet
+
 '"""Using data from the database, and a format template, create a visual schedule on a new sheet
 'param:sScheduleType, string, either student or teacher
 'param:iPersonalId, integer, value of the student or teacher to retreive the schedule for
@@ -117,20 +122,36 @@ Public Function BuildSchedule(clsAppRuntime As App_Runtime, _
 Dim sResultFileName As String, sFuncName As String, sTemplateRangeName As String, sCacheSheetName As String
 Dim aSchedule() As Variant
 Dim aColumnWidths() As Integer
-Dim iFormatWidth As Integer, iFormatHeight As Integer, iColWidthCount As Integer
+Dim iFormatWidth As Integer, iFormatHeight As Integer, iColWidthCount As Integer, iPersonID As Integer
+Dim wbMaster As Workbook, wbTmp As Workbook
+Dim eQuadSubDataType As QuadSubDataType
+Dim clsAppRuntime As App_Runtime
+Dim clsExecProc As Exec_Proc
+
+unpackargs:
+    Set wbMaster = dArgs.Item("wbMaster")
+    'Set wbTmp = dArgs.Item("wbTmp")
+    
+    iPersonID = dArgs.Item("iPersonID")
+    eQuadSubDataType = dArgs.Item("eQuadSubDataType")
+    Set clsAppRuntime = dArgs.Item("clsAppRuntime")
+    Set clsExecProc = dArgs.Item("clsExecProc")
 
 setup:
     sFuncName = C_MODULE_NAME & "." & "BuildSchedule"
     sTemplateRangeName = "f" & EnumQuadSubDataType(eQuadSubDataType) & "ScheduleCell"
     FuncLogIt sFuncName, "Template range name not set so defaulting to  [" & sTemplateRangeName & "]", C_MODULE_NAME, LogMsgType.INFO
-
-        
+   
 main:
     If IsDataCached(clsAppRuntime, QuadDataType.Schedule, eQuadSubDataType, iPersonID) = False Then
         FuncLogIt sFuncName, "Data cache NOT found for [" & EnumQuadSubDataType(eQuadSubDataType) & "_" & CStr(iPersonID) & "]", C_MODULE_NAME, LogMsgType.INFO
 
         ' get the raw data from the database and return the filename that holds the results
-        GetPersonScheduleDataFromDB clsAppRuntime, iPersonID, eQuadSubDataType
+
+        AddArgs dArgs, False, "clsAppRuntime", clsAppRuntime, "iPersonID", iPersonID, "eQuadSubDataType", QuadSubDataType.Student
+        clsExecProc.ExecProc "GetPersonScheduleDataFromDB", dArgs
+
+        'GetPersonScheduleDataFromDB clsAppRuntime, iPersonID, eQuadSubDataType
                                      
         ' parse the raw data in the result file and return an array of the data
         aSchedule = ParseRawData(ReadFile(clsAppRuntime.ResultFileName))
@@ -148,7 +169,13 @@ main:
     GetScheduleDataHelpers clsAppRuntime, sCacheSheetName
     ' draw the schedule
     Set BuildSchedule = BuildScheduleView(clsAppRuntime, aColumnWidths, iFormatWidth, iFormatHeight, eQuadSubDataType, iPersonID)
-  
+
+cleanup:
+    AddErrorToDict dArgs, vResult:=BuildSchedule
+    Exit Function
+    
+err:
+    AddErrorToDict dArgs, iErrorCode:=err.Number, sErrorDesc:=err.Description
 End Function
 
 Public Function GetScheduleData(clsAppRuntime As App_Runtime, _
