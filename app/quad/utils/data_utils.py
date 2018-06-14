@@ -31,7 +31,9 @@ __all__ = ["get_student","get_teacher",
            "_insert_student", "_insert_student_level",
            "_delete_student_level","_delete_student","delete_student", 
            "_update_table","update_student","get_student_schedule",
-           "insert_student_schedule", 
+           "insert_schedule_lesson", 
+           "get_schedule_lesson", 
+           
            "delete_classlecture"]
 
 def is_valid_course(course_id):
@@ -91,7 +93,7 @@ def _update_table(database,tbl_name,field_name,field_value,pred_name,pred_value)
 ''' ----- STUDENT [GET]-----  '''
 
 def _qry_student(students,allstudents=False):
-    sql = ('select st.sStudentFirstNm, st.sStudentLastNm, st.idStudent, stl.idPrep, pc.sPrepNm '
+    sql = ('select st.sStudentFirstNm, st.sStudentLastNm, st.idStudent, stl.idPrep, stl.iGradeLevel, pc.sPrepNm '
            'from Student st, StudentLevel stl, PrepCode pc '
            'where st.cdRowStatus = "act" ')
     
@@ -220,7 +222,7 @@ def _insert_student_level(database,rows,columns=["idStudent","idPrep","iGradeLev
 
 def get_student_schedule(database,students=[70],
                          days=['"M"','"T"','"W"','"R"','"F"'],
-                         periods=[1,2,3,4,5,6,7,8,9,11]):
+                         periods=[1,2,3,4,5,6,7,8,9,10,11]):
     assert isinstance(students,ListType), students
     assert is_valid_student(students), students
     assert isinstance(database,Database), database
@@ -250,7 +252,43 @@ def _qry_student_schedule(students,days,periods):
            'order by cl.idDay, cl.idTimePeriod ').format(",".join(map(str,students)),",".join(map(str,days)),",".join(map(str,periods)))
     return sql
 
-''' ----- STUDENT SCHEDULE [DELETE] ----- '''
+
+''' ----- SCHEDULE LESSON [GET] ----- '''
+
+def get_schedule_lesson(database,students=[70],
+                        days=[1,2,3,4,5],
+                        periods=[1,2,3,4,5,6,7,8,9,10,11]):
+    assert isinstance(students,ListType), students
+    assert is_valid_student(students), students
+    assert isinstance(database,Database), database
+
+    sql = _qry_schedule_lesson(students,days,periods)
+    with database:
+        columns,results,_ = tbl_query(database,sql)
+
+    return columns,results
+
+def _qry_schedule_lesson(students,days,periods):
+    
+    #sql = ('select f.idFaculty, dc.idDay, cl.idTimePeriod, cl.idLocation, cl.idSection, cl.idClassLecture '
+    sql = ('select cls.idStudent, f.idFaculty, cl.idSection, cl.idLocation, dc.idDay, cl.idTimePeriod, cl.idClassLecture '
+        'from ClassLectureStudentEnroll cls, ClassLecture cl, DayCode dc,Faculty f,Section s '
+        'where cls.idStudent in ({}) '
+        'and dc.idDay in ({}) '
+        'and cl.idTimePeriod in ({}) '
+        'and cls.cdRowStatus = "act" '
+        'and cl.cdRowStatus = "act" '
+        'and dc.cdRowStatus = "act" '
+        'and f.cdRowStatus = "act" '
+        'and s.cdRowStatus = "act" '
+        'and cls.idClassLecture = cl.idClassLecture '
+        'and cl.idDay = dc.idDay '
+        'and cl.idSection = s.idSection '
+        'and s.idLeadTeacher = f.idFaculty ').format(",".join(map(str,students)),",".join(map(str,days)),",".join(map(str,periods)))
+    
+    return sql
+    
+''' ----- SCHEDULE LESSON [DELETE] ----- '''
 
 def delete_classlecture(database,classlectures):
     _delete_class_lecture_student_enroll(database,classlectures) 
@@ -274,9 +312,9 @@ def _delete_class_lecture(database,classlectures,allclasslectures=False):
         with database:
             tbl_row_delete(database,"ClassLecture",[["idClassLecture","=",idclasslecture]])
 
-''' ----- STUDENT SCHEDULE [INSERT] ----- '''
+''' ----- SCHEDULE LESSON [INSERT] ----- '''
 
-def insert_student_schedule(database,rows,
+def insert_schedule_lesson(database,rows,
                               columns=["idClassLecture","idStudent","idFaculty","idDay","idTimePeriod","idSection",
                                        "idLocation"], 
                               username="butlerj"):

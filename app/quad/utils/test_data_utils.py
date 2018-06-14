@@ -195,6 +195,24 @@ class Test_GetStudentSchedule(Test_Base):
         columns,results = get_student_schedule(self.database,days=['"M"'],periods=[1])
         self.assertEquals(results,expected_results)
         
+class Test_GetScheduleLesson(Test_Base):
+    def test_(self):
+
+        expected_results =  [[70, 21, 162, 4, 1, 2, 143], [70, 42, 337, 13, 1, 8, 548], [70, 16, 165, 9, 1, 1, 993], [70, 29, 434, 37, 1, 3, 1192], [70, 16, 513, 9, 1, 11, 1386], [70, 21, 115, 4, 1, 10, 1449], [70, 61, 671, 11, 1, 7, 1465], [70, 99, 896, 8, 1, 4, 1627], [70, 23, 872, 22, 1, 5, 1775], [70, 39, 929, 28, 1, 9, 1776], [70, 79, 939, 16, 1, 6, 1794]]
+        
+
+        columns,results = get_schedule_lesson(self.database,days=['"1"'])
+
+        self.assertEquals(results,expected_results)
+        
+class Test_GetScheduleLesson_1Lesson(Test_Base):
+    def test_(self):
+
+        expected_results = [[70, 16, 165, 9, 1, 1, 993]]
+        columns,results = get_schedule_lesson(self.database,days=['"1"'],periods=['"1"'])
+
+        self.assertEquals(results,expected_results)
+
 class Test_GetStudentScheduleArgs(Test_Base):
     def test_(self):
         expected_results = [[u'Homeroom', u'Homeroom', None, u'Isaac', u'M', 1, 9, 165, u'Seminar', 5, 993]]
@@ -229,7 +247,7 @@ class Test_InsertBasicScheduleStudent(Test_Base):
         
         rows = [[10001,2,994,5,7,1,700],[10002,2,994,5,8,2,700],[10003,2,994,5,9,3,700]]
             
-        insert_student_schedule(self.database,rows, columns=["idClassLecture","idStudent","idFaculty","idDay","idTimePeriod","idLocation","idSection"])
+        insert_schedule_lesson(self.database,rows, columns=["idClassLecture","idStudent","idFaculty","idDay","idTimePeriod","idLocation","idSection"])
                                            
         columns,results = get_student_schedule(self.database,
                                                           students=[2],
@@ -272,5 +290,8 @@ if __name__ == "__main__":
     suite.addTest(unittest.TestLoader().loadTestsFromTestCase(Test_GetAllSectionInfo))
     suite.addTest(unittest.TestLoader().loadTestsFromTestCase(Test_GetAllLocationInfo))
     suite.addTest(unittest.TestLoader().loadTestsFromTestCase(Test_InsertBasicScheduleStudent))
+
+    suite.addTest(unittest.TestLoader().loadTestsFromTestCase(Test_GetScheduleLesson))
+    suite.addTest(unittest.TestLoader().loadTestsFromTestCase(Test_GetScheduleLesson_1Lesson))
     
     unittest.TextTestRunner(verbosity=2).run(suite)    
