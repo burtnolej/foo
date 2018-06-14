@@ -48,3 +48,7 @@ Dim sFuncName As String
     End If
 End Function
 
+Public Function New_AppRuntime() As App_Runtime
+    Set New_AppRuntime = New App_Runtime
+End Function
+

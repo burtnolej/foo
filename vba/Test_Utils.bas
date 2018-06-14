@@ -1,11 +1,6 @@
 Attribute VB_Name = "Test_Utils"
 'Sub    TestLogIt(sFuncName As String, bTestPassed As Boolean)
 Const C_MODULE_NAME = "Test_Utils"
-Public Enum TestResult
-    OK = 0
-    Failure = 1
-    Error = 2
-End Enum
 
 Public Const sTestResultEnum = "OK,Failure,Error"
 
@@ -175,16 +170,18 @@ Sub DoProjectTestRunner()
 Dim sIncModules As String
     
     MinimumWindowState
-    'sIncModules = "Test_App_Schedule"
-    'ProjectTestRunner sIncModules
-    'Exit Sub
+    sIncModules = "Test_Exec_Func"
+    'sIncModules = sIncModules & ",Test_Quad_Person_Add"
+    ProjectTestRunner sIncModules
+    Exit Sub
     
-    sIncModules = "Test_App_Schedule"
-    sIncModules = sIncModules & ",Test_App_Schedule_Add"
-    sIncModules = sIncModules & ",Test_App_Person"
-    sIncModules = sIncModules & ",Test_App_Person_Add"
-    
-    sIncModules = sIncModules & ",Test_App_Courses"
+    sIncModules = "Test_Quad_Schedule_View"
+    sIncModules = sIncModules & ",Test_Quad_Schedule_Edit"
+    sIncModules = sIncModules & ",Test_Quad_Schedule_Add"
+    sIncModules = sIncModules & ",Test_Quad_Person"
+    sIncModules = sIncModules & ",Test_Quad_Person_Add"
+    sIncModules = sIncModules & ",Test_Quad_Courses"
+    sIncModules = sIncModules & ",Test_App_Loader"
     sIncModules = sIncModules & ",Test_Array_Utils"
     'sIncModules = sIncModules & ",Test_DB_Utils"
     sIncModules = sIncModules & ",Test_Form_Utils"
@@ -203,6 +200,8 @@ Dim sIncModules As String
     sIncModules = sIncModules & ",Test_XML_utils"
     sIncModules = sIncModules & ",Test_Window_Utils"
     sIncModules = sIncModules & ",Test_Validation_Utils"
+    sIncModules = sIncModules & ",Test_Exec_Func"
+    
 
     ProjectTestRunner sIncModules
 
@@ -274,7 +273,9 @@ Dim eTestResult As TestResult
 Dim sTest As Variant
 Dim wbTmp As Workbook
     
-    Set wbTmp = OpenBook(Environ("MYHOME") & "\\GitHub\\quadviewer\\vba_source_new.xlsm")
+    'Set wbTmp = OpenBook(Environ("MYHOME") & "\\GitHub\\quadviewer\\vba_source_new.xlsm")
+    Set wbTmp = OpenBook("vba_source_new.xlsm", sPath:=Environ("MYHOME") & "\\GitHub\\quadviewer\\")
+    
     'Set dTestCases = GetTestsInModule(Workbooks("vba_source_new.xlsm"), sModuleName)
     Set dTestCases = GetTestsInModule(wbTmp, sModuleName)
     For Each sTestCase In dTestCases

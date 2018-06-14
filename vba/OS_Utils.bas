@@ -45,7 +45,7 @@ Dim iX As Integer
     'Run a shell command, returning the output as a string'
     Set oShell = CreateObject("WScript.Shell")
 
-    Set oExec = oShell.Exec(sCmd)
+    Set oExec = oShell.exec(sCmd)
  
     Set oOutput = oExec.StdOut
     Set oError = oExec.StdErr

@@ -1,16 +1,5 @@
 Attribute VB_Name = "String_Utils"
-Public Const DOUBLEQUOTE = """"
-Public Const HAT = "^"
-Public Const DOUBLEDOLLAR = "$$"
-Public Const DOLLAR = "$"
-Public Const COMMA = ","
-Public Const SPACE = " "
-Public Const BLANK = ""
-Public Const QUOTE = "'"
-Public Const UNDERSCORE = "_"
-Public Const ASTERISK = "*"
-Public Const PERIOD = "."
-Public Const BANG = "!"
+
 
 
 Function InParagraph(sSearchParagraphs As String, sSourceParagraph) As Boolean
@@ -20,7 +9,26 @@ Function InParagraph(sSearchParagraphs As String, sSourceParagraph) As Boolean
     End If
 End Function
 
+Function StartsWith(sValue As String, sStartsWith As String) As Boolean
 
+    If Left(sValue, Len(sStartsWith)) = sStartsWith Then
+        StartsWith = True
+        End Function
+    End If
+    
+    StartsWith = False
+        
+End Function
+Function EndsWith(sValue As String, sEndsWith As String) As Boolean
+
+    If Right(sValue, Len(sEndsWith)) = sEndsWith Then
+        EndsWith = True
+        Exit Function
+    End If
+    
+    EndsWith = False
+        
+End Function
 Function PadStr(sInputStr As String, sDirection As String, iPadLength As Integer, sPadChar As String, _
         Optional bAsciiFlag As Boolean = False, Optional iAscii As Integer) As String
 Dim iInputLen As Integer

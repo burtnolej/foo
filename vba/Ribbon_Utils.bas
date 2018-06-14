@@ -126,11 +126,11 @@ Dim wsSchedule As Worksheet
     End If
     
     sTemplateRowRangeName = "f" & "student" & "ScheduleRowLabel"
-    GetScheduleWidgetFormat clsAppRuntime, iFormatWidth, iFormatHeight, sTemplateRowRangeName
+    GetScheduleCellFormat clsAppRuntime, iFormatWidth, iFormatHeight, sTemplateRowRangeName
     BuildScheduleHeaderView clsAppRuntime, wsSchedule, clsAppRuntime.PeriodEnum, iFormatWidth, iFormatHeight
 
     sTemplateColRangeName = "f" & "student" & "ScheduleColLabel"
-    GetScheduleWidgetFormat clsAppRuntime, iFormatWidth, iFormatHeight, sTemplateColRangeName
+    GetScheduleCellFormat clsAppRuntime, iFormatWidth, iFormatHeight, sTemplateColRangeName
     BuildScheduleHeaderView clsAppRuntime, wsSchedule, clsAppRuntime.DayEnum, iFormatWidth, iFormatHeight, iStartCol:=4, iStartRow:=2, bVz:=False
     
     BuildSchedule clsAppRuntime, _
@@ -147,7 +147,7 @@ Dim sFuncName As String
 Dim vControls() As Variant
 Dim aControlIDSplit() As String
 Dim clsAppRuntime As App_Runtime
-
+Dim dArgs As Dictionary
 setup:
     sFuncName = "OnAction"
     GetLogFile
@@ -163,9 +163,12 @@ setup:
             FuncLogIt sFuncName, "SchedBut ID is incorrectly formed [" & control.id & "] needs to have 3 parts delimed by _", C_MODULE_NAME, LogMsgType.Error
         Else
             Set clsAppRuntime = GetAppRuntimeGlobal(bInitFlag:=True)
-            BuildSchedule clsAppRuntime, _
-                            eQuadSubDataType:=GetQuadSubDataTypeEnumFromValue(aControlIDSplit(1)), _
-                            iPersonID:=CInt(aControlIDSplit(2))
+            
+            AddArgs dArgs, False, "clsAppRuntime", clsAppRuntime, "eQuadSubDataType", GetQuadSubDataTypeEnumFromValue(aControlIDSplit(1)), "iPersonID", CInt(aControlIDSplit(2))
+            Application.Run C_BUILD_SCHEDULE, dArgs
+            'BuildSchedule clsAppRuntime, _
+            '                eQuadSubDataType:=GetQuadSubDataTypeEnumFromValue(aControlIDSplit(1)), _
+            '                iPersonID:=CInt(aControlIDSplit(2))
         End If
              
     ElseIf control.id = "GenerateEntryForm" Then
@@ -331,8 +334,10 @@ Sub rxgal_getItemCount(control As IRibbonControl, ByRef returnedVal)
 Dim vLabelNames As Variant
 Dim clsAppRuntime As New App_Runtime
     clsAppRuntime.InitProperties bInitializeCache:=True
+    GetDefinition clsAppRuntime, "Schedule", "Lesson", "Definitions", FormType.Add
     vLabelNames = GetColumnValues(clsAppRuntime, QuadDataType.Person, QuadSubDataType.Student, "sStudentLastNm")
     returnedVal = UBound(vLabelNames) + 1
+    'clsAppRuntime.TemplateBook.Activate
 End Sub
 
 Sub rxgal_getItemLabel(control As IRibbonControl, index As Integer, ByRef returnedVal)

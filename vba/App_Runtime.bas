@@ -6,7 +6,7 @@ Attribute VB_Name = "App_Runtime"
 Attribute VB_GlobalNameSpace = False
 Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = False
-Attribute VB_Exposed = False
+Attribute VB_Exposed = True
 Option Explicit
 
 Const C_MODULE_NAME = "App_Runtime"
@@ -1080,7 +1080,8 @@ main:
     End If
     
     ' added on 4/17/18 to get dynamic menus to work
-    Me.TemplateBook.Activate
+    Workbooks(Me.MainBookName).Activate
+    'Me.TemplateBook.Activate
 
 cleanup:
     FuncLogIt sFuncName, "", C_MODULE_NAME, LogMsgType.OUTFUNC, lLastTick:=lStartTick

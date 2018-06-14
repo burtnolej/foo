@@ -1,20 +1,6 @@
 Attribute VB_Name = "Log_Utils"
 Public fLogFile As Object
 
-Enum LogMsgType
-    FATAL = 0
-    Error = 1
-    Failure = 2
-    INFO = 3
-    OK = 4
-    DEBUGGING = 7
-    DEBUGGING2 = 13
-    FAIL_TEST = 8
-    PASS_TEST = 9
-    INFUNC = 11
-    OUTFUNC = 12
-End Enum
-
 Const C_LOG_MSG_TYPE = "FATAL,Error,Failure,INFO,OK,,,DEBUGGING,FAIL_TEST,PASS_TEST,,INFUNC,OUTFUNC,DEBUGGING2"
 
 Private clsAppRuntimeGlobal As App_Runtime
@@ -112,7 +98,7 @@ Dim rSource As Range
     
 End Sub
 
-Public Function FuncLogIt(sFuncName As String, sLogMsg As String, sModuleName, eLogMsgType As LogMsgType, _
+Public Function FuncLogIt(ByVal sFuncName As String, sLogMsg As String, sModuleName, eLogMsgType As LogMsgType, _
             Optional sKey As String, Optional lLastTick As Long = -1) As Long
 Dim aLogVals() As String, aLogFilter() As String
 Dim aLogWidths() As Integer

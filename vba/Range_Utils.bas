@@ -340,7 +340,8 @@ Dim rMerge As Range
     Exit Function
 
 err:
-    err.Raise Error_Utils.NOT_SINGLE_WIDGET_RANGE, "range [" & rSource.Address & "] might not be a single cell"
+    
+    err.Raise ErrorMsgType.NOT_SINGLE_WIDGET_RANGE, "range [" & rSource.Address & "] might not be a single cell"
 End Function
 
 

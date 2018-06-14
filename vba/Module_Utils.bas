@@ -50,9 +50,10 @@ Dim VBComp As VBIDE.VBComponent
     VBProj.VBComponents.Remove VBComp
     On Error GoTo 0
 End Sub
-Function GetModule(xlwb As Workbook, sModuleName As String) As VBComponent
+Function GetModule(xlwb As Workbook, sModuleName As String) As Variant
 Dim VBProj As VBIDE.VBProject
 Dim VBComp As VBIDE.VBComponent
+Dim VBRef As VBIDE.Reference
     
     Set VBProj = xlwb.VBProject
     
@@ -62,7 +63,12 @@ Dim VBComp As VBIDE.VBComponent
     Exit Function
     
 err:
-    Debug.Print "here"
+    On Error GoTo err2
+    Set VBRef = VBProj.References(sModuleName)
+    Set GetModule = VBRef
+    Exit Function
+    
+err2:
     Set GetModule = Nothing
     
 End Function
@@ -163,9 +169,11 @@ Dim sFuncName As String
     
 End Function
 Function GetProcsInModules(wb As Workbook, Optional sModuleName As String, _
-            Optional bTestsOnly As Boolean = False) As Dictionary
+            Optional bTestsOnly As Boolean = False, _
+            Optional bAddBookName As Boolean = False) As Dictionary
 Dim VBProj As VBIDE.VBProject
-Dim VBComp As VBIDE.VBComponent
+'Dim VBComp As VBIDE.VBComponent
+Dim VBComp As Variant
 Dim vModuleNames() As String
 Dim iCount As Integer
 ReDim vModuleNames(0 To 100)
@@ -209,6 +217,10 @@ main:
                     'dDetails.Add "BodyLine", VBComp.CodeModule.ProcBodyLine(sProcName, vbext_pk_Proc)
                     dDetails.Add "VBComp", VBComp
                     dDetails.Add "CodeModule", VBComp.CodeModule
+                    
+                    If bAddBookName = True Then
+                        dDetails.Add "BookName", wb.Name
+                    End If
                     dProc.Add sProcName, dDetails
                 End If
             End If
@@ -296,21 +308,31 @@ End Function
 Function GetModules(wb As Workbook) As String()
 Dim VBProj As VBIDE.VBProject
 Dim VBComp As VBIDE.VBComponent
+Dim VBRef As VBIDE.Reference
+
 Dim vModuleNames() As String
 Dim iCount As Integer
 
 setup:
     sFuncName = "GetModules"
-    ReDim vModuleNames(0 To 100)
+    ReDim vModuleNames(0 To 150)
 
 main:
 
     Set VBProj = wb.VBProject
+
     For Each VBComp In VBProj.VBComponents
         vModuleNames(iCount) = VBComp.Name
         iCount = iCount + 1
     Next VBComp
-
+    
+    'For Each VBRef In VBProj.References
+    '    If VBRef.Type = vbext_rk_Project Then
+    '        vModuleNames(iCount) = VBRef.Name
+    '        iCount = iCount + 1
+    '    End If
+    'Next VBRef
+    
     ReDim Preserve vModuleNames(0 To iCount - 1)
     
     GetModules = vModuleNames

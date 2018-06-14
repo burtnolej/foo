@@ -6,7 +6,7 @@ Attribute VB_Name = "RGBColor"
 Attribute VB_GlobalNameSpace = False
 Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = False
-Attribute VB_Exposed = False
+Attribute VB_Exposed = True
 Private pRed As Integer
 Private pGreen As Integer
 Private pBlue As Integer

@@ -48,6 +48,19 @@ Dim w As Variant
     DoEventsOn
     
 End Function
+Public Function BookOpen(sName As String) As Boolean
+
+    BookOpen = True
+    On Error GoTo returnfalse
+    If Workbooks.Item(sName).Name = sName Then
+    End If
+    On Error GoTo 0
+    Exit Function
+    
+returnfalse:
+    Debug.Print
+    BookOpen = False
+End Function
 Public Function BookExists(sName As String) As Boolean
     BookExists = FileExists(sName)
 End Function
@@ -71,7 +84,7 @@ Dim ffFileFormat As XlFileFormat
         sName = sName & ".xls"
         ffFileFormat = xlExcel12
     Else
-        err.Raise Error_Utils.BAD_FILE_EXTENSION, "unsupported file extension"
+        err.Raise ErrorMsgType.BAD_FILE_EXTENSION, "unsupported file extension"
     End If
     
     Set CreateBook = Workbooks.Add
