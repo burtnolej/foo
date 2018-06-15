@@ -51,6 +51,7 @@ main:
         If sFormName <> "" Then
             FuncLogIt sFuncName, "Generating for [sFormName=" & sFormName & "]", C_MODULE_NAME, LogMsgType.INFO
             If sAction <> sFormName Then
+                FuncLogIt sFuncName, "Skipping; as [sAction!=" & sFormName & "] [Target Workbook=" & wbTarget.Name & "] [Action = " & sAction & "]", C_MODULE_NAME, LogMsgType.INFO
                 GoTo nextaction
             End If
         End If
@@ -61,7 +62,6 @@ main:
         Else
             sCallbackFunc = sAction
         End If
-        
         
         ' create the Add sheet and add call back code
         For Each vFormType In Split(C_FORM_TYPE, COMMA)
@@ -76,6 +76,11 @@ main:
             End If
         Next vFormType
         
+        'If SheetExists(wbTarget, CStr(sAction)) = True Then
+        '     FuncLogIt sFuncName, "Skipping; Form Exists [Form Type=" & sFormType & "] [Target Workbook=" & wbTarget.Name & "] [Action = " & sAction & "]", C_MODULE_NAME, LogMsgType.INFO
+        '    GoTo nextaction
+        'End If
+                
         FuncLogIt sFuncName, "Creating Form [Form Type=" & sFormType & "] [Target Workbook=" & wbTarget.Name & "] [Action = " & sAction & "]", C_MODULE_NAME, LogMsgType.INFO
         
         If IsSet(wbTarget) = False Then
@@ -83,7 +88,12 @@ main:
             GoTo nextaction
         End If
     
-        Set wsTmp = CreateSheet(wbTarget, CStr(sAction), bOverwrite:=True)
+        If SheetExists(wbTarget, CStr(sAction)) Then
+            Set wsTmp = GetSheet(wbTarget, CStr(sAction))
+        Else
+            Set wsTmp = CreateSheet(wbTarget, CStr(sAction), bOverwrite:=True)
+        End If
+        
         
         For i = 1 To UBound(Split(C_WIDGET_TYPE, COMMA)) + 1
             eWidgetType = i
@@ -96,16 +106,27 @@ main:
             ElseIf eWidgetType = WidgetType.Text Then
                 GenerateWidgets clsAppRuntime, CStr(sAction), wbTmp:=wbTarget, dDefaultValues:=dDefaultValues, eWidgetType:=eWidgetType, sFormType:=sFormType, sTemplateSheetName:=sTemplateSheetName
             ElseIf eWidgetType = WidgetType.Button Then
+
                 vGenerated = GenerateWidgets(clsAppRuntime, CStr(sAction), wbTmp:=wbTarget, dDefaultValues:=dDefaultValues, eWidgetType:=eWidgetType, sFormType:=sFormType, sTemplateSheetName:=sTemplateSheetName)
+                
                 If IsEmptyArray(vGenerated) = False Then
                     sCode = GenerateCallbackCode(clsAppRuntime, vGenerated, CStr(sAction), sCurrentCode:=sCode, wbTmp:=wbTarget)
                 End If
                 AddCode2Module wbTarget, wsTmp.CodeName, sCode
+
             ElseIf eWidgetType = WidgetType.Selector Then
                 GenerateWidgets clsAppRuntime, CStr(sAction), wbTmp:=wbTarget, dDefaultValues:=dDefaultValues, eWidgetType:=eWidgetType, sFormType:=sFormType, sTemplateSheetName:=sTemplateSheetName
             ElseIf eWidgetType = WidgetType.Entry Then
                 GenerateWidgets clsAppRuntime, CStr(sAction), wbTmp:=wbTarget, dDefaultValues:=dDefaultValues, sTemplateSheetName:=sTemplateSheetName
+                'If IsEmptyArray(vGenerated) = False Then
+                '    sCode = GetEntryCallbackCode(clsAppRuntime, CStr(sAction), wbTarget.Name, eWidgetType:=eWidgetType)
+                'End If
             End If
+            
+            'If sCode <> "" Then
+            '    AddCode2Module wbTarget, wsTmp.CodeName, sCode
+            '    sCode = ""
+            'End If
             
             If eWidgetType = WidgetType.Button Or eWidgetType = WidgetType.Entry Then
                 sCode = GetCallerModuleCode
@@ -138,15 +159,20 @@ Dim lStartTick As Long
 Dim eWidgetType As WidgetType
 Dim eFormType As FormType
 Dim sSubDataType As String, sView As String, sFuncName As String, sValue As String, sLookUpIdRangeName As String, sTableName As String, sDataType As String
-
+Dim dArgs As Dictionary
 setup:
     sFuncName = C_MODULE_NAME & "." & "UpdateViewStudentForm"
     lStartTick = FuncLogIt(sFuncName, "", C_MODULE_NAME, LogMsgType.INFUNC)
     
 main:
-    Set clsAppRuntime = args(0)
-    sValue = args(1)
-    sLookUpIdRangeName = args(2)
+    Set dArgs = args(0)
+    Set clsAppRuntime = dArgs("clsAppRuntime")
+    sValue = dArgs("sValue")
+    sLookUpIdRangeName = dArgs("sKey")
+    
+    'Set clsAppRuntime = args(0)
+    'sValue = args(1)
+    'sLookUpIdRangeName = args(2)
     
     
     'its an update Student view function
@@ -230,7 +256,6 @@ main:
     sDataType = args(6) ' i.e. Person
     
     clsAppRuntime.InitProperties bInitializeCache:=False
- 
  
     sFormName = GetFormName(eFormType, WorksheetFunction.Proper(sDataType), WorksheetFunction.Proper(sSubDataType))
     

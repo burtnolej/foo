@@ -52,7 +52,7 @@ Public Sub DoFilter(wbTmp As Workbook, sSheetName As String, Target As Range)
         
     DoEventsOff
     
-    AddFilterIndexCol Application.ActiveWorkbook, ActiveWorkbook.ActiveSheet.Name, 1000
+    AddFilterIndexCol Application.ActiveWorkbook, ActiveWorkbook.ActiveSheet.Name, 2000
     
     sSheetName = Application.ActiveSheet.Name
     
@@ -176,6 +176,7 @@ Dim iRowNum As Integer
         For j = 1 To rSearch.Areas.Count
         
             'in here create 2 columns 1 for the column being searched and 1 with the orig index
+            Debug.Print rSearch.Areas(j).Address
             Set rSearchFilteredCol = rSearch.Areas(j).Columns(iCol)
             Set rSearchIndex = rSearch.Areas(j).Columns(50)
             Set rFilterHist = rSearch.Areas(j).Columns(iFilterHistColumn)

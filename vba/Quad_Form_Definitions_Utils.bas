@@ -497,7 +497,10 @@ main:
     sCacheTableName = GetCacheTableNameFromDataType(sDataType, sSubDataType)
 
     If eFormType = FormType.ViewList Then
-        sDefn = sDefn & sFormName & HAT & sCacheTableName & HAT & "idStudent^Integer^IsMember^&get_person_student^idStudent^&UpdateListViewScheduleLessonForm^Selector" & DOUBLEDOLLAR
+    
+        'sDefn = sDefn & sFormName & HAT & sCacheTableName & HAT & "idStudent^Integer^IsMember^&get_person_student^idStudent^&UpdateListViewScheduleLessonForm^Selector" & DOUBLEDOLLAR
+        sDefn = sDefn & sFormName & HAT & sCacheTableName & HAT & "idStudent^Integer^IsMember^&get_person_student^idStudent^&GenerateScheduleLessonListView^Selector" & DOUBLEDOLLAR
+        
         sDefn = sDefn & sFormName & HAT & sCacheTableName & HAT & "idStudent^^^^^^ListText" & DOUBLEDOLLAR
         sDefn = sDefn & sFormName & HAT & sCacheTableName & HAT & "idFaculty^^^^^^ListText" & DOUBLEDOLLAR
         sDefn = sDefn & sFormName & HAT & sCacheTableName & HAT & "idSection^^^^^^ListText" & DOUBLEDOLLAR

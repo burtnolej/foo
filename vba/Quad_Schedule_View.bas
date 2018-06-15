@@ -65,48 +65,76 @@ Dim rTemplateSource As Range
     clsAppRuntime.ScheduleBook.Windows(1).Visible = True
 End Function
 
+Public Sub GenerateScheduleLessonListView(dArgs As Dictionary)
 
-Public Sub GenerateScheduleLessonListView(clsAppRuntime As App_Runtime, iStudentID As Integer)
+'Public Sub GenerateScheduleLessonListView(clsAppRuntime As App_Runtime, iStudentID As Integer)
 '<<<
 'purpose: Create a list view type form showing a persons scheduled events
 'param  : clsAppRuntime,App_Runtime; all config controlling names of books, sheets, ranges for
 '       :                 also contains any variables that need to be passed continually
 'rtype  :
 '>>>
-Dim sFuncName As String, sSheetName As String, sDefn As String, sDataType As String, sSubDataType As String
+Dim sFuncName As String, sSheetName As String, sDefn As String, sDataType As String, sSubDataType As String, sFormName As String
 Dim wsTmp As Worksheet
 Dim eTestResult As TestResult
 Dim lStartTick As Long
 Dim vValues() As Variant
 Dim rData As Range, rHeader As Range
+Dim clsAppRuntime As App_Runtime
+Dim iStudentID As Integer
+Dim clsExecProc As New Exec_Proc
 
-setup:
+unpackargs:
+    Set clsAppRuntime = dArgs("clsAppRuntime")
     
+    If dArgs.Exists("sValue") Then
+        ' this has been called by a generic update callback
+        iStudentID = CInt(dArgs.Item("sValue"))
+    Else
+        iStudentID = dArgs("iStudentID")
+    End If
+    
+    If dArgs.Exists("clsExecProc") = False Then
+        clsExecProc.InitProperties wbTmp:=Workbooks(clsAppRuntime.MainBookName)
+    Else
+        Set clsExecProc = dArgs.Item("clsExecProc")
+    End If
+    
+    If dArgs.Exists("sFormName") Then
+        ' generating a specific form not all defined
+        sFormName = dArgs.Item("sFormName")
+    Else
+        sFormName = ""
+    End If
+    
+setup:
     sFuncName = C_MODULE_NAME & "." & "GenerateScheduleListView"
     lStartTick = FuncLogIt(sFuncName, "", C_MODULE_NAME, LogMsgType.INFUNC)
-    sSheetName = "test"
-    CreateSheet clsAppRuntime.TemplateBook, sSheetName, bOverwrite:=True
-    
 main:
+    sSheetName = "test"
     sDataType = "Schedule"
     sSubDataType = "Lesson"
-    GetDefinition clsAppRuntime, sDataType, sSubDataType, sSheetName, FormType.ViewList
+    If SheetExists(clsAppRuntime.TemplateBook, sSheetName) = False Then
+        CreateSheet clsAppRuntime.TemplateBook, sSheetName, bOverwrite:=True
+        GetDefinition clsAppRuntime, sDataType, sSubDataType, sSheetName, FormType.ViewList
+    End If
+                     
+    AddArgs dArgs, False, "iStudentID", iStudentID, "eQuadDataType", QuadDataType.Schedule, "eQuadSubDataType", _
+        QuadSubDataType.Lesson, "eQuadScope", QuadScope.specified, "bInTable", True
     
-      
-    Set wsTmp = GetScheduleData(clsAppRuntime, iStudentID, QuadDataType.Schedule, QuadSubDataType.Lesson, bInTable:=True)
+    Set wsTmp = Application.Run(C_GET_SCHEDULE_DATA, dArgs)
+    'Set wsTmp = GetScheduleData(clsAppRuntime, iStudentID, QuadDataType.Schedule, QuadSubDataType.Lesson, bInTable:=True)
     Set rData = wsTmp.Range("data")
     Set rData = rData.Offset(1).Resize(rData.Rows.Count - 1)
     
     vValues = rData
     
-    GenerateForms clsAppRuntime, vValues:=vValues, bLoadRefData:=True
+    GenerateForms clsAppRuntime, vValues:=vValues, bLoadRefData:=True, sFormName:=sFormName
 
 cleanup:
     FuncLogIt sFuncName, "", C_MODULE_NAME, LogMsgType.OUTFUNC, lLastTick:=lStartTick
     
 End Sub
-
-
 
 'Public Function BuildSchedule(clsAppRuntime As App_Runtime, _
 '                              eQuadSubDataType As QuadSubDataType, _
@@ -129,8 +157,14 @@ Dim clsAppRuntime As App_Runtime
 Dim clsExecProc As Exec_Proc
 
 unpackargs:
-    Set wbMaster = dArgs.Item("wbMaster")
-    'Set wbTmp = dArgs.Item("wbTmp")
+
+    If dArgs.Exists("wbMaster") = False Then
+        ' no versions running, one code book which is the current one
+        Set wbTmp = ActiveWorkbook
+    Else
+        Set wbMaster = dArgs.Item("wbMaster")
+        'Set wbTmp = dArgs.Item("wbTmp")
+    End If
     
     iPersonID = dArgs.Item("iPersonID")
     eQuadSubDataType = dArgs.Item("eQuadSubDataType")
@@ -148,7 +182,7 @@ main:
 
         ' get the raw data from the database and return the filename that holds the results
 
-        AddArgs dArgs, False, "clsAppRuntime", clsAppRuntime, "iPersonID", iPersonID, "eQuadSubDataType", QuadSubDataType.Student
+        'AddArgs dArgs, False, "clsAppRuntime", clsAppRuntime, "iPersonID", iPersonID, "eQuadSubDataType", QuadSubDataType.Student
         clsExecProc.ExecProc "GetPersonScheduleDataFromDB", dArgs
 
         'GetPersonScheduleDataFromDB clsAppRuntime, iPersonID, eQuadSubDataType
@@ -178,16 +212,31 @@ err:
     AddErrorToDict dArgs, iErrorCode:=err.Number, sErrorDesc:=err.Description
 End Function
 
-Public Function GetScheduleData(clsAppRuntime As App_Runtime, _
-                                iPersonID As Integer, _
-                              eQuadDataType As QuadDataType, _
-                              eQuadSubDataType As QuadSubDataType, _
-                     Optional eQuadScope As QuadScope = QuadScope.specified, _
-                     Optional bInTable As Boolean = False) As Worksheet
+Public Function GetScheduleData(dArgs As Dictionary)
+'Public Function GetScheduleData(clsAppRuntime As App_Runtime, _
+'                                iPersonID As Integer, _
+'                              eQuadDataType As QuadDataType, _
+'                              eQuadSubDataType As QuadSubDataType, _
+'                     Optional eQuadScope As QuadScope = QuadScope.specified, _
+'                     Optional bInTable As Boolean = False) As Worksheet
 
 Dim sCacheSheetName As String, sFuncName As String
 Dim aSchedule() As Variant
+Dim clsAppRuntime As App_Runtime
+Dim eQuadDataType As QuadDataType
+Dim eQuadSubDataType As QuadSubDataType
+Dim eQuadScope As QuadScope
+Dim bInTable As Boolean
+Dim iPersonID As Integer
 
+unpackargs:
+    Set clsAppRuntime = dArgs("clsAppRuntime")
+    iPersonID = dArgs.Item("iStudentID")
+    eQuadDataType = dArgs.Item("eQuadDataType")
+    eQuadSubDataType = dArgs.Item("eQuadSubDataType")
+    eQuadScope = dArgs.Item("eQuadScope")
+    bInTable = dArgs.Item("bInTable")
+    
 setup:
     sFuncName = C_MODULE_NAME & "." & "GetScheduleData"
     
@@ -196,7 +245,9 @@ main:
         FuncLogIt sFuncName, "Data cache NOT found for [" & EnumQuadSubDataType(eQuadSubDataType) & "_" & CStr(iPersonID) & "]", C_MODULE_NAME, LogMsgType.INFO
 
         ' get the raw data from the database and return the filename that holds the results
-        GetScheduleLessonDataFromDB clsAppRuntime, iPersonID, eQuadSubDataType
+        AddArgs dArgs, False, "clsAppRuntime", clsAppRuntime, "sPersonId", iPersonID, "eQuadSubDataType", eQuadSubDataType
+        'GetScheduleLessonDataFromDB clsAppRuntime, iPersonID, eQuadSubDataType
+        GetScheduleLessonDataFromDB dArgs
                                      
         ' parse the raw data in the result file and return an array of the data
         aSchedule = ParseRawData(ReadFile(clsAppRuntime.ResultFileName))
@@ -212,20 +263,44 @@ main:
     Set GetScheduleData = clsAppRuntime.CacheBook.Sheets(sCacheSheetName)
 End Function
     
-Public Sub GetScheduleLessonDataFromDB(clsAppRuntime As App_Runtime, _
-                                 sPersonId As Integer, _
-                                 eQuadSubDataType As QuadSubDataType, _
-                        Optional sPeriod As String, _
-                        Optional sDay As String)
+Public Sub GetScheduleLessonDataFromDB(dArgs As Dictionary)
+'Public Sub GetScheduleLessonDataFromDB(clsAppRuntime As App_Runtime, _
+'                                 sPersonId As Integer, _
+'                                 eQuadSubDataType As QuadSubDataType, _
+'                        Optional sPeriod As String, _
+'                        Optional sDay As String)
 
-Dim sResultFileName As String, sSpName As String, sResults As String, sFuncName As String
+Dim sResultFileName As String, sSpName As String, sResults As String, sFuncName As String, sPeriod As String, sDay As String, sPersonId As String
 Dim dSpArgs As New Dictionary
+Dim wbMaster As Workbook, wbTmp As Workbook
+Dim eQuadSubDataType As QuadSubDataType
+Dim clsAppRuntime As App_Runtime
+Dim clsExecProc As New Exec_Proc
 
+unpackargs:
+
+    If dArgs.Exists("wbMaster") = False Then
+        ' no versions running, one code book which is the current one
+        Set wbTmp = ActiveWorkbook
+    Else
+        Set wbMaster = dArgs.Item("wbMaster")
+    End If
+    
+    sPersonId = dArgs.Item("sPersonId")
+    eQuadSubDataType = dArgs.Item("eQuadSubDataType")
+    sPeriod = dArgs.Item("sPeriod")
+    sDay = dArgs.Item("sDay")
+    Set clsAppRuntime = dArgs.Item("clsAppRuntime")
+    If dArgs.Exists("clsExecProc") = False Then
+        clsExecProc.InitProperties wbTmp:=Workbooks(clsAppRuntime.MainBookName)
+    Else
+        Set clsExecProc = dArgs.Item("clsExecProc")
+    End If
 setup:
     sFuncName = C_MODULE_NAME & "." & "GetScheduleLessonDataFromDB"
     
     ' Assertions --------------------------------
-    If IsValidPersonID(clsAppRuntime, sPersonId, eQuadSubDataType) = False Then
+    If IsValidPersonID(clsAppRuntime, CStr(sPersonId), eQuadSubDataType) = False Then
         err.Raise ErrorMsgType.BAD_ARGUMENT, Description:="not a valid person id"
     Else
          FuncLogIt sFuncName, "[" & EnumQuadSubDataType(eQuadSubDataType) & "] id[" & CStr(sPersonId) & "] is VALID", C_MODULE_NAME, LogMsgType.INFO
@@ -253,33 +328,45 @@ main:
 
 End Sub
 
-Public Sub GetPersonScheduleDataFromDB(clsAppRuntime As App_Runtime, _
-                                 sPersonId As Integer, _
-                                 eQuadSubDataType As QuadSubDataType, _
-                        Optional sPeriod As String, _
-                        Optional sDay As String)
 
-Dim sResultFileName As String, sSpName As String, sResults As String, sFuncName As String
+'Public Sub GetPersonScheduleDataFromDB(clsAppRuntime As App_Runtime, _
+'                                 sPersonId As Integer, _
+'                                 eQuadSubDataType As QuadSubDataType, _
+'                        Optional sPeriod As String, _
+'                        Optional sDay As String)
+                        
+Public Sub GetPersonScheduleDataFromDB(dArgs As Dictionary)
+Dim sResultFileName As String, sSpName As String, sResults As String, sFuncName As String, sPeriod As String, sDay As String
 Dim dSpArgs As New Dictionary
+Dim iPersonID As Integer
+Dim eQuadSubDataType As QuadSubDataType
+Dim clsAppRuntime As App_Runtime
+
+unpackargs:
+    Set clsAppRuntime = dArgs.Item("clsAppRuntime")
+    eQuadSubDataType = dArgs.Item("eQuadSubDataType")
+    iPersonID = dArgs.Item("iPersonID")
+    sPeriod = dArgs.Item("sPeriod")
+    sDay = dArgs.Item("sDay")
 
 setup:
-    sFuncName = C_MODULE_NAME & "." & "GetScheduleLessonDataFromDB"
+    sFuncName = C_MODULE_NAME & "." & "GetPersonScheduleDataFromDB"
     
     ' Assertions --------------------------------
-    If IsValidPersonID(clsAppRuntime, sPersonId, eQuadSubDataType) = False Then
+    If IsValidPersonID(clsAppRuntime, CStr(iPersonID), eQuadSubDataType) = False Then
         err.Raise ErrorMsgType.BAD_ARGUMENT, Description:="not a valid person id"
     Else
-         FuncLogIt sFuncName, "[" & EnumQuadSubDataType(eQuadSubDataType) & "] id[" & CStr(sPersonId) & "] is VALID", C_MODULE_NAME, LogMsgType.INFO
+         FuncLogIt sFuncName, "[" & EnumQuadSubDataType(eQuadSubDataType) & "] id[" & CStr(iPersonID) & "] is VALID", C_MODULE_NAME, LogMsgType.INFO
     End If
     ' END Assertions ----------------------------
 
 main:
     If eQuadSubDataType = QuadSubDataType.Student Then
         sSpName = "student_schedule"
-        dSpArgs.Add "students", InitVariantArray(Array(sPersonId))
+        dSpArgs.Add "students", InitVariantArray(Array(iPersonID))
     ElseIf eQuadSubDataType = QuadSubDataType.Teacher Then
         sSpName = "teacher_schedule"
-        dSpArgs.Add "teachers", InitVariantArray(Array(sPersonId))
+        dSpArgs.Add "teachers", InitVariantArray(Array(iPersonID))
     End If
     FuncLogIt sFuncName, "schedule type is [" & EnumQuadSubDataType(eQuadSubDataType) & "] using sp [" & sSpName & "]", C_MODULE_NAME, LogMsgType.INFO
     

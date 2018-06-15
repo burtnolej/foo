@@ -25,7 +25,7 @@ Dim bValidateFields As Boolean
 setup:
     sFuncName = C_MODULE_NAME & "." & "Test_App_Loader_Schedule_Lesson"
     Set wbTmp = OpenBook("vba_source_new.xlsm", sPath:="C:\Users\burtnolej\Documents")
-    Set wbTmp2 = OpenBook("vba_source_new_v2.xlsm", sPath:="C:\Users\burtnolej\Documents")
+    'Set wbTmp2 = OpenBook("vba_source_new_v2.xlsm", sPath:="C:\Users\burtnolej\Documents")
     
     clsAppRuntime.InitProperties bInitializeCache:=True
     sDataType = "Schedule"
@@ -44,14 +44,20 @@ setup:
     Set rTarget = RangeFromStrArray(vSource, wsTmp, 0, 0)
     CreateNamedRangesForLoaderSheet sSheetName, rTarget, clsAppRuntime.CacheBook
 
-    clsExecProc.InitProperties wbTmp:=wbTmp, wbTmp2:=wbTmp2
-    
+    'clsExecProc.InitProperties wbTmp:=wbTmp, wbTmp2:=wbTmp2
+    clsExecProc.InitProperties wbTmp:=wbTmp
 main:
     
     AddArgs dArgs, False, "sDataType", sDataType, "sSubDataType", sSubDataType, "wbMaster", wbTmp, "wbTmp", clsAppRuntime.CacheBook, "bValidateFields", bValidateFields, "clsExecProc", clsExecProc
     clsExecProc.ExecProc "DataLoader", dArgs
 
-    GetScheduleLessonDataFromDB clsAppRuntime, 2, QuadSubDataType.Student, "7", "5"
+    ' get the raw data from the database and return the filename that holds the results
+    AddArgs dArgs, True, "clsAppRuntime", clsAppRuntime, "sPersonId", 2, "eQuadSubDataType", QuadSubDataType.Student, _
+            "sPeriod", "7", "sDay", "5"
+    'GetScheduleLessonDataFromDB clsAppRuntime, iPersonID, eQuadSubDataType
+    GetScheduleLessonDataFromDB dArgs
+        
+    'GetScheduleLessonDataFromDB clsAppRuntime, 2, QuadSubDataType.Student, "7", "5"
 
     If FileExists(clsAppRuntime.ResultFileName) Then
         sResultStr = ReadFile(clsAppRuntime.ResultFileName)
@@ -150,7 +156,7 @@ Dim sSheetName As String, sResultStr As String, sFuncName As String, sDefn As St
 Dim vSource() As String
 Dim wsTmp As Worksheet
 Dim rTarget As Range, rAdd As Range, rButton As Range
-Dim dDefinitions As Dictionary, dDefnDetails As Dictionary
+Dim dDefinitions As Dictionary, dDefnDetails As Dictionary, dArgs As New Dictionary
 Dim eTestResult As TestResult
 Dim clsAppRuntime As New App_Runtime
 Dim sDataType As String, sSubDataType As String
@@ -174,7 +180,9 @@ setup:
     Set rTarget = RangeFromStrArray(vSource, wsTmp, 0, 0)
     CreateNamedRangesForLoaderSheet sSheetName, rTarget, clsAppRuntime.CacheBook
     
-    DataLoader sDataType, sSubDataType, wbTmp:=clsAppRuntime.CacheBook, bValidateFields:=False
+    AddArgs dArgs, True, "sDataType", sDataType, "sSubDataType", sSubDataType, "wbTmp", clsAppRuntime.CacheBook, "bValidateFields", True
+    'DataLoader sDataType, sSubDataType, wbTmp:=clsAppRuntime.CacheBook, bValidateFields:=False
+    DataLoader dArgs
     
     GetPersonDataFromDB clsAppRuntime, QuadSubDataType.Student, eQuadScope:=QuadScope.specified, _
                         iPersonID:=666

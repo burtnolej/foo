@@ -179,6 +179,9 @@ setup:
 main:
     If SheetExists(wb, sSheetName) = True And bOverwrite = True Then
         Call DeleteSheet(wb, sSheetName)
+    Else
+        'Set CreateSheet = GetSheet(wb, sSheetName)
+        'Exit Function
     End If
     
     Set CreateSheet = wb.Sheets.Add()

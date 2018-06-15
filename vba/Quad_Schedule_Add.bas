@@ -7,7 +7,7 @@ Dim sSpName As String
 Dim iWidth As Integer, iHeight As Integer, iNextClassLectureID As Integer, i As Integer, iOrigLastCol As Integer
 Dim clsAppRuntime As Object
 Dim eQuadSubDataType As QuadSubDataType
-Dim wbMaster As Workbook
+'Dim wbMaster As Workbook
 Dim vRows As Variant, vColumns As Variant
 
 unpackargs:
@@ -15,7 +15,7 @@ unpackargs:
     eQuadSubDataType = dArgs.Item("eQuadSubDataType")
     vRows = dArgs.Item("vRows")
     vColumns = dArgs.Item("vColumns")
-    Set wbMaster = dArgs.Item("wbMaster")
+    'Set wbMaster = dArgs.Item("wbMaster")
 
 setup:
     iWidth = UBound(vRows, 2) - LBound(vRows, 2) + 1

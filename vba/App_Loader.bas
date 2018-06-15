@@ -29,15 +29,24 @@ Dim wsCacheTable As Worksheet
 Dim dRecordValues As Dictionary
 Dim eFormType As FormType
 Dim wbTmp As Workbook, wbMaster As Workbook
-Dim clsExecProc As Exec_Proc
+Dim clsExecProc As New Exec_Proc
 
 unpackargs:
     sDataType = dArgs.Item("sDataType")
     sSubDataType = dArgs.Item("sSubDataType")
-    Set wbMaster = dArgs.Item("wbMaster")
-    Set wbTmp = dArgs.Item("wbTmp")
-    Set clsExecProc = dArgs.Item("clsExecProc")
     
+    If dArgs.Exists("wbMaster") = False Then
+        Set wbMaster = ActiveWorkbook
+    Else
+        Set wbMaster = dArgs.Item("wbMaster")
+    End If
+    
+    Set wbTmp = dArgs.Item("wbTmp")
+    If dArgs.Exists("clsExecProc") = False Then
+        clsExecProc.InitProperties wbTmp:=wbMaster
+    Else
+        Set clsExecProc = dArgs.Item("clsExecProc")
+    End If
     bValidateFields = dArgs.Item("bValidateFields")
 
 setup:

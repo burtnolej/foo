@@ -24,7 +24,7 @@ End Function
 Public Sub AddErrorToDict(ByRef dTmp As Dictionary, Optional iErrorCode As Integer, _
                     Optional sErrorDesc As String, Optional vResult As Variant = -1)
     
-    dTmp.Add "result", vResult
+    AddDict dTmp, "result", vResult, bUpdate:=True
     
     If iErrorCode <> 0 Then
         dTmp.Add "error_code", iErrorCode

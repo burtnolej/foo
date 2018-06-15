@@ -260,23 +260,24 @@ class Test_InsertBasicScheduleStudent(Test_Base):
 if __name__ == "__main__":
     suite = unittest.TestSuite()   
 
-    suite.addTest(unittest.TestLoader().loadTestsFromTestCase(Test_UpdateStudent))
+    '''suite.addTest(unittest.TestLoader().loadTestsFromTestCase(Test_UpdateStudent))
     suite.addTest(unittest.TestLoader().loadTestsFromTestCase(Test_UpdateBasicStudentInfo_StudentLevel))
     
     suite.addTest(unittest.TestLoader().loadTestsFromTestCase(Test_InsertStudent))
     suite.addTest(unittest.TestLoader().loadTestsFromTestCase(Test_InsertStudentLevel))
     suite.addTest(unittest.TestLoader().loadTestsFromTestCase(Test_InsertStudent_ExtraColumns))
+    '''
     
-    suite.addTest(unittest.TestLoader().loadTestsFromTestCase(Test_InsertBasicStudentInfo))
-    suite.addTest(unittest.TestLoader().loadTestsFromTestCase(Test_GetStudentScheduleArgs))
+    '''suite.addTest(unittest.TestLoader().loadTestsFromTestCase(Test_InsertBasicStudentInfo))
+    suite.addTest(unittest.TestLoader().loadTestsFromTestCase(Test_GetStudentScheduleArgs))'''
     suite.addTest(unittest.TestLoader().loadTestsFromTestCase(Test_GetBasicStudentInfo))
-    suite.addTest(unittest.TestLoader().loadTestsFromTestCase(Test_GetBasicTeacherInfo))
+    '''suite.addTest(unittest.TestLoader().loadTestsFromTestCase(Test_GetBasicTeacherInfo))
     suite.addTest(unittest.TestLoader().loadTestsFromTestCase(Test_GetStudentSchedule))
     suite.addTest(unittest.TestLoader().loadTestsFromTestCase(TestGetTeacherSchedule))
     suite.addTest(unittest.TestLoader().loadTestsFromTestCase(TestGetStudentsPerClassByTeacher))
-    suite.addTest(unittest.TestLoader().loadTestsFromTestCase(Test_GetStudentScheduleArgs_Columns))
-    suite.addTest(unittest.TestLoader().loadTestsFromTestCase(Test_GetAllBasicStudentInfo))
-    suite.addTest(unittest.TestLoader().loadTestsFromTestCase(Test_GetAllBasicTeacherInfo))
+    suite.addTest(unittest.TestLoader().loadTestsFromTestCase(Test_GetStudentScheduleArgs_Columns))'''
+    #suite.addTest(unittest.TestLoader().loadTestsFromTestCase(Test_GetAllBasicStudentInfo))
+    '''suite.addTest(unittest.TestLoader().loadTestsFromTestCase(Test_GetAllBasicTeacherInfo))
     suite.addTest(unittest.TestLoader().loadTestsFromTestCase(Test_GetCourseInfo))
     suite.addTest(unittest.TestLoader().loadTestsFromTestCase(Test_GetSubjectInfo))
     suite.addTest(unittest.TestLoader().loadTestsFromTestCase(Test_GetAllCourseInfo))
@@ -293,5 +294,5 @@ if __name__ == "__main__":
 
     suite.addTest(unittest.TestLoader().loadTestsFromTestCase(Test_GetScheduleLesson))
     suite.addTest(unittest.TestLoader().loadTestsFromTestCase(Test_GetScheduleLesson_1Lesson))
-    
+    '''
     unittest.TextTestRunner(verbosity=2).run(suite)    

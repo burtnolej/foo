@@ -13,13 +13,15 @@ Dim wsCache As Worksheet
 Dim iIndex As Integer
 Dim dAllDefaultValues As New Dictionary, dDefaultValues As New Dictionary
 Dim clsAppRuntime As New App_Runtime
+Dim dArgs As New Dictionary
 
     clsAppRuntime.InitProperties bInitializeCache:=False
-    'Set Form_Utils.dDefinitions = LoadDefinitions(clsAppRuntime.TemplateBook.Sheets("Definitions"), _
-    '            rSource:=clsAppRuntime.TemplateBook.Sheets("Definitions").Range("Definitions"))
     
-    Set wsCache = GetScheduleData(clsAppRuntime, iPersonID, QuadDataType.Schedule, eQuadSubDataType, bInTable:=True)
-        
+    AddArgs dArgs, False, "clsAppRuntime", clsAppRuntime, "iStudentID", iPersonID, "eQuadDataType", QuadDataType.Schedule, _
+                    "eQuadSubDataType", eQuadSubDataType, "bInTable", True
+    'Set wsCache = GetScheduleData(clsAppRuntime, iPersonID, QuadDataType.Schedule, eQuadSubDataType, bInTable:=True)
+    Set wsCache = GetScheduleData(dArgs)
+    
     vPeriodIds = GetColumnValues(clsAppRuntime, QuadDataType.Schedule, QuadSubDataType.Lesson, _
                 "idTimePeriod", iPersonID:=iPersonID)
     vTmp = IndexArrayMulti(vPeriodIds, CStr(iPeriodID))

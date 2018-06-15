@@ -1,5 +1,6 @@
 
 from app.quad.utils.data_utils import *
+from app.quad.utils.data_utils_v2 import *
 from utils.excel.excel_utils import ExcelBase
 from utils.misc_basic.misc_utils import os_dir_exists, encode, decode, os_file_exists
 from utils.misc_basic.xml_utils import xmlstr2dict
@@ -62,22 +63,28 @@ class DataStoredProcBase(ExcelBase):
         from sys import modules
         from utils.misc_basic.module_utils import _getmembers
         
-        module = modules['app.quad.utils.data_utils']
-        module_members = _getmembers(module)
         
         if self.sp_name.startswith("insert_") == False and self.sp_name.startswith("delete_") == False and self.sp_name.startswith("update_") == False:
             sp_func_name = "get_" + self.sp_name
         else:
             sp_func_name = self.sp_name
             
-        if hasattr(module,sp_func_name) == False:
-            return [-1]
-        setattr(self,'sp_name',sp_func_name)
-        setattr(self,'sp_module','app.quad.utils.data_utils')
-        
-        log.log(PRIORITY.INFO,msg="located qry function; member attr sp_name set to ["+sp_func_name+"]")
-            
-        return True
+        for _module in ['app.quad.utils.data_utils','app.quad.utils.data_utils_v2']:
+            #module = modules['app.quad.utils.data_utils']
+            module = modules[_module]
+            module_members = _getmembers(module)
+                
+            if hasattr(module,sp_func_name) == True:
+                setattr(self,'sp_name',sp_func_name)
+                #setattr(self,'sp_module','app.quad.utils.data_utils')
+                setattr(self,'sp_module',_module)
+                
+                log.log(PRIORITY.INFO,msg="located qry function; member attr sp_name set to ["+sp_func_name+"]")
+                return True
+            #    return [-1]
+            #return True
+    
+        return [-1]
     
     @classmethod    
     def _validate_sp_args(self,encoding="unicode"):

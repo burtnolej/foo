@@ -104,6 +104,7 @@ Public Function GetColumnValues(clsAppRuntime As App_Runtime, _
 Dim wsCache As Worksheet
 Dim sLookUpRangeName As String
 Dim sFuncName As String
+Dim dArgs As New Dictionary
 
 setup:
     sFuncName = C_MODULE_NAME & "." & "GetColumnValues"
@@ -111,7 +112,11 @@ setup:
 
 main:
     If eQuadDataType = QuadDataType.Schedule Then
-        Set wsCache = GetScheduleData(clsAppRuntime, iPersonID, eQuadDataType, eQuadSubDataType, bInTable:=True)
+        AddArgs dArgs, False, "clsAppRuntime", clsAppRuntime, "iStudentID", iPersonID, "eQuadDataType", QuadDataType.Schedule, _
+                    "eQuadSubDataType", eQuadSubDataType, "bInTable", True
+
+        'AddArgs dArgs, False, "bInTable", True, "iPersonID", iPersonID
+        Set wsCache = Application.Run(C_GET_SCHEDULE_DATA, dArgs)
     Else
         Set wsCache = GetPersonData(clsAppRuntime, eQuadDataType, eQuadSubDataType, QuadScope.all, bInTable:=True)
     End If

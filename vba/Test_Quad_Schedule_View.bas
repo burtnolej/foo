@@ -20,6 +20,7 @@ Dim sScheduleName As String, sSchedulePath As String, sNewSchedulePath As String
 Dim lStartTick As Long
 Dim eTestResult As TestResult
 Dim rTarget As Range, rViewListColumn As Range
+Dim dArgs As New Dictionary
 
 setup:
     ChDir "C:\Users\burtnolej\Documents\runtime"
@@ -32,7 +33,10 @@ setup:
                                   bSetWindows:=False
 
 main:
-    GenerateScheduleLessonListView clsAppRuntime, 2
+    
+    AddArgs dArgs, False, "clsAppRuntime", clsAppRuntime, "iStudentID", 2
+    'GenerateScheduleLessonListView clsAppRuntime, 2
+    GenerateScheduleLessonListView dArgs
         
     Set rViewListColumn = clsAppRuntime.ViewBook.Sheets("ViewList_Schedule_Lesson").Range("lViewList_Schedule_Lesson_idStudent")
     
@@ -53,8 +57,6 @@ teardown:
     
 End Function
 
-    
-
 Public Function Test_BuildSchedule_Student_OverideScheduleBook() As TestResult
 '"" get a full schedule for 1 student, parse and put into a backsheet
 '""
@@ -66,12 +68,17 @@ Dim aColumnWidths() As Integer
 Dim iFormatWidth As Integer, iFormatHeight As Integer, iColWidthCount As Integer, iPersonID As Integer
 Dim clsAppRuntime As New App_Runtime
 Dim sScheduleName As String, sSchedulePath As String
+Dim clsExecProc As New Exec_Proc
+Dim dArgs As New Dictionary
 
     clsAppRuntime.InitProperties sScheduleBookName:=sScheduleName, sScheduleBookPath:=sSchedulePath
     iPersonID = 70
     GetDefinition clsAppRuntime, "Schedule", "Student", "test", FormType.Add
-    Set wsSchedule = BuildSchedule(clsAppRuntime, QuadSubDataType.Student, iPersonID)
-                              
+    
+    clsExecProc.InitProperties wbTmp:=ActiveWorkbook
+    AddArgs dArgs, True, "clsExecProc", clsExecProc, "clsAppRuntime", clsAppRuntime, "iPersonID", iPersonID, "eQuadSubDataType", QuadSubDataType.Student
+    Set wsSchedule = BuildSchedule(dArgs)
+    
     With wsSchedule
         Set rResult = .Range("L20:M23")
         
@@ -211,22 +218,43 @@ Dim wsSchedule As Worksheet
 Dim aColumnWidths() As Integer
 Dim iFormatWidth As Integer, iFormatHeight As Integer, iColWidthCount As Integer, iPersonID As Integer
 Dim clsAppRuntime As New App_Runtime
+Dim clsExecProc As New Exec_Proc
+Dim dArgs As New Dictionary
 
+    
 setup:
     clsAppRuntime.InitProperties bInitializeCache:=True
     iPersonID = 70
     GetDefinition clsAppRuntime, "Schedule", "Student", "test", FormType.Add
-    Set wsSchedule = BuildSchedule(clsAppRuntime, QuadSubDataType.Student, iPersonID)
-    Set wsSchedule = BuildSchedule(clsAppRuntime, QuadSubDataType.Student, iPersonID - 1)
-    Set wsSchedule = BuildSchedule(clsAppRuntime, QuadSubDataType.Student, iPersonID - 2)
-    Set wsSchedule = BuildSchedule(clsAppRuntime, QuadSubDataType.Student, iPersonID - 3)
-    Set wsSchedule = BuildSchedule(clsAppRuntime, QuadSubDataType.Student, iPersonID - 4)
-                              
+    
+    clsExecProc.InitProperties wbTmp:=ActiveWorkbook
+    AddArgs dArgs, True, "clsExecProc", clsExecProc, "clsAppRuntime", clsAppRuntime, "iPersonID", iPersonID, "eQuadSubDataType", QuadSubDataType.Student
+    Set wsSchedule = BuildSchedule(dArgs)
+    
+    AddDict dArgs, "iPersonID", iPersonID - 1, bUpdate:=True
+    Set wsSchedule = BuildSchedule(dArgs)
+    
+    AddDict dArgs, "iPersonID", iPersonID - 2, bUpdate:=True
+    Set wsSchedule = BuildSchedule(dArgs)
+    
+    AddDict dArgs, "iPersonID", iPersonID - 3, bUpdate:=True
+    Set wsSchedule = BuildSchedule(dArgs)
+    
+    AddDict dArgs, "iPersonID", iPersonID - 4, bUpdate:=True
+    Set wsSchedule = BuildSchedule(dArgs)
+
     With ActiveWorkbook
-        If "view_student_66,schedule_student_66,view_student_67,schedule_student_67,view_student_68,schedule_student_68,view_student_69,schedule_student_69,view_student_70,schedule_student_70,person_student" <> Join(GetSheets(clsAppRuntime.CacheBook), ",") Then
+        If "view_student_66,view_student_67,view_student_68,view_student_69,view_student_70,Sheet1" <> Join(GetSheets(clsAppRuntime.ScheduleBook), ",") Then
             eTestResult = TestResult.Failure
             GoTo teardown
         End If
+        
+        If "person_student,schedule_student_70,schedule_student_69,schedule_student_68,schedule_student_67,schedule_student_66,Sheet1" <> Join(GetSheets(clsAppRuntime.CacheBook), ",") Then
+            Debug.Print Join(GetSheets(clsAppRuntime.CacheBook), ",")
+            eTestResult = TestResult.Failure
+            GoTo teardown
+        End If
+
     End With
     eTestResult = TestResult.OK
     GoTo teardown
@@ -314,14 +342,18 @@ Dim wsSchedule As Worksheet
 Dim aColumnWidths() As Integer
 Dim iFormatWidth As Integer, iFormatHeight As Integer, iColWidthCount As Integer, iPersonID As Integer
 Dim clsAppRuntime As New App_Runtime
+Dim clsExecProc As New Exec_Proc
+Dim dArgs As New Dictionary
 
-    clsAppRuntime.InitProperties
-            
-    iPersonID = 70
-
-    GetDefinition clsAppRuntime, "Schedule", "Student", "test", FormType.Add
+setup:
     
-    Set wsSchedule = BuildSchedule(clsAppRuntime, QuadSubDataType.Student, iPersonID)
+    clsAppRuntime.InitProperties
+    iPersonID = 70
+    GetDefinition clsAppRuntime, "Schedule", "Student", "test", FormType.Add
+
+    clsExecProc.InitProperties wbTmp:=ActiveWorkbook
+    AddArgs dArgs, True, "clsExecProc", clsExecProc, "clsAppRuntime", clsAppRuntime, "iPersonID", iPersonID, "eQuadSubDataType", QuadSubDataType.Student
+    Set wsSchedule = BuildSchedule(dArgs)
                               
     With wsSchedule
         
@@ -370,18 +402,26 @@ Dim wsSchedule As Worksheet
 Dim aColumnWidths() As Integer
 Dim iFormatWidth As Integer, iFormatHeight As Integer, iColWidthCount As Integer, iPersonID As Integer
 Dim clsAppRuntime As New App_Runtime
+Dim clsExecProc As New Exec_Proc
+Dim dArgs As New Dictionary
 
 setup:
     clsAppRuntime.InitProperties bInitializeCache:=True
     iPersonID = 70
     GetDefinition clsAppRuntime, "Schedule", "Student", "test", FormType.Add
+
+    clsExecProc.InitProperties wbTmp:=ActiveWorkbook
+    AddArgs dArgs, True, "clsExecProc", clsExecProc, "clsAppRuntime", clsAppRuntime, "iPersonID", iPersonID, "eQuadSubDataType", QuadSubDataType.Student
     
-    GetPersonScheduleDataFromDB clsAppRuntime, iPersonID, QuadSubDataType.Student
+    'GetPersonScheduleDataFromDB clsAppRuntime, iPersonID, QuadSubDataType.Student
+    GetPersonScheduleDataFromDB dArgs
     aSchedule = ParseRawData(ReadFile(clsAppRuntime.ResultFileName))
     sCacheSheetName = CacheData(clsAppRuntime, aSchedule, QuadDataType.Schedule, QuadSubDataType.Student, iPersonID)
     
 main:
-    Set wsSchedule = BuildSchedule(clsAppRuntime, QuadSubDataType.Student, iPersonID)
+
+    Set wsSchedule = BuildSchedule(dArgs)
+    'Set wsSchedule = BuildSchedule(clsAppRuntime, QuadSubDataType.Student, iPersonID)
                               
     With wsSchedule
         Set rResult = .Range("L20:M23")
@@ -424,13 +464,19 @@ Dim iPersonID As Integer
 Dim eTestResult As TestResult
 Dim aSchedule() As Variant
 Dim clsAppRuntime As New App_Runtime
+Dim clsExecProc As New Exec_Proc
+Dim dArgs As New Dictionary
 
 setup:
     clsAppRuntime.InitProperties bInitializeCache:=True, sDefinitionSheetName:="test"
     iPersonID = 70
     GetDefinition clsAppRuntime, "Schedule", "Student", "test", FormType.Add
     
-    GetPersonScheduleDataFromDB clsAppRuntime, iPersonID, QuadSubDataType.Student
+    clsExecProc.InitProperties wbTmp:=ActiveWorkbook
+    AddArgs dArgs, True, "clsExecProc", clsExecProc, "clsAppRuntime", clsAppRuntime, "iPersonID", iPersonID, "eQuadSubDataType", QuadSubDataType.Student
+
+    'GetPersonScheduleDataFromDB clsAppRuntime, iPersonID, QuadSubDataType.Student
+    GetPersonScheduleDataFromDB dArgs
     aSchedule = ParseRawData(ReadFile(clsAppRuntime.ResultFileName))
     sCacheSheetName = CacheData(clsAppRuntime, aSchedule, QuadDataType.Schedule, QuadSubDataType.Student, iPersonID)
  
@@ -460,16 +506,22 @@ Dim iPersonID As Integer
 Dim eTestResult As TestResult
 Dim aSchedule() As Variant
 Dim clsAppRuntime As New App_Runtime
+Dim clsExecProc As New Exec_Proc
+Dim dArgs As New Dictionary
 
 setup:
     clsAppRuntime.InitProperties bInitializeCache:=True
-    
     iPersonID = 70
+
+    clsExecProc.InitProperties wbTmp:=ActiveWorkbook
+    AddArgs dArgs, True, "clsExecProc", clsExecProc, "clsAppRuntime", clsAppRuntime, "iPersonID", iPersonID, "eQuadSubDataType", QuadSubDataType.Student
+
+    'GetPersonScheduleDataFromDB clsAppRuntime, iPersonID, QuadDataType.Schedule
+    GetPersonScheduleDataFromDB dArgs
     
-    GetPersonScheduleDataFromDB clsAppRuntime, iPersonID, QuadDataType.Schedule
     aSchedule = ParseRawData(ReadFile(clsAppRuntime.ResultFileName))
  
-    If aSchedule(46, 10) <> 1476 Then
+    If aSchedule(46, 10) <> 1573 Then
         eTestResult = TestResult.Failure
         GoTo teardown
     Else
@@ -492,14 +544,20 @@ Dim sResultStr As String
 Dim iPersonID As Integer
 Dim eTestResult As TestResult
 Dim clsAppRuntime As New App_Runtime
+Dim clsExecProc As New Exec_Proc
+Dim dArgs As New Dictionary
 
 setup:
     clsAppRuntime.InitProperties bInitializeCache:=True
     iPersonID = 70
     GetDefinition clsAppRuntime, "Schedule", "Student", "test", FormType.Add
-    
+
+    clsExecProc.InitProperties wbTmp:=ActiveWorkbook
+    AddArgs dArgs, True, "clsExecProc", clsExecProc, "clsAppRuntime", clsAppRuntime, "iPersonID", iPersonID, "eQuadSubDataType", QuadSubDataType.Student, "sPeriod", "1,2", "sDay", "M,F"
+
 main:
-    GetPersonScheduleDataFromDB clsAppRuntime, iPersonID, QuadSubDataType.Student, sPeriod:="1,2", sDay:="M,F"
+    'GetPersonScheduleDataFromDB clsAppRuntime, iPersonID, QuadSubDataType.Student, sPeriod:="1,2", sDay:="M,F"
+    GetPersonScheduleDataFromDB dArgs
 
    If FileExists(clsAppRuntime.ResultFileName) Then
         sResultStr = ReadFile(clsAppRuntime.ResultFileName)
@@ -531,13 +589,20 @@ Dim sResultStr As String, sExpectedResult As String
 Dim iPersonID As Integer
 Dim eTestResult As TestResult
 Dim clsAppRuntime As New App_Runtime
+Dim clsExecProc As New Exec_Proc
+Dim dArgs As New Dictionary
 
 setup:
     clsAppRuntime.InitProperties bInitializeCache:=True
     iPersonID = 70
 
+
+    clsExecProc.InitProperties wbTmp:=ActiveWorkbook
+    AddArgs dArgs, True, "clsExecProc", clsExecProc, "clsAppRuntime", clsAppRuntime, "iPersonID", iPersonID, "eQuadSubDataType", QuadSubDataType.Student, "sPeriod", "1"
+
 main:
-    GetPersonScheduleDataFromDB clsAppRuntime, iPersonID, QuadSubDataType.Student, sPeriod:="1"
+    'GetPersonScheduleDataFromDB clsAppRuntime, iPersonID, QuadSubDataType.Student, sPeriod:="1"
+    GetPersonScheduleDataFromDB dArgs
     
     If FileExists(clsAppRuntime.ResultFileName) Then
         sResultStr = ReadFile(clsAppRuntime.ResultFileName)

@@ -30,6 +30,8 @@ Dim eTestResult As TestResult
 Dim clsAppRuntime As New App_Runtime
 Dim vRows() As Variant, vColumns() As Variant
 Dim sResultStr As String, sSheetName As String
+Dim clsExecProc As New Exec_Proc
+Dim dArgs As New Dictionary
 
 setup:
     On Error GoTo err
@@ -38,12 +40,16 @@ setup:
     GetDefinition clsAppRuntime, "Schedule", "Lesson", sSheetName, FormType.Add
     vRows = Init2DVariantArray([{2,994,5,7,1,700;2,994,5,8,2,700;2,994,5,9,3,700}])
     vColumns = InitVariantArray(Array("idStudent", "idFaculty", "idDay", "idTimePeriod", "idLocation", "idSection"))
-     
+
 main:
-    
-    InsertScheduleLessonDataToDB clsAppRuntime, QuadSubDataType.Student, vRows, vColumns
-    
-    GetScheduleLessonDataFromDB clsAppRuntime, 2, QuadSubDataType.Student, "7", "5"
+    clsExecProc.InitProperties wbTmp:=ActiveWorkbook
+    AddArgs dArgs, True, "clsExecProc", clsExecProc, "clsAppRuntime", clsAppRuntime, _
+            "eQuadSubDataType", QuadSubDataType.Student, "vRows", vRows, "vColumns", vColumns
+    InsertScheduleLessonDataToDB dArgs
+
+    AddArgs dArgs, True, "clsExecProc", clsExecProc, "clsAppRuntime", clsAppRuntime, _
+            "eQuadSubDataType", QuadSubDataType.Student, "sPeriod", "7", "sDay", "5", "sPersonId", "2"
+    GetScheduleLessonDataFromDB dArgs
 
     If FileExists(clsAppRuntime.ResultFileName) Then
         sResultStr = ReadFile(clsAppRuntime.ResultFileName)
@@ -98,8 +104,6 @@ main:
     clsAppRuntime.CloseRuntimeCacheFile
 
     With clsAppRuntime.AddBook.Sheets(sTargetSheetName)
-        'vEntryValues = InitStringArray(Array("2", "1", "700", "F", "7"))
-        'vEntryValues = InitStringArray(Array("2", "994", "1", "700", "5", "7"))
         vEntryValues = InitStringArray(Array("2", "994", "700", "1", "5", "7"))
         
         FillEntryValues vEntryValues, 2, 2, sTargetSheetName, 6, wbTmp:=clsAppRuntime.AddBook
@@ -107,16 +111,10 @@ main:
         IsRecordValid clsAppRuntime.TemplateBook, clsAppRuntime.AddBook, "Add_Schedule_Lesson", clsAppRuntime.TemplateWidgetSheetName
 
         Set rWidget = AddScheduleLesson()
-
-        'vEntryValues = InitStringArray(Array("2", "2", "700", "F", "8"))
-        'vEntryValues = InitStringArray(Array("2", "994", "1", "700", "5", "8"))
         vEntryValues = InitStringArray(Array("2", "994", "700", "1", "5", "8"))
         FillEntryValues vEntryValues, 2, 2, sTargetSheetName, 6, wbTmp:=clsAppRuntime.AddBook
         
         Set rWidget = AddScheduleLesson()
-        
-        'vEntryValues = InitStringArray(Array("2", "3", "700", "F", "9"))
-        'vEntryValues = InitStringArray(Array("2", "994", "1", "700", "5", "9"))
         vEntryValues = InitStringArray(Array("2", "994", "700", "1", "5", "9"))
         FillEntryValues vEntryValues, 2, 2, sTargetSheetName, 6, wbTmp:=clsAppRuntime.AddBook
         

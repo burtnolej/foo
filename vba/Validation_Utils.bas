@@ -57,7 +57,7 @@ Public Function ValidateWidget(wbBook As Workbook, sSheetName As String, rTarget
 'rtype  :
 '>>>
 Dim sFuncName As String, sDefnName As String, sActionFuncName As String, sValidType As String
-Dim dDefnDetail As Dictionary
+Dim dDefnDetail As Dictionary, dArgs As New Dictionary
 Dim clsAppRuntime As New App_Runtime
 Dim lStartTick As Long
 
@@ -90,7 +90,13 @@ main:
         Set dDefnDetail = dDefinitions.Item(sDefnName)
         If dDefnDetail.Item("ActionName") <> "" Then
             sActionFuncName = Right(dDefnDetail.Item("ActionName"), Len(dDefnDetail.Item("ActionName")) - 1)
-            Application.Run sActionFuncName, clsAppRuntime, rTarget.value, rTarget.Name.Name
+            
+            'make this dArgs and make the callback the GenerateScheduleLessonListView
+            AddArgs dArgs, True, "clsAppRuntime", clsAppRuntime, "sValue", rTarget.value, _
+                    "sKey", rTarget.Name.Name, "sFormName", sSheetName
+                    
+            'Application.Run sActionFuncName, clsAppRuntime, rTarget.value, rTarget.Name.Name
+            Application.Run sActionFuncName, dArgs
         End If
     
         Exit Function

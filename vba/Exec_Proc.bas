@@ -164,7 +164,7 @@ Sub ExecProc(sProcName As String, ByRef dArgs As Dictionary)
 '>>>
 ' base function must be in 1st passed workbook
 Dim dProcs As Dictionary
-Dim sFullProcPath As String, sVerSeries As String, sExecName As String, sProcNames As String, sVerSeriesTmp As String, sFuncName As String, sModuleName As String, sBookName As String
+Dim sFullProcPath As String, sVerSeries As String, sExecName As String, sProcNames As String, sVerSeriesTmp As String, sFuncName As String, sModuleName As String, sBookName As String, sErrorDesc As String
 Dim vProcNames() As String
 Dim iVerNum As Integer, iVerNumTmp As Integer, i As Integer
 Dim vKey As Variant
@@ -172,13 +172,13 @@ Dim lStartTick As Long, lEndtTick As Long
 
 setup:
     sFuncName = C_MODULE_NAME & "." & "sProcName"
-    On Error GoTo err
+    'On Error GoTo err
     
 main:
     sVerSeries = dArgs.Item("ver_series")
     sFullProcPath = sVerSeries & "__" & sProcName
     
-    On Error GoTo err
+    On Error GoTo err1
     Set dProcs = Me.GetProcInstances(sProcName)
     On Error GoTo 0
     
@@ -214,15 +214,13 @@ exec:
 
     lStartTick = FuncLogIt(sExecName, "", sModuleName, LogMsgType.INFUNC)
     'dArgs.Add "result", Application.Run(sExecName, dArgs)
+    On Error GoTo err2
     Application.Run sExecName, dArgs
+    On Error GoTo 0
     
     AddDict dArgs, "exec_version", sVerSeries
     AddDict dArgs, "exec_book", sBookName
     AddDict dArgs, "exec_module", sModuleName
-
-    'dArgs.Add "exec_version", sVerSeries
-    'dArgs.Add "exec_book", sBookName
-    'dArgs.Add "exec_module", sModuleName
 
     ' this is needed because errors cannot be thrown through Application.Run
     
@@ -238,7 +236,14 @@ cleanup:
     Exit Sub
         
     
-err:
+err2:
+    If err.Number = 449 Then
+        sErrorDesc = "[sFullProcPath=" & sFullProcPath & "] needs to support dictionary args / ExecProc"
+        FuncLogIt sFuncName, "[sErrorDesc=" & sErrorDesc & "]  raised", C_MODULE_NAME, LogMsgType.Error
+        err.Raise ErrorMsgType.FUNC_NEEDS_TO_SUPPORT_EXEC_PROC_ARGS, Description:=sErrorDesc
+    End If
+    
+err1:
     dArgs.Add "result", -1
     dArgs.Add "exec_version", "None"
     FuncLogIt sFuncName, "[" & err.Description & "]  raised", C_MODULE_NAME, LogMsgType.Error

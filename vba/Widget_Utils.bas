@@ -296,6 +296,14 @@ main:
      
         For Each sKey In dDefinitions.Keys()
         
+            ' only go further if named range has not been created previously or its a view widget as we are likely updating
+            If NamedRangeExists(wbTmp, sSheetName, CStr(sKey)) = True Then
+                If GetFormTypeFromRangeName(CStr(sKey)) <> FormType.View And GetFormTypeFromRangeName(CStr(sKey)) <> FormType.ViewList Then
+                    FuncLogIt sFuncName, "Skipping as  [key=" & CStr(sKey) & "] exists already ", C_MODULE_NAME, LogMsgType.DEBUGGING
+                    GoTo nextdefn
+                End If
+            End If
+            
             ' only go further if the definition matches the Widget type specified by passed param
             Set dDefnDetail = dDefinitions.Item(sKey)
             If dDefnDetail.Item("WidgetType") <> eWidgetType Then
@@ -331,7 +339,8 @@ main:
             If sWidgetTypeSuffix = "e" Then
                 Set rWidget = GenerateEntryWidget(CStr(sKey), iRow, iCol, sAction, sSheetName, wbTmp:=wbTmp)
                 FormatWidget clsAppRuntime.TemplateBook, wbTarget, CStr(sAction), rWidget, WidgetState.Invalid, sSourceSheetName:=clsAppRuntime.TemplateWidgetSheetName, eWidgetType:=WidgetType.Entry
-                dDefinitions.Item(sKey).Add "address", rWidget.Address
+                AddDict dDefinitions.Item(sKey), "address", rWidget.Address, bUpdate:=True
+                'dDefinitions.Item(sKey).Add "address", rWidget.Address
                 UpdateDefaultValues CStr(sKey), dDefaultValues, sAction, rWidget
             ElseIf sWidgetTypeSuffix = "s" Then
                 GenerateSelector clsAppRuntime.TemplateBook, wbTarget, sAction, iRow, iCol, WidgetState.Invalid, clsAppRuntime.TemplateWidgetSheetName, CStr(sKey)
@@ -350,10 +359,7 @@ main:
                 Set rListColumn = GenerateViewList(clsAppRuntime.TemplateBook, wbTarget, sAction, iRow, iCol, clsAppRuntime.TemplateWidgetSheetName, CStr(sKey), iHeight:=iHeight)
 
                 For iRow = 1 To UBound(vValues)
-                    'On Error Resume Next
-                    'rListColumn.Rows(iRow).value = vValues(iRow, iWidgetCount + 1)
                     rListColumn.Rows(iRow).value = vValues(iRow, iWidgetCount + LBound(vValues, 2))
-                    'On Error GoTo 0
                 Next iRow
             Else
                 err.Raise 999, Description:="WidgetType suffix [" & sWidgetTypeSuffix & "] not implemented"

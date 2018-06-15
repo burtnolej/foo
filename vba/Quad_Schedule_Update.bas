@@ -2,6 +2,27 @@ Attribute VB_Name = "Quad_Schedule_Update"
 Option Explicit
 
 Const C_MODULE_NAME = "Quad_Schedule_Update"
+
+Public Sub UpdateListViewScheduleLessonForm(ParamArray args())
+
+setup:
+    ChDir "C:\Users\burtnolej\Documents\runtime"
+    sFuncName = C_MODULE_NAME & "." & "UpdateListViewScheduleLessonForm"
+
+main:
+    Set clsAppRuntime = args(0)
+    sValue = args(1)
+    sLookUpIdRangeName = args(2)
+    
+    AddArgs dArgs, False, "clsAppRuntime", clsAppRuntime, "iStudentID", CInt(sValue)
+    Application.Run C_GENERATE_SCHEDULE_LESSON_LIST_VIEW, dArgs
+    
+cleanup:
+    FuncLogIt sFuncName, "[sValue=" & sValue & "] [sLookUpIdRangeName=" & sLookUpIdRangeName & "]", C_MODULE_NAME, LogMsgType.DEBUGGING
+    FuncLogIt sFuncName, "", C_MODULE_NAME, LogMsgType.OUTFUNC, lLastTick:=lStartTick
+
+End Sub
+
 Public Sub UpdateViewStudentScheduleForm(ParamArray args())
 '<<<
 'purpose:
