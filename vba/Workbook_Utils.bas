@@ -39,6 +39,7 @@ Dim w As Variant
         sName = sPath & "\" & sName
     End If
     
+    
     Set OpenBook = Workbooks.Open(sName)
     
     If bWindowStateMinimum = True Then

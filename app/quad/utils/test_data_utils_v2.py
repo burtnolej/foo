@@ -9,8 +9,8 @@ from utils.database.database_table_util import tbl_rows_get
 ROOTDIR = path.dirname(path.realpath(__file__))
 assert(os_dir_exists(ROOTDIR,"excel/test_misc")) # test files go here
 TESTDIR = path.join(ROOTDIR,"excel","test_misc")
-TESTDBNAME = "QuadQA_v2.db"
-
+#TESTDBNAME = "QuadQA_v2.db"
+TESTDBNAME = "QuadQA_v3.db"
 
 class Test_Base(unittest.TestCase):
     def setUp(self):
@@ -41,9 +41,66 @@ class Test_InsertSectionScheduleStudent(Test_Base):
         
         delete_section_schedule(self.database,sectionschedules=[10001,10002,10003])
         
+class Test_GetScheduleLesson(Test_Base):
+    def test_(self):
+        expected_results = [[70, 16, 165, 9, 1, 1, 993]]
+        columns,results = get_schedule_lesson_v2(self.database,days=[1],periods=[1])
 
+        
+        print results
+        #self.assertEquals(results,expected_results)
+        
+
+class Test_ExplodeSection(Test_Base):
+    def test_(self):
+
+        section_columns,section_data = get_sections_to_explode(self.database)
+        max_section_sched_id = get_max_section_schedule(self.database)
+        for _section_data in section_data:
+            fields = dict(zip(section_columns,_section_data))
+            section_sched_data = []
+            section_sched_columns = section_columns + ["idSectionSched","idDay","idTimePeriod","dtLectureStart","dtLectureStart"]
+            
+            for i in range(1,fields["iFreq"]+1):
+                # section schedule
+                max_section_sched_id = max_section_sched_id + 1
+                _section_sched_data = _section_data+ ["\"" + str(max_section_sched_id) + "\"","\"\"","\"\"","\"\"","\"\""]
+                section_sched_data.append(_section_sched_data)
+                
+                if fields["iMaxCapacity"] == 0:
+                    pass
+        
+                # section schedule student
+                if fields["lStudentEnroll"] != "":
+                    student_ids = map(int,fields["lStudentEnroll"].split("_"))
+                    section_student_enroll_data = []
+                    section_student_enroll_columns = section_sched_columns + ["idStudent","sLectureFocusArea","dtEnrollStart","dtEnrollEnd"]
+                    for m in range(len(student_ids)):
+                        section_student_enroll_data.append(_section_sched_data + [student_ids[m],"\"\"","\"\"","\"\""])
+                    
+                    _insert_section_schedule_student(self.database,section_student_enroll_data,section_student_enroll_columns)
+                
+                # section schedule faculty
+                if fields["lFacultyEnroll"] != "":
+                    faculty_ids = map(int,fields["lFacultyEnroll"].split("_"))
+                    section_faculty_enroll_data = []
+                    section_faculty_enroll_columns = section_sched_columns + ["idFaculty","sLectureFocusArea","dtEnrollStart","dtEnrollEnd"]
+                    for k in range(len(faculty_ids)):
+                        section_faculty_enroll_data.append(_section_sched_data + [faculty_ids[k],"\"\"","\"\"","\"\""])
+                    
+                    _insert_section_schedule_faculty(self.database,section_faculty_enroll_data,section_faculty_enroll_columns)
+                
+            _insert_section_schedule(self.database,section_sched_data,section_sched_columns) 
+            print _section_data
+                
+        
 if __name__ == "__main__":
     suite = unittest.TestSuite()   
-    #suite.addTest(unittest.TestLoader().loadTestsFromTestCase(Test_GetStudentSchedule))
+    suite.addTest(unittest.TestLoader().loadTestsFromTestCase(Test_GetStudentSchedule))
     suite.addTest(unittest.TestLoader().loadTestsFromTestCase(Test_InsertSectionScheduleStudent))    
+    suite.addTest(unittest.TestLoader().loadTestsFromTestCase(Test_GetScheduleLesson))   
+    suite.addTest(unittest.TestLoader().loadTestsFromTestCase(Test_ExplodeSection))     
+    
+    
+    
     unittest.TextTestRunner(verbosity=2).run(suite)    

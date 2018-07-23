@@ -95,9 +95,11 @@ Dim vProcStore() As String, vProcModules() As String
 Dim dTmp As New Dictionary
 Dim sFullProcName As String, sModuleName As String, sInstances As String, sKeyName As String, sBookName As String, sFuncName As String
 Dim bBaseExists As Boolean
+Dim lStartTick As Long
 
 setup:
     sFuncName = C_MODULE_NAME & "." & "GetProcInstances"
+    lStartTick = FuncLogIt(sFuncName, "", C_MODULE_NAME, LogMsgType.INFUNC)
     On Error GoTo err
 
     bBaseExists = False
@@ -126,7 +128,7 @@ main:
         End If
         
         ' check that base version (no suffix) actually exists
-        If sFullProcName = sProcName Then
+        If LCase(sFullProcName) = LCase(sProcName) Then
             bBaseExists = True
         End If
         
@@ -143,6 +145,7 @@ cleanup:
     
     FuncLogIt sFuncName, "procs found in books [" & Join(GetDictKeys(dTmp), COMMA) & "] procs found [" & Join(GetDictVals(dTmp), COMMA) & "]", C_MODULE_NAME, LogMsgType.DEBUGGING2
     Set GetProcInstances = dTmp
+    FuncLogIt sFuncName, "", C_MODULE_NAME, LogMsgType.OUTFUNC, lLastTick:=lStartTick
     Exit Function
         
 err:
@@ -263,9 +266,11 @@ Sub InitProcStore()
 Dim dProc As Dictionary
 Dim aResult() As String, aResult2() As String, aAllResult() As String
 Dim sFuncName As String
+Dim lStartTick As Long
 
 setup:
     sFuncName = C_MODULE_NAME & "." & "InitProcStore"
+    lStartTick = FuncLogIt(sFuncName, "", C_MODULE_NAME, LogMsgType.INFUNC)
     On Error GoTo err
 
 main:
@@ -286,6 +291,7 @@ main:
 
 cleanup:
     FuncLogIt sFuncName, "loaded [num_procs=" & CStr(UBound(aAllResult) - 1) & "]", C_MODULE_NAME, LogMsgType.DEBUGGING2
+    FuncLogIt sFuncName, "", C_MODULE_NAME, LogMsgType.OUTFUNC, lLastTick:=lStartTick
     Exit Sub
         
 err:
@@ -293,7 +299,9 @@ err:
     err.Raise err.Number, err.Source, err.Description ' cannot recover from this
     
 End Sub
-
+Public Function IsAExecProc() As Boolean
+    IsAExecProc = True
+End Function
 Public Sub InitProperties(Optional wbTmp As Workbook, Optional wbTmp2 As Workbook)
 '<<<
 'purpose: instantiate class with known procs and details;
@@ -302,10 +310,13 @@ Public Sub InitProperties(Optional wbTmp As Workbook, Optional wbTmp2 As Workboo
 'rtype  : store the 3 col array in a member attribute and then also store the 1st col(procName) in a memattr
 '>>>
 Dim sFuncName As String
+Dim lStartTick As Long
 setup:
     sFuncName = C_MODULE_NAME & "." & "InitProperties"
     On Error GoTo err
-
+    lStartTick = FuncLogIt(sFuncName, "", C_MODULE_NAME, LogMsgType.INFUNC)
+    'On Error GoTo err
+    
 main:
 
     If IsSet(wbTmp) = False Then
@@ -337,8 +348,13 @@ main:
     
     Me.InitProcStore
     
+    LetExecProcGlobal Me
+    
+    'Workbooks(Me.SourceBookName).Sheets("config").Cells(2, 10).value = ObjPtr(Me)
+    
 cleanup:
     FuncLogIt sFuncName, "Object Created", C_MODULE_NAME, LogMsgType.DEBUGGING2
+    FuncLogIt sFuncName, "", C_MODULE_NAME, LogMsgType.OUTFUNC, lLastTick:=lStartTick
     Exit Sub
         
 err:

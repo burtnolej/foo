@@ -48,7 +48,7 @@ setup:
     
     oFile.Close
     For i = 0 To 29
-        vArray(i) = SPACE
+        vArray(i) = Space
     Next i
     
     vArray(15) = "foobar"

@@ -71,7 +71,7 @@ setup:
 
     ReDim vArray(0 To 49)
     For i = 0 To 49
-        vArray(i) = SPACE
+        vArray(i) = Space
     Next i
     
     vArray(0) = sTmpBookPath

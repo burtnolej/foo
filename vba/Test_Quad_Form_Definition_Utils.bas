@@ -15,12 +15,12 @@ setup:
     DoLoadDefinitions clsAppRuntime
     eFormType = FormType.Add
     sSubDataType = EnumQuadSubDataType(QuadSubDataType.Student)
-    sDataType = EnumQuadDataType(QuadDataType.Person)
+    sDataType = EnumQuadDataType(QuadDataType.person)
     
     sExpectedResult = "AddStudent^person_student^sStudentFirstNm^String^^^^^Entry$$AddStudent^person_student^sStudentLastNm^String^^^^^Entry$$AddStudent^person_student^idStudent^Integer^^^^^Entry$$AddStudent^person_student^idPrep^Integer^IsValidPrep^^^^Entry$$AddStudent^person_student^sPrepNm^String^^^^^Entry"
 main:
 
-    sDefn = ExecDefinitionFunc(FormType.Add, EnumQuadDataType(QuadDataType.Person), EnumQuadSubDataType(QuadSubDataType.Student))
+    sDefn = ExecDefinitionFunc(FormType.Add, EnumQuadDataType(QuadDataType.person), EnumQuadSubDataType(QuadSubDataType.Student))
     
     If sDefn <> sExpectedResult Then
         eTestResult = TestResult.Failure
@@ -52,7 +52,7 @@ setup:
     DoLoadDefinitions clsAppRuntime
     eFormType = FormType.Add
     sSubDataType = EnumQuadSubDataType(QuadSubDataType.Student)
-    sDataType = EnumQuadDataType(QuadDataType.Person)
+    sDataType = EnumQuadDataType(QuadDataType.person)
     
     sExpectedResult = "AddLesson^schedule_student^sStudentFirstNm^String^IsMember^&get_person_student^sStudentFirstNm^^Entry$$"
     sExpectedResult = sExpectedResult & "AddLesson^schedule_student^sStudentLastNm^String^IsMember^&get_person_student^sStudentLastNm^^Entry$$"

@@ -24,6 +24,10 @@ Private pMainBookPath As String
 Private pMainBookName As String
 Private pMainBook As Workbook
 
+Private pVersionBookPath As String
+Private pVersionBookName As String
+Private pVersionBook As Workbook
+
 Private pCacheBookName As String
 Private pCacheBookPath As String
 Private pCacheRangeName As String
@@ -74,7 +78,12 @@ Private pAppRuntimeCacheFileArray() As String
 Private pDefinitionSheetName As String
 
 Private pWindowSettings As Quad_WindowSettings
+Private pVersion As String
 
+' NVP of form key=value,key=value
+Private pAppState As String
+
+Private cVersion As String
 Private cDataFamily As DataFamilyType
 Private cHomeDir As String
 Private cAppDir As String
@@ -84,6 +93,10 @@ Private cBookPath As String
 Private cBookName As String
 Private cMainBookPath As String
 Private cMainBookName As String
+Private cVersionBookPath As String
+Private cVersionBookName As String
+Private cVersionBook As Workbook
+
 Private cNewBookPath As String
 Private cCacheBookName  As String
 Private cCacheBookPath  As String
@@ -109,6 +122,7 @@ Private cDayEnum  As String
 Private cPeriodEnum  As String
 Private cAppRuntimeCacheFileName  As String
 Private cBookEnum As String
+Private cAppState As String
 
 Const C_DATA_FAMILY_TYPE = "Quad"
 Public dDefinitions As Dictionary
@@ -216,6 +230,64 @@ main:
     
 End Property
 'END Book ----------------------
+
+' Version  Book -----------------------
+Public Property Get VersionBook() As Workbook
+    Set VersionBook = pVersionBook
+End Property
+Public Property Let VersionBook(value As Workbook)
+    Set pVersionBook = value
+End Property
+Public Property Get VersionBookPath() As String
+    VersionBookPath = pVersionBookPath
+End Property
+Public Property Let VersionBookPath(value As String)
+Dim sCachedValue As String, sOrigValue As String, sConstValue As String
+Dim sFuncName As String
+
+setup:
+    sFuncName = C_MODULE_NAME & "." & "VersionBookPath"
+    sConstValue = cVersionBookPath
+    
+Version:
+    pVersionBookPath = GetUpdatedValue(sFuncName, sConstValue, value)
+    
+    If value <> "" And DirExists(value) <> True Then
+         err.Raise ErrorMsgType.BAD_ARGUMENT, Description:="workbook [" & value & "] does not exist"
+    End If
+    
+End Property
+Public Property Get VersionBookName() As String
+    VersionBookName = pVersionBookName
+End Property
+
+Public Property Let VersionBookName(value As String)
+Dim sCachedValue As String, sOrigValue As String, sConstValue As String
+Dim sFuncName As String
+
+setup:
+    sFuncName = C_MODULE_NAME & "." & "VersionBookName"
+    sConstValue = cVersionBookName
+
+Version:
+
+    pVersionBookName = GetUpdatedValue(sFuncName, sConstValue, value)
+    
+    'If Me.VersionBookPath = "" Then
+         'err.Raise ErrorMsgType.DEPENDENT_ATTR_NOT_SET, Description:="VersionBookPath needs to be set before VersionBookName"
+    'End If
+    
+    If Me.VersionBookPath <> "" Then
+        If FileExists(Me.VersionBookPath & "\\" & pVersionBookName) = False Then
+            err.Raise ErrorMsgType.BAD_ARGUMENT, Description:="VersionBookName file does not exist [" & value & "]"
+        End If
+        Me.VersionBook = OpenBook(pVersionBookName, sPath:=Me.VersionBookPath)
+    End If
+    
+    
+    
+End Property
+'END Version Book ----------------------
 
 ' Main  Book -----------------------
 Public Property Get MainBook() As Workbook
@@ -566,6 +638,39 @@ setup:
 End Property
 ' END Menu -------------------------------------
 
+' App State ----------------------------------------------
+Public Property Get AppState() As String
+    AppState = pAppState
+End Property
+Public Property Let AppState(value As String)
+Dim sCachedValue As String, sOrigValue As String, sConstValue As String
+Dim sFuncName As String
+
+setup:
+    sFuncName = C_MODULE_NAME & "." & "AppState"
+    sConstValue = cAppState
+    
+    pAppState = GetUpdatedValue(sFuncName, sConstValue, value)
+End Property
+' App State ------------------------------------------
+
+
+' Version ----------------------------------------------
+Public Property Get Version() As String
+    Version = pVersion
+End Property
+Public Property Let Version(value As String)
+Dim sCachedValue As String, sOrigValue As String, sConstValue As String
+Dim sFuncName As String
+
+setup:
+    sFuncName = C_MODULE_NAME & "." & "Version"
+    sConstValue = cVersion
+    
+    pVersion = GetUpdatedValue(sFuncName, sConstValue, value)
+    
+End Property
+' End Version ------------------------------------------
 
 ' Add -----------------------------------------
 Public Property Get AddBook() As Workbook
@@ -849,8 +954,8 @@ Dim iRow As Integer
 Dim vCurrentState() As String
 Dim sCurrentValue As String
 
-    If UBound(Split(sFuncName, PERIOD)) > 0 Then ' funcname can be of form Module.FuncName or just FuncName
-        sFuncName = Split(sFuncName, PERIOD)(1)
+    If UBound(Split(sFuncName, Period)) > 0 Then ' funcname can be of form Module.FuncName or just FuncName
+        sFuncName = Split(sFuncName, Period)(1)
     End If
     
     iRow = GetAttrEnum(sFuncName)
@@ -871,8 +976,8 @@ Function RetreiveOverride(ByVal sFuncName As String) As String
 Dim iRow As Integer
 Dim vResults() As String
 
-    If UBound(Split(sFuncName, PERIOD)) > 0 Then ' funcname can be of form Module.FuncName or just FuncName
-        sFuncName = Split(sFuncName, PERIOD)(1)
+    If UBound(Split(sFuncName, Period)) > 0 Then ' funcname can be of form Module.FuncName or just FuncName
+        sFuncName = Split(sFuncName, Period)(1)
     End If
     iRow = GetAttrEnum(sFuncName)
     vResults = Me.AppRuntimeCacheFileArray
@@ -913,6 +1018,9 @@ Sub SetDefaults()
     cMainBookPath = cAppDir
     cMainBookName = "vba_source_new.xlsm"
     
+    cVersionBookPath = ""
+    cVersionBookName = ""
+    
     cBookPath = cRuntimeDir
     cBookName = "cache.xlsm"
     cCacheBookName = "cache.xlsm"
@@ -940,11 +1048,14 @@ Sub SetDefaults()
     cViewBookPath = cRuntimeDir
     cViewBookName = "view.xlsm"
     
+    cVersion = ""
+    cAppState = "idAcadPeriod=1"
+    
     cDefinitionSheetName = "Definitions"
     cDatabasePath = cAppDir & "app\quad\utils\excel\test_misc\QuadQA.db"
     cResultFileName = cRuntimeDir & "pyshell_results.txt"
     cFileName = cRuntimeDir & "uupyshell.args.txt"
-    cAppRuntimeEnum = "BookPath,BookName,CacheBookName,CacheBookPath,CacheRangeName,TemplateBookPath,TemplateBookName,TemplateSheetName,TemplateWidgetSheetName,DatabasePath,ResultFileName,ExecPath,RuntimeDir,FileName,DayEnum,PeriodEnum,CurrentSheetSource,CurrentSheetColumns,AppRuntimeCacheFileName,DefinitionSheetName,ScheduleBookPath,ScheduleBookName,AddBookPath,AddBookName,MenuBookPath,MenuBookName,ViewBookPath,ViewBookName,BookEnum,NewBookPath,DataFamily,MainBookPath,MainBookName,"
+    cAppRuntimeEnum = "BookPath,BookName,CacheBookName,CacheBookPath,CacheRangeName,TemplateBookPath,TemplateBookName,TemplateSheetName,TemplateWidgetSheetName,DatabasePath,ResultFileName,ExecPath,RuntimeDir,FileName,DayEnum,PeriodEnum,CurrentSheetSource,CurrentSheetColumns,AppRuntimeCacheFileName,DefinitionSheetName,ScheduleBookPath,ScheduleBookName,AddBookPath,AddBookName,MenuBookPath,MenuBookName,ViewBookPath,ViewBookName,BookEnum,NewBookPath,DataFamily,MainBookPath,MainBookName,Version,VersionBookPath,VersionBookName,AppState"
     cDayEnum = "M,T,W,R,F"
     cPeriodEnum = "1,2,3,4,5,6,7,8,9,10,11"
     cAppRuntimeCacheFileName = cHomeDir & "\app_runtime_cache.txt"
@@ -985,13 +1096,13 @@ End Sub
     
 Public Sub InitProperties( _
                  Optional sDataFamily As DataFamilyType, _
-                 Optional sMainBookPath As String, _
-                 Optional sMainBookName As String, _
+                 Optional sMainBookPath As String, Optional sMainBookName As String, _
+                 Optional sVersionBookPath As String, Optional sVersionBookName As String, _
                  Optional sBookPath As String, _
                  Optional sBookName As String, _
                  Optional sCacheBookPath As String, _
-                 Optional sCacheBookName As String, _
-                 Optional sCacheRangeName As String, _
+                 Optional sCacheBookName As String, Optional sCacheRangeName As String, _
+                 Optional sVersion As String, Optional sAppState As String, _
                  Optional sTemplateBookPath As String, Optional sTemplateBookName As String, _
                  Optional sTemplateSheetName As String, Optional sTemplateWidgetSheetName As String, _
                  Optional sScheduleBookPath As String, Optional sScheduleBookName As String, _
@@ -1012,6 +1123,7 @@ Dim lStartTick As Long
 Dim sFuncName As String
 
 setup:
+    sFuncName = "App_Runtime.InitProperties"
     lStartTick = FuncLogIt(sFuncName, "", C_MODULE_NAME, LogMsgType.INFUNC)
     
 main:
@@ -1060,6 +1172,11 @@ main:
     Me.MainBookPath = sMainBookPath
     Me.MainBookName = sMainBookName
 
+    'If sVersionBookName <> "" Then
+        Me.VersionBookPath = sVersionBookPath
+        Me.VersionBookName = sVersionBookName
+    'End If
+    
     Me.TemplateBookPath = sTemplateBookPath
     Me.TemplateBookName = sTemplateBookName
     'Me.TemplateSheetName = sTemplateSheetName
@@ -1075,6 +1192,9 @@ main:
     Me.DayEnum = sDayEnum
     Me.PeriodEnum = sPeriodEnum
 
+    Me.Version = sVersion
+    Me.AppState = sAppState
+    
     If bSetWindows = True Then
         SetWindows
     End If
@@ -1083,6 +1203,8 @@ main:
     Workbooks(Me.MainBookName).Activate
     'Me.TemplateBook.Activate
 
+    LetAppRuntimeGlobal Me
+    
 cleanup:
     FuncLogIt sFuncName, "", C_MODULE_NAME, LogMsgType.OUTFUNC, lLastTick:=lStartTick
 End Sub
@@ -1114,7 +1236,7 @@ Dim wbTmp As Workbook
 Dim sBookName As String, sBookPath As String
 
     For Each sBook In Split(Me.BookEnum, COMMA)
-        sBook = Split(sBook, PERIOD)(0)
+        sBook = Split(sBook, Period)(0)
         sBook = UCase(Left(sBook, 1)) & Right(sBook, Len(sBook) - 1)
         Set wbTmp = CallByName(Me, sBook & "Book", VbGet)
         CloseBook wbTmp
@@ -1137,7 +1259,7 @@ End Sub
 Public Sub OpenBooks()
 Dim sBook As Variant
     For Each sBook In Split(Me.BookEnum, COMMA)
-        sBook = Split(sBook, PERIOD)(0)
+        sBook = Split(sBook, Period)(0)
         sBook = UCase(Left(sBook, 1)) & Right(sBook, Len(sBook) - 1)
         FileCopy CallByName(Me, sBook & "BookName", VbGet), CallByName(Me, "NewBookPath", VbGet), Me.RuntimeDir
     Next sBook

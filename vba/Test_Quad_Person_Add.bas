@@ -10,6 +10,7 @@ Dim rTarget As Range, rWidget As Range
 Dim dEntryValues As Dictionary, dRecordValues As Dictionary
 Dim iStudentID As Integer
 Dim wsTable As Worksheet
+Dim clsExecProc As Exec_Proc
 
 setup:
     ResetAppRuntimeGlobal
@@ -20,12 +21,13 @@ setup:
     
     'clsAppRuntime.InitProperties bInitializeCache:=True, sDefinitionSheetName:=sSheetName
     clsAppRuntime.InitProperties bInitializeCache:=True, sDefinitionSheetName:=sSheetName
-    GetDefinition clsAppRuntime, sDataType, sSubDataType, sSheetName, FormType.View
+    Set clsExecProc = GetExecProcGlobal(ActiveWorkbook)
+    GetDefinition clsAppRuntime, clsExecProc, sDataType, sSubDataType, sSheetName, FormType.View
     
     sTargetSheetName = "Add_Person_Student"
 
 main:
-    GeneratePersonAdd clsAppRuntime
+    GeneratePersonAdd clsAppRuntime, clsExecProc
     
     EventsToggle True
     Set Form_Utils.dDefinitions = Nothing
@@ -94,7 +96,7 @@ main:
             GoTo teardown
         End If
         
-        If dRecordValues.Item("iGradeLevel") <> "7" Then
+        If dRecordValues.Item("iGradeLevel") <> "2" Then
         eTestResult = TestResult.Failure
             GoTo teardown
         End If

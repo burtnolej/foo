@@ -25,16 +25,18 @@ Enum WidgetType
     Text = 3
     ListText = 4
     Selector = 5
+    Schedule = 6
+    ListEntry = 7
 End Enum
 
-Public Const C_WIDGET_TYPE = "Button,Entry,Text,ListText,Selector"
+Public Const C_WIDGET_TYPE = "Button,Entry,Text,ListText,Selector,Schedule,ListEntry"
 
 Enum WidgetDimension
     Hz = 1
     Vz = 2
 End Enum
 
-Const C_WIDGET_TYPE_STATE = "Entry,Button,Text,ListText,Selector"
+Const C_WIDGET_TYPE_STATE = "Entry,Button,Text,ListText,Selector,ListEntry"
 Function EnumWidgetType(i As Long) As String
     EnumWidgetType = Split(C_WIDGET_TYPE, COMMA)(i - 1)
 End Function
@@ -60,7 +62,7 @@ Dim rWidget As Range, rNewRange As Range
 Dim iWidth As Integer, iHeight As Integer, iSizeCount As Integer
     GetRangeDimensions rSource, iWidth, iHeight
     
-    ReDim aSizes(0 To 50)
+    ReDim aSizes(0 To 75)
     With wsTemplate
         'HERE
         '.Activate
@@ -134,10 +136,16 @@ Dim aColumnWidths() As Integer, aRowHeights() As Integer
 Dim iColWidthCount As Integer, iRowHeightCount As Integer, iRow As Integer, iCol As Integer, iFormatRowCount As Integer, iFormatColCount As Integer
 Dim rWidget As Range, rTargetRange As Range, rSourceRange As Range
 Dim wsTemplateSheet As Worksheet, wsTargetSheet As Worksheet
+Dim lStartTick As Long
+Dim sFuncName As String
 
+setup:
+    sFuncName = C_MODULE_NAME & "." & "FormatColRowSize"
+    lStartTick = FuncLogIt(sFuncName, "", C_MODULE_NAME, LogMsgType.INFUNC)
+    On Error GoTo err
+
+main:
     Set wsTargetSheet = wbTargetbook.Sheets(sTargetSheetName)
-    'Set wsTemplateSheet = wbSourceBook.Sheets(sSourceSheetName)
-
     Set wsTemplateSheet = wbSourceBook.Names(sSourceRangeName).RefersToRange.Parent
 
     Set rSourceRange = wsTemplateSheet.Range(sSourceRangeName)
@@ -151,7 +159,6 @@ Dim wsTemplateSheet As Worksheet, wsTargetSheet As Worksheet
                            iTargetFirstCol + UBound(aColumnWidths)))
     End With
     
-    'rTargetRange.Select
     For iRow = 1 To UBound(aRowHeights) + 1
         rTargetRange.Rows(iRow).EntireRow.RowHeight = aRowHeights(iRow - 1)
     Next iRow
@@ -159,6 +166,16 @@ Dim wsTemplateSheet As Worksheet, wsTargetSheet As Worksheet
     For iCol = 1 To UBound(aColumnWidths) + 1
         rTargetRange.Columns(iCol).EntireColumn.ColumnWidth = aColumnWidths(iCol - 1)
     Next iCol
+    
+cleanup:
+    FuncLogIt sFuncName, "", C_MODULE_NAME, LogMsgType.OUTFUNC, lLastTick:=lStartTick
+    Exit Sub
+
+err:
+    FuncLogIt sFuncName, "Error [ " & err.Description & "] ", C_MODULE_NAME, LogMsgType.Error
+    err.Raise err.Number, err.Source, err.Description ' cannot recover from this
+    
+    
 End Sub
 
 
@@ -176,6 +193,7 @@ Sub CreateComboBox1()
         End With
     End With
 End Sub
+
 
 Public Function GetWidgetLocationRanges(wbTmp As Workbook, sFormType As String, _
                         eWidgetType As WidgetType) As String()
@@ -226,14 +244,17 @@ err:
     err.Raise err.Number, err.Source, err.Description ' cannot recover from this
     
 End Function
-Public Function GenerateWidgets(clsAppRuntime As App_Runtime, _
-                              sAction As String, _
-                     Optional dDefaultValues As Dictionary, _
-                     Optional vValues As Variant, _
-                     Optional wbTmp As Workbook, _
-                     Optional eWidgetType As WidgetType = WidgetType.Entry, _
-                     Optional sFormType As String = "Add", _
-                     Optional sTemplateSheetName As String = "FormStyles") As String()
+
+Public Function GenerateWidgets(dArgs As Dictionary) As String()
+'Public Function GenerateWidgets(clsAppRuntime As App_Runtime, _
+'                              sAction As String, _
+'                     Optional dDefaultValues As Dictionary, _
+'                     Optional vValues As Variant, _
+'                     Optional wbTmp As Workbook, _
+'                     Optional eWidgetType As WidgetType = WidgetType.Entry, _
+'                     Optional sFormType As String = "Add", _
+'                     Optional sTemplateSheetName As String = "FormStyles", _
+'                     Optional iRecordID As Integer) As String()
 '<<<
 'purpose: given a set of definitions (taken from the global variable dDefinitions, generate
 '       : all the entry widgets (labels, entry , view etc)
@@ -247,16 +268,60 @@ Public Function GenerateWidgets(clsAppRuntime As App_Runtime, _
 'param  : sFormType (Optional), defaults to Add, needs to specify the type of form to be generated
 'rtype  : a list of the keys from the widgets that were created
 '>>>
-Dim sFuncName As String, sSheetName As String, sWidgetTypeSuffix As String, sFormatRangeNameSuffix As String
-Dim iRow As Integer, iCol As Integer, iWidth As Integer, iHeight As Integer, iWidgetCount As Integer, iParentRowOffset As Integer, iParentColOffset As Integer, iListWidth As Integer
-Dim rWidget As Range, rFormat As Range, rListHeader As Range, rListRow As Range, rListColumn As Range
+Dim sFuncName As String, sSheetName As String, sWidgetTypeSuffix As String, sFormatRangeNameSuffix As String, sTemplateSheetName As String, sFormType As String, sAction As String, sHeaderRangeName As String
+Dim iRow As Integer, iCol As Integer, iWidth As Integer, iHeight As Integer, iWidgetCount As Integer, iParentRowOffset As Integer, iParentColOffset As Integer, iListWidth As Integer, iHeaderRow As Integer, iHeaderCol As Integer
+Dim rWidget As Range, rFormat As Range, rListHeader As Range, rListRow As Range, rListColumn As Range, rHeaderFormatRange As Range, rFilterFormatRange As Range
 Dim vDefinedEntryNamesRanges() As String, vKeySplits() As String, vGenerated() As String
-Dim wbTarget As Workbook
-Dim dDefnDetail As Dictionary
+Dim wbTarget As Workbook, wbTmp As Workbook
+Dim dDefnDetail As Dictionary, dDefaultValues As Dictionary
 Dim lStartTick As Long
+Dim vValues As Variant
+Dim eWidgetType As WidgetType
 
+unpackargs:
+    Set clsAppRuntime = dArgs("clsAppRuntime")
+
+    If dArgs.Exists("clsExecProc") = False Then
+        Set clsExecProc = GetExecProcGlobal(wbTmp:=Workbooks(clsAppRuntime.MainBookName))
+    Else
+        Set clsExecProc = dArgs.Item("clsExecProc")
+    End If
+    
+    If dArgs.Exists("sFormType") Then
+        ' generating a specific form not all defined
+        sFormType = dArgs.Item("sFormType")
+    Else
+        sFormType = "Add"
+    End If
+    
+    If dArgs.Exists("eWidgetType") Then
+        ' generating a specific form not all defined
+        eWidgetType = dArgs.Item("eWidgetType")
+    Else
+        eWidgetType = WidgetType.Entry
+    End If
+    
+    If dArgs.Exists("sTemplateSheetName") Then
+        ' generating a specific form not all defined
+        sTemplateSheetName = dArgs.Item("sTemplateSheetName")
+    Else
+        sTemplateSheetName = "FormStyles"
+    End If
+    
+    If dArgs.Exists("dDefaultValues") Then
+        ' generating a specific form not all defined
+        Set dDefaultValues = dArgs.Item("dDefaultValues")
+    End If
+    
+    'Set dDefaultValues = dArgs.Item("dDefaultValues")
+    vValues = dArgs.Item("vValues")
+    Set wbTmp = dArgs.Item("wbTmp")
+    iRecordID = dArgs.Item("iRecordID")
+    'eWidgetType = dArgs.Item("eWidgetType")
+    sAction = dArgs.Item("sAction")
+    
 setup:
-    'On Error GoTo err
+    On Error GoTo err
     sFuncName = C_MODULE_NAME & "." & "GenerateWidgets"
     lStartTick = FuncLogIt(sFuncName, "", C_MODULE_NAME, LogMsgType.INFUNC)
     ReDim vGenerated(0 To 20)
@@ -267,8 +332,10 @@ setup:
         Set wbTmp = ActiveWorkbook
     End If
         
-    If sFormType = "ViewList" Then
+    If sFormType = "ViewList" Or sFormType = "ViewListEntry" Then
         Set wbTarget = CallByName(clsAppRuntime, "ViewBook", VbGet)
+    ElseIf sFormType = "ViewSchedule" Then
+        Set wbTarget = CallByName(clsAppRuntime, "ScheduleBook", VbGet)
     Else
         Set wbTarget = CallByName(clsAppRuntime, sFormType & "Book", VbGet)
     End If
@@ -290,6 +357,21 @@ main:
         GoTo cleanup
     End If
 
+    ' get header location if one exists
+    sHeaderRangeName = "f" & sFormType & "Header"
+    'On Error Resume Next
+    If NamedRangeExists(clsAppRuntime.TemplateBook, sTemplateSheetName, sHeaderRangeName, bLocalScope:=False) = True Then
+        Set rHeaderFormatRange = clsAppRuntime.TemplateBook.Sheets(sTemplateSheetName).Range(sHeaderRangeName)
+    End If
+    'On Error GoTo 0
+    
+    ' get filter location if one exists
+    'sFilterRangeName = "f" & sFormType & "Filter"
+    'On Error Resume Next
+    'Set rFilterFormatRange = clsAppRuntime.TemplateBook.Sheets(sTemplateSheetName).Range(sFilterRangeName)
+    'CreateFilter wbTarget, sSheetName, rFilterFormatRange, 100
+    'On Error GoTo 0
+    
     ' for each entry in the definition generate a input field
     With wbTmp.Sheets(sSheetName)
         .Range(.Cells(1, 1), .Cells(1, 1)).value = UCase(sAction)
@@ -316,19 +398,18 @@ main:
             If GetActionFromWidgetKey(sKey) <> sAction Then
                 GoTo nextdefn
             End If
-            
-            'If Right(vKeySplits(0), Len(vKeySplits(0)) - 1) <> sAction Then
-            '    GoTo nextdefn
-            'End If
-            
+
             If InArray(Array("actions", "tables"), sKey) Then
                 GoTo nextdefn
             End If
+            
+            'not picking up format correctly
             
             Set rFormat = clsAppRuntime.TemplateBook.Sheets(sTemplateSheetName).Range(vDefinedAddNamesRanges(iWidgetCount))
             
             iRow = rFormat.Row - iParentRowOffset
             iCol = rFormat.Column - iParentColOffset
+
             iWidth = rFormat.Columns.Count
             iHeight = rFormat.Rows.Count
             
@@ -337,10 +418,29 @@ main:
             End If
             
             If sWidgetTypeSuffix = "e" Then
-                Set rWidget = GenerateEntryWidget(CStr(sKey), iRow, iCol, sAction, sSheetName, wbTmp:=wbTmp)
-                FormatWidget clsAppRuntime.TemplateBook, wbTarget, CStr(sAction), rWidget, WidgetState.Invalid, sSourceSheetName:=clsAppRuntime.TemplateWidgetSheetName, eWidgetType:=WidgetType.Entry
+        
+                If GetFormTypeFromAction(sAction) <> "ViewListEntry" Then
+                    Set rWidget = GenerateEntryWidget(CStr(sKey), iRow, iCol, sAction, sSheetName, wbTmp:=wbTmp)
+                Else
+                    Set rWidget = GenerateEntryWidget(CStr(sKey), iRow, iCol, sAction, sSheetName, wbTmp:=wbTmp, iEndLabelRowOffset:=iHeight)
+                    
+                    If IsSet(rHeaderFormatRange) = True Then
+                        Set rHeaderCell = rHeaderFormatRange.Columns(iWidgetCount + LBound(vValues, 2))
+                        iHeaderRow = rHeaderCell.Row - iParentRowOffset
+                        iHeaderCol = rHeaderCell.Column - iParentColOffset
+                        'Debug.Print wbTmp.Sheets(sSheetName).Range(.Cells(iHeaderRow, iHeaderCol), .Cells(iHeaderRow, iHeaderCol)).Address
+                        
+                        wbTmp.Sheets(sSheetName).Range(.Cells(iHeaderRow, iHeaderCol), .Cells(iHeaderRow, iHeaderCol)).value = GetFieldName(CStr(sKey))
+                    End If
+                    
+                    For iRow = 1 To UBound(vValues)
+                        rWidget.Rows(iRow).value = vValues(iRow, iWidgetCount + LBound(vValues, 2))
+                    Next iRow
+                End If
+            
+                FormatWidget clsAppRuntime.TemplateBook, wbTarget, CStr(sAction), rWidget, WidgetState.Invalid, sSourceSheetName:=clsAppRuntime.TemplateWidgetSheetName, _
+                            eWidgetType:=WidgetType.Entry
                 AddDict dDefinitions.Item(sKey), "address", rWidget.Address, bUpdate:=True
-                'dDefinitions.Item(sKey).Add "address", rWidget.Address
                 UpdateDefaultValues CStr(sKey), dDefaultValues, sAction, rWidget
             ElseIf sWidgetTypeSuffix = "s" Then
                 GenerateSelector clsAppRuntime.TemplateBook, wbTarget, sAction, iRow, iCol, WidgetState.Invalid, clsAppRuntime.TemplateWidgetSheetName, CStr(sKey)
@@ -350,6 +450,12 @@ main:
                 Set rWidget = GenerateView(clsAppRuntime.TemplateBook, wbTarget, sAction, iRow, iCol, clsAppRuntime.TemplateWidgetSheetName, CStr(sKey))
                 dDefinitions.Item(sKey).Add "address", rWidget.Address
                 UpdateDefaultValues CStr(sKey), dDefaultValues, sAction, rWidget
+                
+             ElseIf sWidgetTypeSuffix = "c" Then
+                
+                AddArgs dArgs, False, "sSheetName", sAction, "wbTarget", wbTarget, "eQuadSubDataType", QuadSubDataType.Student, "iPersonID", iRecordID
+                BuildScheduleViewFromValues dArgs
+                
             ElseIf sWidgetTypeSuffix = "l" Then
 
                 If Is2DArray(vValues) = False Then
@@ -380,6 +486,7 @@ cleanup:
     End If
     On Error GoTo 0
     GenerateWidgets = vGenerated
+    AddDict dArgs, "result", vGenerated, True
     If iWidgetCount > 0 Then
         FuncLogIt sFuncName, "Created [" & CStr(iWidgetCount) & "] widgets of type [" & EnumWidgetType(eWidgetType) & "]", C_MODULE_NAME, LogMsgType.DEBUGGING
     End If
@@ -389,7 +496,7 @@ cleanup:
 
 err:
     FuncLogIt sFuncName, "Error [ " & err.Description & "]  [sKey=" & sKey & "] [sAction=" & sAction & "]", C_MODULE_NAME, LogMsgType.Error
-    err.Raise err.Number, err.Source, err.Description ' cannot recover from this
+    'err.Raise err.Number, err.Source, err.Description ' cannot recover from this
     
 End Function
 
@@ -401,17 +508,35 @@ Public Function GenerateViewList(wbSourceBook As Workbook, wbTargetbook As Workb
                          Optional iEntryColOffset As Integer = -1, _
                          Optional iHeight As Integer = 0) As Range
 Dim sViewRangeName As String, sFieldName As String
+Dim lStartTick As Long
+Dim rWidget As Range
 
-   With wbTargetbook.Sheets(sSheetName)
+setup:
+    sFuncName = C_MODULE_NAME & "." & "GenerateViewList"
+    lStartTick = FuncLogIt(sFuncName, "[sSheetName=" & sSheetName & "] [sKey=" & sKey & "]", C_MODULE_NAME, LogMsgType.INFUNC)
+
+main:
+
+    With wbTargetbook.Sheets(sSheetName)
         Set rWidget = .Range(.Cells(iRow, iCol), .Cells(iRow + iHeight, iCol))
-        sViewRangeName = sKey
-        CreateNamedRange wbTargetbook, rWidget.Address, sSheetName, sViewRangeName, "True"
+            
+        If NamedRangeExists(wbTargetbook, sSheetName, sKey) = False Then
+
+            sViewRangeName = sKey
+            CreateNamedRange wbTargetbook, rWidget.Address, sSheetName, sViewRangeName, "True"
+        
+            FormatWidget wbSourceBook, wbTargetbook, sSheetName, rWidget, WidgetState.Invalid, sViewFormatSheetName, _
+                WidgetType.ListText
+        Else
+            FuncLogIt sFuncName, "Skipping as named range [key=" & CStr(sKey) & "] exists already ", C_MODULE_NAME, LogMsgType.DEBUGGING2
+        End If
+        
+        Set GenerateViewList = rWidget
     End With
-    
-    Set GenerateViewList = rWidget
-    
-    FormatWidget wbSourceBook, wbTargetbook, sSheetName, GenerateViewList, WidgetState.Invalid, sViewFormatSheetName, _
-        WidgetType.ListText
+        
+        
+cleanup:
+    FuncLogIt sFuncName, "", C_MODULE_NAME, LogMsgType.OUTFUNC, lLastTick:=lStartTick
     
 End Function
 Public Function GenerateView(wbSourceBook As Workbook, wbTargetbook As Workbook, _
@@ -502,7 +627,7 @@ Dim rWidget As Range
     
 End Sub
 Function IsEntryValid(sSheetName As String, rTarget As Range) As Boolean
-Dim cRGB As RGBColor
+Dim cRGB As rgbColor
     Set cRGB = GetBgColor(sSheetName, rTarget)
     If cRGB.AsString <> C_RGB_VALID Then
         IsEntryValid = False
@@ -556,7 +681,8 @@ Public Function GenerateEntryWidget(sKey As String, iLabelRow As Integer, iLabel
                                   sAction As String, sSheetName As String, _
                          Optional iEntryRowOffset As Integer = 0, _
                          Optional iEntryColOffset As Integer = -1, _
-                         Optional wbTmp As Workbook) As Range
+                         Optional wbTmp As Workbook, _
+                         Optional iEndLabelRowOffset As Integer = 0) As Range
 '<<<
 'purpose: generate a specific entry Widget
 'param  : sKey, String, named range to be applied to the new Widget (like eNewLesson_SFirstName)
@@ -564,9 +690,10 @@ Public Function GenerateEntryWidget(sKey As String, iLabelRow As Integer, iLabel
 'param  : iEntryRowOffset,iEntryColOffset as integer; where is the entry in relation to the label
 'param  : sAction, String; user action that entrys need to be generated for (like NewLesson)
 '>>>
-Dim rWidget As Range, rLabel As Range
+Dim rWidget As Range, rLabel As Range, rCell As Range
 Dim sFieldName As String
 Dim sFuncName As String
+Dim i As Integer
 
 setup:
     On Error GoTo err
@@ -578,13 +705,24 @@ main:
         Set wbTmp = ActiveWorkbook
     End If
     
+
+    
     With wbTmp.Sheets(sSheetName)
-        Set rWidget = .Range(.Cells(iLabelRow, iLabelCol), .Cells(iLabelRow, iLabelCol))
+        Set rWidget = .Range(.Cells(iLabelRow, iLabelCol), .Cells(iLabelRow + iEndLabelRowOffset, iLabelCol))
         CreateNamedRange wbTmp, rWidget.Address, CStr(sAction), CStr(sKey), "True"
         
         Set rLabel = rWidget.Offset(iEntryRowOffset, iEntryColOffset)
-        sFieldName = Split(sKey, "_")(1)
-        rLabel.value = sFieldName
+        sFieldName = GetFieldName(sKey)
+        
+        If GetFormTypeFromAction(sAction) <> "ViewListEntry" Then
+            rLabel.value = sFieldName
+        Else
+            'For i = 1 To rWidget.Rows.Count
+                'CreateNamedRange wbTmp, rWidget.Rows(i).Address, CStr(sAction), CStr(sKey) & "__" & CStr(i), "True"
+                'CreateNamedRange wbTmp, rWidget.Rows(i).Address, CStr(sAction), CStr(sKey) & "__" & CStr(i), "True"
+            'Next i
+        End If
+        
     End With
 
     Set GenerateEntryWidget = rWidget

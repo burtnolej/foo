@@ -20,19 +20,17 @@ Dim sKeySuffix As String
         sKeySuffix = "t"
     ElseIf eWidgetType = WidgetType.ListText Then
         sKeySuffix = "l"
+    ElseIf eWidgetType = WidgetType.ListEntry Then
+        sKeySuffix = "g"
     ElseIf eWidgetType = WidgetType.Selector Then
         sKeySuffix = "s"
+    ElseIf eWidgetType = WidgetType.Schedule Then
+        sKeySuffix = "c"
     End If
     
     GetWidgetKey = sKeySuffix & sSheetName & "_" & sFieldName
 End Function
-'Function GetEntryKey(sSheetName As String, sFieldName As String) As String
-'Dim sKey As String
 
-    'sKey = "e" & sSheetName & "_" & sFieldName
-    'GetEntryKey = sKey
-'End Function
-'GetFormSheetNameFromRangeName
 
 Function GetFieldName(sRangeName As String) As String
 '<<<
@@ -93,8 +91,12 @@ main:
         GetWidgetTypeFromRangeName = WidgetType.Text
     ElseIf sSuffix = "l" Then
         GetWidgetTypeFromRangeName = WidgetType.ListText
+    ElseIf sSuffix = "g" Then
+        GetWidgetTypeFromRangeName = WidgetType.ListEntry
     ElseIf sSuffix = "s" Then
         GetWidgetTypeFromRangeName = WidgetType.Selector
+    ElseIf sSuffix = "c" Then
+        GetWidgetTypeFromRangeName = WidgetType.Schedule
     End If
 
 cleanup:
@@ -129,7 +131,9 @@ main:
     sFormWidgetTypeTuple = Split(sRangeName, UNDERSCORE)(0)
     sFormName = Right(sFormWidgetTypeTuple, Len(sFormWidgetTypeTuple) - 1)
     
-    If sFormName Like "View" & ASTERISK Then
+    If sFormName = "ViewListEntry" Then
+        GetFormTypeFromRangeName = FormType.ViewListEntry
+    ElseIf sFormName Like "View" & ASTERISK Then
         GetFormTypeFromRangeName = FormType.View
     ElseIf sFormName Like "ViewList" & ASTERISK Then
         GetFormTypeFromRangeName = FormType.ViewList

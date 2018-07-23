@@ -48,7 +48,8 @@ setup:
     clsExecProc.InitProperties wbTmp:=wbTmp
 main:
     
-    AddArgs dArgs, False, "sDataType", sDataType, "sSubDataType", sSubDataType, "wbMaster", wbTmp, "wbTmp", clsAppRuntime.CacheBook, "bValidateFields", bValidateFields, "clsExecProc", clsExecProc
+    AddArgs dArgs, False, "sDataType", sDataType, "sSubDataType", sSubDataType, "wbMaster", wbTmp, "wbTmp", clsAppRuntime.CacheBook, "bValidateFields", bValidateFields, "clsExecProc", clsExecProc, _
+                "wbLoader", clsAppRuntime.CacheBook
     clsExecProc.ExecProc "DataLoader", dArgs
 
     ' get the raw data from the database and return the filename that holds the results
@@ -180,12 +181,16 @@ setup:
     Set rTarget = RangeFromStrArray(vSource, wsTmp, 0, 0)
     CreateNamedRangesForLoaderSheet sSheetName, rTarget, clsAppRuntime.CacheBook
     
-    AddArgs dArgs, True, "sDataType", sDataType, "sSubDataType", sSubDataType, "wbTmp", clsAppRuntime.CacheBook, "bValidateFields", True
+    AddArgs dArgs, True, "sDataType", sDataType, "sSubDataType", sSubDataType, "wbTmp", clsAppRuntime.CacheBook, "bValidateFields", True, _
+        "wbLoader", clsAppRuntime.CacheBook
     'DataLoader sDataType, sSubDataType, wbTmp:=clsAppRuntime.CacheBook, bValidateFields:=False
     DataLoader dArgs
     
-    GetPersonDataFromDB clsAppRuntime, QuadSubDataType.Student, eQuadScope:=QuadScope.specified, _
-                        iPersonID:=666
+    
+    AddArgs dArgs, False, "clsAppRuntime", clsAppRuntime, "iPersonID", 666, "eQuadSubDataType", QuadSubDataType.Student, "eQuadScope", QuadScope.specified
+    Application.Run C_GET_PERSON_DATA_FROM_DB, dArgs
+    'GetPersonDataFromDB clsAppRuntime, QuadSubDataType.Student, eQuadScope:=QuadScope.specified, _
+    '                    iPersonID:=666
     
     If FileExists(clsAppRuntime.ResultFileName) Then
         sResultStr = ReadFile(clsAppRuntime.ResultFileName)
@@ -199,8 +204,10 @@ setup:
         GoTo teardown
     End If
     
-    GetPersonDataFromDB clsAppRuntime, QuadSubDataType.Student, eQuadScope:=QuadScope.specified, _
-                        iPersonID:=667
+    AddArgs dArgs, False, "iPersonID", 667
+    Application.Run C_GET_PERSON_DATA_FROM_DB, dArgs
+    'GetPersonDataFromDB clsAppRuntime, QuadSubDataType.Student, eQuadScope:=QuadScope.specified, _
+    '                    iPersonID:=667
     
     If FileExists(clsAppRuntime.ResultFileName) Then
         sResultStr = ReadFile(clsAppRuntime.ResultFileName)
@@ -224,6 +231,3 @@ teardown:
     
 End Function
 
-
-Public Sub tests()
-End Sub

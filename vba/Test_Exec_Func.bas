@@ -888,3 +888,37 @@ teardown:
     CloseBook wbTmp2
     
 End Function
+
+Public Function Test_Exec_Proc_Ptr()
+Dim sFuncName As String, sBookName As String
+Dim eTestResult As TestResult
+Dim clsExecProc As New Exec_Proc
+Dim vResults As Variant
+Dim dArgs As New Dictionary
+Dim wbTmp As Workbook
+Dim lExecProcPointer As Long
+    
+setup:
+    sFuncName = C_MODULE_NAME & "." & "Test_Exec_Proc_Ptr"
+    sBookName = "vba_source_new.xlsm"
+    Set wbTmp = OpenBook(sBookName, sPath:="C:\Users\burtnolej\Documents")
+
+main:
+    clsExecProc.InitProperties wbTmp:=wbTmp
+
+    wbTmp.Sheets("config").Cells(2, 10).value = ObjPtr(clsExecProc)
+    Set clsExecProc = Nothing
+    lExecProcPointer = wbTmp.Sheets("config").Cells(2, 10).value
+    Set clsExecProc = GetExecProcObj(lExecProcPointer)
+    
+    If clsExecProc.SourceBookName <> sBookName Then
+        Test_Exec_Proc_Ptr = TestResult.Failure
+        GoTo teardown
+    End If
+    
+    Test_Exec_Proc_Ptr = TestResult.OK
+        
+
+teardown:
+    wbTmp.Sheets("config").Cells(2, 10).value = ""
+End Function

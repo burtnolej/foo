@@ -80,18 +80,22 @@ Dim wsTable As Worksheet
 End Function
         
 
-Public Sub GenerateScheduleAdd(clsAppRuntime As App_Runtime, Optional sSheetName As String = "test")
+Public Sub GenerateScheduleAdd(clsAppRuntime As App_Runtime, clsExecProc As Exec_Proc, Optional sSheetName As String = "test")
 Dim sFuncName As String, sDefn As String
 Dim vSource() As String
 Dim wsTmp As Worksheet
 Dim rTarget As Range
 Dim eTestResult As TestResult
+Dim dArgs As New Dictionary
 
 setup:
     sFuncName = C_MODULE_NAME & "." & "GenerateScheduleAdd"
-    GetDefinition clsAppRuntime, "Schedule", "Lesson", sSheetName, FormType.Add
+
+    GetDefinition clsAppRuntime, clsExecProc, "Schedule", "Lesson", sSheetName, FormType.Add
 
 main:
-    GenerateForms clsAppRuntime, bLoadRefData:=True
+    AddArgs dArgs, False, "clsAppRuntime", clsAppRuntime, "bLoadRefData", True
+    Application.Run C_GENERATE_FORMS, dArgs
+    'GenerateForms clsAppRuntime, bLoadRefData:=True
     
 End Sub

@@ -18,6 +18,7 @@ Enum ErrorType
     NotValidPrep = 2
 End Enum
 
+Public Const C_RGB_CONFLICT = "255,255,0"
 Public Const C_RGB_VALID = "0,255,0"
 Public Const C_RGB_INVALID = "255,0,0"
 Public Const C_RGB_ERROR = "242,242,242"

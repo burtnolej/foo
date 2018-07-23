@@ -29,7 +29,7 @@ End Function
 Function Test_IsAppRuntime_False() As TestResult
 Dim sFuncName As String
 Dim eTestResult As TestResult
-Dim clsAppRuntime As New RGBColor
+Dim clsAppRuntime As New rgbColor
 
 setup:
     sFuncName = C_MODULE_NAME & ".MyVarTypeEnum"

@@ -28,21 +28,23 @@ End Function
 Public Function Test_InsertScheduleLessonDataToDB() As TestResult
 Dim eTestResult As TestResult
 Dim clsAppRuntime As New App_Runtime
+Dim clsExecProc As Exec_Proc
 Dim vRows() As Variant, vColumns() As Variant
 Dim sResultStr As String, sSheetName As String
-Dim clsExecProc As New Exec_Proc
 Dim dArgs As New Dictionary
 
 setup:
-    On Error GoTo err
+    'On Error GoTo err
     sSheetName = "test"
     clsAppRuntime.InitProperties bInitializeCache:=True, sDefinitionSheetName:=sSheetName
-    GetDefinition clsAppRuntime, "Schedule", "Lesson", sSheetName, FormType.Add
+    Set clsExecProc = GetExecProcGlobal(ActiveWorkbook)
+    GetDefinition clsAppRuntime, clsExecProc, "Schedule", "Lesson", sSheetName, FormType.Add
+    
     vRows = Init2DVariantArray([{2,994,5,7,1,700;2,994,5,8,2,700;2,994,5,9,3,700}])
     vColumns = InitVariantArray(Array("idStudent", "idFaculty", "idDay", "idTimePeriod", "idLocation", "idSection"))
 
 main:
-    clsExecProc.InitProperties wbTmp:=ActiveWorkbook
+    'clsExecProc.InitProperties wbTmp:=ActiveWorkbook
     AddArgs dArgs, True, "clsExecProc", clsExecProc, "clsAppRuntime", clsAppRuntime, _
             "eQuadSubDataType", QuadSubDataType.Student, "vRows", vRows, "vColumns", vColumns
     InsertScheduleLessonDataToDB dArgs
@@ -87,17 +89,19 @@ Dim rTarget As Range, rWidget As Range
 Dim dEntryValues As Dictionary, dRecordValues As Dictionary
 Dim iStudentID As Integer
 Dim vEntryValues() As String
+Dim clsExecProc As Exec_Proc
 
 setup:
     ResetAppRuntimeGlobal
     sFuncName = C_MODULE_NAME & "." & "Test_AddScheduleLesson_Multiple"
     sSheetName = "test"
     clsAppRuntime.InitProperties bInitializeCache:=True, sDefinitionSheetName:=sSheetName
+    Set clsExecProc = GetExecProcGlobal(ActiveWorkbook)
     sTargetSheetName = "Add_Schedule_Lesson"
     ReDim vEntryValues(0 To 8)
     
 main:
-    GenerateScheduleAdd clsAppRuntime, sSheetName
+    GenerateScheduleAdd clsAppRuntime, clsExecProc, sSheetName
     
     EventsToggle True
     Set Form_Utils.dDefinitions = Nothing
@@ -152,16 +156,18 @@ Dim sFuncName As String, sSheetName As String, sTargetSheetName As String, sSche
 Dim rTarget As Range, rWidget As Range
 Dim dEntryValues As Dictionary, dRecordValues As Dictionary
 Dim iStudentID As Integer
+Dim clsExecProc As Exec_Proc
 
 setup:
     ResetAppRuntimeGlobal
     sFuncName = C_MODULE_NAME & "." & "Test_AddScheduleLessonOverrideScheduleName"
     sSheetName = "test"
     clsAppRuntime.InitProperties bInitializeCache:=True, sDefinitionSheetName:=sSheetName
+    Set clsExecProc = GetExecProcGlobal(ActiveWorkbook)
     sTargetSheetName = "Add_Schedule_Lesson"
     
 main:
-    GenerateScheduleAdd clsAppRuntime
+    GenerateScheduleAdd clsAppRuntime, clsExecProc
     
     EventsToggle True
     Set Form_Utils.dDefinitions = Nothing
@@ -265,16 +271,18 @@ Dim sFuncName As String, sSheetName As String, sTargetSheetName As String
 Dim rTarget As Range, rWidget As Range
 Dim dEntryValues As Dictionary, dRecordValues As Dictionary
 Dim iStudentID As Integer
+Dim clsExecProc As Exec_Proc
 
 setup:
     ResetAppRuntimeGlobal
     sFuncName = C_MODULE_NAME & "." & "Test_AddScheduleLesson"
     sSheetName = "test"
     clsAppRuntime.InitProperties bInitializeCache:=True, sDefinitionSheetName:=sSheetName
+    Set clsExecProc = GetExecProcGlobal(ActiveWorkbook)
     sTargetSheetName = "Add_Schedule_Lesson"
     
 main:
-    GenerateScheduleAdd clsAppRuntime
+    GenerateScheduleAdd clsAppRuntime, clsExecProc
     
     EventsToggle True
     Set Form_Utils.dDefinitions = Nothing

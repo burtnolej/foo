@@ -3,6 +3,70 @@ Option Explicit
 'Sub    TestExportModules()
 Const C_MODULE_NAME = "Test_Module_Utils"
 
+
+Function TestAddCodeToProc() As TestResult
+Dim VBProj As VBIDE.VBProject
+Dim VBComp As VBIDE.VBComponent
+Dim wbTmp As Workbook
+Dim sBookName As String, sRootDirectory As String, sExportModuleDir As String, sCode As String, sModuleCode As String, sModuleName As String, sFuncName As String, sParagraph As String
+Dim eTestResult As TestResult
+Dim vCodeToAdd() As String
+
+setup:
+    sFuncName = C_MODULE_NAME & "." & "GetCode"
+    sModuleName = "tmp1"
+    sRootDirectory = Environ("MYHOME")
+    sBookName = "tmp.xls"
+    Set wbTmp = CreateBook(sRootDirectory & "\" & sBookName)
+    vCodeToAdd = InitStringArray(Array("public function test() as String", "    test=" & """barfoo""", "end function"))
+            
+    sCode = "Option Explicit" & vbNewLine
+    sCode = sCode & "Private Sub Worksheet_Change(ByVal Target As Range)" & vbNewLine
+    sCode = sCode & "Dim wbTarget As Workbook, wbSource As Workbook" & vbNewLine
+    sCode = sCode & "Dim sSourceSheetName As String" & vbNewLine
+    sCode = sCode & "Set wbSource = Workbooks(""vba_source_new.xlsm"")" & vbNewLine
+    sCode = sCode & "Set wbTarget = Workbooks(""menu.xlsm"")" & vbNewLine
+    sCode = sCode & "sSourceSheetName = ""WidgetStyles""" & vbNewLine
+    sCode = sCode & "Application.Run ""vba_source_new.xlsm!ValidateWidget"", Application.ActiveWorkbook, Application.ActiveSheet.Name, Target" & vbNewLine
+    sCode = sCode & "Application.Run ""vba_source_new.xlsm!IsRecordValid"", wbSource, wbTarget, ""MenuMain"", sSourceSheetName" & vbNewLine
+    sCode = sCode & "End Sub" & vbNewLine
+
+    Set VBComp = CreateModule(wbTmp, sModuleName, sCode)
+    Call CloseBook(wbTmp, bSaveFlag:=True)
+    
+main:
+    Set wbTmp = OpenBook(sBookName, sRootDirectory)
+    InsertProcCode wbTmp, sModuleName, "Worksheet_Change", vCodeToAdd
+
+    sModuleCode = GetProcCode(wbTmp, sModuleName, "Worksheet_Change")
+    If InParagraph("Public Function test() As String", sModuleCode) = False Then
+        eTestResult = TestResult.Failure
+    Else
+        eTestResult = TestResult.OK
+    End If
+    
+    If InParagraph("    test = " & """barfoo""", sModuleCode) = False Then
+        eTestResult = TestResult.Failure
+    Else
+        eTestResult = TestResult.OK
+    End If
+    
+    
+    On Error GoTo 0
+    GoTo teardown
+    
+err:
+    eTestResult = TestResult.Error
+    
+teardown:
+    TestAddCodeToProc = eTestResult
+    Call DeleteModule(wbTmp, sModuleName)
+    Call CloseBook(wbTmp)
+    Call DeleteBook(sRootDirectory & "\" & sBookName)
+    
+End Function
+
+
 Function TestGetCode() As TestResult
 Dim VBProj As VBIDE.VBProject
 Dim VBComp As VBIDE.VBComponent
@@ -192,9 +256,6 @@ teardown:
     Call DeleteFile(sResultFileName)
 End Function
 
-Sub test()
-    TestGetProcsInModules
-End Sub
 Function TestGetProcsInModules() As TestResult
 Dim sFuncName As String
 Dim wsTmp As Worksheet

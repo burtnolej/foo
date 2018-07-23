@@ -10,7 +10,8 @@ Dim wsTmp As Worksheet
 Dim rTarget As Range
 Dim dDefinitions As Dictionary, dDefnDetails As Dictionary
 Dim eTestResult As TestResult
-Dim clsAppRuntime As New App_Runtime
+Dim clsAppRuntime As New App_Runtime, dArgs As New Dictionary
+Dim clsExecProc As Exec_Proc
 
 setup:
     ResetAppRuntimeGlobal
@@ -18,11 +19,14 @@ setup:
     sFuncName = C_MODULE_NAME & "." & "GenerateForms"
     sSheetName = "test"
     clsAppRuntime.InitProperties bInitializeCache:=True, sDefinitionSheetName:=sSheetName
-    GetDefinition clsAppRuntime, "Schedule", "Lesson", sSheetName, FormType.Add
+    Set clsExecProc = GetExecProcGlobal(ActiveWorkbook)
+    GetDefinition clsAppRuntime, clsExecProc, "Schedule", "Lesson", sSheetName, FormType.Add
     sTargetSheetName = "Add_Schedule_Lesson"
 
 main:
-    GenerateForms clsAppRuntime, bLoadRefData:=True
+    AddArgs dArgs, False, "clsAppRuntime", clsAppRuntime, "bLoadRefData", True
+    Application.Run C_GENERATE_FORMS, dArgs
+    'GenerateForms clsAppRuntime, bLoadRefData:=True
 
     ' reset to simulate worksheet callbacks in normal runtime; force defaults need to be reloaded
     EventsToggle True
@@ -95,15 +99,18 @@ Dim sDefn As String
 Dim vSource() As String, vStudents() As Variant, vTeachers() As Variant, vLessons() As String
 Dim wsTmp As Worksheet
 Dim rTarget As Range
-Dim dDefinitions As Dictionary, dDefnDetails As Dictionary
+Dim dDefinitions As Dictionary, dDefnDetails As Dictionary, dArgs As New Dictionary
 Dim eTestResult As TestResult
 Dim clsAppRuntime As New App_Runtime
+Dim clsExecProc As Exec_Proc
+
 
 setup:
     ResetAppRuntimeGlobal
     clsAppRuntime.InitProperties bInitializeCache:=True
+    Set clsExecProc = GetExecProcGlobal(ActiveWorkbook)
     sSheetName = "test"
-    GetDefinition clsAppRuntime, "Person", "Student", sSheetName, FormType.Add
+    GetDefinition clsAppRuntime, clsExecProc, "Person", "Student", sSheetName, FormType.Add
     
     'On Error GoTo err:
     sFuncName = C_MODULE_NAME & "." & "GenerateForms"
@@ -115,11 +122,13 @@ setup:
     sDefn = sDefn & "Jon^45^1" & DOUBLEDOLLAR
     sDefn = sDefn & "Quinton^6^2"
     vStudents = Init2DStringArrayFromString(sDefn, bVariant:=True)
-    sCacheSheetName = CacheData(clsAppRuntime, vStudents, QuadDataType.Person, QuadSubDataType.Student, bInTable:=True)
+    sCacheSheetName = CacheData(clsAppRuntime, vStudents, QuadDataType.person, QuadSubDataType.Student, bInTable:=True)
 
 main:
 
-    GenerateForms clsAppRuntime, bLoadRefData:=False
+    AddArgs dArgs, False, "clsAppRuntime", clsAppRuntime, "bLoadRefData", True
+    Application.Run C_GENERATE_FORMS, dArgs
+    'GenerateForms clsAppRuntime, bLoadRefData:=False
     
     EventsToggle True
     With clsAppRuntime.AddBook.Sheets(sTargetSheetName)
@@ -158,9 +167,11 @@ Dim sFuncName As String, sSheetName As String, sResultStr As String, sExpectedRe
 Dim vSource() As String
 Dim wsTmp As Worksheet
 Dim rTarget As Range
-Dim dDefinitions As Dictionary, dDefnDetails As Dictionary
+Dim dDefinitions As Dictionary, dDefnDetails As Dictionary, dArgs As New Dictionary
 Dim eTestResult As TestResult
 Dim clsAppRuntime As New App_Runtime
+Dim clsExecProc As Exec_Proc
+
 
 setup:
     'On Error GoTo err:
@@ -168,6 +179,7 @@ setup:
     sTargetSheetName = "Add_Student_Schedule"
     ResetAppRuntimeGlobal
     clsAppRuntime.InitProperties bInitializeCache:=True
+    Set clsExecProc = GetExecProcGlobal(ActiveWorkbook)
     sSheetName = "test"
     Set wsTmp = CreateSheet(clsAppRuntime.TemplateBook, sSheetName, bOverwrite:=True)
     vSource = Init2DStringArray([{"Add_Student_Schedule","Student","StudentAge","Integer","IsValidInteger";"Add_Student_Schedule","Student","StudentPrep","IntegerRange","IsValidPrep"}])
@@ -176,7 +188,9 @@ setup:
 
 main:
 
-    GenerateForms clsAppRuntime
+    AddArgs dArgs, False, "clsAppRuntime", clsAppRuntime
+    Application.Run C_GENERATE_FORMS, dArgs
+    'GenerateForms clsAppRuntime
     
     If SheetExists(clsAppRuntime.AddBook, sTargetSheetName) = False Then
         eTestResult = TestResult.Failure
@@ -234,9 +248,11 @@ Dim sFuncName As String, sSheetName As String, sResultStr As String, sExpectedRe
 Dim vSource() As String
 Dim wsTmp As Worksheet
 Dim rTarget As Range
-Dim dDefinitions As Dictionary, dDefnDetails As Dictionary
+Dim dDefinitions As Dictionary, dDefnDetails As Dictionary, dArgs As New Dictionary
 Dim eTestResult As TestResult
 Dim clsAppRuntime As New App_Runtime
+Dim clsExecProc As Exec_Proc
+
 
 setup:
     'On Error GoTo err:
@@ -244,6 +260,7 @@ setup:
     sTargetSheetName = "Add_Student_Schedule"
     ResetAppRuntimeGlobal
     clsAppRuntime.InitProperties bInitializeCache:=True
+    Set clsExecProc = GetExecProcGlobal(ActiveWorkbook)
     sSheetName = "test"
     Set wsTmp = CreateSheet(clsAppRuntime.TemplateBook, sSheetName, bOverwrite:=True)
     vSource = Init2DStringArray([{"Add_Student_Schedule","Student","StudentAge","Integer","IsValidInteger","","","","Entry";"Add_Student_Schedule","Student","StudentPrep","IntegerRange","IsValidPrep","","","","Entry";"Add_Student_Schedule","","COMMIT","","","AddStudent","","","Button"}])
@@ -252,7 +269,9 @@ setup:
 
 main:
 
-    GenerateForms clsAppRuntime
+    AddArgs dArgs, False, "clsAppRuntime", clsAppRuntime
+    Application.Run C_GENERATE_FORMS, dArgs
+    'GenerateForms clsAppRuntime
     
     If SheetExists(clsAppRuntime.AddBook, sTargetSheetName) = False Then
         eTestResult = TestResult.Failure
@@ -325,12 +344,13 @@ Dim sSheetName As String, sResultStr As String, sFuncName As String, sDefn As St
 Dim vSource() As String
 Dim wsTmp As Worksheet
 Dim rTarget As Range, rAdd As Range, rButton As Range
-Dim dDefinitions As Dictionary, dDefnDetails As Dictionary
+Dim dDefinitions As Dictionary, dDefnDetails As Dictionary, dArgs As New Dictionary
 Dim eTestResult As TestResult
 Dim clsAppRuntime As New App_Runtime
 
 setup:
     clsAppRuntime.InitProperties bInitializeCache:=True
+
     'On Error GoTo err:
     sFuncName = C_MODULE_NAME & "." & "TestGenerateMenuForm"
     sSheetName = "test"
@@ -356,7 +376,9 @@ setup:
 
 main:
 
-    GenerateForms clsAppRuntime
+    AddArgs dArgs, False, "clsAppRuntime", clsAppRuntime
+    Application.Run C_GENERATE_FORMS, dArgs
+    'GenerateForms clsAppRuntime
     
     sSearchCode = "If Target.Column = 2 And Target.Row = 2 Then" & vbNewLine
     sSearchCode = sSearchCode & "Application.Run ""vba_source_new.xlsm!ToggleScheduleWindow""" & vbNewLine
@@ -409,7 +431,7 @@ Dim sSheetName As String, sResultStr As String, sFuncName As String, sDefn As St
 Dim vSource() As String
 Dim wsTmp As Worksheet
 Dim rTarget As Range, rAdd As Range, rButton As Range
-Dim dDefinitions As Dictionary, dDefnDetails As Dictionary, dDefaultValues As New Dictionary, dTmp As New Dictionary
+Dim dDefinitions As Dictionary, dDefnDetails As Dictionary, dDefaultValues As New Dictionary, dTmp As New Dictionary, dArgs As New Dictionary
 Dim eTestResult As TestResult
 Dim clsAppRuntime As New App_Runtime
 
@@ -439,8 +461,9 @@ setup:
     dDefaultValues.Add "View_Person_Student", dTmp
     
 main:
-    
-    GenerateForms clsAppRuntime, dDefaultValues:=dDefaultValues
+    AddArgs dArgs, False, "clsAppRuntime", clsAppRuntime, "dDefaultValues", dDefaultValues
+    Application.Run C_GENERATE_FORMS, dArgs
+    'GenerateForms clsAppRuntime, dDefaultValues:=dDefaultValues
         
     Set rText = clsAppRuntime.ViewBook.Sheets("View_Person_Student").Range("C4:C4")
     
@@ -474,19 +497,22 @@ Dim sSheetName As String, sResultStr As String, sFuncName As String, sDefn As St
 Dim vSource() As String
 Dim wsTmp As Worksheet
 Dim rTarget As Range, rAdd As Range, rButton As Range
-Dim dDefinitions As Dictionary, dDefnDetails As Dictionary, dDefaultValues As New Dictionary, dTmp As New Dictionary
+Dim dDefinitions As Dictionary, dDefnDetails As Dictionary, dDefaultValues As New Dictionary, dTmp As New Dictionary, dArgs As New Dictionary
 Dim eTestResult As TestResult
 Dim clsAppRuntime As New App_Runtime
+Dim clsExecProc As Exec_Proc
+
 
 setup:
     sSheetName = "test"
     clsAppRuntime.InitProperties bInitializeCache:=True, sDefinitionSheetName:=sSheetName
+    Set clsExecProc = GetExecProcGlobal(ActiveWorkbook)
     'On Error GoTo err:
     sFuncName = C_MODULE_NAME & "." & "GenerateViewSelectForm"
     
     sDataType = "Person"
     sSubDataType = "Student"
-    GetDefinition clsAppRuntime, sDataType, sSubDataType, sSheetName, FormType.View
+    GetDefinition clsAppRuntime, clsExecProc, sDataType, sSubDataType, sSheetName, FormType.View
     
     dTmp.Add "sStudentLastNm", "Butler"
     dTmp.Add "idStudent", "666"
@@ -496,8 +522,9 @@ setup:
     dDefaultValues.Add "View_Schedule_Student", dTmp
     
 main:
-
-    GenerateForms clsAppRuntime, dDefaultValues:=dDefaultValues
+    AddArgs dArgs, False, "clsAppRuntime", clsAppRuntime, "dDefaultValues", dDefaultValues
+    Application.Run C_GENERATE_FORMS, dArgs
+    'GenerateForms clsAppRuntime, dDefaultValues:=dDefaultValues
     
     EventsToggle True
     With clsAppRuntime.ViewBook.Sheets("View_Person_Student")
@@ -540,7 +567,7 @@ Dim sSheetName As String, sResultStr As String, sFuncName As String, sDefn As St
 Dim vSource() As String, vValues() As String
 Dim wsTmp As Worksheet
 Dim rTarget As Range, rAdd As Range, rButton As Range, rColumn As Range
-Dim dDefinitions As Dictionary, dDefnDetails As Dictionary, dDefaultValues As New Dictionary, dTmp As New Dictionary
+Dim dDefinitions As Dictionary, dDefnDetails As Dictionary, dDefaultValues As New Dictionary, dTmp As New Dictionary, dArgs As New Dictionary
 Dim eTestResult As TestResult
 Dim clsAppRuntime As New App_Runtime
 
@@ -567,8 +594,9 @@ setup:
     vValues = Init2DStringArray([{"sStudentFirstNm","StudentAge","StudentPrep";"Jon", "46", "3";"Nancy", "47", "2";"Quinton", "6.5", "4"}])
     
 main:
-
-    GenerateForms clsAppRuntime, vValues:=vValues
+    AddArgs dArgs, False, "clsAppRuntime", clsAppRuntime, "vValues", vValues
+    Application.Run C_GENERATE_FORMS, dArgs
+    'GenerateForms clsAppRuntime, vValues:=vValues
 
     Set rColumn = clsAppRuntime.ViewBook.Sheets("ViewList_Person_Student").Range("lViewList_Person_Student_sStudentFirstNm")
     
@@ -614,12 +642,13 @@ Dim sSheetName As String, sResultStr As String, sFuncName As String, sDefn As St
 Dim vSource() As String, vValues() As Integer
 Dim wsTmp As Worksheet
 Dim rTarget As Range, rAdd As Range, rButton As Range, rColumn As Range
-Dim dDefinitions As Dictionary, dDefnDetails As Dictionary, dDefaultValues As New Dictionary, dTmp As New Dictionary
+Dim dDefinitions As Dictionary, dDefnDetails As Dictionary, dDefaultValues As New Dictionary, dTmp As New Dictionary, dArgs As New Dictionary
 Dim eTestResult As TestResult
 Dim clsAppRuntime As New App_Runtime
 
 setup:
     clsAppRuntime.InitProperties bInitializeCache:=True
+    Set clsExecProc = GetExecProcGlobal(ActiveWorkbook)
     On Error GoTo err:
     sFuncName = C_MODULE_NAME & "." & "GenerateViewListForm_PassingWrongValues"
     sSheetName = "test"
@@ -639,8 +668,10 @@ setup:
     Set Form_Utils.dDefinitions = LoadDefinitions(wsTmp, rSource:=rTarget)
     
 main:
+    AddArgs dArgs, False, "clsAppRuntime", clsAppRuntime, "vValues", vValues
+    Application.Run C_GENERATE_FORMS, dArgs
 
-    GenerateForms clsAppRuntime, vValues:=vValues
+    'GenerateForms clsAppRuntime, vValues:=vValues
     
     eTestResult = TestResult.Failure
     On Error GoTo 0
@@ -773,14 +804,14 @@ Dim rTarget As Range
 Dim eTestResult As TestResult
 Dim rInput As Range
 Dim sKey As String
-
+Dim dArgs As New Dictionary
 Dim clsAppRuntime As New App_Runtime
 
 setup:
     clsAppRuntime.InitProperties bInitializeCache:=True
     'On Error GoTo err:
     sFuncName = C_MODULE_NAME & "." & "IsRecordValid"
-    sSheetName = "Add_Person_Student"
+    sSheetName = "test"
     sFieldName1 = "StudentAge"
     sFieldName2 = "StudentName"
     Set wsTmp = CreateSheet(clsAppRuntime.AddBook, sSheetName, bOverwrite:=True)
@@ -788,21 +819,24 @@ setup:
     Set rTarget = RangeFromStrArray(vSource, wsTmp, 0, 1)
     Set Form_Utils.dDefinitions = LoadDefinitions(wsTmp, rSource:=rTarget, bIgnoreWidgetType:=True)
     
-    sKey = "e" & sSheetName & "_" & sFieldName1
+    Set wsTmp = CreateSheet(clsAppRuntime.AddBook, "Add_Person_Student", bOverwrite:=True)
+    sKey = "e" & "Add_Person_Student" & "_" & sFieldName1
     
     sTemplateSheetName = clsAppRuntime.TemplateBook.Names("fAdd").RefersToRange.Worksheet.Name
-    
-    GenerateWidgets clsAppRuntime, sSheetName, wbTmp:=clsAppRuntime.AddBook, sTemplateSheetName:=sTemplateSheetName
+    AddArgs dArgs, False, "clsAppRuntime", clsAppRuntime, "sAction", "Add_Person_Student", "wbTmp", clsAppRuntime.AddBook, "sTemplateSheetName", sTemplateSheetName
+    Application.Run C_GENERATE_WIDGETS, dArgs
+    'GenerateWidgets clsAppRuntime, sSheetName, wbTmp:=clsAppRuntime.AddBook, sTemplateSheetName:=sTemplateSheetName
+
     Set rInput = wsTmp.Range(sKey)
     rInput.value = 123
-    bResult = ValidateWidget(clsAppRuntime.AddBook, sSheetName, rInput)
+    bResult = ValidateWidget(clsAppRuntime.AddBook, "Add_Person_Student", rInput)
     
     If bResult <> True Then
         eTestResult = TestResult.Failure
         GoTo teardown
     End If
     
-    sKey = "e" & sSheetName & "_" & sFieldName2
+    sKey = "e" & "Add_Person_Student" & "_" & sFieldName2
     'GenerateAdd clsAppRuntime, sSheetName, sSheetName, "", wbTmp:=clsAppRuntime.AddBook
     Set rInput = wsTmp.Range(sKey)
     rInput.value = "ABC"
@@ -813,7 +847,7 @@ setup:
         GoTo teardown
     End If
 
-    If IsRecordValid(clsAppRuntime.TemplateBook, clsAppRuntime.AddBook, sSheetName, _
+    If IsRecordValid(clsAppRuntime.TemplateBook, clsAppRuntime.AddBook, "Add_Person_Student", _
                 clsAppRuntime.TemplateWidgetSheetName) = True Then
         eTestResult = TestResult.Failure
     Else
@@ -832,9 +866,6 @@ teardown:
     
 End Function
 
-Sub test()
-    TestFormatForms
-End Sub
 Function TestFormatForms() As TestResult
 ' 1 Add form
 ' test if Widget validation works
@@ -843,7 +874,7 @@ Dim sFuncName As String, sSheetName As String, sResultStr As String, sExpectedRe
 Dim vSource() As String
 Dim wsTmp As Worksheet, wsFormat As Worksheet, wsWidgetFormat As Worksheet
 Dim rTarget As Range, rFormat As Range
-Dim dDefinitions As Dictionary, dDefnDetails As Dictionary
+Dim dDefinitions As Dictionary, dDefnDetails As Dictionary, dArgs As New Dictionary
 Dim eTestResult As TestResult
 Dim clsAppRuntime As New App_Runtime
 Dim wbTemplateBook As Workbook
@@ -889,7 +920,9 @@ main:
     CreateNamedRange clsAppRuntime.TemplateBook, "B2:B2", "FormStyles", "fAddEntry1", "False"
     CreateNamedRange clsAppRuntime.TemplateBook, "B3:C3", "FormStyles", "fAddEntry2", "False"
     
-    GenerateForms clsAppRuntime
+    AddArgs dArgs, False, "clsAppRuntime", clsAppRuntime
+    Application.Run C_GENERATE_FORMS, dArgs
+    'GenerateForms clsAppRuntime
     
     With clsAppRuntime.AddBook.Sheets("Add_Person_Student")
         Set rFormat = .Range("$I$50:$I$50")

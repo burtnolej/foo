@@ -30,6 +30,153 @@ setup:
     Next sCacheBook
     
 End Sub
+
+
+Function Test_UpdateTableRecord() As TestResult
+
+Dim sFuncName As String, sSheetName As String, sResultStr As String, sExpectedResultStr As String, sColumns As String, sExecPath As String, sDatabaseName As String, _
+    sTableName As String, sFileName As String, sResults As String, sResultFileName As String, sColRange As String
+Dim vSource() As String, vRows() As Variant, vColNames() As String, aColumnDefns() As Variant, aRows() As Variant, aColumns() As String, aArgs() As String, vDBRows() As Variant
+Dim vDirtyRows() As Variant
+Dim wsTmp As Worksheet
+Dim rTarget As Range
+Dim dDefinitions As Dictionary, dRecord As Dictionary, dArgs As New Dictionary
+Dim eTestResult As TestResult
+Dim clsAppRuntime As New App_Runtime
+Dim bDeleteFlag As Boolean, bDecodeFlag As Boolean
+
+setup:
+    clsAppRuntime.InitProperties bInitializeCache:=True
+    
+    sFuncName = C_MODULE_NAME & "." & "Test_UpdateTableRecord"
+    sSheetName = "test"
+    Set wsTmp = CreateSheet(clsAppRuntime.TemplateBook, sSheetName, bOverwrite:=True)
+    
+    sDatabaseName = "foobar"
+    sTableName = "foobar"
+    bDeleteFlag = False
+    bDecodeFlag = True
+    aColumnDefns = Init2DVariantArray([{"FooName","Text";"FooAge","Integer";"FooID","Integer"}])
+    sFileName = Environ("MYHOME") & "\\uufoo.txt"
+    sExecPath = Environ("MYHOME") & "\GitHub\quadviewer\utils\excel\"
+    sResultFileName = Environ("MYHOME") & "\\uufoo.txt_result"
+    
+    vSource = Init2DStringArray([{"Add_Foo_","Foo","FooName","List","IsMember","","","","Entry";"Add_Foo_","Foo","FooAge","Integer","IsValidInteger","","","","Entry";"Add_Foo_","Foo","FooID","Integer","IsValidInteger","","","","Entry"}])
+
+    Set rTarget = RangeFromStrArray(vSource, wsTmp, 0, 1)
+    vRows = Init2DVariantArray([{"FooName","FooAge","FooID";"Jon","43","1";"Quinton","6","2"}])
+    vDBRows = Init2DVariantArray([{"Jon","43","1";"Quinton","6","2"}])
+    vColNames = InitStringArray(Array("FooName", "FooAge", "FooID")) ' db does not want the column headers
+main:
+
+    Set Form_Utils.dDefinitions = LoadDefinitions(wsTmp, rSource:=rTarget)
+    CreateTables wbTmp:=clsAppRuntime.CacheBook
+    AddTableRecordAuto clsAppRuntime.CacheBook, "foo", vColNames, vRows, bBulkLoad:=True
+    
+    need to pull in section id and sectionsched in query so know where to update
+    
+    AddArgs dArgs, False, "clsAppRuntime", clsAppRuntime, "sFormName", "foo", "sKey", "Add_Foo_Foo_Age", "sValue", 66, _
+            "iID", 1
+        
+    If dArgs.Exists("wbTmp") Then
+        ' generating a specific form not all defined
+        Set wbTmp = dArgs.Item("wbTmp")
+    Else
+        Set wbTmp = clsAppRuntime.CacheBook
+    End If
+    
+    UpdateTableRecord "foo", "1", "FooAge", 66, clsAppRuntime.CacheBook
+    Set dRecord = GetTableRecord("Foo", 1, clsAppRuntime.CacheBook)
+    If dRecord.Item("FooAge") <> "66" Then
+        eTestResult = TestResult.Failure
+        GoTo teardown
+    End If
+    
+    sColRange = GetDBColumnRange("Foo", "SyncState", ColumnType.INFO)
+        
+    If clsAppRuntime.CacheBook.Sheets("Foo").Range(sColRange).Rows(1 + 1).value <> "User" Then
+        eTestResult = TestResult.Failure
+        GoTo teardown
+    End If
+
+    eTestResult = TestResult.OK
+    On Error GoTo 0
+    GoTo teardown
+    
+err:
+    eTestResult = TestResult.Error
+    
+teardown:
+    Test_UpdateTableRecord = eTestResult
+    Call DeleteFile(sFileName)
+    Call DeleteFile(sResultFileName)
+    clsAppRuntime.Delete
+End Function
+    
+    
+    
+Function Test_GetTableRecord() As TestResult
+
+Dim sFuncName As String, sSheetName As String, sResultStr As String, sExpectedResultStr As String, sColumns As String, sExecPath As String, sDatabaseName As String, _
+    sTableName As String, sFileName As String, sResults As String, sResultFileName As String
+Dim vSource() As String, vRows() As Variant, vColNames() As String, aColumnDefns() As Variant, aRows() As Variant, aColumns() As String, aArgs() As String, vDBRows() As Variant
+Dim vDirtyRows() As Variant
+Dim wsTmp As Worksheet
+Dim rTarget As Range
+Dim dDefinitions As Dictionary, dRecord As Dictionary, dArgs As New Dictionary
+Dim eTestResult As TestResult
+Dim clsAppRuntime As New App_Runtime
+Dim bDeleteFlag As Boolean, bDecodeFlag As Boolean
+
+setup:
+    clsAppRuntime.InitProperties bInitializeCache:=True
+    
+    sFuncName = C_MODULE_NAME & "." & "Test_GetTableRecord"
+    sSheetName = "test"
+    Set wsTmp = CreateSheet(clsAppRuntime.TemplateBook, sSheetName, bOverwrite:=True)
+    
+    sDatabaseName = "foobar"
+    sTableName = "foobar"
+    bDeleteFlag = False
+    bDecodeFlag = True
+    aColumnDefns = Init2DVariantArray([{"FooName","Text";"FooAge","Integer";"FooID","Integer"}])
+    sFileName = Environ("MYHOME") & "\\uufoo.txt"
+    sExecPath = Environ("MYHOME") & "\GitHub\quadviewer\utils\excel\"
+    sResultFileName = Environ("MYHOME") & "\\uufoo.txt_result"
+    
+    vSource = Init2DStringArray([{"Add_Foo_","Foo","FooName","List","IsMember","","","","Entry";"Add_Foo_","Foo","FooAge","Integer","IsValidInteger","","","","Entry";"Add_Foo_","Foo","FooID","Integer","IsValidInteger","","","","Entry"}])
+
+    Set rTarget = RangeFromStrArray(vSource, wsTmp, 0, 1)
+    vRows = Init2DVariantArray([{"FooName","FooAge","FooID";"Jon","43","1";"Quinton","6","2"}])
+    vDBRows = Init2DVariantArray([{"Jon","43","1";"Quinton","6","2"}])
+    vColNames = InitStringArray(Array("FooName", "FooAge", "FooID")) ' db does not want the column headers
+main:
+
+    Set Form_Utils.dDefinitions = LoadDefinitions(wsTmp, rSource:=rTarget)
+    CreateTables wbTmp:=clsAppRuntime.CacheBook
+    AddTableRecordAuto clsAppRuntime.CacheBook, "foo", vColNames, vRows, bBulkLoad:=True
+    
+    Set dRecord = GetTableRecord("Foo", 1, clsAppRuntime.CacheBook)
+    If dRecord.Item("FooAge") <> "43" Then
+        eTestResult = TestResult.Failure
+        GoTo teardown
+    Debug.Print dRecord.Item("FooAge")
+    End If
+
+    eTestResult = TestResult.OK
+    On Error GoTo 0
+    GoTo teardown
+    
+err:
+    eTestResult = TestResult.Error
+    
+teardown:
+    Test_GetTableRecord = eTestResult
+    Call DeleteFile(sFileName)
+    Call DeleteFile(sResultFileName)
+    clsAppRuntime.Delete
+End Function
+    
 Function TestGetDirtyTableRecords() As TestResult
 Dim sFuncName As String, sSheetName As String, sResultStr As String, sExpectedResultStr As String, sColumns As String, sExecPath As String, sDatabaseName As String, _
     sTableName As String, sFileName As String, sResults As String, sResultFileName As String
@@ -37,7 +184,7 @@ Dim vSource() As String, vRows() As Variant, vColNames() As String, aColumnDefns
 Dim vDirtyRows() As Variant
 Dim wsTmp As Worksheet
 Dim rTarget As Range
-Dim dDefinitions As Dictionary, dRecord As Dictionary
+Dim dDefinitions As Dictionary, dRecord As Dictionary, dArgs As New Dictionary
 Dim eTestResult As TestResult
 Dim clsAppRuntime As New App_Runtime
 Dim bDeleteFlag As Boolean, bDecodeFlag As Boolean
@@ -70,7 +217,9 @@ main:
     CreateTables wbTmp:=clsAppRuntime.CacheBook
     AddTableRecordAuto clsAppRuntime.CacheBook, "foo", vColNames, vRows, bBulkLoad:=True
     
-    GenerateForms clsAppRuntime
+    AddArgs dArgs, False, "clsAppRuntime", clsAppRuntime
+    Application.Run C_GENERATE_FORMS, dArgs
+    'GenerateForms clsAppRuntime
         
     SetEntryValue "Add_Foo_", "FooAge", 123, wbTmp:=clsAppRuntime.AddBook
     SetEntryValue "Add_Foo_", "FooName", "blahblah", wbTmp:=clsAppRuntime.AddBook

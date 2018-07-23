@@ -172,40 +172,69 @@ Sub DoProjectTestRunner()
 Dim sIncModules As String
     
     MinimumWindowState
-    sIncModules = "Test_Quad_Schedule_View"
+    'sIncModules = "Test_App_Loader"
     'sIncModules = sIncModules & ",Test_Quad_Schedule_View"
-    ProjectTestRunner sIncModules
-    Exit Sub
+    'ProjectTestRunner sIncModules
+    'Exit Sub
     
     sIncModules = "Test_Quad_Schedule_View"
     sIncModules = sIncModules & ",Test_Quad_Schedule_Edit"
     sIncModules = sIncModules & ",Test_Quad_Schedule_Add"
-    sIncModules = sIncModules & ",Test_Quad_Schedule_View"
+    sIncModules = sIncModules & ",Test_Quad_Schedule_Update"
     sIncModules = sIncModules & ",Test_Quad_Person"
     sIncModules = sIncModules & ",Test_Quad_Person_Add"
     sIncModules = sIncModules & ",Test_Quad_Courses"
     sIncModules = sIncModules & ",Test_App_Loader"
     'sIncModules = sIncModules & ",Test_Array_Utils"
-    ''sIncModules = sIncModules & ",Test_DB_Utils"
+    'sIncModules = sIncModules & ",Test_DB_Utils"
     sIncModules = sIncModules & ",Test_Form_Utils"
     'sIncModules = sIncModules & ",Test_Dict_Utils,Test_File_Utils"
     'sIncModules = sIncModules & ",Test_Filter_Utils"
     'sIncModules = sIncModules & ",Test_Format_Utils"
     'sIncModules = sIncModules & ",Test_Macros"
     'sIncModules = sIncModules & ",Test_Misc_Utils"
-    ''sIncModules = sIncModules & ",Test_Module_Utils"
+    'sIncModules = sIncModules & ",Test_Module_Utils"
     'sIncModules = sIncModules & ",Test_OS_Utils"
     sIncModules = sIncModules & ",Test_Quad_Utils"
-    sIncModules = sIncModules & ",Test_App_Runtime"
+    'sIncModules = sIncModules & ",Test_App_Runtime"
     'sIncModules = sIncModules & ",Test_Range_Utils,Test_String_Utils"
-    sIncModules = sIncModules & ",Test_Table_Utils"
+    IncModules = sIncModules & ",Test_Table_Utils"
     sIncModules = sIncModules & ",Test_Widget_Utils,Test_Workbook_Utils"
     'sIncModules = sIncModules & ",Test_XML_utils"
     'sIncModules = sIncModules & ",Test_Window_Utils"
     sIncModules = sIncModules & ",Test_Validation_Utils"
-    sIncModules = sIncModules & ",Test_Exec_Func"
+    'sIncModules = sIncModules & ",Test_Exec_Func"
     
 
+    ProjectTestRunner sIncModules
+
+End Sub
+
+Sub DoProjectTestRunner2()
+'split into 2 because of some wierd bug that causes EXCEL to crash at the end; maybe cos im not cleaning up memory ;-)
+Dim sIncModules As String
+    
+    MinimumWindowState
+    'sIncModules = "Test_App_Loader"
+    'sIncModules = sIncModules & ",Test_Quad_Schedule_View"
+    'ProjectTestRunner sIncModules
+    'Exit Sub
+
+    sIncModules = "Test_Array_Utils"
+    'sIncModules = sIncModules & ",Test_DB_Utils"
+    sIncModules = sIncModules & ",Test_Dict_Utils,Test_File_Utils"
+    sIncModules = sIncModules & ",Test_Filter_Utils"
+    sIncModules = sIncModules & ",Test_Format_Utils"
+    sIncModules = sIncModules & ",Test_Macros"
+    sIncModules = sIncModules & ",Test_Misc_Utils"
+    'sIncModules = sIncModules & ",Test_Module_Utils"
+    sIncModules = sIncModules & ",Test_OS_Utils"
+    sIncModules = sIncModules & ",Test_App_Runtime"
+    sIncModules = sIncModules & ",Test_Range_Utils,Test_String_Utils"
+    sIncModules = sIncModules & ",Test_XML_utils"
+    sIncModules = sIncModules & ",Test_Window_Utils"
+    sIncModules = sIncModules & ",Test_Exec_Func"
+    
     ProjectTestRunner sIncModules
 
 End Sub

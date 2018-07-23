@@ -3,15 +3,25 @@ Option Explicit
 Const C_MODULE_NAME = "Form_Definitions_Utils"
 
 
-Function ExecDefinitionFunc(eFormType As FormType, sDataType As String, sSubDataType As String, Optional sDefn As String, Optional sFormName As String) As String
+Function ExecDefinitionFunc(clsAppRuntime As App_Runtime, clsExecProc As Exec_Proc, eFormType As FormType, _
+                            sDataType As String, sSubDataType As String, Optional sDefn As String, _
+                Optional sFormName As String, Optional bLoader As Boolean = True) As String
+                
 Dim sFuncName As String
+Dim dArgs As New Dictionary
     sFuncName = "GetDefinition" & WorksheetFunction.Proper(sDataType) & WorksheetFunction.Proper(sSubDataType)
-    ExecDefinitionFunc = Application.Run(sFuncName, eFormType, sDefn, sFormName)
+    
+    AddArgs dArgs, False, "clsAppRuntime", clsAppRuntime, "clsExecProc", clsExecProc, "eFormType", eFormType, "sDefn", sDefn, _
+            "sFormName", sFormName, "bLoader", bLoader, "ver_series", clsAppRuntime.Version
+    clsExecProc.ExecProc sFuncName, dArgs
+        
+    'ExecDefinitionFunc = Application.Run(sFuncName, eFormType, sDefn, sFormName, bLoader)
+    ExecDefinitionFunc = dArgs.Item("result")
 End Function
 
 
-Sub GetDefinition(clsAppRuntime As App_Runtime, sDataType As String, sSubDataType As String, sSheetName As String, eFormType As FormType, _
-                Optional wbTmp As Workbook)
+Sub GetDefinition(clsAppRuntime As App_Runtime, clsExecProc As Exec_Proc, sDataType As String, sSubDataType As String, sSheetName As String, eFormType As FormType, _
+                Optional wbTmp As Workbook, Optional bLoader As Boolean = False)
 '<<<
 'purpose: load definitions required to support the Add Lesson workflow
 'param  : clsAppRuntime, App_Runtime; App defaults
@@ -36,7 +46,7 @@ setup:
     
 main:
 
-    sDefn = ExecDefinitionFunc(eFormType, sDataType, sSubDataType)
+    sDefn = ExecDefinitionFunc(clsAppRuntime, clsExecProc, eFormType, sDataType, sSubDataType, bLoader:=bLoader)
     
     vSource = Init2DStringArrayFromString(sDefn)
 
@@ -163,18 +173,44 @@ main:
             dDefnDetail.Add "WidgetType", eWidgetType
             dDefnDetail.Add "ActionName", sActionFunc
             
-            For iCol = 6 To 7
-                If rRow.Columns(iCol).value <> "" Then
-                    vValidationParams(iValidationParamCount) = rRow.Columns(iCol).value
-                    iValidationParamCount = iValidationParamCount + 1
+            ReDim Preserve vValidationParams(0 To 1)
+            
+            iCol = 6
+            'If rRow.Columns(iCol).value <> "" Then
+                If rRow.Columns(iCol).value = "" Then
+                    vValidationParams(0) = sCacheTableName
+                Else
+                    vValidationParams(0) = rRow.Columns(iCol).value
                 End If
-            Next iCol
+            'End If
             
-            If iValidationParamCount > 0 Then
-                ReDim Preserve vValidationParams(0 To iValidationParamCount - 1)
-                dDefnDetail.Add "validation_args", vValidationParams
-            End If
+            iCol = 7
+            'If rRow.Columns(iCol).value <> "" Then
+                If rRow.Columns(iCol).value = "" Then
+                    vValidationParams(1) = sFieldName
+                Else
+                    vValidationParams(1) = rRow.Columns(iCol).value
+                End If
+            'End If
             
+            'For iCol = 6 To 7
+            '    If rRow.Columns(iCol).value <> "" Then
+            '        If rRow.Columns(iCol).value = "" Then
+            '            ValidationParams(iValidationParamCount) = sCacheTableName
+            '        Else
+            '            vValidationParams(iValidationParamCount) = rRow.Columns(iCol).value
+            '        End If
+            '
+            '        iValidationParamCount = iValidationParamCount + 1
+            '    End If
+            'Next iCol
+            
+            'If iValidationParamCount > 0 Then
+                'ReDim Preserve vValidationParams(0 To iValidationParamCount - 1)
+            
+            'End If
+            
+            dDefnDetail.Add "validation_args", vValidationParams
             sKey = GetWidgetKey(sActionName, sFieldName, eWidgetType)
             
             If dDefinitions.Exists(sKey) = True Then

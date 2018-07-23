@@ -1,6 +1,4 @@
 Attribute VB_Name = "Array_Utils"
-' Errors
-' ----------------------------------------------------------------------------------------------
 Const C_MODULE_NAME = "Array_Utils"
 Enum ArrayErrors
     ArgNot2DArray = 1
@@ -8,6 +6,82 @@ Enum ArrayErrors
 End Enum
 Const C_ARRAY_ERROR = "ArgNot2DArray,NotArrayFromRange"
 Const C_ERROR_RANGE = 500
+
+Function IndexArray(aSearch As Variant, sValue As String, _
+                Optional vWhere As Variant) As Integer
+    For i = 0 To UBound(aSearch)
+        If aSearch(i) = sValue Then
+            If IsSet(vWhere) Then
+                If InArray(vWhere, i) Then GoTo found
+            Else
+                GoTo found
+            End If
+        End If
+    Next
+    
+    GoTo notfound
+
+found:
+    IndexArray = i
+    Exit Function
+        
+notfound:
+    IndexArray = -1
+End Function
+
+Function InArray(aSearch As Variant, iValue As Variant, _
+        Optional bLike As Boolean = False) As Boolean
+' Determine if value [iValue] is a member of set [aSearch]; [aSearch] needs to be a 1 dimensional array
+    For i = 0 To UBound(aSearch)
+        If bLike = False Then
+            If CStr(aSearch(i)) = CStr(iValue) Then
+                InArray = True
+                Exit Function
+            End If
+        Else
+            If CStr(aSearch(i)) Like ASTERISK & CStr(iValue) & ASTERISK Then
+                InArray = True
+                Exit Function
+            End If
+        End If
+        
+        If aSearch(i) = "" Then
+            GoTo cleanup
+        End If
+    Next
+cleanup:
+    InArray = False
+End Function
+
+
+'Public Function IsSet(oTmp As Object) As Boolean
+Public Function IsSet(oTmp As Variant) As Boolean
+
+    If IsInstance(oTmp, vbObject, bAssert:=False) = True Then
+        If oTmp Is Nothing Then
+            IsSet = False
+            Exit Function
+        End If
+    End If
+        
+    If IsEmpty(oTmp) Or IsMissing(oTmp) Then
+        IsSet = False
+        Exit Function
+    End If
+    
+    'If oTmp Is Nothing Then
+    '    IsSet = False
+    '    Exit Function
+    'End If
+
+istrue:
+    IsSet = True
+End Function
+
+
+' Errors
+' ----------------------------------------------------------------------------------------------
+
 Function ReDim2DArray(aInput As Variant, _
                       iTargetLength As Integer, _
                       iTargetWidth As Integer, _
@@ -73,27 +147,7 @@ Dim iOrigLength As Integer
     ReDim2DArray = aTmp
 
 End Function
-Function IndexArray(aSearch As Variant, sValue As String, _
-                Optional vWhere As Variant) As Integer
-    For i = 0 To UBound(aSearch)
-        If aSearch(i) = sValue Then
-            If IsSet(vWhere) Then
-                If InArray(vWhere, i) Then GoTo found
-            Else
-                GoTo found
-            End If
-        End If
-    Next
-    
-    GoTo notfound
 
-found:
-    IndexArray = i
-    Exit Function
-        
-notfound:
-    IndexArray = -1
-End Function
 Function IndexArrayMulti(aSearch As Variant, sValue As String, _
                     Optional bLike = False, _
                     Optional bEndsWith = False) As Integer()
@@ -104,17 +158,17 @@ Dim iCount As Integer
     For i = 0 To UBound(aSearch)
         
         If bLike = False And bEndsWith = False Then
-            If aSearch(i) = sValue Then
+            If LCase(aSearch(i)) = LCase(sValue) Then
                 vHits(iCount) = i
                 iCount = iCount + 1
             End If
         ElseIf bLike = True Then
-            If aSearch(i) Like ASTERISK & sValue & ASTERISK Then
+            If LCase(aSearch(i)) Like ASTERISK & LCase(sValue) & ASTERISK Then
                 vHits(iCount) = i
                 iCount = iCount + 1
             End If
         ElseIf bEndsWith = True Then
-            If EndsWith(CStr(aSearch(i)), sValue) Then
+            If EndsWith(CStr(LCase(aSearch(i))), LCase(sValue)) Then
                 vHits(iCount) = i
                 iCount = iCount + 1
             End If
@@ -122,6 +176,7 @@ Dim iCount As Integer
     Next
     If iCount = 0 Then
         ReDim vHits(0)
+        vHits(0) = -1
     Else
         ReDim Preserve vHits(0 To iCount - 1)
     End If
@@ -350,29 +405,7 @@ setup:
     ConvertArrayFromRangeto1D = iTmp
     
 End Function
-Function InArray(aSearch As Variant, iValue As Variant, _
-        Optional bLike As Boolean = False) As Boolean
-' Determine if value [iValue] is a member of set [aSearch]; [aSearch] needs to be a 1 dimensional array
-    For i = 0 To UBound(aSearch)
-        If bLike = False Then
-            If CStr(aSearch(i)) = CStr(iValue) Then
-                InArray = True
-                Exit Function
-            End If
-        Else
-            If CStr(aSearch(i)) Like ASTERISK & CStr(iValue) & ASTERISK Then
-                InArray = True
-                Exit Function
-            End If
-        End If
-        
-        If aSearch(i) = "" Then
-            GoTo cleanup
-        End If
-    Next
-cleanup:
-    InArray = False
-End Function
+
 Function Array2String(aVals() As String, Optional aWidths As Variant, Optional sDelim As String = "") As String
 Dim sResult As String
 Dim iWidth As Integer
@@ -553,3 +586,9 @@ ReDim iTmp(0 To UBound(aInitVals))
     
     InitIntArray = iTmp
 End Function
+
+
+
+
+
+

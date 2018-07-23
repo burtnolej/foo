@@ -2,14 +2,12 @@ Attribute VB_Name = "Test_Quad_Schedule_Edit"
 Option Explicit
 Const C_MODULE_NAME = "Test_Quad_Schedule_Edit"
 
-Sub test()
-    Test_EditLesson
-End Sub
 Function Test_EditLesson() As TestResult
 Dim eTestResult As TestResult
 Dim clsAppRuntime As New App_Runtime
 Dim sFuncName As String, sSheetName As String, sTargetSheetName As String, sDataType As String, sSubDataType As String
 Dim dRecordValues As Dictionary
+Dim clsExecProc As Exec_Proc
 
 setup:
     ResetAppRuntimeGlobal
@@ -19,7 +17,9 @@ setup:
     sSubDataType = "Lesson"
     sSheetName = "test"
     clsAppRuntime.InitProperties bInitializeCache:=True
-    GetDefinition clsAppRuntime, sDataType, sSubDataType, sSheetName, FormType.Add
+    Set clsExecProc = GetExecProcGlobal(ActiveWorkbook)
+    
+    GetDefinition clsAppRuntime, clsExecProc, sDataType, sSubDataType, sSheetName, FormType.Add
     
 main:
 

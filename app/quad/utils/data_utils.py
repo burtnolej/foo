@@ -1,8 +1,9 @@
 from types import StringType, IntType, ListType
 from utils.database.database_util import Database
-from utils.database.database_table_util import tbl_query, tbl_rows_insert, tbl_row_delete, _quotestrs, tbl_rows_update,tbl_cols_get
+from utils.database.database_table_util import tbl_query, tbl_rows_insert, tbl_row_delete, _quotestrs, tbl_rows_update,tbl_cols_get, tbl_to_xml, tbl_row_delete
 from datetime import datetime
 from utils.misc_basic.misc_utils_log import Log, logger, PRIORITY
+from utils.misc_basic.xml_utils import xmltree
 import sys
 from collections import OrderedDict
 
@@ -21,6 +22,7 @@ __all__ = ["get_student","get_teacher",
            "get_student_schedule","get_teacher_schedule",
            "get_students_per_class_by_teacher",
            "get_all_student","get_all_teacher",
+           "get_all_classtypecode",
            "get_all_course","get_course",
            "get_all_section","get_section",
            "get_all_location","get_location",
@@ -32,8 +34,7 @@ __all__ = ["get_student","get_teacher",
            "_delete_student_level","_delete_student","delete_student", 
            "_update_table","update_student","get_student_schedule",
            "insert_schedule_lesson", 
-           "get_schedule_lesson", 
-           
+           "get_schedule_lesson", "delete_teacher", 
            "delete_classlecture"]
 
 def is_valid_course(course_id):
@@ -99,11 +100,22 @@ def _qry_student(students,allstudents=False):
     
     if not allstudents:
         sql = sql + ('and st.idStudent in ({}) ').format(",".join(map(str,students)))
-    
+
     sql = sql + ('and st.idStudent = stl.idStudent and stl.cdRowStatus = "act" and stl.idAcadPeriod = 1 '                 
            'and stl.idPrep = pc.idPrep and pc.cdRowStatus = "act" ')
+    #sql = sql + ('and st.idStudent = stl.idStudent and stl.cdRowStatus = "act" '                 
+    #       'and stl.idPrep = pc.idPrep and pc.cdRowStatus = "act" ')
     return sql
 
+def clean_database(database,likestr="2018070"):
+    
+    tables = ["SectionSchedule","SectionScheduleFaculty","SectionScheduleStudent","Section","Course","Subject","Student","StudentLevel","Faculty"]
+
+    with database:
+        for _table in tables:
+            tbl_row_delete(database,_table,[["dtAdd","like","\"" + likestr+"%\""]])
+    
+    
 def get_all_student(database):
     return get_student(database, allstudents=True)
 
@@ -131,6 +143,39 @@ def update_student(database,row):
     _update_table(database,"StudentLevel",field_name,field_value,pred_name,pred_value)
     return [],[]
 
+''' ----- TEACHER [DELETE]-----  '''
+
+def delete_teacher(database,teachers):
+    _delete_teacher(database,teachers)
+    return [],[]
+
+def _delete_teacher(database,teachers,allteachers=False):
+    for teacherid in teachers:
+        with database:
+            tbl_row_delete(database,"Faculty",[["idFaculty","=",teacherid]])
+            
+''' ----- COURSE [DELETE]-----  '''
+
+def delete_course(database,courses):
+    _delete_course(database,courses)
+    return [],[]
+
+def _delete_course(database,courses,allcourses=False):
+    for courseid in courses:
+        with database:
+            tbl_row_delete(database,"Course",[["idCourse","=",courseid]])
+        
+''' ----- SUBJECT [DELETE]-----  '''
+
+def delete_subject(database,subjects):
+    _delete_subject(database,subjects)
+    return [],[]
+
+def _delete_subject(database,subjects,allsubjects=False):
+    for subjectid in subjects:
+        with database:
+            tbl_row_delete(database,"Subject",[["idSubject","=",subjectid]])
+            
 ''' ----- STUDENT [DELETE]-----  '''
 
 def delete_student(database,students):
@@ -138,16 +183,101 @@ def delete_student(database,students):
     _delete_student_level(database,students)
     return [],[]
 
+def delete_studentlevel(database,students,idacadperiods=[1]):
+    _delete_student_level(database,students,idacadperiods)
+    return [],[]
+
 def _delete_student(database,students,allstudents=False):
     for studentid in students:
         with database:
             tbl_row_delete(database,"Student",[["idStudent","=",studentid]])
 
-def _delete_student_level(database,students,allstudents=False):
+def _delete_student_level(database,students,idacadperiods=[1],allstudents=False):
     for studentid in students:
-        with database:
-            tbl_row_delete(database,"StudentLevel",[["idStudent","=",studentid]])
+        for idacadperiod in idacadperiods:
+            with database:
+                tbl_row_delete(database,"StudentLevel",[["idStudent","=",studentid],["idAcadPeriod","=",idacadperiod]])
 
+''' ----- WORK HOURS [INSERT] --- '''
+#def insert_workhours
+
+''' ----- COURSE [INSERT]-----  '''
+def insert_course(database,rows,columns=["idCourse","idSubject","sCourseNm"]):
+    mandatory_columns = ["idCourse","idSubject","sCourseNm"]
+    update_time = datetime.now().strftime("%Y%m%d %H:%M") # 20180301 18:37
+    username="butlerj"
+    pk=["idCourse","cdRowStatus"]
+    table = {"idCourse":["INTEGER",-1],
+                  "idSubject":["INTEGER",-1],
+                  "sCourseNm":["TEXT",-1],
+                  "cdRowStatus":["TEXT","\"act\""],
+                  "dtAdd":["TEXT","\""+update_time+"\""],
+                  "dtLastUpd":["TEXT","\""+update_time+"\""],
+                  "sAddUserNm":["TEXT","\""+username+"\""],
+                  "sLastUpdUserNm":["TEXT","\""+username+"\""]}
+
+    if columns != mandatory_columns:
+        rows,columns = _filter_data(rows,columns,table)
+        
+    required_rows,columns = _construct_record(table,rows,columns)
+    
+    with database:
+        tbl_rows_insert(database,"Course",columns,required_rows)
+        
+
+''' ----- SUBJECT [INSERT]-----  '''
+def insert_subject(database,rows,columns=["idSubject","sSubjectLongDesc"]):
+    mandatory_columns = ["idSubject","sSubjectLongDesc"]
+    update_time = datetime.now().strftime("%Y%m%d %H:%M") # 20180301 18:37
+    username="butlerj"
+    pk=["idSubject","cdRowStatus"]
+    table = {"idSubject":["INTEGER",-1],
+              "sSubjectShortDesc":["TEXT","\"NOTSET\""],
+              "sSubjectLongDesc":["TEXT",-1], 
+              "cdSubjectType":["TEXT","\"NOTSET\""],
+              "cdRowStatus":["TEXT","\"act\""],
+              "dtAdd":["TEXT","\""+update_time+"\""],
+              "dtLastUpd":["TEXT","\""+update_time+"\""],
+              "sAddUserNm":["TEXT","\""+username+"\""],
+              "sLastUpdUserNm":["TEXT","\""+username+"\""]}
+
+    if columns != mandatory_columns:
+        rows,columns = _filter_data(rows,columns,table)
+        
+    required_rows,columns = _construct_record(table,rows,columns)
+    
+    with database:
+        tbl_rows_insert(database,"Subject",columns,required_rows)
+        
+        
+''' ----- TEACHER [INSERT]-----  '''
+def insert_teacher(database,rows,columns=["idFaculty","sFacultyFirstNm","sFacultyLastNm"]):
+    
+    mandatory_columns = ["idFaculty","sFacultyFirstNm","sFacultyLastNm"]
+    update_time = datetime.now().strftime("%Y%m%d %H:%M") # 20180301 18:37
+    username="butlerj"
+    pk=["idFaculty","cdRowStatus"]
+    table = {"idFaculty":["INTEGER",-1],
+                  "sFacultyFirstNm":["TEXT",-1],
+                  "sFacultyLastNm":["TEXT",-1],
+                  "sFacultyMiddleNm":["TEXT","\"NOTSET\""],
+                  "cdEmployeeStatus":["TEXT","\"act\""],
+                  "cdRowStatus":["TEXT","\"act\""],
+                  "dtAdd":["TEXT","\""+update_time+"\""],
+                  "dtLastUpd":["TEXT","\""+update_time+"\""],
+                  "sAddUserNm":["TEXT","\""+username+"\""],
+                  "sLastUpdUserNm":["TEXT","\""+username+"\""]}
+
+    if columns != mandatory_columns:
+        rows,columns = _filter_data(rows,columns,table)
+        
+    required_rows,columns = _construct_record(table,rows,columns)
+    
+    with database:
+        #required_rows = _quotestrs(required_rows)
+        tbl_rows_insert(database,"Faculty",columns,required_rows)
+        
+        
 ''' ----- STUDENT [INSERT]-----  '''
 
 def insert_student(database,rows,
@@ -186,6 +316,34 @@ def _insert_student(database,rows,columns=["idStudent","sStudentFirstNm","sStude
         #required_rows = _quotestrs(required_rows)
         tbl_rows_insert(database,"Student",columns,required_rows)
         
+
+'''def _insert_studentlevel(database,rows,columns=["idStudent","idAcadPeriod","idPrep","iGradeLevel","dtPrepStart","dtPrepEnd","sStudentLevelNote"]):
+    
+    mandatory_columns = ["idStudent","idAcadPeriod","iGradeLevel"]
+    update_time = datetime.now().strftime("%Y%m%d %H:%M") # 20180301 18:37
+    username="butlerj"
+    pk=["idStudent","cdRowStatus"]
+    table = {"idStudent":["INTEGER",-1],
+             "idAcadPeriod":["INTEGER",1],
+             "idPrep":["INTEGER",-1],
+             "iGradeLevel":["INTEGER",-1],
+             "dtPrepStart":["TEXT",-1],
+             "dtPrepEnd":["TEXT",-1],
+             "sStudentLevelNote":["TEXT","\"NOTSET\""]
+             }
+
+    if columns != mandatory_columns:
+        rows,columns = _filter_data(rows,columns,table)
+        
+    required_rows,columns = _construct_record(table,rows,columns)
+    
+    with database:
+        #required_rows = _quotestrs(required_rows)
+        tbl_rows_insert(database,"StudentLevel",columns,required_rows)'''
+        
+'''def insert_studentlevel(database,rows,columns):
+    _insert_student_level(database,rows,columns)'''
+    
 def _insert_student_level(database,rows,columns=["idStudent","idPrep","iGradeLevel"], 
                     username="butlerj"):
     update_time = datetime.now().strftime("%Y%m%d %H:%M") # 20180301 18:37
@@ -196,11 +354,12 @@ def _insert_student_level(database,rows,columns=["idStudent","idPrep","iGradeLev
     
     pk=["idStudent","idAcadPeriod","cdRowStatus"]
     table = {"idStudent":["INTEGER",-1],
-                  "idAcadPeriod":["INTEGER","\""+str(academic_period)+"\""],
+                  "idAcadPeriod":["INTEGER",academic_period],
                   "idPrep":["INTEGER",-1],
-                  "dtPrepStart":["TEXT","\""+prep_start+"\""],
-                  "dtPrepEnd":["TEXT","\""+prep_end+"\""],
                   "iGradeLevel":["INTEGER",-1],
+                  "dtPrepStart":["TEXT",-1],
+                  "dtPrepEnd":["TEXT",-1],
+
                   "sStudentLevelNote":["TEXT","\"NOTSET\""],
                   "cdRowStatus":["TEXT","\"act\""],
                   "dtAdd":["TEXT","\""+update_time+"\""],  
@@ -255,6 +414,21 @@ def _qry_student_schedule(students,days,periods):
 
 ''' ----- SCHEDULE LESSON [GET] ----- '''
 
+def get_schedule(database,students=[70]):
+    assert isinstance(students,ListType), students
+    assert is_valid_student(students), students
+    assert isinstance(database,Database), database
+    allschedulelessons = False
+
+    if students == [0]:
+        allschedulelessons=True
+        
+    sql = _qry_schedule(students,allschedulelessons)
+    with database:
+        columns,results,_ = tbl_query(database,sql)
+
+    return columns,results
+
 def get_schedule_lesson(database,students=[70],
                         days=[1,2,3,4,5],
                         periods=[1,2,3,4,5,6,7,8,9,10,11]):
@@ -268,13 +442,28 @@ def get_schedule_lesson(database,students=[70],
 
     return columns,results
 
-def _qry_schedule_lesson(students,days,periods):
-    
+def get_schedule_school(database,students=[70]):
+    assert isinstance(students,ListType), students
+    assert is_valid_student(students), students
+    assert isinstance(database,Database), database
+    allschedulelessons = False
+
+    if students == [0]:
+        alllessons=True
+        
+    sql = _qry_schedule_school(students,alllessons)
+    with database:
+        columns,results,_ = tbl_query(database,sql)
+
+    return columns,results
+
+def _qry_schedule_lesson(students,days,periods,allschedulelessons=False):
+
     #sql = ('select f.idFaculty, dc.idDay, cl.idTimePeriod, cl.idLocation, cl.idSection, cl.idClassLecture '
     sql = ('select cls.idStudent, f.idFaculty, cl.idSection, cl.idLocation, dc.idDay, cl.idTimePeriod, cl.idClassLecture '
         'from ClassLectureStudentEnroll cls, ClassLecture cl, DayCode dc,Faculty f,Section s '
-        'where cls.idStudent in ({}) '
-        'and dc.idDay in ({}) '
+
+        'where dc.idDay in ({}) '
         'and cl.idTimePeriod in ({}) '
         'and cls.cdRowStatus = "act" '
         'and cl.cdRowStatus = "act" '
@@ -284,7 +473,37 @@ def _qry_schedule_lesson(students,days,periods):
         'and cls.idClassLecture = cl.idClassLecture '
         'and cl.idDay = dc.idDay '
         'and cl.idSection = s.idSection '
-        'and s.idLeadTeacher = f.idFaculty ').format(",".join(map(str,students)),",".join(map(str,days)),",".join(map(str,periods)))
+        'and s.idLeadTeacher = f.idFaculty ').format(",".join(map(str,days)),",".join(map(str,periods)))
+    
+    
+    if not allschedulelessons:
+        sql = sql + ('and  cls.idStudent in ({}) ').format(",".join(map(str,students)))
+        
+    return sql
+
+def _qry_schedule_school(students=[],alllessons=False):
+    sql = (' select sub.sSubjectLongDesc, c.sCourseNm, f.sFacultyFirstNm || " " || f.sFacultyLastNm as sFacultyFullName, dc.cdDay, '
+           '        cl.idTimePeriod, cl.idLocation, ctc.cdClassType, '
+           '        st.sStudentFirstNm || " " || st.sStudentLastNm as sStudentFullName , f2.sFacultyFirstNm  || " " || f2.sFacultyLastNm as sFacultyFullName '
+           'from ClassLectureFacultyEnroll clf, ClassLecture cl, DayCode dc, Section s, Course c, '
+           'Subject sub, Faculty f, faculty f2, ClassTypeCode ctc , ClassLectureStudentEnroll cls, Student st '
+           'where clf.cdRowStatus = "act"  and  cls.cdRowStatus = "act" '
+	   '	   and cls.idClassLecture = cl.idClassLecture '
+           '   and clf.idClassLecture = cl.idClassLecture and cl.cdRowStatus = "act" '
+           '  and cl.idDay = dc.idDay and dc.cdRowStatus = "act" '
+           'and cl.idSection = s.idSection and s.cdRowStatus = "act" '
+           'and s.idCourse = c.idCourse and c.cdRowStatus = "act" '
+           'and s.idSubject = sub.idSubject and sub.cdRowStatus = "act" '
+           'and s.idLeadTeacher = f.idFaculty and f.cdRowStatus = "act" '
+           'and st.idStudent = cls.idStudent '
+           'and clf.idFaculty = f2.idFaculty and f2.cdRowStatus = "act" '
+           'and s.idClassType = ctc.idClassType and ctc.cdRowStatus = "act" '
+           'order by cl.idDay, cl.idTimePeriod')
+    
+    
+    if not alllessons:
+        sql = sql + ('and  cls.idStudent in ({}) ').format(",".join(map(str,students)))
+
     
     return sql
     
@@ -438,9 +657,12 @@ def get_all_prep(database):
     return columns,results
 
 def get_all_studentlevel(database):
+    get_studentlevel(database,allstudentlevels=True)
+    
+def get_studentlevel(database,studentlevels,allstudentlevels=False):
     assert isinstance(database,Database), database
     
-    sql = _qry_studentlevel()
+    sql = _qry_studentlevel(studentlevels,allstudentlevels)
     with database:
         columns,results,_ = tbl_query(database,sql)
     return columns,results
@@ -470,6 +692,19 @@ def get_course(database,courses=[1],allcourses=False):
     assert isinstance(database,Database), database
     
     sql = _qry_course(courses,allcourses)
+    with database:
+        columns,results,_ = tbl_query(database,sql)
+    return columns,results
+
+def get_all_classtypecode(database):
+    return get_classtypecode(database,allclasstypecode=True)
+    
+def get_classtypecode(database,courses=[1],allclasstypecode=False):
+    assert isinstance(courses,ListType), courses
+    assert is_valid_course(courses),courses
+    assert isinstance(database,Database), database
+    
+    sql = _qry_classtypecode(courses,allclasstypecode)
     with database:
         columns,results,_ = tbl_query(database,sql)
     return columns,results
@@ -548,7 +783,7 @@ def _qry_day():
     return sql
 
 def _qry_timeperiod():
-    sql = ('select idTimePeriod, dtPeriodStart, dtPeriodEnd '
+    sql = ('select idTimePeriod, dtPeriodStart, dtPeriodEnd, sTimePeriodLabel '
            'from TimePeriodCode '
            ' where cdRowStatus = "act" ')
     return sql
@@ -567,7 +802,16 @@ def _qry_subject(subjects,allsubjects=False):
     if not allsubjects:
         sql = sql + ('and idSubject in ({}) ').format(",".join(map(str,subjects)))
     return sql
-           
+
+def _qry_classtypecode(courses,allclasstypecode=False):
+    sql = ('select idClassType,sClassTypeDesc '
+           'from ClassTypeCode '
+           ' where cdRowStatus = "act" ')
+    
+    if not allclasstypecode:
+        sql = sql + ('and idCourse in ({}) ').format(",".join(map(str,courses)))
+    return sql
+
 def _qry_course(courses,allcourses=False):
     sql = ('select sCourseNm,idCourse,idSubject '
            'from Course '
@@ -611,11 +855,13 @@ def _qry_teacher(teachers,allteachers=False):
     sql = sql + ('and f.cdEmployeeStatus = "act" ')
     return sql
     
-def _qry_studentlevel():
-    sql= ('select idStudent, idAcadPeriod, idPrep, dtPrepStart, dtPrepEnd '
+def _qry_studentlevel(studentlevels,allstudentlevels=False):
+    sql= ('select idStudent, idAcadPeriod, idPrep, iGradeLevel,dtPrepStart, dtPrepEnd, sStudentLevelNote '
           'from StudentLevel '
           'where cdRowStatus = "act" ')
-
+    if not allstudentlevels:
+        sql = sql + ('and idStudent in ({}) ').format(",".join(map(str,studentlevels)))
+    
     return sql
 
 def _qry_teacher_schedule(teachers,days,periods):
@@ -653,3 +899,83 @@ def _qry_students_per_class_by_teacher(teacher_id,class_ids):
            'and s.idClassType = ctc.idClassType and ctc.cdRowStatus = "act" '
            'order by cl.idClassLecture, cl.idDay, cl.idTimePeriod ').format(class_ids)
     return sql
+
+
+def dump_to_xml(database):
+    with database:
+        
+        config ={"section":
+                 {"columns":
+                  ["idSection","idAcadPeriod","idCourse","idSubject","idClassType","idLeadTeacher","iFreq","sFreqUnit","iMaxCapacity","dtSectionStart","dtSectionEnd","cdSectionGroup","idSectionPrep","lStudentEnroll","lFacultyEnroll"],
+                  "whereclause":
+                  [["idAcadPeriod","=",2]]
+                  },
+                 "student":
+                 {"columns":
+                  ["sStudentFirstNm","sStudentLastNm","idStudent"],
+                 },
+                 "faculty":
+                 {"columns":
+                  ["sFacultyFirstNm","sFacultyLastNm","idFaculty"],
+                 },
+                 "subject":
+                 {"columns":
+                  ["sSubjectLongDesc","idSubject"],
+                 },
+                 "course":
+                 {"columns":
+                  ["sCourseNm","idCourse","idSubject"],
+                 },
+                 "sectionschedule":
+                 {"columns":
+                  ["idSectionSched","idSection","idAcadPeriod","idDay","idTimePeriod","idLocation"],
+                  "whereclause":
+                  [["idAcadPeriod","=",2]]
+                 },
+                 "sectionschedulestudent":
+                 {"columns":
+                  ["idSectionSched","idStudent"],
+                  "whereclause":
+                  [["dtAdd","like","\"2018-07-0%\""]]
+                 },
+                 "sectionschedulefaculty":
+                 {"columns":
+                  ["idSectionSched","idFaculty"],
+                  "whereclause":
+                  [["dtAdd","like","\"2018-07-0%\""]]
+                 },
+                 "studentlevel":
+                 {"columns":
+                  ["idStudent","idAcadPeriod","idPrep"],
+                 },
+                 "facultyworkhours":
+                 {"columns":
+                  ["idFaculty","idDay","dtWorkStartTime","dtWorkEndTime"],
+                 }
+                 }  
+
+        xmlroot = xmltree.Element('root')
+        for _config_key in config.keys():
+            args={"xmlroot":xmlroot}
+            if config[_config_key].has_key('whereclause'):
+                args['whereclause'] = config[_config_key]['whereclause']
+                
+            tbl_to_xml(database,_config_key,config[_config_key]['columns'],
+                       **args)
+            
+    return xmltree.tostring(xmlroot)
+    
+    
+if __name__ == "__main__":
+    from xml.dom import minidom
+
+    database = Database("C:\\Users\\burtnolej\\Documents\\GitHub\\quadviewer\\app\\quad\\utils\\excel\\test_misc\\QuadQA_v3.db")
+    xmlstr = dump_to_xml(database)
+    parsed_xmlstr = minidom.parseString(xmlstr)
+    print parsed_xmlstr.toprettyxml(indent="\t")
+    
+    #clean_database(database)
+    #clean_database(database,likestr="2018-07-0")
+    
+    
+    

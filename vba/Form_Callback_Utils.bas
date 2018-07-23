@@ -65,7 +65,7 @@ Dim rButton As Range
     Next i
     
     GenerateCallbackCode = sCurrentCode & vbNewLine & _
-         "Public Sub Worksheet_SelectionChange(ByVal Target As Range)" & vbNewLine & _
+         "Private Sub Worksheet_SelectionChange(ByVal Target As Range)" & vbNewLine & _
          sCallbackCode & vbNewLine & _
         "End Sub"
 

@@ -49,10 +49,6 @@ teardown:
     DeleteSheet ActiveWorkbook, sSheetName
 End Function
 
-Sub test()
-    Test_FormatButton
-End Sub
-    
 Function Test_FormatButton() As TestResult
 Dim sFuncName As String
 Dim wsTmp As Worksheet
@@ -60,7 +56,7 @@ Dim sSheetName As String
 Dim eTestResult As TestResult
 Dim rSource As Range
 Dim rTarget As Range
-Dim cRGB As RGBColor
+Dim cRGB As rgbColor
 Dim clsAppRuntime As New App_Runtime
 
 setup:
@@ -110,7 +106,7 @@ Dim sSheetName As String
 Dim eTestResult As TestResult
 Dim rSource As Range
 Dim rTarget As Range
-Dim cRGB As RGBColor
+Dim cRGB As rgbColor
 Dim clsAppRuntime As New App_Runtime
 
 setup:
@@ -159,7 +155,7 @@ Dim sSheetName As String
 Dim eTestResult As TestResult
 Dim rSource As Range
 Dim rTarget As Range
-Dim cRGB As RGBColor
+Dim cRGB As rgbColor
 Dim clsAppRuntime As New App_Runtime
 
 setup:
@@ -212,7 +208,7 @@ Dim sSheetName As String
 Dim eTestResult As TestResult
 Dim rSource As Range
 Dim rTarget As Range
-Dim cRGB As RGBColor
+Dim cRGB As rgbColor
 Dim clsAppRuntime As New App_Runtime
 
 setup:
@@ -264,7 +260,7 @@ Dim sSheetName As String
 Dim eTestResult As TestResult
 Dim rSource As Range
 Dim rTarget As Range
-Dim cRGB As RGBColor
+Dim cRGB As rgbColor
 Dim clsAppRuntime As New App_Runtime
 
 setup:
@@ -324,7 +320,7 @@ Dim sSheetName As String
 Dim eTestResult As TestResult
 Dim rSource As Range
 Dim rTarget As Range
-Dim cRGB As RGBColor
+Dim cRGB As rgbColor
 Dim clsAppRuntime As New App_Runtime
 
 setup:

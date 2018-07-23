@@ -94,7 +94,7 @@ Sub SetBgColor(sSheetName As String, rTarget As Range, iRed As Integer, iGreen A
         End With
     End With
 End Sub
-Sub SetBgColorByRGB(sSheetName As String, rTarget As Range, rgbClr As RGBColor, Optional wbTmp As Workbook)
+Sub SetBgColorByRGB(sSheetName As String, rTarget As Range, rgbClr As rgbColor, Optional wbTmp As Workbook)
     If IsSet(wbTmp) = False Then
         Set wbTmp = ActiveWorkbook
     End If
@@ -118,7 +118,7 @@ Sub SetFgColor(sSheetName As String, sRange As String, iRed As Integer, iGreen A
         End With
     End With
 End Sub
-Sub SetFgColorByRGB(sSheetName As String, sRange As String, rgbClr As RGBColor, Optional wbTmp As Workbook)
+Sub SetFgColorByRGB(sSheetName As String, sRange As String, rgbClr As rgbColor, Optional wbTmp As Workbook)
     If IsSet(wbTmp) = False Then
         Set wbTmp = ActiveWorkbook
     End If
@@ -158,9 +158,9 @@ Dim aRGBElements() As String
                 wbTmp:=wbTmp
 
 End Sub
-Function GetBgColor(sSheetName As String, rTarget As Range) As RGBColor
+Function GetBgColor(sSheetName As String, rTarget As Range) As rgbColor
 Dim vColorVal As Variant
-Dim cRGB As New RGBColor
+Dim cRGB As New rgbColor
 
     vColorVal = rTarget.Interior.Color
     
@@ -172,3 +172,12 @@ Dim cRGB As New RGBColor
 
 End Function
 
+Function GetRGBFromExcelColor(vColorVal As Variant) As rgbColor
+Dim cRGB As New rgbColor
+    
+    cRGB.Red = (vColorVal Mod 256)
+    cRGB.Green = ((vColorVal \ 256) Mod 256)
+    cRGB.Blue = (vColorVal \ 65536)
+    
+    Set GetRGBFromExcelColor = cRGB
+End Function

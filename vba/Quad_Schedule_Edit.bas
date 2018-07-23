@@ -17,22 +17,28 @@ Dim dArgs As New Dictionary
 
     clsAppRuntime.InitProperties bInitializeCache:=False
     
-    AddArgs dArgs, False, "clsAppRuntime", clsAppRuntime, "iStudentID", iPersonID, "eQuadDataType", QuadDataType.Schedule, _
-                    "eQuadSubDataType", eQuadSubDataType, "bInTable", True
-    'Set wsCache = GetScheduleData(clsAppRuntime, iPersonID, QuadDataType.Schedule, eQuadSubDataType, bInTable:=True)
+    AddArgs dArgs, False, "clsAppRuntime", clsAppRuntime, _
+                           "iStudentID", iPersonID, _
+                           "eQuadDataType", QuadDataType.Schedule, _
+                           "eQuadSubDataType", eQuadSubDataType, _
+                           "bInTable", True
+                           
     Set wsCache = GetScheduleData(dArgs)
     
-    vPeriodIds = GetColumnValues(clsAppRuntime, QuadDataType.Schedule, QuadSubDataType.Lesson, _
-                "idTimePeriod", iPersonID:=iPersonID)
+    vPeriodIds = GetColumnValues(clsAppRuntime, QuadDataType.Schedule, QuadSubDataType.Lesson, "idTimePeriod", iPersonID:=iPersonID)
     vTmp = IndexArrayMulti(vPeriodIds, CStr(iPeriodID))
-    vDayCds = GetColumnValues(clsAppRuntime, QuadDataType.Schedule, QuadSubDataType.Lesson, _
-                    "idDay", iPersonID:=iPersonID)
+    vDayCds = GetColumnValues(clsAppRuntime, QuadDataType.Schedule, QuadSubDataType.Lesson, "idDay", iPersonID:=iPersonID)
 
     iIndex = IndexArray(vDayCds, sDayCd, vWhere:=vTmp)
     dDefaultValues.Add "Add_Schedule_Lesson", Row2Dict(wsCache, clsAppRuntime.CacheRangeName, iIndex + 1)
 
-    GenerateForms clsAppRuntime, sFormName:="Add_Schedule_Lesson", dDefaultValues:=dDefaultValues, _
-        bSetAsValid:=True
+    AddArgs dArgs, False, "sFormName", "Add_Schedule_Lesson", _
+                          "dDefaultValues", dDefaultValues, _
+                          "bSetAsValid", True
+                          
+    Application.Run C_GENERATE_FORMS, dArgs
+    'GenerateForms clsAppRuntime, sFormName:="Add_Schedule_Lesson", dDefaultValues:=dDefaultValues, _
+    '    bSetAsValid:=True
 
 End Sub
 

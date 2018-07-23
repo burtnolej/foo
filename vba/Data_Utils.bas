@@ -112,8 +112,18 @@ End Function
 
 Public Function GetTableRecordID(vValue As Variant, sLookUpFieldName As String) As String
 Dim clsAppRuntime As New App_Runtime
-
+Dim dArgs As New Dictionary
     clsAppRuntime.InitProperties bInitializeCache:=False
-    GetTableRecordID = CrossRefQuadData(clsAppRuntime, QuadDataType.Person, QuadSubDataType.Student, _
-        sLookUpFieldName, vValue, "RefNo")
+    
+    AddArgs dArgs, False, "clsAppRuntime", clsAppRuntime, _
+                          "eQuadDataType", QuadDataType.person, _
+                          "eQuadSubDataType", QuadSubDataType.Student, _
+                          "sLookUpByColName", sLookUpFieldName, _
+                          "sLookUpByValue", vValue, _
+                          "sLookUpColName", "RefNo"
+    Application.Run C_CROSS_REF_QUAD_DATA, dArgs
+    GetTableRecordID = dArgs.Item("result")
+    
+    'GetTableRecordID = CrossRefQuadData(clsAppRuntime, QuadDataType.Person, QuadSubDataType.Student, _
+    '    sLookUpFieldName, vValue, "RefNo")
 End Function

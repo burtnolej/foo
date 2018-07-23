@@ -42,8 +42,9 @@ Dim sFuncName As String
             Set GetAppRuntimeGlobal = InitAppRuntimeGlobal(dAppRuntimeValues:=dAppRuntimeValues)
             FuncLogIt sFuncName, "Initializating GLOBAL Quad_Utils.clsAppRuntimeGlobal", C_MODULE_NAME, LogMsgType.INFO
         Else
-            Set GetAppRuntimeGlobal = Nothing
-            FuncLogIt sFuncName, "Cannot GET GLOBAL Quad_Utils.clsAppRuntimeGlobal as its not set", C_MODULE_NAME, LogMsgType.INFO
+            Set GetAppRuntimeGlobal = New App_Runtime
+            GetAppRuntimeGlobal.InitProperties bInitializeCache:=False
+            FuncLogIt sFuncName, "Recovering from cache GLOBAL Quad_Utils.clsAppRuntimeGlobal", C_MODULE_NAME, LogMsgType.INFO
         End If
     End If
 End Function

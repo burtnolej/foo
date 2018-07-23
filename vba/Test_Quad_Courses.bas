@@ -8,6 +8,7 @@ Const C_MODULE_NAME = "Test_Quad_Courses"
 Public Function Test_GetCoursesSubject() As TestResult
 Dim eTestResult As TestResult
 Dim clsAppRuntime As New App_Runtime
+Dim clsExecProc As New Exec_Proc
 Dim wsCache As Worksheet
 Dim sFuncName As String, sSheetName As String, sDefn As String
 Dim vSource() As String
@@ -18,6 +19,7 @@ setup:
     sFuncName = C_MODULE_NAME & "." & "Test_GetCoursesSubject"
     sSheetName = "test"
     clsAppRuntime.InitProperties bInitializeCache:=True, sDefinitionSheetName:=sSheetName
+    clsExecProc.InitProperties wbTmp:=Workbooks(clsAppRuntime.MainBookName)
     Set wsCache = CreateSheet(clsAppRuntime.Book, sSheetName, bOverwrite:=True)
 
     ' table: new subject ---------------------------------------------------------------
@@ -31,7 +33,8 @@ setup:
     Set Form_Utils.dDefinitions = LoadDefinitions(wsCache, rSource:=rTarget)
     
 main:
-    Set wsCache = get_courses_subject(clsAppRuntime)
+    Set wsCache = get_courses_subject(clsAppRuntime, clsExecProc)
+
     If wsCache.Range("dbcourses_subjectName").Rows(17) <> "Specials" Then
         eTestResult = TestResult.Failure
         GoTo teardown
@@ -52,6 +55,7 @@ End Function
 Public Function Test_GetCoursesCourse() As TestResult
 Dim eTestResult As TestResult
 Dim clsAppRuntime As New App_Runtime
+Dim clsExecProc As New Exec_Proc
 Dim wsCache As Worksheet
 Dim sFuncName As String, sSheetName As String, sDefn As String
 Dim vSource() As String
@@ -62,6 +66,7 @@ setup:
     sFuncName = C_MODULE_NAME & "." & "GetCourseCourse"
     sSheetName = "test"
     clsAppRuntime.InitProperties bInitializeCache:=True, sDefinitionSheetName:=sSheetName
+    clsExecProc.InitProperties wbTmp:=Workbooks(clsAppRuntime.MainBookName)
     Set wsCache = CreateSheet(clsAppRuntime.Book, sSheetName, bOverwrite:=True)
 
     ' table: new course ---------------------------------------------------------------
@@ -76,7 +81,7 @@ setup:
     Set Form_Utils.dDefinitions = LoadDefinitions(wsCache, rSource:=rTarget)
     
 main:
-    Set wsCache = get_courses_course(clsAppRuntime)
+    Set wsCache = get_courses_course(clsAppRuntime, clsExecProc)
     If wsCache.Range("dbcourses_courseName").Rows(13) <> "Physics" Then
         eTestResult = TestResult.Failure
         GoTo teardown
@@ -97,6 +102,7 @@ End Function
 Public Function Test_GetMiscTimePeriod() As TestResult
 Dim eTestResult As TestResult
 Dim clsAppRuntime As New App_Runtime
+Dim clsExecProc As New Exec_Proc
 Dim wsCache As Worksheet
 Dim sFuncName As String, sSheetName As String, sDefn As String
 Dim vSource() As String
@@ -107,6 +113,7 @@ setup:
     sFuncName = C_MODULE_NAME & "." & "GetMiscTimePeriod"
     sSheetName = "test"
     clsAppRuntime.InitProperties bInitializeCache:=True, sDefinitionSheetName:=sSheetName
+    clsExecProc.InitProperties wbTmp:=Workbooks(clsAppRuntime.MainBookName)
     Set wsCache = CreateSheet(clsAppRuntime.Book, sSheetName, bOverwrite:=True)
 
     ' table: Add timeperiod ---------------------------------------------------------------
@@ -121,7 +128,7 @@ setup:
     Set Form_Utils.dDefinitions = LoadDefinitions(wsCache, rSource:=rTarget)
     
 main:
-    Set wsCache = get_misc_timeperiod(clsAppRuntime)
+    Set wsCache = get_misc_timeperiod(clsAppRuntime, clsExecProc)
     If Format(wsCache.Range("dbmisc_timeperiodPeriodStart").Rows(7), "h:mm") <> "11:36" Then
         eTestResult = TestResult.Failure
         GoTo teardown
@@ -142,6 +149,7 @@ End Function
 Public Function Test_GetMiscPrep() As TestResult
 Dim eTestResult As TestResult
 Dim clsAppRuntime As New App_Runtime
+Dim clsExecProc As New Exec_Proc
 Dim wsCache As Worksheet
 Dim sFuncName As String, sSheetName As String, sDefn As String
 Dim vSource() As String
@@ -152,6 +160,7 @@ setup:
     sFuncName = C_MODULE_NAME & "." & "GetMiscPrep"
     sSheetName = "test"
     clsAppRuntime.InitProperties bInitializeCache:=True, sDefinitionSheetName:=sSheetName
+    clsExecProc.InitProperties wbTmp:=Workbooks(clsAppRuntime.MainBookName)
     Set wsCache = CreateSheet(clsAppRuntime.Book, sSheetName, bOverwrite:=True)
 
     ' table: Add prep ---------------------------------------------------------------
@@ -165,7 +174,7 @@ setup:
     Set Form_Utils.dDefinitions = LoadDefinitions(wsCache, rSource:=rTarget)
     
 main:
-    Set wsCache = get_misc_prep(clsAppRuntime)
+    Set wsCache = get_misc_prep(clsAppRuntime, clsExecProc)
     If wsCache.Range("dbmisc_prepName").Rows(5) <> "Pulsar" Then
         eTestResult = TestResult.Failure
         GoTo teardown
@@ -186,6 +195,7 @@ End Function
 Public Function Test_GetMiscDay() As TestResult
 Dim eTestResult As TestResult
 Dim clsAppRuntime As New App_Runtime
+Dim clsExecProc As New Exec_Proc
 Dim wsCache As Worksheet
 Dim sFuncName As String, sSheetName As String, sDefn As String
 Dim vSource() As String
@@ -196,6 +206,7 @@ setup:
     sFuncName = C_MODULE_NAME & "." & "GetDay"
     sSheetName = "test"
     clsAppRuntime.InitProperties bInitializeCache:=True, sDefinitionSheetName:=sSheetName
+    clsExecProc.InitProperties wbTmp:=Workbooks(clsAppRuntime.MainBookName)
     Set wsCache = CreateSheet(clsAppRuntime.Book, sSheetName, bOverwrite:=True)
 
     ' table: Add day ---------------------------------------------------------------
@@ -210,7 +221,7 @@ setup:
     Set Form_Utils.dDefinitions = LoadDefinitions(wsCache, rSource:=rTarget)
     
 main:
-    Set wsCache = get_misc_day(clsAppRuntime)
+    Set wsCache = get_misc_day(clsAppRuntime, clsExecProc)
     If wsCache.Range("dbmisc_dayLongDay").Rows(6) <> "Friday" Then
         eTestResult = TestResult.Failure
         GoTo teardown

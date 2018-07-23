@@ -2,15 +2,26 @@ Attribute VB_Name = "Validation_Utils"
 Option Explicit
 Const C_MODULE_NAME = "Validation_Utils"
 
-Public Function Validate(clsAppRuntime As App_Runtime, sDefnName As String, vValueToValidate As Variant) As Boolean
-Dim sFuncName As String, sActionFuncName As String, sValidType As String
+Public Function Validate(clsAppRuntime As App_Runtime, clsExecProc As Exec_Proc, sDefnName As String, vValueToValidate As Variant) As Boolean
+Dim sFuncName As String, sActionFuncName As String, sValidType As String, sValidateFuncName As String
 Dim dDefnDetail As Dictionary
 Dim vValidParams() As String
+Dim lStartTick As Long
 
+setup:
+    'On Error GoTo err
+    sFuncName = C_MODULE_NAME & "." & "Validate"
+    lStartTick = FuncLogIt(sFuncName, "", C_MODULE_NAME, LogMsgType.INFUNC)
+main:
     If dDefinitions Is Nothing Then
         ' when called from a callback and dDefinitons needs to be reconstituted
         FuncLogIt sFuncName, "Definitions not loaded so reloading", C_MODULE_NAME, LogMsgType.INFO
         DoLoadDefinitions clsAppRuntime:=clsAppRuntime
+    End If
+    
+    'need to take off any __n extensions as they are all validated the same way
+    If InStr(sDefnName, "__") <> 0 Then
+        sDefnName = Split(sDefnName, "__")(0)
     End If
     
     If dDefinitions.Exists(sDefnName) = False Then
@@ -19,35 +30,60 @@ Dim vValidParams() As String
     Else
         Set dDefnDetail = dDefinitions.Item(sDefnName)
         sValidType = dDefnDetail.Item("validation_type")
-        sFuncName = dDefnDetail.Item("validation_param")
+        sValidateFuncName = dDefnDetail.Item("validation_param")
         
-        If sFuncName = "" Then
+        If sValidateFuncName = "" Then
             Validate = True
             FuncLogIt sFuncName, "Validation func not defined for [" & sDefnName & "]", C_MODULE_NAME, LogMsgType.OK
-            Exit Function
+            GoTo cleanup
         End If
         
         If IsSet(dDefnDetail.Item("validation_args")) = True Then
             vValidParams = dDefnDetail.Item("validation_args")
         End If
         
-        FuncLogIt sFuncName, "Using validation  [" & sValidType & "] [" & sFuncName & "]", C_MODULE_NAME, LogMsgType.OK
+        FuncLogIt sFuncName, "Using validation  [" & sValidType & "] [" & sValidateFuncName & "]", C_MODULE_NAME, LogMsgType.OK
         
         On Error GoTo err
         If IsSet(clsAppRuntime) Then
             'first passed arg now needs to be clsAppRuntime if IsSet
-            Validate = Application.Run(sFuncName, clsAppRuntime, vValueToValidate, vValidParams)
+            Validate = Application.Run(sValidateFuncName, clsAppRuntime, vValueToValidate, vValidParams, clsExecProc)
         Else
-            Validate = Application.Run(sFuncName, vValueToValidate, dDefnDetail.Item("CacheTableName"), vValidParams)
+            Validate = Application.Run(sValidateFuncName, vValueToValidate, dDefnDetail.Item("CacheTableName"), vValidParams, clsExecProc)
         End If
         On Error GoTo 0
     End If
     
+cleanup:
+    FuncLogIt sFuncName, "[sDefnName=" & sDefnName & "]  [vValueToValidate=" & CStr(vValueToValidate) & "]", C_MODULE_NAME, LogMsgType.DEBUGGING
+    FuncLogIt sFuncName, "", C_MODULE_NAME, LogMsgType.OUTFUNC, lLastTick:=lStartTick
+
     Exit Function
 
 err:
     Validate = False
-        
+    FuncLogIt sFuncName, "Error [ " & err.Description & "]", C_MODULE_NAME, LogMsgType.Error
+    FuncLogIt sFuncName, "", C_MODULE_NAME, LogMsgType.OUTFUNC, lLastTick:=lStartTick
+
+End Function
+
+Private Function GetWidgetKeyFromCell(wbBook As Workbook, rTarget As Range, sSheetName As String) As String
+Dim sKey As Variant
+
+
+    For Each sKey In dDefinitions.Keys()
+        If GetFormTypeFromRangeName(CStr(sKey)) = FormType.ViewListEntry Then
+            If Intersect(wbBook.Sheets(sSheetName).Range(sKey), rTarget) Is Nothing Then
+            Else
+                GetWidgetKeyFromCell = sKey
+                Exit Function
+            End If
+
+        End If
+    Next sKey
+    
+    GetWidgetKeyFromCell = ""
+            
 End Function
 Public Function ValidateWidget(wbBook As Workbook, sSheetName As String, rTarget As Range) As Boolean
 '<<<
@@ -59,14 +95,32 @@ Public Function ValidateWidget(wbBook As Workbook, sSheetName As String, rTarget
 Dim sFuncName As String, sDefnName As String, sActionFuncName As String, sValidType As String
 Dim dDefnDetail As Dictionary, dArgs As New Dictionary
 Dim clsAppRuntime As New App_Runtime
+Dim clsExecProc As Exec_Proc
 Dim lStartTick As Long
+Dim sKey As Variant, sDefinedRange As Variant
+Dim vDefinedAddNamesRanges() As String
 
 setup:
+    
+    CloseLogFile
+    GetLogFile ' write stdout to a logfile
+    'Log_Utils.LogFilter = "0,1,2,3"
+    'Log_Utils.LogFilter = "1"
+    
     sFuncName = C_MODULE_NAME & "." & "ValidateWidget"
     lStartTick = FuncLogIt(sFuncName, "", C_MODULE_NAME, LogMsgType.INFUNC)
     On Error GoTo err
-    clsAppRuntime.InitProperties bInitializeCache:=False
+    
     EventsToggle False
+    
+    'clsAppRuntime.InitProperties bInitializeCache:=False
+    Set clsAppRuntime = GetAppRuntimeGlobal
+
+    If IsSet(clsAppRuntime.VersionBook) = True Then
+        Set clsExecProc = GetExecProcGlobal(wbTmp:=Workbooks(clsAppRuntime.MainBookName), wbTmp2:=clsAppRuntime.VersionBook)
+    Else
+        Set clsExecProc = GetExecProcGlobal(wbTmp:=Workbooks(clsAppRuntime.MainBookName))
+    End If
     
     If dDefinitions Is Nothing Then
         ' when called from a callback and dDefinitons needs to be reconstituted
@@ -75,6 +129,8 @@ setup:
     End If
 
 main:
+
+    On Error Resume Next
     If UBound(Split(rTarget.Name.Name, "!")) = 1 Then
         sDefnName = Split(rTarget.Name.Name, "!")(1)
     Else
@@ -82,7 +138,13 @@ main:
     End If
     On Error GoTo 0
     
-    ValidateWidget = Validate(clsAppRuntime, sDefnName, rTarget.value)
+    If sDefnName = "" Then
+        If GetFormTypeFromAction(sSheetName) = "ViewListEntry" Then
+            sDefnName = GetWidgetKeyFromCell(wbBook, rTarget, sSheetName)
+        End If
+    End If
+    
+    ValidateWidget = Validate(clsAppRuntime, clsExecProc, sDefnName, rTarget.value)
     
     If ValidateWidget = True Then
         SetBgColorFromString sSheetName, rTarget, C_RGB_VALID, wbTmp:=wbBook
@@ -90,21 +152,22 @@ main:
         Set dDefnDetail = dDefinitions.Item(sDefnName)
         If dDefnDetail.Item("ActionName") <> "" Then
             sActionFuncName = Right(dDefnDetail.Item("ActionName"), Len(dDefnDetail.Item("ActionName")) - 1)
-            
-            'make this dArgs and make the callback the GenerateScheduleLessonListView
-            AddArgs dArgs, True, "clsAppRuntime", clsAppRuntime, "sValue", rTarget.value, _
-                    "sKey", rTarget.Name.Name, "sFormName", sSheetName
-                    
-            'Application.Run sActionFuncName, clsAppRuntime, rTarget.value, rTarget.Name.Name
+   
+            FuncLogIt sFuncName, "Executing post validation [sActionFuncName=" & sActionFuncName & "]", C_MODULE_NAME, LogMsgType.DEBUGGING
+            AddArgs dArgs, True, "clsAppRuntime", clsAppRuntime, "sValue", rTarget.value, "sKey", rTarget.Name.Name, "sFormName", sSheetName
             Application.Run sActionFuncName, dArgs
+            'GenerateScheduleView dArgs
         End If
     
-        Exit Function
+        'Exit Function
+    Else
+        SetBgColorFromString sSheetName, rTarget, C_RGB_INVALID, wbTmp:=wbBook
+        ValidateWidget = False
     End If
 
 cleanup:
-    SetBgColorFromString sSheetName, rTarget, C_RGB_INVALID, wbTmp:=clsAppRuntime.AddBook
-    ValidateWidget = False
+    'SetBgColorFromString sSheetName, rTarget, C_RGB_INVALID, wbTmp:=clsAppRuntime.AddBook
+    'ValidateWidget = False
     EventsToggle True
     FuncLogIt sFuncName, "[sSheetName=" & sSheetName & "] [Range=" & rTarget.Address & "] [Value=" & rTarget.value & "] [result=" & CStr(ValidateWidget) & "]", C_MODULE_NAME, LogMsgType.DEBUGGING2
     FuncLogIt sFuncName, "", C_MODULE_NAME, LogMsgType.OUTFUNC, lLastTick:=lStartTick
@@ -151,17 +214,19 @@ Dim sColumnRange As String, sLookUpTableName As String, sLookUpColumnName As Str
 Dim vValid2DValues() As Variant
 Dim vValidValues() As String
 Dim clsAppRuntime As New App_Runtime
+Dim clsExecProc As New Exec_Proc
 Dim wsCache As Worksheet
 
     Set clsAppRuntime = args(0)
     sValue = args(1)
     sLookUpTableName = args(2)(0)
     sLookUpColumnName = args(2)(1)
+    Set clsExecProc = args(3)
 
     sColumnRange = GetDBColumnRange(sLookUpTableName, sLookUpColumnName)
     
     If Left(sLookUpTableName, 1) = "&" Then
-        Set wsCache = Application.Run(Right(sLookUpTableName, Len(sLookUpTableName) - 1), clsAppRuntime)
+        Set wsCache = Application.Run(Right(sLookUpTableName, Len(sLookUpTableName) - 1), clsAppRuntime, clsExecProc)
         vValidValues = ListFromRange(wsCache, sColumnRange)
     Else
         vValidValues = ListFromRange(clsAppRuntime.CacheBook.Sheets(sLookUpTableName), sColumnRange)
@@ -173,6 +238,133 @@ Dim wsCache As Worksheet
     End If
     
     IsMember = True
+End Function
+
+Public Function IsNotValidStudentFullName(ParamArray args()) As Boolean
+Dim bMember As Boolean
+Dim vArgs As Variant
+Dim clsAppRuntime As New App_Runtime
+Dim clsExecProc As New Exec_Proc
+Dim sValue As String
+
+    Set clsAppRuntime = args(0)
+    sValue = args(1)
+    vArgs = args(2)
+    Set clsExecProc = args(3)
+
+    bMember = IsValidStudentFullName(clsAppRuntime, sValue, vArgs, clsExecProc)
+    
+    If bMember = True Then
+        IsNotValidStudentFullName = False
+    Else
+        IsNotValidStudentFullName = True
+    End If
+End Function
+
+Public Function IsNotValidTeacherFullName(ParamArray args()) As Boolean
+Dim bMember As Boolean
+Dim vArgs As Variant
+Dim clsAppRuntime As New App_Runtime
+Dim clsExecProc As New Exec_Proc
+Dim sValue As String
+
+    Set clsAppRuntime = args(0)
+    sValue = args(1)
+    vArgs = args(2)
+    Set clsExecProc = args(3)
+
+    bMember = IsValidTeacherFullName(clsAppRuntime, sValue, vArgs, clsExecProc)
+    
+    If bMember = True Then
+        IsNotValidTeacherFullName = False
+    Else
+        IsNotValidTeacherFullName = True
+    End If
+End Function
+
+
+Public Function IsValidStudentFullName(ParamArray args()) As Boolean
+Dim sColumnRange As String, sLookUpTableName As String, sLookUpColumnName As String, sValue As String, sFirstName As String, sLastName As String, sVersion As String
+Dim clsAppRuntime As New App_Runtime
+Dim clsExecProc As New Exec_Proc
+Dim vNameParts() As String
+Dim dArgs As New Dictionary
+Dim idStudent As String
+
+    IsValidStudentFullName = True
+    
+    Set clsAppRuntime = args(0)
+    sValue = args(1)
+    sLookUpTableName = args(2)(0)
+    sLookUpColumnName = args(2)(1)
+    Set clsExecProc = args(3)
+    
+    vNameParts = Split(sValue, Space)
+    
+    sFirstName = vNameParts(0)
+    sLastName = vNameParts(1)
+                
+    AddArgs dArgs, False, "clsAppRuntime", clsAppRuntime, "eQuadSubDataType", QuadSubDataType.Student, "eQuadDataType", QuadDataType.person, _
+        "sLookUpByColName", "sStudentFirstNm", "sLookUpByValue", sFirstName, "sLookUpColName", "idStudent", _
+        "sLookUpByColName2", "sStudentLastNm", "sLookUpByValue2", sLastName, "ver_series", clsAppRuntime.Version
+    
+    clsExecProc.ExecProc "CrossRefQuadData", dArgs
+
+    IsValidStudentFullName = dArgs.Item("result")
+    
+End Function
+
+Public Function IsValidTeacherFullName(ParamArray args()) As Boolean
+Dim sColumnRange As String, sLookUpTableName As String, sLookUpColumnName As String, sValue As String, sFirstName As String, sLastName As String, sVersion As String
+Dim clsAppRuntime As New App_Runtime
+Dim clsExecProc As New Exec_Proc
+Dim vNameParts() As String
+Dim dArgs As New Dictionary
+Dim idStudent As String
+
+    IsValidTeacherFullName = True
+    
+    Set clsAppRuntime = args(0)
+    sValue = args(1)
+    sLookUpTableName = args(2)(0)
+    sLookUpColumnName = args(2)(1)
+    Set clsExecProc = args(3)
+    
+    vNameParts = Split(sValue, Space)
+    
+    sFirstName = vNameParts(0)
+    sLastName = vNameParts(1)
+                
+    AddArgs dArgs, False, "clsAppRuntime", clsAppRuntime, "eQuadSubDataType", QuadSubDataType.Teacher, "eQuadDataType", QuadDataType.person, _
+        "sLookUpByColName", "sStudentFirstNm", "sLookUpByValue", sFirstName, "sLookUpColName", "idStudent", _
+        "sLookUpByColName2", "sStudentLastNm", "sLookUpByValue2", sLastName, "ver_series", clsAppRuntime.Version
+    
+    clsExecProc.ExecProc "CrossRefQuadData", dArgs
+
+    IsValidTeacherFullName = dArgs.Item("result")
+    
+End Function
+
+
+Public Function IsNotMember(ParamArray args()) As Boolean
+Dim bMember As Boolean
+Dim vArgs As Variant
+Dim clsAppRuntime As New App_Runtime
+Dim clsExecProc As New Exec_Proc
+Dim sValue As String
+
+    Set clsAppRuntime = args(0)
+    sValue = args(1)
+    vArgs = args(2)
+    Set clsExecProc = args(3)
+
+    bMember = IsMember(clsAppRuntime, sValue, vArgs, clsExecProc)
+    
+    If bMember = True Then
+        IsNotMember = False
+    Else
+        IsNotMember = True
+    End If
 End Function
 
 

@@ -267,20 +267,9 @@ def tbl_row_delete(database,tbl_name,whereclause=None):
         if isinstance(whereclause[0],list) <> True:
             raise Exception("list of list needs to be provide; changed 9/22")
 
-        #exec_str = exec_str + " where {0} {1} {2}".format(whereclause[0][0],
-        #                                                  whereclause[0][1],
-        #                                                  whereclause[0][2])
-        
         exec_str = exec_str + " where {0} {1} {2}".format(whereclause[0][0],
                                                           whereclause[0][1],
                                                           whereclause[0][2])
-
-        for i in range(1,len(whereclause)):
-
-            exec_str = exec_str + " and {0} {1} {2}".format(whereclause[i][0],
-                                                            whereclause[i][1],
-                                                            whereclause[i][2])
-            
     results = database.execute(exec_str)
 
     return(exec_str)

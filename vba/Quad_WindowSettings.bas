@@ -9,8 +9,8 @@ Attribute VB_PredeclaredId = False
 Attribute VB_Exposed = False
 Option Explicit
 
-Private prgbFg As RGBColor
-Private prgbBg As RGBColor
+Private prgbFg As rgbColor
+Private prgbBg As rgbColor
 Private pFont As String
 Private pFontStyle As String
 Private pFontSize As Integer
@@ -26,16 +26,16 @@ Private pWindowTitle As String
 Private pWindowID As Integer
 Private pZoom As Integer
 
-Public Property Get rgbFg() As RGBColor
+Public Property Get rgbFg() As rgbColor
     Set rgbFg = prgbFg
 End Property
-Public Property Let rgbFg(value As RGBColor)
+Public Property Let rgbFg(value As rgbColor)
     Set prgbFg = value
 End Property
-Public Property Get rgbBg() As RGBColor
+Public Property Get rgbBg() As rgbColor
     Set rgbBg = prgbBg
 End Property
-Public Property Let rgbBg(value As RGBColor)
+Public Property Let rgbBg(value As rgbColor)
     Set prgbBg = value
 End Property
 Public Property Get Font() As String
@@ -123,16 +123,16 @@ Public Property Let Zoom(value As Integer)
     pZoom = value
 End Property
 Public Sub InitProperties( _
-                Optional rgbBg As RGBColor, _
-                Optional rgbFg As RGBColor, _
+                Optional rgbBg As rgbColor, _
+                Optional rgbFg As rgbColor, _
                 Optional sFont As String = "Arial", _
                 Optional sFontStyle As String = "Normal", _
                 Optional iFontSize As Integer = 14, _
                 Optional sWindowTitle As String = "Title1", _
                 Optional sWindowID As Integer = 1, _
                 Optional iZoom As Integer = 70)
-Dim rgbBlack As New RGBColor
-Dim rgbWhite As New RGBColor
+Dim rgbBlack As New rgbColor
+Dim rgbWhite As New rgbColor
 
     If IsSet(rgbBg) = False Then
         rgbBlack.InitProperties 0, 0, 0

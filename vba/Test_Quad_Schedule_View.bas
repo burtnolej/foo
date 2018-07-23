@@ -8,8 +8,171 @@ Option Explicit
 'Test_BuildSchedule_Student_Multi
 Const C_MODULE_NAME = "Test_Quad_Schedule_View"
 
-Public Function Test_GenerateScheduleLessonListView() As TestResult
+Public Function Txxxest_GenerateScheduleLessonListViewEntry() As TestResult
+'<<<
+'purpose: simple wrapper to launch a Student View workflow
+'>>>
+Dim clsAppRuntime As New App_Runtime
+Dim sSheetName As String, sFuncName As String
+Dim wsView As Worksheet
+Dim sScheduleName As String, sSchedulePath As String, sNewSchedulePath As String
+Dim lStartTick As Long
+Dim eTestResult As TestResult
+Dim rTarget As Range, rViewListColumn As Range
+Dim dArgs As New Dictionary
 
+setup:
+    'On Error GoTo err
+    ChDir "C:\Users\burtnolej\Documents\runtime"
+    sFuncName = C_MODULE_NAME & "." & "GenerateScheduleLessonListViewEntry"
+    sSheetName = "test"
+    clsAppRuntime.InitProperties bInitializeCache:=True, _
+                                  sDefinitionSheetName:=sSheetName, _
+                                  sBookName:="vba_source_new.xlsm", _
+                                  sBookPath:="C:\Users\burtnolej\Documents\GitHub\quadviewer", _
+                                  bSetWindows:=False
+
+main:
+    
+    AddArgs dArgs, False, "clsAppRuntime", clsAppRuntime, "iStudentID", 2, "eFormType", FormType.ViewListEntry, "sFormName", "ViewListEntry_Schedule_Lesson"
+    GenerateScheduleLessonListView dArgs
+        
+    Set rViewListColumn = clsAppRuntime.ViewBook.Sheets("ViewList_Schedule_Lesson").Range("lViewList_Schedule_Lesson_idStudent")
+    
+    If rViewListColumn.Rows(1).value <> "2" Then
+        eTestResult = TestResult.Failure
+        GoTo teardown
+    End If
+    
+    eTestResult = TestResult.OK
+    GoTo teardown
+    
+err:
+    eTestResult = TestResult.Error
+    'On Error GoTo 0
+    
+teardown:
+    Test_GenerateScheduleLessonListViewEntry = eTestResult
+    clsAppRuntime.Delete
+    
+End Function
+
+
+Public Function Txxxxest_GenerateScheduleLessonListViewEntry_AllStudents() As TestResult
+'<<<
+'purpose: simple wrapper to launch a Student View workflow
+'>>>
+Dim clsAppRuntime As New App_Runtime
+Dim sSheetName As String, sFuncName As String
+Dim wsView As Worksheet
+Dim sScheduleName As String, sSchedulePath As String, sNewSchedulePath As String
+Dim lStartTick As Long
+Dim eTestResult As TestResult
+Dim rTarget As Range, rViewListColumn As Range
+Dim dArgs As New Dictionary
+
+setup:
+    'On Error GoTo err
+    ChDir "C:\Users\burtnolej\Documents\runtime"
+    sFuncName = C_MODULE_NAME & "." & "Test_GenerateScheduleLessonListViewEntry_AllStudents"
+    sSheetName = "test"
+    clsAppRuntime.InitProperties bInitializeCache:=True, _
+                                  sDefinitionSheetName:=sSheetName, _
+                                  sBookName:="vba_source_new.xlsm", _
+                                  sBookPath:="C:\Users\burtnolej\Documents\GitHub\quadviewer", _
+                                  bSetWindows:=False
+
+main:
+    
+    AddArgs dArgs, False, "clsAppRuntime", clsAppRuntime, "iStudentID", 0, "eFormType", FormType.ViewListEntry, "sFormName", "ViewListEntry_Schedule_Lesson"
+    GenerateScheduleLessonListView dArgs
+        
+    Set rViewListColumn = clsAppRuntime.ViewBook.Sheets("ViewList_Schedule_Lesson").Range("lViewList_Schedule_Lesson_idStudent")
+    
+    If rViewListColumn.Rows(1).value <> "2" Then
+        eTestResult = TestResult.Failure
+        GoTo teardown
+    End If
+    
+    eTestResult = TestResult.OK
+    GoTo teardown
+    
+err:
+    eTestResult = TestResult.Error
+    'On Error GoTo 0
+    
+teardown:
+    Test_GenerateScheduleLessonListViewEntry_AllStudents = eTestResult
+    clsAppRuntime.Delete
+    
+End Function
+
+
+Public Function Test_GenerateSchoolScheduleListViewEntry_AllStudents() As TestResult
+'<<<
+'purpose: simple wrapper to launch a Student View workflow
+'>>>
+Dim clsAppRuntime As New App_Runtime
+Dim sSheetName As String, sFuncName As String
+Dim wsView As Worksheet
+Dim sScheduleName As String, sSchedulePath As String, sNewSchedulePath As String
+Dim lStartTick As Long
+Dim eTestResult As TestResult
+Dim rTarget As Range, rViewListColumn As Range, rFilterWidget As Range
+Dim dArgs As New Dictionary
+
+setup:
+    'On Error GoTo err
+    ChDir "C:\Users\burtnolej\Documents\runtime"
+    sFuncName = C_MODULE_NAME & "." & "Test_GenerateSchoolScheduleListViewEntry_AllStudents"
+    sSheetName = "test"
+    clsAppRuntime.InitProperties bInitializeCache:=True, _
+                                  sDefinitionSheetName:=sSheetName, _
+                                  sBookName:="vba_source_new.xlsm", _
+                                  sBookPath:="C:\Users\burtnolej\Documents\GitHub\quadviewer", _
+                                  bSetWindows:=False
+
+main:
+    
+    AddArgs dArgs, False, "clsAppRuntime", clsAppRuntime, "iStudentID", 0, "eFormType", FormType.ViewListEntry, "sFormName", "ViewListEntry_Schedule_School", _
+        "sSubDataType", "school"
+    GenerateScheduleLessonListView dArgs
+    
+    
+    DoEventsOff
+    
+    With clsAppRuntime.ViewBook.Sheets("ViewListEntry_Schedule_School")
+        Set rFilterWidget = .Range(.Cells(4, 4), .Cells(4, 4))
+        rFilterWidget.value = "Melissa M"
+        DoFilter clsAppRuntime.ViewBook, "ViewListEntry_Schedule_School", rFilterWidget
+    
+        Set rTarget = .Range(.Cells(10, 2), .Cells(10, 2))
+        rTarget = "Art"
+    End With
+        
+    
+    If GetBgColor("ViewListEntry_Schedule_School", rTarget).AsString <> "0,255,0" Then
+        eTestResult = TestResult.Failure
+        GoTo teardown
+    End If
+        
+    
+    eTestResult = TestResult.OK
+    GoTo teardown
+    
+err:
+    eTestResult = TestResult.Error
+    'On Error GoTo 0
+    
+teardown:
+    Test_GenerateSchoolScheduleListViewEntry_AllStudents = eTestResult
+    clsAppRuntime.Delete
+    
+End Function
+
+
+
+Public Function Test_GenerateScheduleLessonListView() As TestResult
 '<<<
 'purpose: simple wrapper to launch a Student View workflow
 '>>>
@@ -56,7 +219,57 @@ teardown:
     clsAppRuntime.Delete
     
 End Function
+Public Function Test_GenerateScheduleView() As TestResult
 
+'<<<
+'purpose: simple wrapper to launch a Student View workflow
+'>>>
+Dim clsAppRuntime As New App_Runtime
+Dim sSheetName As String, sFuncName As String, sDatabasePath As String
+Dim wsView As Worksheet
+Dim sScheduleName As String, sSchedulePath As String, sNewSchedulePath As String
+Dim lStartTick As Long
+Dim eTestResult As TestResult
+Dim rTarget As Range, rViewListColumn As Range
+Dim dArgs As New Dictionary
+
+setup:
+    ChDir "C:\Users\burtnolej\Documents\runtime"
+    sFuncName = C_MODULE_NAME & "." & "GenerateScheduleView"
+    sSheetName = "test"
+    sDatabasePath = Application.Run(C_GET_HOME_PATH) & "\GitHub\quadviewer\" & "app\quad\utils\test_misc\QuadQA.db"
+    clsAppRuntime.InitProperties bInitializeCache:=True, _
+                                  sDefinitionSheetName:=sSheetName, _
+                                  sBookName:="vba_source_new.xlsm", _
+                                  sBookPath:="C:\Users\burtnolej\Documents\GitHub\quadviewer", _
+                                  bSetWindows:=False, _
+                                  sDatabasePath:=sDatabasePath
+                                  
+
+
+main:
+    
+    AddArgs dArgs, False, "clsAppRuntime", clsAppRuntime, "iStudentID", 2, "sFormName", "ViewSchedule_Schedule_Lesson"
+    GenerateScheduleView dArgs
+        
+    Set rViewListColumn = clsAppRuntime.ScheduleBook.Sheets("ViewSchedule_Schedule_Lesson").Range("H16:I19")
+    Debug.Print rViewListColumn.Rows(1).Columns(2).value
+    If rViewListColumn.Rows(1).Columns(2).value <> "Work Period" Then
+        eTestResult = TestResult.Failure
+        GoTo teardown
+    End If
+    
+    eTestResult = TestResult.OK
+    GoTo teardown
+    
+err:
+    eTestResult = TestResult.Error
+    
+teardown:
+    Test_GenerateScheduleView = eTestResult
+    clsAppRuntime.Delete
+    
+End Function
 Public Function Test_BuildSchedule_Student_OverideScheduleBook() As TestResult
 '"" get a full schedule for 1 student, parse and put into a backsheet
 '""
@@ -73,14 +286,15 @@ Dim dArgs As New Dictionary
 
     clsAppRuntime.InitProperties sScheduleBookName:=sScheduleName, sScheduleBookPath:=sSchedulePath
     iPersonID = 70
-    GetDefinition clsAppRuntime, "Schedule", "Student", "test", FormType.Add
+    Set clsExecProc = GetExecProcGlobal(ActiveWorkbook)
+    GetDefinition clsAppRuntime, clsExecProc, "Schedule", "Student", "test", FormType.Add
     
-    clsExecProc.InitProperties wbTmp:=ActiveWorkbook
+    'clsExecProc.InitProperties wbTmp:=ActiveWorkbook
     AddArgs dArgs, True, "clsExecProc", clsExecProc, "clsAppRuntime", clsAppRuntime, "iPersonID", iPersonID, "eQuadSubDataType", QuadSubDataType.Student
     Set wsSchedule = BuildSchedule(dArgs)
     
     With wsSchedule
-        Set rResult = .Range("L20:M23")
+        Set rResult = .Range("J20:K23")
         
         If rResult.Columns(2).Rows(1).value <> "Art" Then
             eTestResult = TestResult.Failure
@@ -121,16 +335,18 @@ Dim aColumnWidths() As Integer
 Dim iFormatWidth As Integer, iFormatHeight As Integer, iColWidthCount As Integer, iPersonID As Integer, iSourceColHeight As Integer, iTargetColHeight As Integer
 Dim clsAppRuntime As New App_Runtime
 Dim dValues As New Dictionary
+Dim clsExecProc As New Exec_Proc
 
 setup:
     ResetAppRuntimeGlobal
     sFuncName = C_MODULE_NAME & "." & "BuildScheduleHeaders"
     sSheetName = "test"
     clsAppRuntime.InitProperties bInitializeCache:=True, sDefinitionSheetName:=sSheetName
+    Set clsExecProc = GetExecProcGlobal(ActiveWorkbook)
     sTargetSheetName = "AddLesson"
     
 main:
-    GenerateScheduleAdd clsAppRuntime
+    GenerateScheduleAdd clsAppRuntime, clsExecProc
     
     sFuncName = C_MODULE_NAME & "." & "BuildScheduleCell"
     
@@ -224,23 +440,28 @@ Dim dArgs As New Dictionary
     
 setup:
     clsAppRuntime.InitProperties bInitializeCache:=True
+    Set clsExecProc = GetExecProcGlobal(ActiveWorkbook)
     iPersonID = 70
-    GetDefinition clsAppRuntime, "Schedule", "Student", "test", FormType.Add
+    GetDefinition clsAppRuntime, clsExecProc, "Schedule", "Student", "test", FormType.Add
     
-    clsExecProc.InitProperties wbTmp:=ActiveWorkbook
+    'clsExecProc.InitProperties wbTmp:=ActiveWorkbook
     AddArgs dArgs, True, "clsExecProc", clsExecProc, "clsAppRuntime", clsAppRuntime, "iPersonID", iPersonID, "eQuadSubDataType", QuadSubDataType.Student
     Set wsSchedule = BuildSchedule(dArgs)
     
     AddDict dArgs, "iPersonID", iPersonID - 1, bUpdate:=True
+    AddDict dArgs, "eQuadSubDataType", QuadSubDataType.Student
     Set wsSchedule = BuildSchedule(dArgs)
     
     AddDict dArgs, "iPersonID", iPersonID - 2, bUpdate:=True
+    AddDict dArgs, "eQuadSubDataType", QuadSubDataType.Student
     Set wsSchedule = BuildSchedule(dArgs)
     
     AddDict dArgs, "iPersonID", iPersonID - 3, bUpdate:=True
+    AddDict dArgs, "eQuadSubDataType", QuadSubDataType.Student
     Set wsSchedule = BuildSchedule(dArgs)
     
     AddDict dArgs, "iPersonID", iPersonID - 4, bUpdate:=True
+    AddDict dArgs, "eQuadSubDataType", QuadSubDataType.Student
     Set wsSchedule = BuildSchedule(dArgs)
 
     With ActiveWorkbook
@@ -249,7 +470,7 @@ setup:
             GoTo teardown
         End If
         
-        If "person_student,schedule_student_70,schedule_student_69,schedule_student_68,schedule_student_67,schedule_student_66,Sheet1" <> Join(GetSheets(clsAppRuntime.CacheBook), ",") Then
+        If "person_student,schedule_student_70,courses_section,courses_subject,schedule_student_69,schedule_student_68,schedule_student_67,schedule_student_66,Sheet1" <> Join(GetSheets(clsAppRuntime.CacheBook), ",") Then
             Debug.Print Join(GetSheets(clsAppRuntime.CacheBook), ",")
             eTestResult = TestResult.Failure
             GoTo teardown
@@ -277,13 +498,18 @@ Dim wsSchedule As Worksheet
 Dim aColumnWidths() As Integer
 Dim iFormatWidth As Integer, iFormatHeight As Integer, iColWidthCount As Integer, iPersonID As Integer
 Dim clsAppRuntime As New App_Runtime
-Dim dValues As New Dictionary
+Dim dValues As New Dictionary, dArgs As New Dictionary
+Dim clsExecProc As Exec_Proc
 
 setup:
     sFuncName = C_MODULE_NAME & "." & "BuildScheduleCell"
     sTemplateRangeName = "f" & "student" & "ScheduleCell"
     
-    clsAppRuntime.InitProperties
+    clsAppRuntime.InitProperties sDefinitionSheetName:="test"
+    Set clsExecProc = GetExecProcGlobal(ActiveWorkbook)
+    
+    GetDefinition clsAppRuntime, clsExecProc, "Schedule", "Student", "test", FormType.Add
+    
     sSheetName = "view_student_70"
     Set wsSchedule = CreateSheet(clsAppRuntime.ScheduleBook, sSheetName)
     
@@ -295,12 +521,14 @@ setup:
     GetScheduleCellFormat clsAppRuntime, iFormatWidth, iFormatHeight, sTemplateRangeName
     ' get the desired column widths from the template and return in an array
     aColumnWidths = GetScheduleCellColWidths(clsAppRuntime, sTemplateRangeName, iColWidthCount)
-        
-    BuildScheduleCellView clsAppRuntime, wsSchedule, dValues, iFormatWidth, iFormatHeight, aColumnWidths
+    
+    AddArgs dArgs, False, "clsAppRuntime", clsAppRuntime, "wsSchedule", wsSchedule, "dValues", dValues, "iFormatWidth", iFormatWidth, "iFormatHeight", iFormatHeight, "aColumnWidths", aColumnWidths
+    Application.Run C_BUILD_SCHEDULE_CELL_VIEW, dArgs
+    'BuildScheduleCellView clsAppRuntime, wsSchedule, dValues, iFormatWidth, iFormatHeight, aColumnWidths
                                   
     With wsSchedule
     
-        Set rResult = .Range("D4:E7")
+        Set rResult = .Range("B4:C7")
         'Set rResult = .Range("C4:E7")
         
         If rResult.Columns(2).Rows(1).value <> "Homeroom" Then
@@ -349,15 +577,17 @@ setup:
     
     clsAppRuntime.InitProperties
     iPersonID = 70
-    GetDefinition clsAppRuntime, "Schedule", "Student", "test", FormType.Add
+    Set clsExecProc = GetExecProcGlobal(ActiveWorkbook)
+    GetDefinition clsAppRuntime, clsExecProc, "Schedule", "Student", "test", FormType.Add
 
-    clsExecProc.InitProperties wbTmp:=ActiveWorkbook
+    'clsExecProc.InitProperties wbTmp:=ActiveWorkbook
+
     AddArgs dArgs, True, "clsExecProc", clsExecProc, "clsAppRuntime", clsAppRuntime, "iPersonID", iPersonID, "eQuadSubDataType", QuadSubDataType.Student
     Set wsSchedule = BuildSchedule(dArgs)
                               
     With wsSchedule
         
-        Set rResult = .Range("L20:M23")
+        Set rResult = .Range("J20:K23")
         
         If rResult.Columns(2).Rows(1).value <> "Art" Then
             eTestResult = TestResult.Failure
@@ -402,15 +632,18 @@ Dim wsSchedule As Worksheet
 Dim aColumnWidths() As Integer
 Dim iFormatWidth As Integer, iFormatHeight As Integer, iColWidthCount As Integer, iPersonID As Integer
 Dim clsAppRuntime As New App_Runtime
-Dim clsExecProc As New Exec_Proc
+
+Dim clsExecProc As Exec_Proc
 Dim dArgs As New Dictionary
 
 setup:
     clsAppRuntime.InitProperties bInitializeCache:=True
     iPersonID = 70
-    GetDefinition clsAppRuntime, "Schedule", "Student", "test", FormType.Add
+    Set clsExecProc = GetExecProcGlobal(ActiveWorkbook)
+    GetDefinition clsAppRuntime, clsExecProc, "Schedule", "Student", "test", FormType.Add
 
-    clsExecProc.InitProperties wbTmp:=ActiveWorkbook
+    'clsExecProc.InitProperties wbTmp:=ActiveWorkbook
+
     AddArgs dArgs, True, "clsExecProc", clsExecProc, "clsAppRuntime", clsAppRuntime, "iPersonID", iPersonID, "eQuadSubDataType", QuadSubDataType.Student
     
     'GetPersonScheduleDataFromDB clsAppRuntime, iPersonID, QuadSubDataType.Student
@@ -424,7 +657,7 @@ main:
     'Set wsSchedule = BuildSchedule(clsAppRuntime, QuadSubDataType.Student, iPersonID)
                               
     With wsSchedule
-        Set rResult = .Range("L20:M23")
+        Set rResult = .Range("J20:K23")
         
         If rResult.Columns(2).Rows(1).value <> "Art" Then
             eTestResult = TestResult.Failure
@@ -470,9 +703,11 @@ Dim dArgs As New Dictionary
 setup:
     clsAppRuntime.InitProperties bInitializeCache:=True, sDefinitionSheetName:="test"
     iPersonID = 70
-    GetDefinition clsAppRuntime, "Schedule", "Student", "test", FormType.Add
+    Set clsExecProc = GetExecProcGlobal(ActiveWorkbook)
     
-    clsExecProc.InitProperties wbTmp:=ActiveWorkbook
+    GetDefinition clsAppRuntime, clsExecProc, "Schedule", "Student", "test", FormType.Add
+    
+    'clsExecProc.InitProperties wbTmp:=ActiveWorkbook
     AddArgs dArgs, True, "clsExecProc", clsExecProc, "clsAppRuntime", clsAppRuntime, "iPersonID", iPersonID, "eQuadSubDataType", QuadSubDataType.Student
 
     'GetPersonScheduleDataFromDB clsAppRuntime, iPersonID, QuadSubDataType.Student
@@ -513,7 +748,8 @@ setup:
     clsAppRuntime.InitProperties bInitializeCache:=True
     iPersonID = 70
 
-    clsExecProc.InitProperties wbTmp:=ActiveWorkbook
+    Set clsExecProc = GetExecProcGlobal(ActiveWorkbook)
+    'clsExecProc.InitProperties wbTmp:=ActiveWorkbook
     AddArgs dArgs, True, "clsExecProc", clsExecProc, "clsAppRuntime", clsAppRuntime, "iPersonID", iPersonID, "eQuadSubDataType", QuadSubDataType.Student
 
     'GetPersonScheduleDataFromDB clsAppRuntime, iPersonID, QuadDataType.Schedule
@@ -537,6 +773,51 @@ teardown:
     clsAppRuntime.Delete
     
 End Function
+
+Public Function Test_GetSchoolScheduleDataFromDB() As TestResult
+'"" get a subset of the schedule for more than 1 student to test basics
+'""
+Dim sResultStr As String
+Dim iPersonID As Integer
+Dim eTestResult As TestResult
+Dim clsAppRuntime As New App_Runtime
+Dim clsExecProc As New Exec_Proc
+Dim dArgs As New Dictionary
+
+setup:
+    clsAppRuntime.InitProperties bInitializeCache:=True
+    Set clsExecProc = GetExecProcGlobal(ActiveWorkbook)
+    iPersonID = 0
+    GetDefinition clsAppRuntime, clsExecProc, "Schedule", "Student", "test", FormType.Add
+
+    AddArgs dArgs, True, "clsExecProc", clsExecProc, "clsAppRuntime", clsAppRuntime, "iPersonID", iPersonID, "eQuadSubDataType", QuadSubDataType.School
+main:
+    GetPersonScheduleDataFromDB dArgs
+
+   If FileExists(clsAppRuntime.ResultFileName) Then
+        sResultStr = ReadFile(clsAppRuntime.ResultFileName)
+    Else
+        eTestResult = TestResult.Failure
+        GoTo teardown
+    End If
+
+    If Split(Split(sResultStr, "$$")(1), "^")(2) <> "Samantha Strauss" Then
+        eTestResult = TestResult.Failure
+    Else
+        eTestResult = TestResult.OK
+    End If
+    On Error GoTo 0
+    GoTo teardown
+
+err:
+    eTestResult = TestResult.Error
+    
+teardown:
+    Test_GetSchoolScheduleDataFromDB = eTestResult
+    clsAppRuntime.Delete
+    
+End Function
+
 Public Function Test_GetScheduleDataFromDB() As TestResult
 '"" get a subset of the schedule for more than 1 student to test basics
 '""
@@ -549,10 +830,11 @@ Dim dArgs As New Dictionary
 
 setup:
     clsAppRuntime.InitProperties bInitializeCache:=True
+    Set clsExecProc = GetExecProcGlobal(ActiveWorkbook)
     iPersonID = 70
-    GetDefinition clsAppRuntime, "Schedule", "Student", "test", FormType.Add
+    GetDefinition clsAppRuntime, clsExecProc, "Schedule", "Student", "test", FormType.Add
 
-    clsExecProc.InitProperties wbTmp:=ActiveWorkbook
+    'clsExecProc.InitProperties wbTmp:=ActiveWorkbook
     AddArgs dArgs, True, "clsExecProc", clsExecProc, "clsAppRuntime", clsAppRuntime, "iPersonID", iPersonID, "eQuadSubDataType", QuadSubDataType.Student, "sPeriod", "1,2", "sDay", "M,F"
 
 main:
@@ -565,7 +847,7 @@ main:
         eTestResult = TestResult.Failure
         GoTo teardown
     End If
-    
+
     If Split(Split(sResultStr, "$$")(4), "^")(2) <> "Typing.com" Then
         eTestResult = TestResult.Failure
     Else

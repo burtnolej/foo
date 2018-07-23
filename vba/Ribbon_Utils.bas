@@ -111,16 +111,16 @@ End Sub
 
 Sub rxgal_Click(control As IRibbonControl, id As String, index As Integer)
 Dim vLabelNames As Variant
-Dim vStudentIDs As Variant
+Dim vStudentIds As Variant
 Dim clsAppRuntime As New App_Runtime
 Dim sTemplateRowRangeName As String, sSheetName As String, sTemplateColRangeName As String
 Dim iFormatWidth As Integer, iFormatHeight As Integer
 Dim wsSchedule As Worksheet
     
     clsAppRuntime.InitProperties bInitializeCache:=False, sDefinitionSheetName:="Definitions"
-    vStudentIDs = GetColumnValues(clsAppRuntime, QuadDataType.Person, QuadSubDataType.Student, "idStudent")
+    vStudentIds = GetColumnValues(clsAppRuntime, QuadDataType.person, QuadSubDataType.Student, "idStudent")
 
-    sSheetName = "view_" & EnumQuadSubDataType(QuadSubDataType.Student) & "_" & CStr(CInt(vStudentIDs(index)))
+    sSheetName = "view_" & EnumQuadSubDataType(QuadSubDataType.Student) & "_" & CStr(CInt(vStudentIds(index)))
     If SheetExists(clsAppRuntime.ScheduleBook, sSheetName) = False Then
         Set wsSchedule = CreateSheet(clsAppRuntime.ScheduleBook, sSheetName)
     End If
@@ -135,7 +135,7 @@ Dim wsSchedule As Worksheet
     
     BuildSchedule clsAppRuntime, _
                     eQuadSubDataType:=QuadSubDataType.Student, _
-                    iPersonID:=CInt(vStudentIDs(index))
+                    iPersonID:=CInt(vStudentIds(index))
 
 End Sub
 
@@ -163,12 +163,8 @@ setup:
             FuncLogIt sFuncName, "SchedBut ID is incorrectly formed [" & control.id & "] needs to have 3 parts delimed by _", C_MODULE_NAME, LogMsgType.Error
         Else
             Set clsAppRuntime = GetAppRuntimeGlobal(bInitFlag:=True)
-            
             AddArgs dArgs, False, "clsAppRuntime", clsAppRuntime, "eQuadSubDataType", GetQuadSubDataTypeEnumFromValue(aControlIDSplit(1)), "iPersonID", CInt(aControlIDSplit(2))
             Application.Run C_BUILD_SCHEDULE, dArgs
-            'BuildSchedule clsAppRuntime, _
-            '                eQuadSubDataType:=GetQuadSubDataTypeEnumFromValue(aControlIDSplit(1)), _
-            '                iPersonID:=CInt(aControlIDSplit(2))
         End If
              
     ElseIf control.id = "GenerateEntryForm" Then
@@ -207,7 +203,11 @@ setup:
     ElseIf control.id = "Commit" Then
         Set dControlValues = GetControlValues(vControls)
         DoGitCommit Selection, dControlValues.Item("RepoName"), dControlValues.Item("GitRootPath"), _
-        sMessage:=dControlValues.Item("CommitMessage")
+        sMessage:=dControlValues.Item("CommitMessage"), sWriteToGit:=False
+    ElseIf control.id = "WriteOnly" Then
+        Set dControlValues = GetControlValues(vControls)
+        DoGitCommit Selection, dControlValues.Item("RepoName"), dControlValues.Item("GitRootPath"), _
+        sMessage:=dControlValues.Item("CommitMessage"), sWriteToGit:=False
     ElseIf control.id = "CreateRepo" Then
         Set dControlValues = GetControlValues(vControls)
         DoGitCreateRepo dControlValues.Item("RepoName"), dControlValues.Item("UserName")
@@ -335,7 +335,7 @@ Dim vLabelNames As Variant
 Dim clsAppRuntime As New App_Runtime
     clsAppRuntime.InitProperties bInitializeCache:=True
     GetDefinition clsAppRuntime, "Schedule", "Lesson", "Definitions", FormType.Add
-    vLabelNames = GetColumnValues(clsAppRuntime, QuadDataType.Person, QuadSubDataType.Student, "sStudentLastNm")
+    vLabelNames = GetColumnValues(clsAppRuntime, QuadDataType.person, QuadSubDataType.Student, "sStudentLastNm")
     returnedVal = UBound(vLabelNames) + 1
     'clsAppRuntime.TemplateBook.Activate
 End Sub
@@ -347,11 +347,11 @@ Dim clsAppRuntime As New App_Runtime
     If index = 0 Then index = 1
     
     clsAppRuntime.InitProperties bInitializeCache:=False
-    vLabelFirstNames = GetColumnValues(clsAppRuntime, QuadDataType.Person, QuadSubDataType.Student, "sStudentFirstNm")
-    vLabelLastNames = GetColumnValues(clsAppRuntime, QuadDataType.Person, QuadSubDataType.Student, "sStudentLastNm")
+    vLabelFirstNames = GetColumnValues(clsAppRuntime, QuadDataType.person, QuadSubDataType.Student, "sStudentFirstNm")
+    vLabelLastNames = GetColumnValues(clsAppRuntime, QuadDataType.person, QuadSubDataType.Student, "sStudentLastNm")
     
     'is this correct at last index ?
-    returnedVal = vLabelFirstNames(index) & SPACE & vLabelLastNames(index)
+    returnedVal = vLabelFirstNames(index) & Space & vLabelLastNames(index)
 End Sub
 
 Sub rxgal_getItemImage(control As IRibbonControl, index As Integer, ByRef returnedVal)
@@ -366,7 +366,7 @@ Dim clsAppRuntime As New App_Runtime
     If index = 0 Then index = 1
     
     clsAppRuntime.InitProperties bInitializeCache:=False
-    vPrepIDs = GetColumnValues(clsAppRuntime, QuadDataType.Person, QuadSubDataType.Student, "idPrep")
+    vPrepIDs = GetColumnValues(clsAppRuntime, QuadDataType.person, QuadSubDataType.Student, "idPrep")
     
     vExtensions = InitStringArray(Array("png", "jpg"))
     sImagePath = Environ("MYHOME") & "\Pictures\icons\"

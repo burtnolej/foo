@@ -11,6 +11,9 @@ Function EnumLogMsgType(i As Long) As String
     EnumLogMsgType = Split(C_LOG_MSG_TYPE, COMMA)(i)
 End Function
 
+Public Sub FilterLogs(Optional sFilter As String = "0,1,2,3")
+    Log_Utils.LogFilter = sFilter
+End Sub
 Public Sub PurgeLogs()
 '<<<
 'purpose: remove any log files from the runtime directory. a log is a file that ends in _log
@@ -106,8 +109,8 @@ Dim sNowTime As String, sNowDate As String
 Dim lTick As Long, lDuration As Long
 
     lDuration = 0
-    If UBound(Split(sFuncName, PERIOD)) = 1 Then
-        sFuncName = Split(sFuncName, PERIOD)(1)
+    If UBound(Split(sFuncName, Period)) = 1 Then
+        sFuncName = Split(sFuncName, Period)(1)
     End If
     
     lTick = GetTicks() - StartTick
@@ -186,4 +189,8 @@ Dim aHeaderWidths() As Integer
         fLogFile.Write sLogStr & vbCrLf
     End If
 End Sub
+
+
+
+
 

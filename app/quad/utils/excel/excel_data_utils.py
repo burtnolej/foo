@@ -91,7 +91,8 @@ class DataStoredProcBase(ExcelBase):
         """purpose: parse nvp's that need to be passed to the sp_func_name """
         assert hasattr(self,'sp_args'), sp_args
         import xml.etree.ElementTree as xmltree
-        valid_args = ['days','periods','teacchers','students','classlectures']
+        valid_args = ['days','periods','teachers','students','classlectures','courses','subjects','sections',
+                      'sectionschedules','studentlevels','idacadperiods']
         
         sp_args_dict = xmlstr2dict(decode(self.sp_args,encoding),doublequote=True)
         
@@ -116,6 +117,8 @@ class DataStoredProcBase(ExcelBase):
             if encoding == "base64":
                 setattr(self,listname,[b64decode(_field) for _field in getattr(self,listname).split("$$")])
             else:
+                
+                #setattr(self,listname,[decode(_field,encoding) for _field in getattr(self,listname).split("$$")])
                 setattr(self,listname,[_field for _field in getattr(self,listname).split("$$")])
 
         if hasattr(self,"sp_args") == False:
@@ -189,7 +192,8 @@ class DataStoredProcBase(ExcelBase):
                     except TypeError, e:
                         raise Exception("rows are not base64 encoded")
 
-                self.urows.append(_row)
+                #self.urows.append(_row)
+                self.urows.append(decode(_field,encoding) for _field in _row)
                 
         setattr(self,"rows",_quotestrs(self.urows))
 

@@ -254,6 +254,44 @@ err:
     FuncLogIt sFuncName, "[" & err.Description & "] not retreieve code for [sCompName" & sCompName & "] [sProcName=" & sProcName & "]", C_MODULE_NAME, LogMsgType.Error
     GetProcCode = "-1"
 End Function
+
+Public Function InsertProcCode(wb As Workbook, sCompName As String, sProcName As String, vCode() As String, _
+        Optional eProcType As vbext_ProcKind = vbext_ProcKind.vbext_pk_Proc) As String
+Dim VBProj As VBIDE.VBProject
+Dim VBComp As VBIDE.VBComponent
+Dim iProcLength As Integer, iProcStartLine As Integer
+Dim sCode As String, sFuncName As String
+Dim iLine
+
+
+setup:
+    On Error GoTo err
+    sFuncName = "GetProcCode"
+
+main:
+    Set VBProj = wb.VBProject
+    Set VBComp = VBProj.VBComponents(sCompName)
+    iProcLength = VBComp.CodeModule.ProcCountLines(sProcName, vbext_pk_Proc)
+    iProcStartLine = VBComp.CodeModule.ProcStartLine(sProcName, vbext_pk_Proc)
+    
+    iLine = iProcStartLine + 1
+    
+    Do While Left(VBComp.CodeModule.Lines(iLine, 1), 3) = "Dim"
+        iLine = iLine + 1
+    Loop
+    
+    For i = 0 To UBound(vCode)
+        VBComp.CodeModule.InsertLines iLine, vCode(i)
+        iLine = iLine + 1
+    Next i
+
+    Exit Function
+    
+err:
+    FuncLogIt sFuncName, "[" & err.Description & "] not retreieve code for [sCompName" & sCompName & "] [sProcName=" & sProcName & "]", C_MODULE_NAME, LogMsgType.Error
+    InsertProcCode = "-1"
+End Function
+
 Public Function GetProcAnalysis(wb As Workbook, dProc As Dictionary) As Dictionary
 Dim sProcName As Variant
 Dim sModuleName As String
@@ -267,8 +305,8 @@ Dim sInComments As String 'In,Out or None
     For Each sProcName In dProc.Keys
         sComments = ""
         Set dDetail = dProc.Item(sProcName)
-        sProcName = Replace(sProcName, SPACE, BLANK)
-        sModuleName = Replace(dDetail.Item("ModuleName"), SPACE, BLANK)
+        sProcName = Replace(sProcName, Space, BLANK)
+        sModuleName = Replace(dDetail.Item("ModuleName"), Space, BLANK)
 
         Set VBCodeModule = dDetail.Item("CodeModule")
 

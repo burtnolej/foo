@@ -16,6 +16,7 @@ Public Function Test_GeneratePersonView() As TestResult
 'purpose: simple wrapper to launch a Student View workflow
 '>>>
 Dim clsAppRuntime As New App_Runtime
+Dim clsExecProc As New Exec_Proc
 Dim sSheetName As String, sFuncName As String
 Dim wsView As Worksheet
 Dim sScheduleName As String, sSchedulePath As String, sNewSchedulePath As String
@@ -32,9 +33,10 @@ setup:
                                   sBookName:="vba_source_new.xlsm", _
                                   sBookPath:="C:\Users\burtnolej\Documents\GitHub\quadviewer", _
                                   bSetWindows:=False
+    clsExecProc.InitProperties wbTmp:=ActiveWorkbook
 
 main:
-    GeneratePersonView clsAppRuntime
+    GeneratePersonView clsAppRuntime, clsExecProc
 
     With clsAppRuntime.ViewBook.Sheets("View_Person_Student")
         Set rTarget = .Range(.Cells(2, 3), .Cells(2, 3))
@@ -64,8 +66,10 @@ End Function
     
 Public Function Test_IsValidPersonID_Student() As TestResult
 Dim eTestResult As TestResult
+Dim clsExecProc As Exec_Proc
 Dim clsAppRuntime As New App_Runtime
 Dim sSheetName As String, sDataType As String, sSubDataType As String
+Dim dArgs As New Dictionary
 
 setup:
     On Error GoTo err
@@ -73,10 +77,15 @@ setup:
     sSubDataType = "Student"
     sSheetName = "test"
     clsAppRuntime.InitProperties bInitializeCache:=True
-    GetDefinition clsAppRuntime, sDataType, sSubDataType, sSheetName, FormType.View
+    Set clsExecProc = GetExecProcGlobal(ActiveWorkbook)
+    'clsExecProc.InitProperties wbTmp:=ActiveWorkbook
+    GetDefinition clsAppRuntime, clsExecProc, sDataType, sSubDataType, sSheetName, FormType.View
     
 main:
-    If IsValidPersonID(clsAppRuntime, 70, QuadSubDataType.Student) = False Then
+    AddArgs dArgs, False, "clsAppRuntime", clsAppRuntime, "iPersonID", 70, "eQuadSubDataType", QuadSubDataType.Student
+    If Application.Run(C_IS_VALID_PERSON, dArgs) = False Then
+    
+    'If IsValidPersonID(clsAppRuntime, 70, QuadSubDataType.Student) = False Then
         eTestResult = TestResult.Failure
         GoTo teardown
     End If
@@ -96,7 +105,9 @@ End Function
 Public Function Test_IsValidPersonID_Student_NotFound() As TestResult
 Dim eTestResult As TestResult
 Dim clsAppRuntime As New App_Runtime
+Dim clsExecProc As Exec_Proc
 Dim sSheetName As String, sDataType As String, sSubDataType As String
+Dim dArgs As New Dictionary
 
 setup:
     On Error GoTo err
@@ -105,9 +116,12 @@ setup:
     sSubDataType = "Student"
     sSheetName = "test"
     clsAppRuntime.InitProperties bInitializeCache:=True
-    GetDefinition clsAppRuntime, sDataType, sSubDataType, sSheetName, FormType.View
-    
-    If IsValidPersonID(clsAppRuntime, 999, QuadSubDataType.Student) = True Then
+    'clsExecProc.InitProperties wbTmp:=ActiveWorkbook
+    Set clsExecProc = GetExecProcGlobal(ActiveWorkbook)
+    GetDefinition clsAppRuntime, clsExecProc, sDataType, sSubDataType, sSheetName, FormType.View
+
+    AddArgs dArgs, False, "clsAppRuntime", clsAppRuntime, "iPersonID", 999, "eQuadSubDataType", QuadSubDataType.Student
+    If Application.Run(C_IS_VALID_PERSON, dArgs) = False Then
         eTestResult = TestResult.Failure
         GoTo teardown
     End If
@@ -127,7 +141,9 @@ End Function
 Public Function Test_IsValidPersonID_Teacher() As TestResult
 Dim eTestResult As TestResult
 Dim clsAppRuntime As New App_Runtime
+Dim clsExecProc As Exec_Proc
 Dim sSheetName As String, sDataType As String, sSubDataType As String
+Dim dArgs As New Dictionary
 
 setup:
     On Error GoTo err
@@ -136,9 +152,13 @@ setup:
     sSubDataType = "Student"
     sSheetName = "test"
     clsAppRuntime.InitProperties bInitializeCache:=True
-    GetDefinition clsAppRuntime, sDataType, sSubDataType, sSheetName, FormType.View
+    'clsExecProc.InitProperties wbTmp:=ActiveWorkbook
+    Set clsExecProc = GetExecProcGlobal(ActiveWorkbook)
+    GetDefinition clsAppRuntime, clsExecProc, sDataType, sSubDataType, sSheetName, FormType.View
 
-    If IsValidPersonID(clsAppRuntime, 70, QuadSubDataType.Teacher) = False Then
+    AddArgs dArgs, False, "clsAppRuntime", clsAppRuntime, "iPersonID", 70, "eQuadSubDataType", QuadSubDataType.Teacher
+    If Application.Run(C_IS_VALID_PERSON, dArgs) = False Then
+    'If IsValidPersonID(clsAppRuntime, 70, QuadSubDataType.Teacher) = False Then
         eTestResult = TestResult.Failure
         GoTo teardown
     End If
@@ -159,7 +179,9 @@ End Function
 Public Function Test_IsValidPersonID_Teacher_NotFound() As TestResult
 Dim eTestResult As TestResult
 Dim clsAppRuntime As New App_Runtime
+Dim clsExecProc As Exec_Proc
 Dim sSheetName As String, sDataType As String, sSubDataType As String
+Dim dArgs As New Dictionary
 
 setup:
     On Error GoTo err
@@ -168,9 +190,13 @@ setup:
     sSubDataType = "Student"
     sSheetName = "test"
     clsAppRuntime.InitProperties bInitializeCache:=True
-    GetDefinition clsAppRuntime, sDataType, sSubDataType, sSheetName, FormType.View
+    'clsExecProc.InitProperties wbTmp:=ActiveWorkbook
+    Set clsExecProc = GetExecProcGlobal(ActiveWorkbook)
+    GetDefinition clsAppRuntime, clsExecProc, sDataType, sSubDataType, sSheetName, FormType.View
     
-    If IsValidPersonID(clsAppRuntime, 999, QuadSubDataType.Teacher) = True Then
+    AddArgs dArgs, False, "clsAppRuntime", clsAppRuntime, "iPersonID", 999, "eQuadSubDataType", QuadSubDataType.Teacher
+    If Application.Run(C_IS_VALID_PERSON, dArgs) = False Then
+    'If IsValidPersonID(clsAppRuntime, 999, QuadSubDataType.Teacher) = True Then
         eTestResult = TestResult.Failure
         GoTo teardown
     End If
@@ -192,7 +218,9 @@ Public Function Test_GetAllPersonDataFromDB() As TestResult
 Dim sResultStr As String, sSheetName As String, sDataType As String, sSubDataType As String
 Dim eTestResult As TestResult
 Dim clsAppRuntime As New App_Runtime
+Dim clsExecProc As Exec_Proc
 Dim vRows() As String
+Dim dArgs As New Dictionary
 
 setup:
     On Error GoTo err
@@ -201,10 +229,18 @@ setup:
     sSubDataType = "Student"
     sSheetName = "test"
     clsAppRuntime.InitProperties bInitializeCache:=True
-    GetDefinition clsAppRuntime, sDataType, sSubDataType, sSheetName, FormType.View
+    'clsExecProc.InitProperties wbTmp:=ActiveWorkbook
+    Set clsExecProc = GetExecProcGlobal(ActiveWorkbook)
+    GetDefinition clsAppRuntime, clsExecProc, sDataType, sSubDataType, sSheetName, FormType.View
     
 main:
-    GetPersonDataFromDB clsAppRuntime, QuadSubDataType.Student, eQuadScope:=QuadScope.all
+
+    AddArgs dArgs, False, "clsAppRuntime", clsAppRuntime, _
+                          "eQuadSubDataType", QuadSubDataType.Student, _
+                          "eQuadScope", QuadScope.all
+    Application.Run C_GET_PERSON_DATA, dArgs
+                          
+    'GetPersonDataFromDB clsAppRuntime, QuadSubDataType.Student, eQuadScope:=QuadScope.all
     
     If FileExists(clsAppRuntime.ResultFileName) Then
         sResultStr = ReadFile(clsAppRuntime.ResultFileName)
@@ -233,9 +269,10 @@ End Function
 Public Function Test_DeletePersonDataToDB() As TestResult
 Dim eTestResult As TestResult
 Dim clsAppRuntime As New App_Runtime
+Dim clsExecProc As Exec_Proc
 Dim vRows() As Variant, vColumns() As Variant
 Dim sResultStr As String, sSheetName As String, sDataType As String, sSubDataType As String
-
+Dim dArgs As New Dictionary
 setup:
     On Error GoTo err
 
@@ -243,7 +280,9 @@ setup:
     sSubDataType = "Student"
     sSheetName = "test"
     clsAppRuntime.InitProperties bInitializeCache:=True
-    GetDefinition clsAppRuntime, sDataType, sSubDataType, sSheetName, FormType.View
+    'clsExecProc.InitProperties wbTmp:=ActiveWorkbook
+    Set clsExecProc = GetExecProcGlobal(ActiveWorkbook)
+    GetDefinition clsAppRuntime, clsExecProc, sDataType, sSubDataType, sSheetName, FormType.View
     
     vRows = Init2DVariantArray([{666,"foo","bar",2,6;667,"blah","blah",3,6}])
     vColumns = InitVariantArray(Array("idStudent", "sStudentFirstNm", "sStudentLastNm", "idPrep", "iGradeLevel"))
@@ -254,7 +293,11 @@ main:
     DeletePersonDataFromDB clsAppRuntime, QuadSubDataType.Student, iPersonID:="666"
     DeletePersonDataFromDB clsAppRuntime, QuadSubDataType.Student, iPersonID:="667"
     
-    GetPersonDataFromDB clsAppRuntime, QuadSubDataType.Student, eQuadScope:=QuadScope.all
+    AddArgs dArgs, False, "clsAppRuntime", clsAppRuntime, _
+                          "eQuadSubDataType", QuadSubDataType.Student, _
+                          "eQuadScope", QuadScope.all
+    Application.Run C_GET_PERSON_DATA_FROM_DB, dArgs
+    'GetPersonDataFromDB clsAppRuntime, QuadSubDataType.Student, eQuadScope:=QuadScope.all
     
     If FileExists(clsAppRuntime.ResultFileName) Then
         sResultStr = ReadFile(clsAppRuntime.ResultFileName)
@@ -283,8 +326,10 @@ End Function
 Public Function Test_UpdatePersonDataInDB() As TestResult
 Dim eTestResult As TestResult
 Dim clsAppRuntime As New App_Runtime
+Dim clsExecProc As Exec_Proc
 Dim vRows() As Variant, vColumns() As Variant
 Dim sResultStr As String, sSheetName As String, sDataType As String, sSubDataType As String
+Dim dArgs As New Dictionary
 
 setup:
     On Error GoTo err
@@ -292,7 +337,9 @@ setup:
     sSubDataType = "Student"
     sSheetName = "test"
     clsAppRuntime.InitProperties bInitializeCache:=True
-    GetDefinition clsAppRuntime, sDataType, sSubDataType, sSheetName, FormType.View
+    'clsExecProc.InitProperties wbTmp:=ActiveWorkbook
+    Set clsExecProc = GetExecProcGlobal(ActiveWorkbook)
+    GetDefinition clsAppRuntime, clsExecProc, sDataType, sSubDataType, sSheetName, FormType.View
     vRows = Init2DVariantArray([{666,"foo","bar",2,6;667,"blah","blah",3,6}])
     vColumns = InitVariantArray(Array("idStudent", "sStudentFirstNm", "sStudentLastNm", "idPrep", "iGradeLevel"))
      
@@ -300,7 +347,15 @@ main:
     
     InsertPersonDataToDB clsAppRuntime, QuadSubDataType.Student, vRows, vColumns
     UpdatePersonDataInDB clsAppRuntime, QuadSubDataType.Student, "idPrep", 2, "idStudent", 667
-    GetPersonDataFromDB clsAppRuntime, QuadSubDataType.Student, eQuadScope:=QuadScope.specified, iPersonID:="667"
+    
+    AddArgs dArgs, False, "clsAppRuntime", clsAppRuntime, _
+                          "eQuadSubDataType", QuadSubDataType.Student, _
+                          "eQuadScope", QuadScope.specified, _
+                          "iPersonID", "667"
+                          
+    Application.Run C_GET_PERSON_DATA_FROM_DB, dArgs
+    
+    'GetPersonDataFromDB clsAppRuntime, QuadSubDataType.Student, eQuadScope:=QuadScope.specified, iPersonID:="667"
 
     If FileExists(clsAppRuntime.ResultFileName) Then
         sResultStr = ReadFile(clsAppRuntime.ResultFileName)
@@ -331,8 +386,10 @@ End Function
 Public Function Test_InsertPersonDataToDB() As TestResult
 Dim eTestResult As TestResult
 Dim clsAppRuntime As New App_Runtime
+Dim clsExecProc As Exec_Proc
 Dim vRows() As Variant, vColumns() As Variant
 Dim sResultStr As String, sSheetName As String, sDataType As String, sSubDataType As String
+Dim dArgs As New Dictionary
 
 setup:
     On Error GoTo err
@@ -340,7 +397,9 @@ setup:
     sSubDataType = "Student"
     sSheetName = "test"
     clsAppRuntime.InitProperties bInitializeCache:=True
-    GetDefinition clsAppRuntime, sDataType, sSubDataType, sSheetName, FormType.View
+    'clsExecProc.InitProperties wbTmp:=ActiveWorkbook
+    Set clsExecProc = GetExecProcGlobal(ActiveWorkbook)
+    GetDefinition clsAppRuntime, clsExecProc, sDataType, sSubDataType, sSheetName, FormType.View
     vRows = Init2DVariantArray([{666,"foo","bar",2,6;667,"blah","blah",3,6}])
     vColumns = InitVariantArray(Array("idStudent", "sStudentFirstNm", "sStudentLastNm", "idPrep", "iGradeLevel"))
      
@@ -348,7 +407,14 @@ main:
     
     InsertPersonDataToDB clsAppRuntime, QuadSubDataType.Student, vRows, vColumns
     
-    GetPersonDataFromDB clsAppRuntime, QuadSubDataType.Student, eQuadScope:=QuadScope.specified, iPersonID:="666"
+    AddArgs dArgs, False, "clsAppRuntime", clsAppRuntime, _
+                          "eQuadSubDataType", QuadSubDataType.Student, _
+                          "eQuadScope", QuadScope.specified, _
+                          "iPersonID", "666"
+                          
+    Application.Run C_GET_PERSON_DATA_FROM_DB, dArgs
+    
+    'GetPersonDataFromDB clsAppRuntime, QuadSubDataType.Student, eQuadScope:=QuadScope.specified, iPersonID:="666"
 
     If FileExists(clsAppRuntime.ResultFileName) Then
         sResultStr = ReadFile(clsAppRuntime.ResultFileName)
@@ -380,6 +446,8 @@ Public Function Test_GetPersonDataFromDB() As TestResult
 Dim sResultStr As String, sSheetName As String, sDataType As String, sSubDataType As String
 Dim eTestResult As TestResult
 Dim clsAppRuntime As New App_Runtime
+Dim clsExecProc As Exec_Proc
+Dim dArgs As New Dictionary
 
 setup:
     On Error GoTo err
@@ -387,11 +455,22 @@ setup:
     sSubDataType = "Student"
     sSheetName = "test"
     clsAppRuntime.InitProperties bInitializeCache:=True
-    GetDefinition clsAppRuntime, sDataType, sSubDataType, sSheetName, FormType.View
+    'clsExecProc.InitProperties wbTmp:=ActiveWorkbook
+    Set clsExecProc = GetExecProcGlobal(ActiveWorkbook)
+    GetDefinition clsAppRuntime, clsExecProc, sDataType, sSubDataType, sSheetName, FormType.View
     
 main:
-    GetPersonDataFromDB clsAppRuntime, QuadSubDataType.Student, eQuadScope:=QuadScope.specified, _
-                        iPersonID:=70
+
+    
+    AddArgs dArgs, False, "clsAppRuntime", clsAppRuntime, _
+                          "eQuadSubDataType", QuadSubDataType.Student, _
+                          "eQuadScope", QuadScope.specified, _
+                          "iPersonID", "70"
+                          
+    Application.Run C_GET_PERSON_DATA_FROM_DB, dArgs
+    
+    'GetPersonDataFromDB clsAppRuntime, QuadSubDataType.Student, eQuadScope:=QuadScope.specified, _
+    '                    iPersonID:=70
     
     If FileExists(clsAppRuntime.ResultFileName) Then
         sResultStr = ReadFile(clsAppRuntime.ResultFileName)
@@ -425,6 +504,8 @@ Dim eTestResult As TestResult
 Dim aSchedule() As String
 Dim wsCache As Worksheet
 Dim clsAppRuntime As New App_Runtime
+Dim clsExecProc As Exec_Proc
+Dim dArgs As New Dictionary
 
 setup:
     On Error GoTo err
@@ -432,12 +513,24 @@ setup:
     sSubDataType = "Student"
     sSheetName = "test"
     clsAppRuntime.InitProperties bInitializeCache:=True
-    GetDefinition clsAppRuntime, sDataType, sSubDataType, sSheetName, FormType.View
+    'clsExecProc.InitProperties wbTmp:=ActiveWorkbook
+    Set clsExecProc = GetExecProcGlobal(ActiveWorkbook)
+    GetDefinition clsAppRuntime, clsExecProc, sDataType, sSubDataType, sSheetName, FormType.View
 
 main:
-    GetPersonData clsAppRuntime, QuadDataType.Person, QuadSubDataType.Student, eQuadScope:=QuadScope.all
 
-    Set wsCache = GetPersonData(clsAppRuntime, QuadDataType.Person, QuadSubDataType.Student, eQuadScope:=QuadScope.all)
+    
+    AddArgs dArgs, False, "clsAppRuntime", clsAppRuntime, _
+                          "eQuadDataType", QuadDataType.person, _
+                          "eQuadSubDataType", QuadSubDataType.Student, _
+                          "eQuadScope", QuadScope.all
+                          
+    Application.Run C_GET_PERSON_DATA, dArgs
+    
+    'GetPersonData clsAppRuntime, QuadDataType.Person, QuadSubDataType.Student, eQuadScope:=QuadScope.all
+
+    Set wsCache = dArgs.Item("result")
+    
     With wsCache
         If .Range(.Cells(83, 6), .Cells(83, 6)).value <> "Photon" Then
             eTestResult = TestResult.Failure
@@ -466,6 +559,9 @@ Dim eTestResult As TestResult
 Dim aSchedule() As String
 Dim wsCache As Worksheet
 Dim clsAppRuntime As New App_Runtime
+Dim clsExecProc As Exec_Proc
+Dim dArgs As New Dictionary
+
 
 setup:
     On Error GoTo err
@@ -473,10 +569,21 @@ setup:
     sSubDataType = "Student"
     sSheetName = "test"
     clsAppRuntime.InitProperties bInitializeCache:=True
-    GetDefinition clsAppRuntime, sDataType, sSubDataType, sSheetName, FormType.View
+    'clsExecProc.InitProperties wbTmp:=ActiveWorkbook
+    Set clsExecProc = GetExecProcGlobal(ActiveWorkbook)
+    GetDefinition clsAppRuntime, clsExecProc, sDataType, sSubDataType, sSheetName, FormType.View
 
 main:
-    Set wsCache = GetPersonData(clsAppRuntime, QuadDataType.Person, QuadSubDataType.Student, eQuadScope:=QuadScope.all)
+
+    AddArgs dArgs, False, "clsAppRuntime", clsAppRuntime, _
+                          "eQuadDataType", QuadDataType.person, _
+                          "eQuadSubDataType", QuadSubDataType.Student, _
+                          "eQuadScope", QuadScope.all
+                          
+    Application.Run C_GET_PERSON_DATA, dArgs
+    Set wsCache = dArgs.Item("result")
+    
+    'Set wsCache = GetPersonData(clsAppRuntime, QuadDataType.Person, QuadSubDataType.Student, eQuadScope:=QuadScope.all)
     With wsCache
         If .Range(.Cells(83, 6), .Cells(83, 6)).value <> "Photon" Then
             eTestResult = TestResult.Failure

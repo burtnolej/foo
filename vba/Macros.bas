@@ -131,7 +131,8 @@ End Sub
 
 
 Public Sub DoGitCommit(rSource As Range, sRepoName As String, _
-                    sGitRootPath As String, Optional sMessage As String = "no message")
+                    sGitRootPath As String, Optional sMessage As String = "no message", _
+                    Optional sWriteToGit As Boolean = True)
 Dim iType As Integer
 Dim rWidget As Range
 Dim aFiles() As String
@@ -160,6 +161,7 @@ Dim sDirectory As String, sTmpDirectory As String, sFuncName As String
     Next rWidget
     ReDim Preserve aFiles(0 To iFileCount - 1)
 
+
     For i = 0 To iFileCount - 1
         ' move the file to commit from the tmp dir into the git source tree
         FileMove GetFileFromPath(CStr(aFiles(i))), sTmpDirectory, sDirectory
@@ -171,7 +173,9 @@ Dim sDirectory As String, sTmpDirectory As String, sFuncName As String
     
     sGitRootPath = sGitRootPath & sRepoName & "\"
     
-    GitCommitFiles aFiles, sRepoName, sGitRootPath, sMessage
+    If sWriteToGit = True Then
+        GitCommitFiles aFiles, sRepoName, sGitRootPath, sMessage
+    End If
     
     RemoveDir Environ("MYHOME") & "\tmp_export_modules"
     iType = vbDefaultButton2

@@ -68,4 +68,41 @@ End Function
 Public Function IsValidClassFocusArea(ParamArray args()) As Boolean
     IsValidClassFocusArea = True
 End Function
+Public Function IsValidSectionEnd(ParamArray args()) As Boolean
+    IsValidSectionEnd = True
+End Function
+Public Function IsValidSectionStart(ParamArray args()) As Boolean
+    IsValidSectionStart = True
+End Function
+Public Function IsValidMaxCapacity(ParamArray args()) As Boolean
+    IsValidMaxCapacity = True
+End Function
+Public Function IsValidAcadPeriod(ParamArray args()) As Boolean
+    IsValidAcadPeriod = True
+End Function
+Public Function IsValidSectionGroup(ParamArray args()) As Boolean
+    IsValidSectionGroup = True
+End Function
+Public Function IsValidSectionPrep(ParamArray args()) As Boolean
+    IsValidSectionPrep = True
+End Function
+Public Function IsValidStudentEnroll(ParamArray args()) As Boolean
+    IsValidStudentEnroll = True
+End Function
+Public Function IsValidFacultyEnroll(ParamArray args()) As Boolean
+    IsValidFacultyEnroll = True
+End Function
+Public Function IsValidWorkHour(ParamArray args()) As Boolean
+    IsValidWorkHour = True
+End Function
+Public Function IsValidPrepStart(ParamArray args()) As Boolean
+    IsValidPrepStart = True
+End Function
+Public Function IsValidPrepEnd(ParamArray args()) As Boolean
+    IsValidPrepEnd = True
+End Function
 
+
+
+
+        

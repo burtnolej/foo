@@ -6,13 +6,17 @@ Const C_GOBUTTON_COL = 8
 
 Public dDefinitions As Dictionary
 
-Public Sub GenerateForms(clsAppRuntime As App_Runtime, _
-                     Optional bLoadRefData As Boolean = False, _
-                     Optional sOverideButtonCallback As String, _
-                     Optional sFormName As String, _
-                     Optional dDefaultValues As Dictionary, _
-                     Optional vValues As Variant, _
-                     Optional bSetAsValid As Boolean = False)
+
+'Public Sub GenerateForms(clsAppRuntime As App_Runtime, _
+'                     Optional bLoadRefData As Boolean = False, _
+'                     Optional sOverideButtonCallback As String, _
+'                     Optional sFormName As String, _
+'                     Optional dDefaultValues As Dictionary, _
+'                     Optional vValues As Variant, _
+'                     Optional bSetAsValid As Boolean = False, _
+'                     Optional iRecordID As Integer)
+
+Public Sub GenerateForms(dArgs As Dictionary)
 '<<<
 'purpose: based on Definitions, create a set of sheets that serve as entry screens;
 '       : add callback code to the sheets so that user entries are processed immediately
@@ -22,20 +26,57 @@ Public Sub GenerateForms(clsAppRuntime As App_Runtime, _
 'param  : clsAppRuntime, App_Runtime; all config controlling names of books, sheets, ranges for
 '       :                 also contains any variables that need to be passed continually
 'param  : bLoadRefData, Boolean; when true will force loading of ref data from db
+'       : recordID used when things like student id is needed for _person_id on view sheet name
 '>>>
-Dim dActions As Dictionary, dDefnDetails As Dictionary
-Dim sAction As Variant, sKey As Variant, vFormType As Variant
-Dim sCode As String, sFieldName As String, sFuncName As String, sCallbackFunc As String, sDBColName As String, sFormType As String, sTemplateSheetName As String
-Dim rWidget As Range, rButton As Range, rCell As Range, rFormat As Range
-Dim vGenerated() As String
+Dim dActions As Dictionary, dDefnDetails As Dictionary, dDefaultValues As Dictionary
+Dim sAction As Variant, sKey As Variant, vFormType As Variant, vValues As Variant
+Dim sCode As String, sFieldName As String, sFuncName As String, sCallbackFunc As String, sDBColName As String, sFormType As String, sTemplateSheetName As String, sOverideButtonCallback As String, sFormName As String, sFilterRangeName As String, sFilterCode As String
+Dim rWidget As Range, rButton As Range, rCell As Range, rFormat As Range, rFilterFormatRange As Range
+Dim vGenerated() As String, vFilterCode() As String
 Dim wbTmp As Workbook, wbTarget As Workbook
 Dim eWidgetType As WidgetType
 Dim wsTmp As Worksheet
-Dim i As Integer, iHeaderCount As Integer
+Dim i As Integer, iHeaderCount As Integer, iRecordID As Integer, iFilterLength As Integer
 Dim lStartTick As Long
 Dim s As QuadDataType
+Dim clsAppRuntime As App_Runtime
+Dim clsExecProc As Exec_Proc
+Dim bLoadRefData, bSetAsValid As Boolean
 
+
+
+unpackargs:
+    Set clsAppRuntime = dArgs("clsAppRuntime")
+
+    If dArgs.Exists("clsExecProc") = False Then
+        Set clsExecProc = GetExecProcGlobal(wbTmp:=Workbooks(clsAppRuntime.MainBookName))
+    Else
+        Set clsExecProc = dArgs.Item("clsExecProc")
+    End If
+    
+    If dArgs.Exists("sFormName") Then
+        ' generating a specific form not all defined
+        sFormName = dArgs.Item("sFormName")
+    Else
+        sFormName = ""
+    End If
+    
+    bLoadRefData = dArgs.Item("bLoadRefData")
+    sOverideButtonCallback = dArgs.Item("sOverideButtonCallback")
+    bSetAsValid = dArgs.Item("bSetAsValid")
+    iRecordID = dArgs.Item("iRecordID")
+    If dArgs.Exists("dDefaultValues") Then
+        Set dDefaultValues = dArgs.Item("dDefaultValues")
+    End If
+    If dArgs.Exists("vValues") Then
+        vValues = dArgs.Item("vValues")
+    End If
+    
+    'vValues = dArgs.Item("vValues")
+    
+    
 setup:
+    On Error GoTo err
     sFuncName = C_MODULE_NAME & "." & "GenerateForms"
     lStartTick = FuncLogIt(sFuncName, "", C_MODULE_NAME, LogMsgType.INFUNC)
     EventsToggle False
@@ -51,7 +92,7 @@ main:
         If sFormName <> "" Then
             FuncLogIt sFuncName, "Generating for [sFormName=" & sFormName & "]", C_MODULE_NAME, LogMsgType.INFO
             If sAction <> sFormName Then
-                FuncLogIt sFuncName, "Skipping; as [sAction!=" & sFormName & "] [Target Workbook=" & wbTarget.Name & "] [Action = " & sAction & "]", C_MODULE_NAME, LogMsgType.INFO
+                FuncLogIt sFuncName, "Skipping; as [sAction!=" & sFormName & "]  [Action = " & sAction & "]", C_MODULE_NAME, LogMsgType.INFO
                 GoTo nextaction
             End If
         End If
@@ -66,8 +107,10 @@ main:
         ' create the Add sheet and add call back code
         For Each vFormType In Split(C_FORM_TYPE, COMMA)
             If CStr(sAction) Like vFormType & ASTERISK Then
-                If vFormType = "ViewList" Then
+                If vFormType = "ViewList" Or vFormType = "ViewListEntry" Then
                     Set wbTarget = CallByName(clsAppRuntime, "ViewBook", VbGet)
+                ElseIf vFormType = "ViewSchedule" Then
+                    Set wbTarget = CallByName(clsAppRuntime, "ScheduleBook", VbGet)
                 Else
                     Set wbTarget = CallByName(clsAppRuntime, vFormType & "Book", VbGet)
                 End If
@@ -75,11 +118,6 @@ main:
                 
             End If
         Next vFormType
-        
-        'If SheetExists(wbTarget, CStr(sAction)) = True Then
-        '     FuncLogIt sFuncName, "Skipping; Form Exists [Form Type=" & sFormType & "] [Target Workbook=" & wbTarget.Name & "] [Action = " & sAction & "]", C_MODULE_NAME, LogMsgType.INFO
-        '    GoTo nextaction
-        'End If
                 
         FuncLogIt sFuncName, "Creating Form [Form Type=" & sFormType & "] [Target Workbook=" & wbTarget.Name & "] [Action = " & sAction & "]", C_MODULE_NAME, LogMsgType.INFO
         
@@ -88,45 +126,81 @@ main:
             GoTo nextaction
         End If
     
+
         If SheetExists(wbTarget, CStr(sAction)) Then
             Set wsTmp = GetSheet(wbTarget, CStr(sAction))
         Else
             Set wsTmp = CreateSheet(wbTarget, CStr(sAction), bOverwrite:=True)
+            sCode = GetEntryCallbackCode(clsAppRuntime, CStr(sAction), wbTarget.Name, eWidgetType:=eWidgetType)
+            AddCode2Module wbTarget, wsTmp.CodeName, sCode
         End If
         
+        If sFormType = "ViewSchedule" Then
+            sTemplateSheetName = FormatForm(clsAppRuntime, CStr(sAction), sFormType:=sFormType)
+            'sTemplateSheetName = FormatForm(clsAppRuntime, CStr(sAction), sFormType:=sFormType, iFirstRow:=3, iFirstCol:=3)
+        Else
+            sTemplateSheetName = FormatForm(clsAppRuntime, CStr(sAction), sFormType:=sFormType)
+        End If
+            
+        ' get filter location if one exists
+        sFilterRangeName = "f" & sFormType & "Filter"
+        'On Error Resume Next
+        
+        If NamedRangeExists(clsAppRuntime.TemplateBook, sTemplateSheetName, sFilterRangeName, bLocalScope:=False) = True Then
+            Set rFilterFormatRange = clsAppRuntime.TemplateBook.Sheets(sTemplateSheetName).Range(sFilterRangeName)
+            
+            If IsSet(vValues) = True Then
+                iFilterLength = UBound(vValues)
+            Else
+                iFilterLength = 100
+            End If
+            ' 7/23/18 - made length of filter equal to size of value set if known
+            vFilterCode = CreateFilter(wbTarget, CStr(sAction), rFilterFormatRange, iFilterLength, bAddCode:=False)
+            InsertProcCode wbTarget, wsTmp.CodeName, "Worksheet_Change", vFilterCode
+            
+        End If
+        'On Error GoTo 0
+
+        AddArgs dArgs, False, "wbTmp", wbTarget, "sAction", sAction, "sFormType", sFormType
+        ', , "vValues", vValues
         
         For i = 1 To UBound(Split(C_WIDGET_TYPE, COMMA)) + 1
             eWidgetType = i
-
-            sCode = GetEntryCallbackCode(clsAppRuntime, CStr(sAction), wbTarget.Name, eWidgetType:=eWidgetType)
-            sTemplateSheetName = FormatForm(clsAppRuntime, CStr(sAction), sFormType:=sFormType)
             
-            If eWidgetType = WidgetType.ListText Then
-                GenerateWidgets clsAppRuntime, CStr(sAction), wbTmp:=wbTarget, vValues:=vValues, eWidgetType:=eWidgetType, sFormType:=sFormType, sTemplateSheetName:=sTemplateSheetName
-            ElseIf eWidgetType = WidgetType.Text Then
-                GenerateWidgets clsAppRuntime, CStr(sAction), wbTmp:=wbTarget, dDefaultValues:=dDefaultValues, eWidgetType:=eWidgetType, sFormType:=sFormType, sTemplateSheetName:=sTemplateSheetName
+            'If sFormType = "ViewSchedule" Then
+            '    sTemplateSheetName = FormatForm(clsAppRuntime, CStr(sAction), sFormType:=sFormType)
+            '    'sTemplateSheetName = FormatForm(clsAppRuntime, CStr(sAction), sFormType:=sFormType, iFirstRow:=3, iFirstCol:=3)
+            'Else
+            '    sTemplateSheetName = FormatForm(clsAppRuntime, CStr(sAction), sFormType:=sFormType)
+            'End If
+            AddArgs dArgs, False, "sTemplateSheetName", sTemplateSheetName, "eWidgetType", eWidgetType
+            
+            'If eWidgetType = WidgetType.ListText Then
+            '    Application.Run C_GENERATE_WIDGETS, dArgs
+            'ElseIf eWidgetType = WidgetType.Text Then
+            '    Application.Run C_GENERATE_WIDGETS, dArgs
+            'ElseIf eWidgetType = WidgetType.Selector Then
+            '    Application.Run C_GENERATE_WIDGETS, dArgs
+            'ElseIf eWidgetType = WidgetType.Schedule Then
+            '    Application.Run C_GENERATE_WIDGETS, dArgs
+            'ElseIf eWidgetType = WidgetType.Entry Then
+            '    Application.Run C_GENERATE_WIDGETS, dArgs
+            
+            'sTemplateSheetName = FormatForm(clsAppRuntime, CStr(sAction), sFormType:=sFormType)
+            'AddArgs dArgs, False, "sTemplateSheetName", sTemplateSheetName, "eWidgetType", eWidgetType
+            If eWidgetType = WidgetType.ListText Or eWidgetType = WidgetType.Text Or eWidgetType = WidgetType.Selector Or _
+                        eWidgetType = WidgetType.Entry Or eWidgetType = WidgetType.Schedule Or eWidgetType = WidgetType.ListEntry Then
+                Application.Run C_GENERATE_WIDGETS, dArgs
             ElseIf eWidgetType = WidgetType.Button Then
 
-                vGenerated = GenerateWidgets(clsAppRuntime, CStr(sAction), wbTmp:=wbTarget, dDefaultValues:=dDefaultValues, eWidgetType:=eWidgetType, sFormType:=sFormType, sTemplateSheetName:=sTemplateSheetName)
-                
+                AddArgs dArgs, False, "dDefaultValues", dDefaultValues
+                Application.Run C_GENERATE_WIDGETS, dArgs
+                vGenerated = dArgs.Item("result")
                 If IsEmptyArray(vGenerated) = False Then
-                    sCode = GenerateCallbackCode(clsAppRuntime, vGenerated, CStr(sAction), sCurrentCode:=sCode, wbTmp:=wbTarget)
+                    sCode = GenerateCallbackCode(clsAppRuntime, vGenerated, CStr(sAction), wbTmp:=wbTarget)
+                    AddCode2Module wbTarget, wsTmp.CodeName, sCode
                 End If
-                AddCode2Module wbTarget, wsTmp.CodeName, sCode
-
-            ElseIf eWidgetType = WidgetType.Selector Then
-                GenerateWidgets clsAppRuntime, CStr(sAction), wbTmp:=wbTarget, dDefaultValues:=dDefaultValues, eWidgetType:=eWidgetType, sFormType:=sFormType, sTemplateSheetName:=sTemplateSheetName
-            ElseIf eWidgetType = WidgetType.Entry Then
-                GenerateWidgets clsAppRuntime, CStr(sAction), wbTmp:=wbTarget, dDefaultValues:=dDefaultValues, sTemplateSheetName:=sTemplateSheetName
-                'If IsEmptyArray(vGenerated) = False Then
-                '    sCode = GetEntryCallbackCode(clsAppRuntime, CStr(sAction), wbTarget.Name, eWidgetType:=eWidgetType)
-                'End If
             End If
-            
-            'If sCode <> "" Then
-            '    AddCode2Module wbTarget, wsTmp.CodeName, sCode
-            '    sCode = ""
-            'End If
             
             If eWidgetType = WidgetType.Button Or eWidgetType = WidgetType.Entry Then
                 sCode = GetCallerModuleCode
@@ -136,7 +210,7 @@ main:
                 End If
             End If
         Next i
-        HideForm CStr(sAction), wbTmp:=wbTarget
+        'HideForm CStr(sAction), wbTmp:=wbTarget
 
 nextaction:
     Next sAction
@@ -144,6 +218,11 @@ nextaction:
 cleanup:
     FuncLogIt sFuncName, "", C_MODULE_NAME, LogMsgType.OUTFUNC, lLastTick:=lStartTick
     EventsToggle True
+    Exit Sub
+    
+err:
+    'err.Raise err.Number, err.Source, err.Description ' cannot recover from this
+    
 End Sub
 
 Public Sub UpdateViewStudentForm(ParamArray args())
@@ -362,8 +441,10 @@ setup:
     
 main:
     sFormFormatRangeName = "f" & sFormType
-    If sFormType = "ViewList" Then
+    If sFormType = "ViewList" Or sFormType = "ViewListEntry" Then
         Set wbTarget = CallByName(clsAppRuntime, "ViewBook", VbGet)
+    ElseIf sFormType = "ViewSchedule" Then
+        Set wbTarget = CallByName(clsAppRuntime, "ScheduleBook", VbGet)
     Else
         Set wbTarget = CallByName(clsAppRuntime, sFormType & "Book", VbGet)
     End If
@@ -371,25 +452,28 @@ main:
     Set wsForm = wbTarget.Sheets(sTargetSheetName)
     Set rFormFormatRange = clsAppRuntime.TemplateBook.Names(sFormFormatRangeName).RefersToRange
     Set wsFormFormat = rFormFormatRange.Worksheet
-    
-    rFormFormatRange.Copy
-    iFormatWidth = rFormFormatRange.Columns.Count
-    iFormatHeight = rFormFormatRange.Rows.Count
-    
-    wsForm.Visible = True
-    With wsForm
-        wsForm.Range(.Cells(iFirstRow, iFirstCol), _
-                     .Cells(iFirstRow + iFormatHeight - 1, _
-                            iFirstCol + iFormatWidth - 1)).PasteSpecial Paste:=xlPasteFormats, _
-                                                                               operation:=xlNone, _
-                                                                               SkipBlanks:=False, _
-                                                                               Transpose:=False
-    End With
+        
+    If wsForm.UsedRange.Address <> "$A$1" Then
+        GoTo cleanup
+    Else
 
-    'FormatColRowSize clsAppRuntime.TemplateBook, wbTarget, _
-    '        wsForm.name, clsAppRuntime.TemplateSheetName, sFormFormatRangeName
-    FormatColRowSize clsAppRuntime.TemplateBook, wbTarget, _
-            wsForm.Name, wsFormFormat.Name, sFormFormatRangeName
+        rFormFormatRange.Copy
+        iFormatWidth = rFormFormatRange.Columns.Count
+        iFormatHeight = rFormFormatRange.Rows.Count
+        
+        wsForm.Visible = True
+        With wsForm
+            wsForm.Range(.Cells(iFirstRow, iFirstCol), _
+                         .Cells(iFirstRow + iFormatHeight - 1, _
+                                iFirstCol + iFormatWidth - 1)).PasteSpecial Paste:=xlPasteFormats, _
+                                                                                   operation:=xlNone, _
+                                                                                   SkipBlanks:=False, _
+                                                                                   Transpose:=False
+        End With
+    
+        FormatColRowSize clsAppRuntime.TemplateBook, wbTarget, _
+                wsForm.Name, wsFormFormat.Name, sFormFormatRangeName
+    End If
             
 cleanup:
     FormatForm = wsFormFormat.Name 'this is so rest the locations of the individual widgets on the form can easilly be found
@@ -431,7 +515,7 @@ End Function
 Public Function IsRecordValid(wbSourceBook As Workbook, wbTargetbook As Workbook, _
                 sSheetName As String, sSourceSheetName As String) As Boolean
 Dim rEntryWidget As Range
-Dim cRGB As RGBColor
+Dim cRGB As rgbColor
 Dim sFuncName As String
 Dim aNames() As String
 Dim name_ As Variant

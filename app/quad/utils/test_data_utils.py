@@ -80,7 +80,7 @@ class Test_GetAllBasicStudentInfo(Test_Base):
 
 class Test_InsertBasicStudentInfo(Test_Base):
     def test_(self):
-        expected_results = [[u'foo', u'bar', 666, 2, u'Luna'], [u'blah', u'blah', 667, 3, u'Aurora']]
+        expected_results = [[u'foo', u'bar', 666, 2, 6,u'Luna'], [u'blah', u'blah', 667, 3, 6, u'Aurora']]
         rows = [[666, u'\"foo\"', u'\"bar\"',2,6], [667, u'\"blah\"', u'\"blah\"',3,6]]
         insert_student(self.database,rows, 
                         columns = ["idStudent","sStudentFirstNm","sStudentLastNm","idPrep","iGradeLevel"])
@@ -121,7 +121,7 @@ class Test_UpdateStudent(Test_Base):
         
 class Test_UpdateBasicStudentInfo_StudentLevel(Test_Base):
     def test_(self):
-        expected_results = [[u'foo', u'bar', 666, 2, u'Luna'], [u'blah', u'blah', 667, 2, u'Luna']]
+        expected_results = [[u'foo', u'bar', 666, 2, 6,u'Luna'], [u'blah', u'blah', 667, 2, 6,u'Luna']]
         rows = [[666, u'\"foo\"', u'\"bar\"',2,6], [667, u'\"blah\"', u'\"blah\"',3,6]]
         insert_student(self.database,rows, 
                         columns = ["idStudent","sStudentFirstNm","sStudentLastNm","idPrep","iGradeLevel"])
@@ -167,7 +167,7 @@ class Test_InsertStudentLevel(Test_Base):
    
 class Test_GetBasicStudentInfo(Test_Base):
     def test_(self):
-        expected_results = [[u'Donovan', u'Greene', 70, 7, u'Photon']]
+        expected_results = [[u'Donovan', u'Greene', 70, 7, 5,u'Photon']]
         columns,results = get_student(self.database)
         self.assertEquals(results,expected_results)
 
@@ -260,24 +260,25 @@ class Test_InsertBasicScheduleStudent(Test_Base):
 if __name__ == "__main__":
     suite = unittest.TestSuite()   
 
-    '''suite.addTest(unittest.TestLoader().loadTestsFromTestCase(Test_UpdateStudent))
+
     suite.addTest(unittest.TestLoader().loadTestsFromTestCase(Test_UpdateBasicStudentInfo_StudentLevel))
+    suite.addTest(unittest.TestLoader().loadTestsFromTestCase(Test_UpdateStudent))
+
     
     suite.addTest(unittest.TestLoader().loadTestsFromTestCase(Test_InsertStudent))
     suite.addTest(unittest.TestLoader().loadTestsFromTestCase(Test_InsertStudentLevel))
     suite.addTest(unittest.TestLoader().loadTestsFromTestCase(Test_InsertStudent_ExtraColumns))
-    '''
     
-    '''suite.addTest(unittest.TestLoader().loadTestsFromTestCase(Test_InsertBasicStudentInfo))
-    suite.addTest(unittest.TestLoader().loadTestsFromTestCase(Test_GetStudentScheduleArgs))'''
+    suite.addTest(unittest.TestLoader().loadTestsFromTestCase(Test_InsertBasicStudentInfo))
+    suite.addTest(unittest.TestLoader().loadTestsFromTestCase(Test_GetStudentScheduleArgs))
     suite.addTest(unittest.TestLoader().loadTestsFromTestCase(Test_GetBasicStudentInfo))
-    '''suite.addTest(unittest.TestLoader().loadTestsFromTestCase(Test_GetBasicTeacherInfo))
+    suite.addTest(unittest.TestLoader().loadTestsFromTestCase(Test_GetBasicTeacherInfo))
     suite.addTest(unittest.TestLoader().loadTestsFromTestCase(Test_GetStudentSchedule))
     suite.addTest(unittest.TestLoader().loadTestsFromTestCase(TestGetTeacherSchedule))
     suite.addTest(unittest.TestLoader().loadTestsFromTestCase(TestGetStudentsPerClassByTeacher))
-    suite.addTest(unittest.TestLoader().loadTestsFromTestCase(Test_GetStudentScheduleArgs_Columns))'''
+    suite.addTest(unittest.TestLoader().loadTestsFromTestCase(Test_GetStudentScheduleArgs_Columns))
     #suite.addTest(unittest.TestLoader().loadTestsFromTestCase(Test_GetAllBasicStudentInfo))
-    '''suite.addTest(unittest.TestLoader().loadTestsFromTestCase(Test_GetAllBasicTeacherInfo))
+    suite.addTest(unittest.TestLoader().loadTestsFromTestCase(Test_GetAllBasicTeacherInfo))
     suite.addTest(unittest.TestLoader().loadTestsFromTestCase(Test_GetCourseInfo))
     suite.addTest(unittest.TestLoader().loadTestsFromTestCase(Test_GetSubjectInfo))
     suite.addTest(unittest.TestLoader().loadTestsFromTestCase(Test_GetAllCourseInfo))
@@ -294,5 +295,5 @@ if __name__ == "__main__":
 
     suite.addTest(unittest.TestLoader().loadTestsFromTestCase(Test_GetScheduleLesson))
     suite.addTest(unittest.TestLoader().loadTestsFromTestCase(Test_GetScheduleLesson_1Lesson))
-    '''
+
     unittest.TextTestRunner(verbosity=2).run(suite)    

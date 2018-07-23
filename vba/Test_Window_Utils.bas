@@ -246,7 +246,7 @@ Dim wbTmp As Workbook
 Dim rTmp As Range
 Dim sBookName As String, sFuncName As String, sLabelAddress As String, sSheetName As String
 Dim eTestResult As TestResult
-Dim rgbTmp As RGBColor
+Dim rgbTmp As rgbColor
 Dim winsetTmp As New Quad_WindowSettings
 
 setup:
@@ -562,10 +562,10 @@ teardown:
     
 End Function
 
-Sub test()
-Dim winsetTmp As New Quad_WindowSettings
-    winsetTmp.InitProperties
-    
-    SimplifyWindow winsetTmp, wbTmp:=Workbooks("vba_source_new.xlsm"), _
-    bReset:=True
-End Sub
+'Sub Test()
+'Dim winsetTmp As New Quad_WindowSettings
+'    winsetTmp.InitProperties
+'
+'    SimplifyWindow winsetTmp, wbTmp:=Workbooks("vba_source_new.xlsm"), _
+'    bReset:=True
+'End Sub

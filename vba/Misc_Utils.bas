@@ -35,6 +35,7 @@ Enum MyVbType
     vbVariantArray4Columns = 69
     
     vbAppRuntime = 100
+    vbExecProc = 101
 
     vbUserDefinedType = 36 'Variants that contain user-defined types
     vbArray = 8192  'Array
@@ -57,6 +58,19 @@ Function IsAppRuntime(obj As Variant) As Boolean
     Exit Function
 err:
     IsAppRuntime = False
+    
+End Function
+Function IsExecProc(obj As Variant) As Boolean
+    On Error GoTo err
+    If obj.IsAExecProc = True Then
+        IsExecProc = True
+        Exit Function
+    End If
+    
+    On Error GoTo 0
+    Exit Function
+err:
+    IsExecProc = False
     
 End Function
 Function IsDict(dTmp As Variant) As Boolean
@@ -100,6 +114,9 @@ Dim iSubType As Integer
             ElseIf IsAppRuntime(vObject) Then
                 MyVarType = 100
                 Exit Function
+            ElseIf IsExecProc(vObject) Then
+                MyVarType = 101
+                Exit Function
             End If
         Case Is >= 8192
             iSubType = VarType(vObject) - 8192
@@ -139,6 +156,8 @@ Function EnumVarType(i As Long) As String
                             "vbDict", "vbIntArray", "vbStringArray", "vbVariantArray")(i)
     ElseIf i = 100 Then
         EnumVarType = "vbAppRuntime"
+    ElseIf i = 101 Then
+        EnumVarType = "vbExecProc"
     Else
         err.Raise 102, Description:=" VarType enum [" & CStr(i) & "] is not recognised"
     End If
@@ -235,24 +254,7 @@ Dim objNode As MSXML2.IXMLDOMElement
     Set objNode = Nothing
     Set objXML = Nothing
 End Function
-'Public Function IsSet(oTmp As Object) As Boolean
-Public Function IsSet(oTmp As Variant) As Boolean
 
-    If IsInstance(oTmp, vbObject, bAssert:=False) = True Then
-        If oTmp Is Nothing Then
-            IsSet = False
-            Exit Function
-        End If
-    End If
-        
-    If IsEmpty(oTmp) Or IsMissing(oTmp) Then
-        IsSet = False
-        Exit Function
-    End If
-
-istrue:
-    IsSet = True
-End Function
 Public Function UUEncode(sValue As String) As String
     UUEncode = Application.WorksheetFunction.EncodeURL(sValue)
 End Function
@@ -280,4 +282,8 @@ CurChr = 1
 
 UUDecode = TempAns
 End Function
+
+
+
+
 

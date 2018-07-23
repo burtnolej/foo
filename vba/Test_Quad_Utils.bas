@@ -11,6 +11,7 @@ Dim sDefn As String, sDefnSheetName As String
 Dim rTarget As Range
 Dim wsTmp As Worksheet
 Dim eTestResult As TestResult
+Dim dArgs As New Dictionary
 
 setup:
     clsAppRuntime.InitProperties bInitializeCache:=True
@@ -28,8 +29,15 @@ setup:
     Set rTarget = RangeFromStrArray(vSource, wsTmp, 0, 1)
     Set Form_Utils.dDefinitions = LoadDefinitions(wsTmp, rSource:=rTarget)
     
-    If CrossRefQuadData(clsAppRuntime, QuadDataType.Person, _
-                    QuadSubDataType.Student, "idStudent", 1, "sStudentLastNm") <> "Gromek" Then
+    AddArgs dArgs, False, "clsAppRuntime", clsAppRuntime, "eQuadDataType", QuadDataType.person, "eQuadSubDataType", QuadSubDataType.Student, _
+                "sLookUpByColName", "idStudent", "sLookUpByValue", 1, "sLookUpColName", "sStudentLastNm"
+                
+    Application.Run C_CROSS_REF_QUAD_DATA, dArgs
+    
+    'If CrossRefQuadData(clsAppRuntime, QuadDataType.Person, _
+    '                QuadSubDataType.Student, "idStudent", 1, "sStudentLastNm") <> "Gromek" Then
+                    
+    If dArgs.Item("result") <> "Gromek" Then
         eTestResult = TestResult.Failure
         GoTo teardown
     End If
@@ -46,6 +54,77 @@ teardown:
     clsAppRuntime.Delete
     
 End Function
+
+Public Function Test_CrossRefQuadData_MultiLookup() As TestResult
+Dim clsAppRuntime As New App_Runtime
+Dim clsExecProc As New Exec_Proc
+Dim vSource() As String
+Dim sDefn As String, sDefnSheetName As String, sVersionBookName As String, sPath As String, sDatabasePath As String
+Dim rTarget As Range
+Dim wsTmp As Worksheet
+Dim eTestResult As TestResult
+Dim dArgs As New Dictionary
+Dim wbTmp2 As Workbook
+setup:
+    sDatabasePath = Application.Run(C_GET_HOME_PATH) & "\GitHub\quadviewer\" & "app\quad\utils\excel\test_misc\QuadQA_v3.db"
+    clsAppRuntime.InitProperties bInitializeCache:=True, sDatabasePath:=sDatabasePath
+
+    sDefnSheetName = "test_definition"
+    Set wsTmp = CreateSheet(clsAppRuntime.Book, sDefnSheetName, bOverwrite:=True)
+    sVersionBookName = "vba_source_new_v2.xlsm"
+
+    'sDefn = "Add_person_student^person_student^sStudentFirstNm^AlphaNumeric^IsMember^Student^^^Entry" & DOUBLEDOLLAR
+    'sDefn = sDefn & "Add_person_student^person_student^sStudentLastNm^AlphaNumeric^IsMember^Student^^^Entry" & DOUBLEDOLLAR
+    'sDefn = sDefn & "Add_person_student^person_student^idStudent^AlphaNumeric^IsMember^Student^^^Entry" & DOUBLEDOLLAR
+    'sDefn = sDefn & "Add_person_student^person_student^idPrep^AlphaNumeric^IsMember^StudentLevel^^^Entry" & DOUBLEDOLLAR
+    'sDefn = sDefn & "Add_person_student^person_student^sPrepNm^AlphaNumeric^IsMember^PrepCode^^^Entry"
+           
+    'vSource = Init2DStringArrayFromString(sDefn)
+    'Set rTarget = RangeFromStrArray(vSource, wsTmp, 0, 1)
+    'Set Form_Utils.dDefinitions = LoadDefinitions(wsTmp, rSource:=rTarget)
+    
+    
+    'clsAppRuntime.InitProperties bInitializeCache:=True, sDatabasePath:=sDatabasePath, sVersion:="V2", _
+    '        sVersionBookName:="vba_source_new_v2.xlsm", sVersionBookPath:=sPath, _
+    '        sDefinitionSheetName:=sSheetName
+    '
+    sPath = "C:\Users\burtnolej\Documents\GitHub\quadviewer"
+    Set wbTmp2 = Application.Run(C_OPEN_BOOK, sVersionBookName, sPath)
+    clsExecProc.InitProperties wbTmp:=ActiveWorkbook
+    
+    GetDefinition clsAppRuntime, clsExecProc, "Misc", "TimePeriod", sDefnSheetName, FormType.Add
+
+    AddArgs dArgs, False, "clsAppRuntime", clsAppRuntime, _
+                        "clsExecProc", clsExecProc, _
+                        "eQuadDataType", QuadDataType.Misc, _
+                          "eQuadSubDataType", QuadSubDataType.TimePeriod, _
+                          "sLookUpByColName", "idTimePeriod", _
+                          "sLookUpByValue", 3, _
+                          "sLookUpColName", "sPeriodTimeLabel", _
+                          "sLookUpByColName2", "idAcadPeriod", _
+                          "sLookUpByValue2", 2
+                
+    Application.Run C_CROSS_REF_QUAD_DATA, dArgs
+                    
+    If dArgs.Item("result") <> "09:27 to 10:07" Then
+        eTestResult = TestResult.Failure
+        GoTo teardown
+    End If
+        
+    eTestResult = TestResult.OK
+    GoTo teardown
+
+                                 
+err:
+    eTestResult = TestResult.Error
+    
+teardown:
+    Test_CrossRefQuadData_MultiLookup = eTestResult
+    clsAppRuntime.Delete
+    
+End Function
+
+
 Public Function Test_CacheData_Table() As TestResult
 '"" cache data but wrap in a table
 '""
@@ -56,23 +135,12 @@ Dim aPersonData() As Variant, vSource() As String
 Dim clsAppRuntime As New App_Runtime
 Dim wsTmp As Worksheet
 Dim rTarget As Range
+Dim dArgs As New Dictionary
 
 setup:
     clsAppRuntime.InitProperties bInitializeCache:=True
     sDefnSheetName = "test_definition"
     Set wsTmp = CreateSheet(clsAppRuntime.Book, sDefnSheetName, bOverwrite:=True)
-    
-    'sDefn = "AddLesson^Lesson^sSubjectLongDesc^AlphaNumeric^IsMember^Subject" & DOUBLEDOLLAR
-    'sDefn = sDefn & "AddLesson^Lesson^sCourseNm^AlphaNumeric^IsMember^Course" & DOUBLEDOLLAR
-    'sDefn = sDefn & "AddLesson^Lesson^sClassFocusArea^AlphaNumeric^IsMember^Course" & DOUBLEDOLLAR
-    'sDefn = sDefn & "AddLesson^Lesson^sFacultyFirstNm^AlphaNumeric^IsMember^Faculty" & DOUBLEDOLLAR
-    'sDefn = sDefn & "AddLesson^Lesson^cdDay^AlphaNumeric^IsMember^DayCode" & DOUBLEDOLLAR
-    'sDefn = sDefn & "AddLesson^Lesson^idTimePeriod^AlphaNumeric^IsMember^ClassLecture" & DOUBLEDOLLAR
-    'sDefn = sDefn & "AddLesson^Lesson^idLocation^AlphaNumeric^IsMember^ClassLecture" & DOUBLEDOLLAR
-    'sDefn = sDefn & "AddLesson^Lesson^idSection^AlphaNumeric^IsMember^ClassLecture" & DOUBLEDOLLAR
-    'sDefn = sDefn & "AddLesson^Lesson^cdClassType^AlphaNumeric^IsMember^ClassTypeCode" & DOUBLEDOLLAR
-    'sDefn = sDefn & "AddLesson^Lesson^iFreq^AlphaNumeric^IsMember^Section" & DOUBLEDOLLAR
-    'sDefn = sDefn & "AddLesson^Lesson^idClassLecture^AlphaNumeric^IsMember^ClassLecture"
     
     sDefn = "Add_person_student^person_student^sStudentFirstNm^AlphaNumeric^IsMember^Student^^^Entry" & DOUBLEDOLLAR
     sDefn = sDefn & "Add_person_student^person_student^sStudentLastNm^AlphaNumeric^IsMember^Student^^^Entry" & DOUBLEDOLLAR
@@ -84,9 +152,12 @@ setup:
     Set rTarget = RangeFromStrArray(vSource, wsTmp, 0, 1)
     Set Form_Utils.dDefinitions = LoadDefinitions(wsTmp, rSource:=rTarget)
     
-    GetPersonDataFromDB clsAppRuntime, QuadSubDataType.Student, eQuadScope:=QuadScope.all
+    AddArgs dArgs, False, "clsAppRuntime", clsAppRuntime, "eQuadSubDataType", QuadSubDataType.Student, "eQuadScope", QuadScope.all
+    Application.Run C_GET_PERSON_DATA_FROM_DB, dArgs
+    
+    'GetPersonDataFromDB clsAppRuntime, QuadSubDataType.Student, eQuadScope:=QuadScope.all
     aPersonData = ParseRawData(ReadFile(clsAppRuntime.ResultFileName))
-    sCacheSheetName = CacheData(clsAppRuntime, aPersonData, QuadDataType.Person, QuadSubDataType.Student, bInTable:=True)
+    sCacheSheetName = CacheData(clsAppRuntime, aPersonData, QuadDataType.person, QuadSubDataType.Student, bInTable:=True)
         
     With clsAppRuntime.CacheBook.Sheets(sCacheSheetName)
         If .Range(.Cells(83, 2), .Cells(83, 2)).value <> "Tzvi" Then
@@ -132,8 +203,8 @@ err:
     
 teardown:
     TestGetAndInitAppRuntimeNoVals = eTestResult
-    clsAppRuntime.Delete
-    ResetAppRuntimeGlobal
+    'clsAppRuntime.Delete
+    'ResetAppRuntimeGlobal
 
 End Function
 Function TestGetAndInitAppRuntime() As TestResult
@@ -162,8 +233,8 @@ err:
     
 teardown:
     TestGetAndInitAppRuntime = eTestResult
-    clsAppRuntime.Delete
-    ResetAppRuntimeGlobal
+    'clsAppRuntime.Delete
+    'ResetAppRuntimeGlobal
 
 End Function
 Function TestInitAppRuntime() As TestResult

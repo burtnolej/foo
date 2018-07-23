@@ -118,7 +118,11 @@ main:
         'AddArgs dArgs, False, "bInTable", True, "iPersonID", iPersonID
         Set wsCache = Application.Run(C_GET_SCHEDULE_DATA, dArgs)
     Else
-        Set wsCache = GetPersonData(clsAppRuntime, eQuadDataType, eQuadSubDataType, QuadScope.all, bInTable:=True)
+        AddArgs dArgs, False, "clsAppRuntime", clsAppRuntime, "eQuadDataType", eQuadDataType, "eQuadSubDataType", eQuadSubDataType, "eQuadScope", QuadScope.all, _
+                "bInTable", True
+
+        Set wsCache = Application.Run(C_GET_PERSON_DATA, dArgs)
+        'Set wsCache = GetPersonData(clsAppRuntime, eQuadDataType, eQuadSubDataType, QuadScope.all, bInTable:=True)
     End If
     sLookUpRangeName = GetDBColumnRange(wsCache.Name, sLookUpColName)
     GetColumnValues = ListFromRange(wsCache, sLookUpRangeName)
@@ -271,7 +275,7 @@ setup:
         Set wbTmp = ActiveWorkbook
     End If
 
-    ReDim vRows(0 To 1000, 0 To 12)
+    ReDim vRows(0 To 1000, 0 To 20)
     
 main:
     sFuncName = C_MODULE_NAME & "." & "GetDirtyTableRecords"
@@ -302,6 +306,51 @@ main:
 cleanup:
     GetDirtyTableRecords = ReDim2DArray(vRows, iNumDirtyRows, UBound(vValues) + 1, bVariant:=True)
     
+End Function
+
+'     AddArgs dArgs, True, "clsAppRuntime", clsAppRuntime, "sValue", rTarget.value, "sKey", rTarget.Name.Name, "sFormName", sSheetName
+
+'Public Function UpdateTableRecord(sTableName As String, iID As Integer, sUpdateFieldName As String, vUpdateValue As Variant, Optional wbTmp As Workbook)
+Public Function UpdateTableRecord(dArgs As Dictionary)
+Dim sColRange As String, sFuncName As String, sTableName As String, sKey As String
+Dim wsTable As Worksheet
+Dim clsAppRuntime As App_Runtime
+Dim sValue As Variant
+Dim sUpdateFieldName As String
+Dim iID As Integer
+
+unpackargs:
+    Set clsAppRuntime = dArgs("clsAppRuntime")
+    sTableName = dArgs("sFormName")
+    sValue = dArgs("sValue")
+    sKey = dArgs("sKey")
+    
+    If dArgs.Exists("wbTmp") Then
+        ' generating a specific form not all defined
+        Set wbTmp = dArgs.Item("wbTmp")
+    Else
+        Set wbTmp = clsAppRuntime.CacheBook
+    End If
+    iID = dArgs("iID")
+     
+setup:
+    sFuncName = C_MODULE_NAME & "." & "UpdateTableRecord"
+    Set wsTable = GetSheet(wbTmp, sTableName)
+    
+main:
+    sUpdateFieldName = GetFieldName(sKey)
+    
+    With wsTable
+        sColRange = GetDBColumnRange(sTableName, sUpdateFieldName)
+        
+        wsTable.Range(sColRange).Rows(iID + 1).value = sValue
+        
+        sColRange = GetDBColumnRange(sTableName, "SyncState", ColumnType.INFO)
+        wsTable.Range(sColRange).Rows(iID + 1).value = "User"
+    End With
+    
+    FuncLogIt sFuncName, "updated [table=" & sTableName & "]  [field=" & sUpdateFieldName & "] to [value=" & sValue & "]", C_MODULE_NAME, LogMsgType.OK
+
 End Function
 Public Function GetTableRecord(sTableName As String, iID As Integer, Optional wbTmp As Workbook, _
                 Optional vValues As Variant) As Dictionary
@@ -465,7 +514,8 @@ main:
         With wsTable
             Set rTarget = .Range(.Cells(1, 1), .Cells(iMaxRow, iMaxCol))
             rTarget = vRows
-            rTarget.Name = "data"
+            CreateNamedRange wbTmp, rTarget.Address, sTableName, "data", "True"
+            'rTarget.Name = "data"
         End With
         
         Set AddTableRecordAuto = rTarget

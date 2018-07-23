@@ -63,6 +63,21 @@ err:
     FuncLogIt sFuncName, "[" & err.Description & "] [sBookName=" & sBookName & "] [sSheetName=" & sSheetName & "] [sAddress=" & sAddress & "]", C_MODULE_NAME, LogMsgType.Error
 
 End Function
+
+Public Function GetMaxRangeValue(wsTmp As Worksheet, sSourceAddress As String) As Integer
+Dim rTmpRange As Variant
+Dim sFuncName As String
+
+setup:
+    sFuncName = C_MODULE_NAME & "." & "GetMaxRangeValue"
+    FuncLogIt sFuncName, "[wsTmp=" & wsTmp.Name & "] [sSourceAddress=" & sSourceAddress & "]", C_MODULE_NAME, LogMsgType.INFUNC
+
+main:
+    rTmpRange = GetRange(wsTmp.Parent.Name, wsTmp.Name, sSourceAddress)
+    
+    GetMaxRangeValue = WorksheetFunction.Max(rTmpRange)
+    
+End Function
 Public Function ListFromRange(wsTmp As Worksheet, sSourceAddress As String, _
                     Optional bNamedRange As Boolean = False, Optional bBreakOnSpace As Boolean = True) As String()
 Dim vTmpRange As Variant
@@ -214,7 +229,7 @@ main:
     End If
     GetSheetNamedRanges = aNames
 End Function
-Public Function NamedRangeExists(wbTmp As Workbook, sSheetName As String, sRangeName As String) As Boolean
+Public Function NamedRangeExists(wbTmp As Workbook, sSheetName As String, sRangeName As String, Optional bLocalScope As Boolean = True) As Boolean
 Dim nTmp As Name
 
     If sSheetName = "" Then
@@ -226,15 +241,28 @@ Dim nTmp As Name
             Exit Function
         End With
     Else
-        With wbTmp.Sheets(sSheetName)
-        
-            On Error GoTo err
-            Set nTmp = .Names.Item(sRangeName)
-            On Error GoTo 0
-            NamedRangeExists = True
-            Exit Function
     
-        End With
+        If bLocalScope = True Then
+            With wbTmp.Sheets(sSheetName)
+            
+                On Error GoTo err
+                Set nTmp = .Names.Item(sRangeName)
+                On Error GoTo 0
+                NamedRangeExists = True
+                Exit Function
+        
+            End With
+        Else
+            With wbTmp
+            
+                On Error GoTo err
+                Set nTmp = .Names.Item(sRangeName)
+                On Error GoTo 0
+                NamedRangeExists = True
+                Exit Function
+        
+            End With
+        End If
     End If
 err:
     NamedRangeExists = False

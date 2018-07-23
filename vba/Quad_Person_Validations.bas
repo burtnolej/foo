@@ -4,9 +4,7 @@ Const C_MODULE_NAME = "Quad_Person_Validations"
 Const cTeacherLookUpCol = "idFaculty"
 Const cStudentLookUpCol = "idStudent"
 
-Public Function IsValidPersonID(clsAppRuntime As App_Runtime, _
-                                iPersonID As Integer, _
-                                eQuadSubDataType As QuadSubDataType) As Boolean
+Public Function IsValidPersonID(dArgs As Dictionary) As Boolean
 '<<<
 ' purpose: tests if the given person ID exists; retreives data to perform the test
 '        : currently uses the non table mechanism for storing data and looking up
@@ -19,17 +17,42 @@ Public Function IsValidPersonID(clsAppRuntime As App_Runtime, _
 
 Dim sFuncName As String, sLookUpCol As String
 Dim wsPersonDataCache As Worksheet
-Dim vStudentIDs() As String
+Dim vStudentIds() As String
+Dim iPersonID As Integer
+Dim clsAppRuntime As App_Runtime
+Dim eQuadSubDataType As QuadSubDataType
+Dim clsExecProc As New Exec_Proc
 
+unpackargs:
+    
+    Set clsAppRuntime = dArgs.Item("clsAppRuntime")
+    iPersonID = dArgs.Item("iPersonID")
+    eQuadSubDataType = dArgs.Item("eQuadSubDataType")
+
+    If dArgs.Exists("clsExecProc") = False Then
+        Set clsExecProc = GetExecProcGlobal(wbTmp:=Workbooks(clsAppRuntime.MainBookName))
+    Else
+        'Set clsExecProc = GetExecProcGlobal(wbTmp:=Workbooks(clsAppRuntime.MainBookName))
+        Set clsExecProc = dArgs.Item("clsExecProc")
+    End If
+    
+    
 setup:
     sFuncName = C_MODULE_NAME & "." & "IsValidPersonID"
     FuncLogIt sFuncName, "[iPersonID=" & iPersonID & "] [eQuadSubDataType=" & eQuadSubDataType & "]", C_MODULE_NAME, LogMsgType.INFUNC
-    On Error GoTo err
+    'On Error GoTo err
 
 main:
-    Set wsPersonDataCache = GetPersonData(clsAppRuntime, QuadDataType.Person, eQuadSubDataType, _
-                eQuadScope:=QuadScope.all, bInTable:=True)
+    AddArgs dArgs, False, "eQuadDataType", QuadDataType.person, "eQuadScope", QuadScope.all, "bInTable", True, "eQuadSubDataType", QuadSubDataType.Student
+    
+    clsExecProc.ExecProc "GetPersonData", dArgs
 
+    'Set wsPersonDataCache = Application.Run(C_GET_PERSON_DATA, dArgs)
+    'Set wsPersonDataCache = GetPersonData(clsAppRuntime, QuadDataType.Person, eQuadSubDataType, _
+    '            eQuadScope:=QuadScope.all, bInTable:=True)
+
+    Set wsPersonDataCache = dArgs.Item("result")
+    
     If eQuadSubDataType = QuadSubDataType.Teacher Then
         sLookUpCol = cTeacherLookUpCol
     Else
@@ -37,9 +60,9 @@ main:
     End If
 
     'clsAppRuntime.InitProperties bInitializeCache:=False
-    vStudentIDs = GetColumnValues(clsAppRuntime, QuadDataType.Person, QuadSubDataType.Student, "idStudent")
+    vStudentIds = GetColumnValues(clsAppRuntime, QuadDataType.person, QuadSubDataType.Student, "idStudent")
 
-    If InArray(vStudentIDs, CStr(iPersonID)) Then
+    If InArray(vStudentIds, CStr(iPersonID)) Then
         IsValidPersonID = True
         FuncLogIt sFuncName, "Student ID [" & CStr(iPersonID) & "] is VALID", C_MODULE_NAME, LogMsgType.INFO
         Exit Function
@@ -54,6 +77,6 @@ cleanup:
 
 err:
     FuncLogIt sFuncName, "[iPersonID=" & iPersonID & "] [eQuadSubDataType=" & eQuadSubDataType & "]", C_MODULE_NAME, LogMsgType.Error
-
+    
 End Function
 

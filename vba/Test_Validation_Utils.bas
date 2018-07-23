@@ -9,11 +9,13 @@ Dim vSource() As String, vColNames() As String, vRows() As Variant
 Dim wsTmp As Worksheet
 Dim rTarget As Range, rInput As Range
 Dim bTestPassed As Boolean
-Dim clsAppRuntime As New App_Runtime
+Dim clsAppRuntime As New App_Runtime, clsExecProc As New Exec_Proc
  
 setup:
     'On Error GoTo err:
     clsAppRuntime.InitProperties bInitializeCache:=True
+    clsExecProc.InitProperties wbTmp:=ActiveWorkbook
+    
     sSheetName = "test"
     sFuncName = C_MODULE_NAME & "." & "IsMemberOfTable"
     Set wsTmp = CreateSheet(clsAppRuntime.AddBook, sSheetName, bOverwrite:=True)
@@ -27,7 +29,7 @@ setup:
     
 main:
    
-    If IsMember(clsAppRuntime, "Jon", Array("Foo", "FooName")) <> True Then
+    If IsMember(clsAppRuntime, "Jon", Array("Foo", "FooName"), clsExecProc) <> True Then
         eTestResult = TestResult.Failure
     Else
         eTestResult = TestResult.OK

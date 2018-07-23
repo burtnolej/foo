@@ -22,27 +22,67 @@ main:
     End With
         
 End Sub
-Public Sub CreateFilter(wbTmp As Workbook, sSheetName As String, rFilter As Range, _
-        iFilterCount As Integer)
-Dim sText As String, sRangeName As String, sFilterCountName As String
 
-    sText = "Private Sub Worksheet_Change(ByVal Target As Range)" & vbNewLine & _
-           "DoFilter ActiveWorkbook, ActiveWorkbook.ActiveSheet.Name, Target" & vbNewLine & "end Sub"
+'Sub test()
+'    Debug.Print CreateFilterCode("ViewListEntry_Schedule_Lesson_VZFilter")
+'End Sub
+Public Function CreateFilterCode(sSheetName As String)
+Dim sFilterRangeName As String
+Dim sFilterFunc As String
+    sFilterRangeName = sSheetName & "_VZFilter"
+    'sFilterFunc = """" & wbTmp.Name & "!" & "DoFilter" & """"
+    sFilterFunc = """" & "vba_source_new.xlsm" & "!" & "DoFilter" & """"
+    
+    sCode = "If Intersect(Target, Target.Parent.Range(""" & sFilterRangeName & """)) Is Nothing Then" & vbNewLine
+    sCode = sCode & "Else" & vbNewLine
+    sCode = sCode & "Application.Run " & sFilterFunc & ", ActiveWorkbook, """ & sSheetName & """ , Target" & vbNewLine
+    'sCode = sCode & "Application.Run " & sFilterFunc & ", ActiveWorkbook, sSheetName, Target" & vbNewLine
+
+    sCode = sCode & "Exit Sub" & vbNewLine
+    sCode = sCode & "End If" & vbNewLine
+    
+    CreateFilterCode = sCode
+
+End Function
+Public Function CreateFilter(wbTmp As Workbook, sSheetName As String, rFilter As Range, _
+        iFilterCount As Integer, Optional bAddCode As Boolean = True) As String()
+Dim sText As String, sRangeName As String, sFilterCountName As String, sFilterCode As String
+Dim sLine As Variant
+
+    sFilterCode = CreateFilterCode(sSheetName)
+    
+    sText = "Private Sub Worksheet_Change(ByVal Target As Range)" & vbNewLine
+    
+    For Each sLine In Split(sFilterCode, vbNewLine)
+        sText = sText & sLine & vbNewLine
+    Next sLine
+    
+    'For Each sLine In Split(sText, vbNewLine)
+    '    sText = sText & sLine & vbNewLine
+    '    'sText = sText & "DoFilter ActiveWorkbook, ActiveWorkbook.ActiveSheet.Name, Target" & vbNewLine
+    'Next sLine
+    
+    
+    sText = sText & "End Sub"
 
     Set wsTmp = GetSheet(wbTmp, sSheetName)
     
     sRangeName = sSheetName & "_" & "VZFilter"
     sFilterCountName = sSheetName & "_" & "VZFilterCount"
     
-    CreateNamedRange ActiveWorkbook, rFilter.Address, sSheetName, sRangeName, "True"
-    CreateNamedRange ActiveWorkbook, "Z1:Z1", sSheetName, sFilterCountName, "True"
+    CreateNamedRange wbTmp, rFilter.Address, sSheetName, sRangeName, "True"
+    CreateNamedRange wbTmp, "Z1:Z1", sSheetName, sFilterCountName, "True"
     
-    Call AddCode2Module(Application.ActiveWorkbook, wsTmp.CodeName, sText)
+    If bAddCode = True Then
+        Call AddCode2Module(wbTmp, wsTmp.CodeName, sText)
+    End If
     
     With wsTmp
         .Range(sFilterCountName).value = iFilterCount
     End With
-End Sub
+    
+    CreateFilter = Split(sFilterCode, vbNewLine)
+End Function
 Public Sub DoFilter(wbTmp As Workbook, sSheetName As String, Target As Range)
 
     ' The Target range needs to be a Widget so 1 by 1
@@ -52,15 +92,19 @@ Public Sub DoFilter(wbTmp As Workbook, sSheetName As String, Target As Range)
         
     DoEventsOff
     
-    AddFilterIndexCol Application.ActiveWorkbook, ActiveWorkbook.ActiveSheet.Name, 2000
+    ' this was a bug, needs to take what's passed in 7/23/18
+    'AddFilterIndexCol Application.ActiveWorkbook, ActiveWorkbook.ActiveSheet.Name, 10000
+    AddFilterIndexCol wbTmp, sSheetName, 10000
     
-    sSheetName = Application.ActiveSheet.Name
+    'sSheetName = Application.ActiveSheet.Name
     
     With wbTmp.Sheets(sSheetName)
         .Activate
 
         VZFilter wbTmp, sSheetName, Target.value, Target.Column, _
-                    .Range(sSheetName & "_" & "VZFilterCount").value ' the height of the search grid
+                    .Range(sSheetName & "_" & "VZFilterCount").value, _
+                    iRowStartOffset:=Target.Row - 1
+                    
 
         ' now clear out any filter keys
         If Target.value = "reset" Then
@@ -105,7 +149,7 @@ Function AddToVisibleRange(ByRef rVisible As Range, iRowNum As Integer, sHist As
 End Function
 
 Sub VZFilter(wbTmp As Workbook, sSheetName As String, sValue As String, iCol As Integer, _
-        iLength As Integer, Optional iFilterHistColumn As Integer = 25)
+        iLength As Integer, Optional iFilterHistColumn As Integer = 25, Optional iRowStartOffset As Integer = 0)
 Dim rSearch As Range, rWidget As Range, rHidden As Range, rArea As Range, rVisible As Range, rGroup As Range
 Dim rSearchFilteredCol As Range, rSearchIndex As Range, rFilterHist As Range
 Dim vSearch() As Variant, vSearchFilteredCol() As Variant, vSearchIndex() As Variant, vFilterHist() As Variant
@@ -117,7 +161,8 @@ Dim iRowNum As Integer
     bOr = False
     
     With wbTmp.Sheets(sSheetName)
-        Set rSearch = .Range(.Cells(2, 1), .Cells(iLength + 1, 50))
+        'Set rSearch = .Range(.Cells(2, 1), .Cells(iLength + 1, 50))
+        Set rSearch = .Range(.Cells(2 + iRowStartOffset, 1), .Cells(iLength + 1 + iRowStartOffset, 50))
         
         ' determime any special operators in search term
         
@@ -177,6 +222,7 @@ Dim iRowNum As Integer
         
             'in here create 2 columns 1 for the column being searched and 1 with the orig index
             Debug.Print rSearch.Areas(j).Address
+            Debug.Print rSearch.Address
             Set rSearchFilteredCol = rSearch.Areas(j).Columns(iCol)
             Set rSearchIndex = rSearch.Areas(j).Columns(50)
             Set rFilterHist = rSearch.Areas(j).Columns(iFilterHistColumn)
@@ -192,8 +238,9 @@ Dim iRowNum As Integer
                 vSearchIndex = rSearchIndex
                 vFilterHist = rFilterHist
             End If
-        
+            
             For i = LBound(vSearchFilteredCol) To UBound(vSearchFilteredCol)
+            'For i = LBound(vSearchFilteredCol) - iRowStartOffset To UBound(vSearchFilteredCol) - iRowStartOffset
                 bVisible = False
 
                 iRowNum = Int(vSearchIndex(i, 1))
@@ -215,10 +262,12 @@ Dim iRowNum As Integer
                 If bVisible = True Then
                     AddToVisibleRange rVisible, iRowNum, "", wbTmp.Sheets(sSheetName)
                 ElseIf InFilterHist(vSearchFilteredCol, CInt(i), sValue) = False Then
-                    AddToFilterHist vFilterHist, iRowNum - 1, iCol
+                    'AddToFilterHist vFilterHist, iRowNum - 1, iCol
+                    AddToFilterHist vFilterHist, iRowNum - 1 - iRowStartOffset, iCol
                 ElseIf bNot = True Then
                     If InFilterHist(vSearchFilteredCol, CInt(i), sValue) = True Then
-                        AddToFilterHist vFilterHist, iRowNum - 1, iCol
+                        'AddToFilterHist vFilterHist, iRowNum - 1, iCol
+                        AddToFilterHist vFilterHist, iRowNum - 1 - iRowStartOffset, iCol
                     End If
                 End If
             Next i

@@ -201,7 +201,7 @@ End Function
 
 Public Function InitFileArray(sFilePath As String, _
                              iNumLines As Integer, _
-                    Optional sInitVal As String = SPACE, _
+                    Optional sInitVal As String = Space, _
                     Optional bCreateFile As Boolean = True, _
                     Optional bCloseFile As Boolean = True) As Object
 '<<<
